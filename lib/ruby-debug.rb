@@ -156,7 +156,6 @@ module Debugger
         end
       end
       socket.close
-      puts
     end
     
     def stop_main_thread # :nodoc:

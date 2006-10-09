@@ -90,6 +90,7 @@ is_in_locked(VALUE thread)
     {
         if(node->thread == thread) return 1;
     }
+    return 0;
 }
 
 static void
@@ -616,14 +617,10 @@ debug_start(VALUE self)
     waiting     = rb_ary_new();
     locker      = Qnil;
 
-    rb_add_event_hook(debug_event_hook, 
-        RUBY_EVENT_LINE | RUBY_EVENT_C_CALL | RUBY_EVENT_C_RETURN |
-        RUBY_EVENT_CALL | RUBY_EVENT_RETURN | RUBY_EVENT_CLASS |
-        RUBY_EVENT_END | RUBY_EVENT_RAISE
-        );
+    rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
     
     if(rb_block_given_p())
-        return rb_ensure(rb_yield, Qnil, debug_stop_i, Qnil);
+        return rb_ensure(rb_yield, Qnil, debug_stop_i, self);
     
     return Qtrue;
 }
@@ -951,7 +948,7 @@ debug_set_tracing(VALUE self, VALUE value)
  *      Debugger.debug_load(file) -> nil
  *   
  *   Same as Kernel#load but resets current context's frames. 
- *   Used from <tt>rdebug</tt> script only.
+ *   FOR INTERNAL USE ONLY.
  */
 static VALUE
 debug_debug_load(VALUE self, VALUE file)
@@ -968,6 +965,70 @@ debug_debug_load(VALUE self, VALUE file)
     
     debug_stop(self);
     return Qnil;
+}
+
+static VALUE
+debug_skip_i(VALUE value)
+{
+    rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
+    return Qnil;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.skip { block } -> obj or nil
+ *   
+ *   The code inside of the block is escaped from the debugger.
+ */
+static VALUE
+debug_skip(VALUE self)
+{
+    if (!rb_block_given_p()) {
+        rb_raise(rb_eArgError, "called without a block");
+    }
+    if(!IS_STARTED)
+        return rb_yield(Qnil);
+    rb_remove_event_hook(debug_event_hook);
+    return rb_ensure(rb_yield, Qnil, debug_skip_i, Qnil);
+}
+
+static VALUE
+debug_at_exit_c(VALUE proc)
+{
+    return rb_funcall(proc, rb_intern("call"), 0);
+}
+
+static void
+debug_at_exit_i(VALUE proc)
+{
+    if(!IS_STARTED)
+    {
+        debug_at_exit_c(proc);
+    }
+    else
+    {
+        rb_remove_event_hook(debug_event_hook);
+        rb_ensure(debug_at_exit_c, proc, debug_skip_i, Qnil);
+    }
+}
+
+/*
+ *   call-seq:
+ *      Debugger.debug_at_exit { block } -> proc
+ *   
+ *   Register <tt>at_exit</tt> hook which is escaped from the debugger.
+ *   FOR INTERNAL USE ONLY.
+ */
+static VALUE
+debug_at_exit(VALUE self)
+{
+    VALUE proc;
+    if (!rb_block_given_p()) {
+        rb_raise(rb_eArgError, "called without a block");
+    }
+    proc = rb_block_proc();
+    rb_set_end_proc(debug_at_exit_i, proc);
+    return proc;
 }
 
 /*
@@ -1357,6 +1418,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "tracing", debug_tracing, 0);
     rb_define_module_function(mDebugger, "tracing=", debug_set_tracing, 1);
     rb_define_module_function(mDebugger, "debug_load", debug_debug_load, 1);
+    rb_define_module_function(mDebugger, "skip", debug_skip, 0);
+    rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
     
     Init_context();
     Init_frame();

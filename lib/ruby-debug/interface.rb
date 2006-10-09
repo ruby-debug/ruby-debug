@@ -19,25 +19,26 @@ module Debugger
     
     begin
       require 'readline'
-      FILE_HISTORY = ".rdebug_hist"
-      
-      save_file = File.join(ENV["HOME"], FILE_HISTORY)
-      open(save_file, 'r') do |file|
-        file.each do |line|
-          line.chomp!
-          Readline::HISTORY << line
-        end
-      end if File.exists?(save_file)
-
-      class << Debugger; self end.send('define_method', 'save_history') do
-        open(save_file, 'w') do |file|
-          Readline::HISTORY.each do |line|
-            file.puts line unless line.strip.empty?
+      class << Debugger
+        FILE_HISTORY = ".rdebug_hist"
+        save_file = File.join(ENV["HOME"], FILE_HISTORY)
+        open(save_file, 'r') do |file|
+          file.each do |line|
+            line.chomp!
+            Readline::HISTORY << line
+          end
+        end if File.exists?(save_file)
+        
+        define_method(:save_history) do
+          open(save_file, 'w') do |file|
+            Readline::HISTORY.to_a.last(500).each do |line|
+              file.puts line unless line.strip.empty?
+            end
           end
         end
+        public :save_history 
       end
-      class << Debugger; public :save_history end
-      at_exit { Debugger.save_history }
+      Debugger.debug_at_exit { Debugger.save_history }
       
       def readline(prompt, hist)
         Readline::readline(prompt, hist)
@@ -51,7 +52,6 @@ module Debugger
         line.chomp!
         line
       end
-      USE_READLINE = false
     end
   end
 

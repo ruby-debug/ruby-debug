@@ -1,4 +1,5 @@
 0.4.3
+- Added Debugger.skip method which allows escaping a block from the debugger reach.
 - Bugfixes.
 
 0.4.2
