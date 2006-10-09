@@ -1,0 +1,85 @@
+#!/usr/bin/env ruby
+
+require 'rubygems'
+require 'optparse'
+require "ostruct"
+require 'ruby-debug'
+
+options = OpenStruct.new(
+  'server' => false,
+  'client' => false,
+  'host'   => nil,
+  'port'   => Debugger::PORT,
+  'cport'  => Debugger::PORT + 1,
+  'wait'   => false,
+  'nostop' => false,
+  'script' => nil
+)
+
+opts = OptionParser.new do |opts|
+  opts.banner = <<EOB
+ruby-debug #{Debugger::VERSION}
+Usage: rdebug [options] <script.rb> -- <script.rb parameters>
+EOB
+  opts.separator ""
+  opts.separator "Options:"
+  opts.on("-s", "--server", "Listen for remote connections") {options.server = true}
+  opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
+  opts.on("-n", "--nostop", "Do not stop when a client connects, implies -s option") {options.nostop = true}
+  opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
+  opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
+  opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
+    unless File.exists?(options.script)
+      puts "Script file '#{options.script}' is not found"
+      exit
+    end
+  end
+  opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.port|}
+  opts.separator ""
+  opts.separator "Common options:"
+  opts.on_tail("--help", "Show this message") do
+    puts opts
+    exit
+  end
+  opts.on_tail("-v", "--version", "Show version") do
+    puts "ruby-debug #{Debugger::VERSION}"
+    exit
+  end
+end
+
+begin
+  opts.parse! ARGV
+rescue StandardError => e
+  puts opts
+  puts
+  puts e.message
+  exit(-1)
+end
+
+if options.client
+  Debugger.start_client(options.host, options.port)
+else
+  if ARGV.empty?
+    puts opts
+    puts
+    puts "Must specify a script to run"
+    exit(-1)
+  end
+
+  trap('INT') { Debugger.interrupt_last }
+  Debugger.stop_on_connect = !options.nostop
+  Debugger.wait_connection = options.wait
+  load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")
+  if options.server
+    Debugger.start_remote(options.host, [options.port, options.cport])
+    Debugger.debug_load ARGV.shift
+  else
+    Debugger.start
+    if options.script
+      Debugger.run_script(options.script)
+    end
+    debugger 2
+    Debugger.debug_load ARGV.shift
+  end
+end
