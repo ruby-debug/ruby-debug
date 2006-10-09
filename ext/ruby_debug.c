@@ -68,8 +68,6 @@ static VALUE debug_suspend(VALUE);
 static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
 
-extern int ruby_in_compile;
-
 typedef struct locked_thread_t { 
     VALUE thread;
     struct locked_thread_t *next;
@@ -422,7 +420,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     
     if (mid == ID_ALLOCATOR) return;
     if(!node) return;
-    if (ruby_in_compile) return;
     
     thread = rb_thread_current();
     while(locker != Qnil && locker != thread)
