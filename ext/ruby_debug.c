@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.4.3"
+#define DEBUG_VERSION "0.4.4"
 
 typedef struct {
     int thnum;
@@ -17,6 +17,7 @@ typedef struct {
     int stop_frame;
     int suspend;
     int tracing;
+    int skipped;
     VALUE frames;
     VALUE thread;
 } debug_context_t;
@@ -178,6 +179,7 @@ debug_context_create(VALUE thread)
     debug_context->stop_frame = -1;
     debug_context->suspend = 0;
     debug_context->tracing = 0;
+    debug_context->skipped = 0;
     debug_context->frames = rb_ary_new();
     debug_context->thread = thread;
     result = Data_Wrap_Struct(cContext, debug_context_mark, xfree, debug_context);
@@ -434,6 +436,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 
     context = thread_context_lookup(thread);
     Data_Get_Struct(context, debug_context_t, debug_context);
+
+    if(debug_context->skipped) return;
     check_suspend(debug_context);
 
     file = rb_str_new2(node->nd_file);
@@ -964,10 +968,21 @@ debug_debug_load(VALUE self, VALUE file)
     return Qnil;
 }
 
+static void 
+set_current_skipped_status(int status)
+{
+    VALUE context;
+    debug_context_t *debug_context;
+    
+    context = debug_current_context(Qnil);
+    Data_Get_Struct(context, debug_context_t, debug_context);
+    debug_context->skipped = status;
+}
+
 static VALUE
 debug_skip_i(VALUE value)
 {
-    rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
+    set_current_skipped_status(0);
     return Qnil;
 }
 
@@ -985,7 +1000,7 @@ debug_skip(VALUE self)
     }
     if(!IS_STARTED)
         return rb_yield(Qnil);
-    rb_remove_event_hook(debug_event_hook);
+    set_current_skipped_status(1);
     return rb_ensure(rb_yield, Qnil, debug_skip_i, Qnil);
 }
 
@@ -1004,7 +1019,7 @@ debug_at_exit_i(VALUE proc)
     }
     else
     {
-        rb_remove_event_hook(debug_event_hook);
+        set_current_skipped_status(1);
         rb_ensure(debug_at_exit_c, proc, debug_skip_i, Qnil);
     }
 }

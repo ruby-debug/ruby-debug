@@ -5,7 +5,7 @@ require 'rake/rdoctask'
 SO_NAME = "ruby_debug.so"
 
 # ------- Default Package ----------
-RUBY_DEBUG_VERSION = "0.4.3"
+RUBY_DEBUG_VERSION = open("ext/ruby_debug.c"){|f| f.grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]}
 
 FILES = FileList[
   'Rakefile',
