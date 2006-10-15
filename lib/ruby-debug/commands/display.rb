@@ -36,10 +36,6 @@ module Debugger
     self.always_run = true
     include DisplayFunctions
     
-    def initialize(state)
-      super
-    end
-
     def regexp
       /^\s*disp(?:lay)?$/
     end
