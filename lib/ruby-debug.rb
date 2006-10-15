@@ -37,7 +37,6 @@ module Debugger
 
     def at_line(file, line, binding)
       processor.at_line(self, file, line, binding)
-      Debugger.resume
     end
   end
 

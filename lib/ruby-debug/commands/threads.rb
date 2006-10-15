@@ -100,7 +100,7 @@ module Debugger
         print "Already stopped.\n"
       else
         display_context(c)
-        c.set_suspend
+        c.suspend
       end
     end
 
@@ -160,7 +160,7 @@ module Debugger
         print "Already running."
       else
         display_context(c)
-        c.thread.run
+        c.resume
       end
     end
 

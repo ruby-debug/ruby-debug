@@ -53,7 +53,6 @@ typedef struct {
 static VALUE threads_tbl = Qnil;
 static VALUE breakpoints = Qnil;
 static VALUE catchpoint  = Qnil;
-static VALUE waiting     = Qnil;
 static VALUE tracing     = Qfalse;
 static VALUE locker      = Qnil;
 
@@ -81,7 +80,6 @@ static int start_count = 0;
 static int thnum_max = 0;
 static int last_debugged_thnum = -1;
 
-static VALUE debug_suspend(VALUE);
 static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
 
@@ -342,7 +340,6 @@ call_at_line(VALUE context, int thnum, VALUE binding, VALUE file, VALUE line)
     
     last_debugged_thnum = thnum;
     save_current_position(context);
-    debug_suspend(mDebugger);
     
     args = rb_ary_new3(4, context, file, line, binding);
     return rb_protect(call_at_line_unprotected, args, 0);
@@ -445,23 +442,6 @@ create_binding(VALUE self)
     return f_binding(self);
 }
 
-static void
-check_suspend(debug_context_t *debug_context)
-{
-    if(rb_thread_critical == Qtrue)
-        return;
-    while(1)
-    {
-        rb_thread_critical = Qtrue;
-        if(!CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
-            break;
-        rb_ary_push(waiting, rb_thread_current());
-        CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
-        rb_thread_stop();
-    }
-    rb_thread_critical = Qfalse;
-}
-
 static VALUE
 get_breakpoint_at(int index) 
 {
@@ -504,18 +484,35 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     context = thread_context_lookup(thread);
     Data_Get_Struct(context, debug_context_t, debug_context);
     
+    /* return if thread is marked as 'ignored'.
+       debugger's threads are marked this way
+    */
     if(CTX_FL_TEST(debug_context, CTX_FL_IGNORE)) return;
     
-    while(locker != Qnil && locker != thread)
+    while(1)
     {
-        add_to_locked(thread);
-        rb_thread_stop();
+        /* halt execution of the current thread if the debugger
+           is activated in another
+        */
+        while(locker != Qnil && locker != thread)
+        {
+            add_to_locked(thread);
+            rb_thread_stop();
+        }
+
+        /* stop the current thread if it's marked as suspended */
+        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+            rb_thread_stop();
+        else break;
     }
     
+    /* return if the current thread is the locker */
     if(locker != Qnil) return;
+    
+    /* only the current thread can proceed */
     locker = thread;
 
-    check_suspend(debug_context);
+    /* ignore a skipped section of code */
     if(CTX_FL_TEST(debug_context, CTX_FL_SKIPPED)) goto cleanup;
 
     file = rb_str_new2(node->nd_file);
@@ -657,7 +654,10 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
 
     cleanup:
+    
+    /* release a lock */
     locker = Qnil;
+    /* let the next thread to run */
     thread = remove_from_locked();
     if(thread != Qnil)
         rb_thread_run(thread);
@@ -694,7 +694,6 @@ debug_start(VALUE self)
         
     threads_tbl = threads_table_create();
     breakpoints = rb_ary_new();
-    waiting     = rb_ary_new();
     locker      = Qnil;
 
     rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
@@ -726,7 +725,6 @@ debug_stop(VALUE self)
     
     rb_remove_event_hook(debug_event_hook);
 
-    waiting     = Qnil;
     locker      = Qnil;
     breakpoints = Qnil;
     threads_tbl = Qnil;
@@ -967,7 +965,6 @@ debug_resume(VALUE self)
 {
     VALUE current, context;
     VALUE saved_crit;
-    VALUE thread;
     VALUE context_list;
     debug_context_t *debug_context;
     int i;
@@ -985,14 +982,12 @@ debug_resume(VALUE self)
         if(current == context)
             continue;
         Data_Get_Struct(context, debug_context_t, debug_context);
-        CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
+        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+        {
+            CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
+            rb_thread_run(debug_context->thread);
+        }
     }
-    for(i = 0; i < RARRAY(waiting)->len; i++)
-    {
-        thread = rb_ary_entry(waiting, i);
-        rb_thread_run(thread);
-    }
-    rb_ary_clear(waiting);
     rb_thread_critical = saved_crit;
 
     rb_thread_schedule();
@@ -1244,37 +1239,42 @@ context_thnum(VALUE self)
 
 /*
  *   call-seq:
- *      context.set_suspend -> nil
+ *      context.suspend -> nil
  *   
  *   Suspends the thread when it is running.
  */
 static VALUE
-context_set_suspend(VALUE self)
+context_suspend(VALUE self)
 {
     debug_context_t *debug_context;
 
     debug_check_started();
 
     Data_Get_Struct(self, debug_context_t, debug_context);
+    if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+        rb_raise(rb_eRuntimeError, "Already suspended.");
     CTX_FL_SET(debug_context, CTX_FL_SUSPEND);
     return Qnil;
 }
 
 /*
  *   call-seq:
- *      context.clear_suspend -> nil
+ *      context.resume -> nil
  *   
- *   Clears a suspend flag.
+ *   Resumes the thread from the suspended mode.
  */
 static VALUE
-context_clear_suspend(VALUE self)
+context_resume(VALUE self)
 {
     debug_context_t *debug_context;
 
     debug_check_started();
 
     Data_Get_Struct(self, debug_context_t, debug_context);
+    if(!CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+        rb_raise(rb_eRuntimeError, "Thread is not suspended.");
     CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
+    rb_thread_run(debug_context->thread);
     return Qnil;
 }
 
@@ -1478,8 +1478,8 @@ Init_context()
     rb_define_method(cContext, "frames", context_frames, 0);
     rb_define_method(cContext, "thread", context_thread, 0);
     rb_define_method(cContext, "thnum", context_thnum, 0);
-    rb_define_method(cContext, "set_suspend", context_set_suspend, 0);
-    rb_define_method(cContext, "clear_suspend", context_clear_suspend, 0);
+    rb_define_method(cContext, "suspend", context_suspend, 0);
+    rb_define_method(cContext, "resume", context_resume, 0);
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
     rb_define_method(cContext, "ignore", context_ignore, 0);
@@ -1577,7 +1577,6 @@ Init_ruby_debug()
     rb_global_variable(&threads_tbl);
     rb_global_variable(&breakpoints);
     rb_global_variable(&catchpoint);
-    rb_global_variable(&waiting);
     rb_global_variable(&locker);
     rb_global_variable(&file_separator);
     rb_global_variable(&alt_file_separator);
