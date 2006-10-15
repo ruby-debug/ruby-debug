@@ -2,7 +2,6 @@ require 'pp'
 require 'stringio'
 require 'thread'
 require 'ruby_debug.so'
-require 'ruby-debug/lock'
 require 'ruby-debug/processor'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
