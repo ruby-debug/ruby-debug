@@ -8,7 +8,6 @@ require 'ruby-debug/processor'
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 
 module Debugger
-  MUTEX = Lock.new
   PORT = 8989
 
   @processor = CommandProcessor.new
@@ -37,9 +36,7 @@ module Debugger
     end
 
     def at_line(file, line, binding)
-      MUTEX.lock
       processor.at_line(self, file, line, binding)
-      MUTEX.unlock
       Debugger.resume
     end
   end
@@ -97,6 +94,7 @@ module Debugger
       end
 
       @control_thread = Thread.start do
+        current_context.ignore = true
         server = TCPServer.new(host, ctrl_port)
         while (session = server.accept)
           interface = RemoteInterface.new(session)
@@ -109,6 +107,7 @@ module Debugger
       proceed = ConditionVariable.new
       
       @thread = Thread.start do
+        current_context.ignore = true
         server = TCPServer.new(host, cmd_port)
         while (session = server.accept)
           self.interface = RemoteInterface.new(session)

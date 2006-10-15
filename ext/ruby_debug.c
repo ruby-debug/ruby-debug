@@ -6,20 +6,31 @@
 
 #define DEBUG_VERSION "0.4.4"
 
+#define CTX_FL_MOVED        (1<<1)
+#define CTX_FL_SUSPEND      (1<<2)
+#define CTX_FL_TRACING      (1<<3)
+#define CTX_FL_SKIPPED      (1<<4)
+#define CTX_FL_IGNORE       (1<<5)
+
+#define CTX_FL_TEST(c,f) ((c)->flags & (f))
+#define CTX_FL_SET(c,f) do { (c)->flags |= (f); } while (0)
+#define CTX_FL_UNSET(c,f) do { (c)->flags &= ~(f); } while (0)
+
+#define DID_MOVED   (debug_context->last_line != line || \
+                          debug_context->last_file == Qnil || \
+                          rb_str_cmp(debug_context->last_file, file) != 0)
+
 typedef struct {
     int thnum;
-    VALUE last_file;
-    VALUE last_line;
-    int moved;
+    int flags;
     int stop_next;
     int dest_frame;
     int stop_line;
     int stop_frame;
-    int suspend;
-    int tracing;
-    int skipped;
     VALUE frames;
     VALUE thread;
+    VALUE last_file;
+    VALUE last_line;
 } debug_context_t;
 
 typedef struct {
@@ -35,6 +46,10 @@ typedef struct {
     VALUE expr;
 } debug_breakpoint_t;
 
+typedef struct {
+    st_table *tbl;
+} threads_table_t;
+
 static VALUE threads_tbl = Qnil;
 static VALUE breakpoints = Qnil;
 static VALUE catchpoint  = Qnil;
@@ -43,6 +58,7 @@ static VALUE tracing     = Qfalse;
 static VALUE locker      = Qnil;
 
 static VALUE mDebugger;
+static VALUE cThreadsTable;
 static VALUE cContext;
 static VALUE cFrame;
 static VALUE cBreakpoint;
@@ -127,6 +143,73 @@ remove_from_locked()
     return thread;
 }
 
+static int
+thread_hash(VALUE thread)
+{
+    return (int)FIX2LONG(rb_obj_id(thread));
+}
+
+static int
+thread_cmp(VALUE a, VALUE b)
+{
+    if(a == b) return 0;
+    if(a < b) return -1;
+    return 1;
+}
+
+static struct st_hash_type st_thread_hash = {
+    thread_cmp,
+    thread_hash
+};
+
+static int
+threads_table_mark_keyvalue(VALUE key, VALUE value, int dummy)
+{
+    rb_gc_mark(key);
+    rb_gc_mark(value);
+    return ST_CONTINUE;
+}
+
+static void
+threads_table_mark(void* data)
+{
+    threads_table_t *threads_table = (threads_table_t*)data;
+    st_foreach(threads_table->tbl, threads_table_mark_keyvalue, 0);
+}
+
+static void
+threads_table_free(void* data)
+{
+    threads_table_t *threads_table = (threads_table_t*)data;
+    st_free_table(threads_table->tbl);
+    xfree(threads_table);
+}
+
+static VALUE
+threads_table_create()
+{
+    threads_table_t *threads_table;
+    
+    threads_table = ALLOC(threads_table_t);
+    threads_table->tbl = st_init_table(&st_thread_hash);
+    return Data_Wrap_Struct(cThreadsTable, threads_table_mark, threads_table_free, threads_table);
+}
+
+static int
+threads_table_clear_i(VALUE key, VALUE value, VALUE dummy)
+{
+    return ST_DELETE;
+}
+
+static void
+threads_table_clear(VALUE table)
+{
+    threads_table_t *threads_table;
+    
+    Data_Get_Struct(table, threads_table_t, threads_table);
+    st_foreach(threads_table->tbl, threads_table_clear_i, 0);
+}
+
 #define IS_STARTED  (threads_tbl != Qnil)
 
 /*
@@ -171,15 +254,12 @@ debug_context_create(VALUE thread)
     
     debug_context->last_file = Qnil;
     debug_context->last_line = Qnil;
-    debug_context->moved = 0;
+    debug_context->flags = 0;
 
     debug_context->stop_next = -1;
     debug_context->dest_frame = -1;
     debug_context->stop_line = -1;
     debug_context->stop_frame = -1;
-    debug_context->suspend = 0;
-    debug_context->tracing = 0;
-    debug_context->skipped = 0;
     debug_context->frames = rb_ary_new();
     debug_context->thread = thread;
     result = Data_Wrap_Struct(cContext, debug_context_mark, xfree, debug_context);
@@ -190,14 +270,15 @@ static VALUE
 thread_context_lookup(VALUE thread)
 {
     VALUE context;
+    threads_table_t *threads_table;
 
     debug_check_started();
 
-    context = rb_hash_aref(threads_tbl, thread);
-    if(context == Qnil)
+    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    if(!st_lookup(threads_table->tbl, thread, &context))
     {
-    context = debug_context_create(thread);
-    rb_hash_aset(threads_tbl, thread, context);
+        context = debug_context_create(thread);
+        st_insert(threads_table->tbl, thread, context);
     }
     return context;
 }
@@ -243,12 +324,8 @@ save_current_position(VALUE context)
     
     debug_context->last_file = debug_frame->file;
     debug_context->last_line = debug_frame->line;
-    debug_context->moved = 0;
+    CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
 }
-
-#define did_moved()   (debug_context->last_line != line || \
-                          debug_context->last_file == Qnil || \
-                          rb_str_cmp(debug_context->last_file, file) != 0)
 
 static VALUE
 call_at_line_unprotected(VALUE args)
@@ -332,7 +409,7 @@ check_breakpoints(debug_context_t *debug_context, VALUE file, VALUE klass, VALUE
 
     if(RARRAY(breakpoints)->len == 0)
         return -1;
-    if(!debug_context->moved)
+    if(!CTX_FL_TEST(debug_context, CTX_FL_MOVED))
         return -1;
     
     for(i = 0; i < RARRAY(breakpoints)->len; i++)
@@ -376,10 +453,10 @@ check_suspend(debug_context_t *debug_context)
     while(1)
     {
         rb_thread_critical = Qtrue;
-        if(!debug_context->suspend)
+        if(!CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
             break;
         rb_ary_push(waiting, rb_thread_current());
-        debug_context->suspend = 0;
+        CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
         rb_thread_stop();
     }
     rb_thread_critical = Qfalse;
@@ -424,6 +501,11 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     if(!node) return;
     
     thread = rb_thread_current();
+    context = thread_context_lookup(thread);
+    Data_Get_Struct(context, debug_context_t, debug_context);
+    
+    if(CTX_FL_TEST(debug_context, CTX_FL_IGNORE)) return;
+    
     while(locker != Qnil && locker != thread)
     {
         add_to_locked(thread);
@@ -431,20 +513,16 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     
     if(locker != Qnil) return;
+    locker = thread;
 
-    locker = rb_thread_current();
-
-    context = thread_context_lookup(thread);
-    Data_Get_Struct(context, debug_context_t, debug_context);
-
-    if(debug_context->skipped) return;
     check_suspend(debug_context);
+    if(CTX_FL_TEST(debug_context, CTX_FL_SKIPPED)) goto cleanup;
 
     file = rb_str_new2(node->nd_file);
     line = INT2FIX(nd_line(node));
 
-    if(did_moved())
-        debug_context->moved  = 1;
+    if(DID_MOVED)
+        CTX_FL_SET(debug_context, CTX_FL_MOVED);
 
     switch(event)
     {
@@ -452,7 +530,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     {
         set_frame_source(debug_context, file, line);
 
-        if(RTEST(tracing) || debug_context->tracing )
+        if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
         {
             rb_funcall(context, idAtTracing, 2, file, line);
         }
@@ -464,7 +542,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(debug_context->stop_next < 0)
                 debug_context->stop_next = -1;
             /* we check that we actualy moved to another line */
-            if(did_moved())
+            if(DID_MOVED)
             {
                 debug_context->stop_line--;
             }
@@ -578,6 +656,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     }
 
+    cleanup:
     locker = Qnil;
     thread = remove_from_locked();
     if(thread != Qnil)
@@ -613,7 +692,7 @@ debug_start(VALUE self)
     if(IS_STARTED)
         return Qfalse;
         
-    threads_tbl = rb_hash_new();
+    threads_tbl = threads_table_create();
     breakpoints = rb_ary_new();
     waiting     = rb_ary_new();
     locker      = Qnil;
@@ -771,10 +850,13 @@ static VALUE
 debug_last_interrupted(VALUE self)
 {
     VALUE result = Qnil;
+    threads_table_t *threads_table;
 
     debug_check_started();
 
-    rb_hash_foreach(threads_tbl, find_last_context_func, (st_data_t)&result);
+    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    
+    st_foreach(threads_table->tbl, find_last_context_func, (st_data_t)&result);
     return result;
 }
 
@@ -810,6 +892,7 @@ debug_contexts(VALUE self)
     volatile VALUE list;
     volatile VALUE new_list;
     VALUE thread, context;
+    threads_table_t *threads_table;
     debug_context_t *debug_context;
     int i;
 
@@ -823,15 +906,13 @@ debug_contexts(VALUE self)
         context = thread_context_lookup(thread);
         rb_ary_push(new_list, context);
     }
-    /*
-     * I wonder why rb_hash_clear is declared static?
-     */
-    rb_funcall(threads_tbl, idClear, 0);
+    threads_table_clear(threads_tbl);
+    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
     for(i = 0; i < RARRAY(new_list)->len; i++)
     {
         context = rb_ary_entry(new_list, i);
         Data_Get_Struct(context, debug_context_t, debug_context);
-        rb_hash_aset(threads_tbl, debug_context->thread, context);
+        st_insert(threads_table->tbl, debug_context->thread, context);
     }
 
     return new_list;
@@ -865,7 +946,7 @@ debug_suspend(VALUE self)
         if(current == context)
             continue;
         Data_Get_Struct(context, debug_context_t, debug_context);
-        debug_context->suspend = 1;
+        CTX_FL_SET(debug_context, CTX_FL_SUSPEND);
     }
     rb_thread_critical = saved_crit;
 
@@ -904,7 +985,7 @@ debug_resume(VALUE self)
         if(current == context)
             continue;
         Data_Get_Struct(context, debug_context_t, debug_context);
-        debug_context->suspend = 0;
+        CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
     }
     for(i = 0; i < RARRAY(waiting)->len; i++)
     {
@@ -968,21 +1049,18 @@ debug_debug_load(VALUE self, VALUE file)
     return Qnil;
 }
 
-static void 
-set_current_skipped_status(int status)
+static VALUE
+set_current_skipped_status(VALUE status)
 {
     VALUE context;
     debug_context_t *debug_context;
     
     context = debug_current_context(Qnil);
     Data_Get_Struct(context, debug_context_t, debug_context);
-    debug_context->skipped = status;
-}
-
-static VALUE
-debug_skip_i(VALUE value)
-{
-    set_current_skipped_status(0);
+    if(status) 
+        CTX_FL_SET(debug_context, CTX_FL_SKIPPED);
+    else
+        CTX_FL_UNSET(debug_context, CTX_FL_SKIPPED);
     return Qnil;
 }
 
@@ -1000,8 +1078,8 @@ debug_skip(VALUE self)
     }
     if(!IS_STARTED)
         return rb_yield(Qnil);
-    set_current_skipped_status(1);
-    return rb_ensure(rb_yield, Qnil, debug_skip_i, Qnil);
+    set_current_skipped_status(Qtrue);
+    return rb_ensure(rb_yield, Qnil, set_current_skipped_status, Qfalse);
 }
 
 static VALUE
@@ -1019,8 +1097,8 @@ debug_at_exit_i(VALUE proc)
     }
     else
     {
-        set_current_skipped_status(1);
-        rb_ensure(debug_at_exit_c, proc, debug_skip_i, Qnil);
+        set_current_skipped_status(Qtrue);
+        rb_ensure(debug_at_exit_c, proc, set_current_skipped_status, Qfalse);
     }
 }
 
@@ -1178,7 +1256,7 @@ context_set_suspend(VALUE self)
     debug_check_started();
 
     Data_Get_Struct(self, debug_context_t, debug_context);
-    debug_context->suspend = 1;
+    CTX_FL_SET(debug_context, CTX_FL_SUSPEND);
     return Qnil;
 }
 
@@ -1196,7 +1274,7 @@ context_clear_suspend(VALUE self)
     debug_check_started();
 
     Data_Get_Struct(self, debug_context_t, debug_context);
-    debug_context->suspend = 0;
+    CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
     return Qnil;
 }
 
@@ -1214,7 +1292,7 @@ context_tracing(VALUE self)
     debug_check_started();
 
     Data_Get_Struct(self, debug_context_t, debug_context);
-    return debug_context->tracing ? Qtrue : Qfalse;
+    return CTX_FL_TEST(debug_context, CTX_FL_TRACING) ? Qtrue : Qfalse;
 }
 
 /*
@@ -1231,7 +1309,48 @@ context_set_tracing(VALUE self, VALUE value)
     debug_check_started();
 
     Data_Get_Struct(self, debug_context_t, debug_context);
-    debug_context->tracing = RTEST(value) ? 1 : 0;
+    if(RTEST(value))
+        CTX_FL_SET(debug_context, CTX_FL_TRACING);
+    else
+        CTX_FL_UNSET(debug_context, CTX_FL_TRACING);
+    return value;
+}
+
+/*
+ *   call-seq:
+ *      context.ignore -> bool
+ *   
+ *   Returns the ignore flag for the current context.
+ */
+static VALUE
+context_ignore(VALUE self)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    return CTX_FL_TEST(debug_context, CTX_FL_IGNORE) ? Qtrue : Qfalse;
+}
+
+/*
+ *   call-seq:
+ *      context.tracking = bool
+ *   
+ *   Controls the ignore flag for this context.
+ */
+static VALUE
+context_set_ignore(VALUE self, VALUE value)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    if(RTEST(value))
+        CTX_FL_SET(debug_context, CTX_FL_IGNORE);
+    else
+        CTX_FL_UNSET(debug_context, CTX_FL_IGNORE);
     return value;
 }
 
@@ -1363,6 +1482,8 @@ Init_context()
     rb_define_method(cContext, "clear_suspend", context_clear_suspend, 0);
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
+    rb_define_method(cContext, "ignore", context_ignore, 0);
+    rb_define_method(cContext, "ignore=", context_set_ignore, 1);
 }
 
 /*
@@ -1432,6 +1553,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "debug_load", debug_debug_load, 1);
     rb_define_module_function(mDebugger, "skip", debug_skip, 0);
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
+    
+    cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
     
     Init_context();
     Init_frame();

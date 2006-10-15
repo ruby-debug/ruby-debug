@@ -29,6 +29,9 @@ EOB
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
+  opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
+    $LOAD_PATH.unshift(path)
+  end
   opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
     unless File.exists?(options.script)
       puts "Script file '#{options.script}' is not found"
