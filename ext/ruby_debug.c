@@ -20,6 +20,8 @@
                           debug_context->last_file == Qnil || \
                           rb_str_cmp(debug_context->last_file, file) != 0)
 
+#define IS_STARTED  (threads_tbl != Qnil)
+
 typedef struct {
     int thnum;
     int flags;
@@ -207,8 +209,6 @@ threads_table_clear(VALUE table)
     Data_Get_Struct(table, threads_table_t, threads_table);
     st_foreach(threads_table->tbl, threads_table_clear_i, 0);
 }
-
-#define IS_STARTED  (threads_tbl != Qnil)
 
 /*
  *   call-seq:
@@ -664,10 +664,10 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 }
 
 static VALUE
-debug_stop_i(VALUE value)
+debug_stop_i(VALUE self)
 {
     if(IS_STARTED)
-        debug_stop(value);
+        debug_stop(self);
     return Qnil;
 }
 
@@ -678,8 +678,8 @@ debug_stop_i(VALUE value)
  *   
  *   This method activates the debugger. 
  *   If it's called without a block it returns +true+, unless debugger was already started.
- *   If a block is given, it starts debugger and yields to block. At the end of stops the debugger
- *   with Debugger.stop method.
+ *   If a block is given, it starts debugger and yields to block. When the block is finished
+ *   executing it stops the debugger with Debugger.stop method.
  *
  *   <i>Note that if you want to stop debugger, you must call Debugger.stop as many time as you 
  *   called Debugger.start method.</i>
@@ -687,21 +687,24 @@ debug_stop_i(VALUE value)
 static VALUE
 debug_start(VALUE self)
 {
+    VALUE result;
     start_count++;
     
     if(IS_STARTED)
-        return Qfalse;
-        
-    threads_tbl = threads_table_create();
-    breakpoints = rb_ary_new();
-    locker      = Qnil;
+        result = Qfalse;
+    else
+    {
+        breakpoints = rb_ary_new();
+        locker      = Qnil;
+        threads_tbl = threads_table_create();
 
-    rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
+        rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
+        result = Qtrue;
+    }
     
     if(rb_block_given_p())
         return rb_ensure(rb_yield, Qnil, debug_stop_i, self);
-    
-    return Qtrue;
+    return result;
 }
 
 /*
