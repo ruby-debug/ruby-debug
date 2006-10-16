@@ -30,7 +30,7 @@ module Debugger
         if pos !~ /^\d+$/
           klass = debug_silent_eval(file)
           if klass && !klass.kind_of?(Module)
-            print "Unknown class #{file}\n"
+            print_msg "Unknown class #{file}"
             throw :debug_error
           end
           file = klass.name if klass
@@ -47,7 +47,7 @@ module Debugger
       end
       
       Debugger.add_breakpoint file, pos, expr
-      print "Set breakpoint %d at %s:%s\n", Debugger.breakpoints.size, file, pos.to_s
+      print_msg "Set breakpoint %d at %s:%s", Debugger.breakpoints.size, file, pos.to_s
     end
 
     class << self
@@ -72,19 +72,7 @@ module Debugger
     end
 
     def execute
-      unless Debugger.breakpoints.empty?
-        print "Breakpoints:\n"
-        Debugger.breakpoints.each_with_index do |b, n|
-          if b.expr.nil?
-            print "  %d %s:%s\n", n+1, b.source, b.pos
-          else
-            print "  %d %s:%s if %s\n", n+1, b.source, b.pos, b.expr
-          end
-        end
-        print "\n"
-      else
-        print "No breakpoints\n"
-      end
+      print_breakpoints Debugger.breakpoints
     end
 
     class << self
@@ -116,7 +104,7 @@ module Debugger
       else
         pos = pos.to_i
         unless Debugger.breakpoints.delete_at(pos-1)
-          print "Breakpoint %d is not defined\n", pos
+          print_msg "Breakpoint %d is not defined", pos
         end
       end
     end

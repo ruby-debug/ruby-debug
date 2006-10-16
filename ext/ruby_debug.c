@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.4.4"
+#define DEBUG_VERSION "0.5"
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
@@ -1321,7 +1321,7 @@ context_set_tracing(VALUE self, VALUE value)
 
 /*
  *   call-seq:
- *      context.ignore -> bool
+ *      context.ignore? -> bool
  *   
  *   Returns the ignore flag for the current context.
  */
@@ -1485,7 +1485,7 @@ Init_context()
     rb_define_method(cContext, "resume", context_resume, 0);
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
-    rb_define_method(cContext, "ignore", context_ignore, 0);
+    rb_define_method(cContext, "ignore?", context_ignore, 0);
     rb_define_method(cContext, "ignore=", context_set_ignore, 1);
 }
 

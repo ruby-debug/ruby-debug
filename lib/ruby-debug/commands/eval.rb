@@ -12,11 +12,11 @@ module Debugger
     def execute
       if @match && @match[1] != 'p' && %w[on off].include?(@match[2])
         self.class.unknown = @match[2] == 'on'
-        print "Evaluation of unknown command is #{self.class.unknown ? 'on': 'off'}.\n"
+        print_msg "Evaluation of unknown command is #{self.class.unknown ? 'on': 'off'}."
         return
       end
       expr = @match ? @match.post_match : @input
-      print "%s\n", debug_eval(expr).inspect
+      print_eval expr, debug_eval(expr).inspect
     end
 
     class << self
@@ -46,9 +46,10 @@ module Debugger
     end
 
     def execute
+      exp = @match.post_match
       out = StringIO.new
-      PP.pp(debug_eval(@match.post_match), out) rescue out.puts $!.message
-      print out.string
+      PP.pp(debug_eval(exp), out) rescue out.puts $!.message
+      print_pp exp, out.string
     end
 
     class << self

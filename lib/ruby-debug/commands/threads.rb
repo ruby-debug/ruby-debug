@@ -1,35 +1,13 @@
 module Debugger
-  module ThreadFunctions # :nodoc:
-    def display_context(c)
-      c_flag = c.thread == Thread.current ? '+' : ' '
-      d_flag = debugger_thread?(c) ? '!' : ' '
-      print "%s%s", c_flag, d_flag
-      print "%d ", c.thnum
-      print "%s\t", c.thread.inspect
-      last_frame = c.frames.first
-      if last_frame
-        print "%s:%d", last_frame.file, last_frame.line
-      end
-      print "\n"
-    end
-    
-    def debugger_thread?(c)
-      [Debugger.thread, Debugger.control_thread].include?(c.thread)
-    end
-  end
-
   class ThreadListCommand < Command # :nodoc:
     self.control = true
-    include ThreadFunctions
-
     def regexp
       /^\s*th(?:read)?\s+l(?:ist)?\s*$/
     end
 
     def execute
-      threads = Debugger.contexts.sort_by{|c| c.thnum}.each do |c|
-        display_context(c)
-      end
+      contexts = Debugger.contexts.sort_by{|c| c.thnum}
+      print_contexts(contexts)
     end
 
     class << self
@@ -47,7 +25,6 @@ module Debugger
 
   class ThreadSwitchCommand < Command # :nodoc:
     self.control = true
-    include ThreadFunctions
 
     def regexp
       /^\s*th(?:read)?\s+(?:sw(?:itch)?\s+)?(\d+)\s*$/
@@ -57,11 +34,11 @@ module Debugger
       c = get_context(@match[1].to_i)
       case
       when c == @state.context
-        print "It's the current thread.\n"
-      when debugger_thread?(c)
-        print "Can't switch to the debugger thread.\n"
+        print_msg "It's the current thread."
+      when c.ignore?
+        print_msg "Can't switch to the debugger thread."
       else
-        display_context(c)
+        print_context(c)
         c.stop_next = 1
         c.thread.run
         @state.proceed
@@ -83,7 +60,6 @@ module Debugger
 
   class ThreadStopCommand < Command # :nodoc:
     self.control = true
-    include ThreadFunctions
 
     def regexp
       /^\s*th(?:read)?\s+stop\s+(\d+)\s*$/
@@ -93,13 +69,11 @@ module Debugger
       c = get_context(@match[1].to_i)
       case
       when c == @state.context
-        print "It's the current thread.\n"
-      when debugger_thread?(c)
-        print "Can't stop the debugger thread.\n"
-      when c.thread.stop?
-        print "Already stopped.\n"
+        print_msg "It's the current thread."
+      when c.ignore?
+        print_msg "Can't stop the debugger thread."
       else
-        display_context(c)
+        print_context(c)
         c.suspend
       end
     end
@@ -118,14 +92,12 @@ module Debugger
   end
 
   class ThreadCurrentCommand < Command # :nodoc:
-    include ThreadFunctions
-
     def regexp
       /^\s*th(?:read)?\s+c(?:ur(?:rent)?)?\s*$/
     end
 
     def execute
-      display_context(@state.context)
+      print_context(@state.context)
     end
 
     class << self
@@ -143,7 +115,6 @@ module Debugger
 
   class ThreadResumeCommand < Command # :nodoc:
     self.control = true
-    include ThreadFunctions
 
     def regexp
       /^\s*th(?:read)?\s+resume\s+(\d+)\s*$/
@@ -153,13 +124,11 @@ module Debugger
       c = get_context(@match[1].to_i)
       case
       when c == @state.context
-        print "It's the current thread.\n"
-      when debugger_thread?(c)
-        print "Can't resume the debugger thread.\n"
-      when !c.thread.stop?
-        print "Already running."
+        print_msg "It's the current thread."
+      when c.ignore?
+        print_msg "Can't resume the debugger thread."
       else
-        display_context(c)
+        print_context(c)
         c.resume
       end
     end

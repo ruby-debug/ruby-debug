@@ -1,27 +1,11 @@
 module Debugger
-  module FrameFunctions # :nodoc:
-    def format_frame(frame, pos)
-      file, line, id = frame.file, frame.line, frame.id
-      "#%d %s:%s%s\n" % [pos + 1, file, line, (id ? ":in `#{id.id2name}'" : "")]
-    end
-  end
-
   class WhereCommand < Command # :nodoc:
-    include FrameFunctions
-
     def regexp
       /^\s*(?:w(?:here)?|f(?:rame)?)$/
     end
 
     def execute
-      @state.context.frames.each_with_index do |frame, idx|
-        if idx == @state.frame_pos
-          print "--> "
-        else
-          print "    "
-        end
-        print format_frame(frame, idx)
-      end
+      print_frames(@state.context.frames, @state.frame_pos)
     end
 
     class << self
@@ -44,8 +28,6 @@ module Debugger
   end
 
   class UpCommand < Command # :nodoc:
-    include FrameFunctions
-
     def regexp
       /^\s*(?:(up)(?:\s+(\d+))?|(f)(?:rame)?(?:\s+(\d+)))\s*$/
     end
@@ -65,11 +47,11 @@ module Debugger
       @state.frame_pos = 0 if @state.frame_pos < 0
       if @state.frame_pos >= @state.context.frames.size
         @state.frame_pos = @state.context.frames.size - 1
-        print "At toplevel\n"
+        print_msg "At toplevel"
       end
       frame = @state.context.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print format_frame(frame, @state.frame_pos)
+      print_frame(frame, @state.frame_pos, @state.frame_pos)
     end
 
     class << self
@@ -92,8 +74,6 @@ module Debugger
   end
 
   class DownCommand < Command # :nodoc:
-    include FrameFunctions
-
     def regexp
       /^\s*down(?:\s+(\d+))?$/
     end
@@ -103,11 +83,11 @@ module Debugger
       @state.frame_pos -= @match[1] ? @match[1].to_i : 1
       if @state.frame_pos < 0
         @state.frame_pos = 0
-        print "At stack bottom\n"
+        print_msg "At stack bottom"
       end
       frame = @state.context.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print format_frame(frame, @state.frame_pos)
+      print_frame(frame, @state.frame_pos, @state.frame_pos)
     end
 
     class << self

@@ -53,7 +53,7 @@ module Debugger
 
     def execute
       if @state.frame_pos == @state.context.frames.size
-        print "\"finish\" not meaningful in the outermost frame.\n"
+        print_msg "\"finish\" not meaningful in the outermost frame."
       else
         @state.context.stop_frame = @state.context.frames.size - @state.frame_pos
         @state.frame_pos = 0

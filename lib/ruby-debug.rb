@@ -2,6 +2,7 @@ require 'pp'
 require 'stringio'
 require 'thread'
 require 'ruby_debug.so'
+require 'ruby-debug/printers'
 require 'ruby-debug/processor'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
@@ -9,7 +10,8 @@ SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 module Debugger
   PORT = 8989
 
-  @processor = CommandProcessor.new
+  @printer_class = PlainPrinter
+  @processor = CommandProcessor.new(LocalInterface.new, @printer_class)
   
   class Context
     def interrupt
@@ -42,6 +44,18 @@ module Debugger
   class << self
     attr_accessor :processor
     
+    attr_accessor :printer_class
+    
+    def use_plain_printer
+      @printer_class = PlainPrinter
+      @processor.printer_class = @printer_class
+    end
+    
+    def use_xml_printer
+      @printer_class = XmlPrinter
+      @processor.printer_class = @printer_class
+    end
+    
     # stop main thread when remote connection established
     attr_accessor :stop_on_connect
     
@@ -62,11 +76,13 @@ module Debugger
     # Interrupts the last debugged thread
     #
     def interrupt_last
-      if context = last_context
-        return nil unless context.thread.alive?
-        context.interrupt
+      skip do
+        if context = last_context
+          return nil unless context.thread.alive?
+          context.interrupt
+        end
+        context
       end
-      context
     end
     
     def interface=(value) # :nodoc:

@@ -43,8 +43,8 @@ module Debugger
       end
     end
     
-    def initialize(state)
-      @state = state
+    def initialize(state, printer)
+      @state, @printer = state, printer
     end
 
     def match(input)
@@ -52,6 +52,14 @@ module Debugger
     end
 
     protected
+    
+    def method_missing(meth, *args, &block)
+      if @printer.respond_to? meth
+        @printer.send meth, *args, &block
+      else
+        super
+      end
+    end
 
     def print(*args)
       @state.print(*args)
@@ -65,11 +73,7 @@ module Debugger
       begin
         val = eval(str, @state.binding)
       rescue StandardError, ScriptError => e
-        at = eval("caller(1)", @state.binding)
-        print "%s:%s\n", at.shift, e.to_s.sub(/\(eval\):1:(in `.*?':)?/, '')
-        for i in at
-          print "\tfrom %s\n", i
-        end
+        @printer.print_exception(e, @state.binding)
         throw :debug_error
       end
     end

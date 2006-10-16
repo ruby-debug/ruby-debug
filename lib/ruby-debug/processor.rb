@@ -6,8 +6,10 @@ module Debugger
     attr_accessor :interface
     attr_reader   :display
     
-    def initialize(interface = LocalInterface.new)
+    def initialize(interface = LocalInterface.new, printer_class = Debugger.printer_class)
       @interface = interface
+      self.printer_class = printer_class
+      @printer = PlainPrinter.new(@interface)
       @display = []
       @mutex = Mutex.new
       @last_cmd = nil
@@ -16,8 +18,12 @@ module Debugger
     def interface=(interface)
       @mutex.synchronize do
         @interface.close if @interface
-        @interface = interface
+        @interface = @printer.interface = interface
       end
+    end
+    
+    def printer_class=(printer_class)
+      @printer = printer_class.new(@interface)
     end
     
     def self.protect(mname)
@@ -39,30 +45,22 @@ module Debugger
     
     def at_breakpoint(context, breakpoint)
       n = Debugger.breakpoints.index(breakpoint) + 1
-      print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
+      @printer.print_breakpoint n, breakpoint
     end
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      frames = context.frames
-      print "Catchpoint at %s:%d: `%s' (%s)\n", frames[0].file, frames[0].line, excpt, excpt.class
-      fs = frames.size
-      tb = caller(0)[-fs..-1]
-      if tb
-        for i in tb
-          print "\tfrom %s\n", i
-        end
-      end
+      @printer.print_catchpoint(excpt)
     end
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      print "Tracing(%d):%s:%s %s", context.thnum, file, line, Debugger.line_at(file, line)
+      @printer.print_trace(context, file, line)
     end
     protect :at_tracing
 
     def at_line(context, file, line, binding)
-      print "%s:%d: %s", file, line, Debugger.line_at(file, line)
+      @printer.print_at_line(file, line)
       process_commands(context, file, line, binding)
     end
     protect :at_line
@@ -84,7 +82,7 @@ module Debugger
         s.interface = interface
         s.commands = event_cmds
       end
-      commands = event_cmds.map{|cmd| cmd.new(state) }
+      commands = event_cmds.map{|cmd| cmd.new(state, @printer) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
       
       while !state.proceed? and input = @interface.read_command("(rdb:%d) " % context.thnum)
@@ -103,7 +101,7 @@ module Debugger
             if unknown_cmd
               unknown_cmd.execute
             else
-              print "Unknown command\n"
+              @printer.print_msg "Unknown command"
             end
           end
         end
@@ -140,8 +138,9 @@ module Debugger
   end
   
   class ControlCommandProcessor # :nodoc:
-    def initialize(interface)
+    def initialize(interface, printer_class = Debugger.printer_class)
       @interface = interface
+      @printer = printer_class.new(@interface)
     end
     
     def print(*args)
@@ -151,14 +150,14 @@ module Debugger
     def process_commands
       control_cmds = Command.commands.select{|cmd| cmd.control }
       state = State.new(@interface, control_cmds)
-      commands = control_cmds.map{|cmd| cmd.new(state) }
+      commands = control_cmds.map{|cmd| cmd.new(state, @printer) }
       
       while input = @interface.read_command("(rdb:ctrl) ")
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }
             cmd.execute
           else
-            print "Unknown command\n"
+            @printer.print_msg "Unknown command"
           end
         end
       end
@@ -193,7 +192,7 @@ module Debugger
       end
 
       def file
-        print "No filename given.\n"
+        print "ERROR: No filename given.\n"
         throw :debug_error
       end
     end

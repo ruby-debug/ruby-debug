@@ -1,17 +1,5 @@
 module Debugger
-  module VarFunctions # :nodoc:
-    def var_list(ary, bind = nil)
-      bind ||= @state.binding
-      ary.sort!
-      for v in ary
-        print "  %s => %s\n", v, eval(v, bind).inspect
-      end
-    end
-  end
-
   class VarConstantCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+c(?:onst(?:ant)?)?\s+/
     end
@@ -19,9 +7,9 @@ module Debugger
     def execute
       obj = debug_eval(@match.post_match)
       unless obj.kind_of? Module
-        print "Should be Class/Module: %s\n", @match.post_match
+        print_msg "Should be Class/Module: %s", @match.post_match
       else
-        var_list(obj.constants, obj.module_eval{binding()})
+        print_variables(obj.constants, obj.module_eval{binding()}, "constant")
       end
     end
 
@@ -39,14 +27,12 @@ module Debugger
   end
 
   class VarGlobalCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+g(?:lobal)?\s*$/
     end
 
     def execute
-      var_list(global_variables)
+      print_variables(global_variables, @state.binding, 'global')
     end
 
     class << self
@@ -63,15 +49,13 @@ module Debugger
   end
 
   class VarInstanceCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+i(?:nstance)?\s+/
     end
 
     def execute
       obj = debug_eval(@match.post_match)
-      var_list(obj.instance_variables, obj.instance_eval{binding()})
+      print_variables(obj.instance_variables, obj.instance_eval{binding()}, 'instance')
     end
 
     class << self
@@ -88,14 +72,12 @@ module Debugger
   end
 
   class VarLocalCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+l(?:ocal)?\s*$/
     end
 
     def execute
-      var_list(eval("local_variables", @state.binding))
+      print_variables(eval("local_variables", @state.binding), @state.binding, 'local')
     end
 
     class << self

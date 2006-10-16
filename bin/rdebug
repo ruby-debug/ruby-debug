@@ -35,10 +35,17 @@ EOB
   opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
     unless File.exists?(options.script)
       puts "Script file '#{options.script}' is not found"
-      exit
+      exit(1)
     end
   end
   opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.port|}
+  opts.on("-f", "--format FORMAT", String, "Name of the formatter to use (plain or xml)") do |format|
+    unless %w[plain xml].include?(format)
+      puts "Unknown format '#{options.format}'"
+      exit(1)
+    end
+    Debugger.send "use_#{format}_printer"
+  end
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do
@@ -57,7 +64,7 @@ rescue StandardError => e
   puts opts
   puts
   puts e.message
-  exit(-1)
+  exit(1)
 end
 
 if options.client
@@ -67,7 +74,7 @@ else
     puts opts
     puts
     puts "Must specify a script to run"
-    exit(-1)
+    exit(1)
   end
 
   trap('INT') { Debugger.interrupt_last }

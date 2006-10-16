@@ -17,11 +17,11 @@ module Debugger
         e = b + 9
       elsif @match[1] == 'on'
         self.class.always_run = true
-        print "Listing is on.\n"
+        print_msg "Listing is on."
         return
       elsif @match[1] == 'off'
         self.class.always_run = false
-        print "Listing is off.\n"
+        print_msg "Listing is off."
         return
       else
         b, e = @match[1].split(/[-,]/)
@@ -34,7 +34,7 @@ module Debugger
         end
       end
       @state.previous_line = b
-      display_list(b, e, @state.file, @state.line)
+      print_list(b, e, @state.file, @state.line)
     end
 
     class << self
@@ -50,26 +50,6 @@ module Debugger
           l[ist] nn-mm\tlist given lines
           l[ist] on/off\tprint listing on every stop
         }
-      end
-    end
-
-    private
-
-    def display_list(b, e, file, line)
-      print "[%d, %d] in %s\n", b, e, file
-      if lines = Debugger.source_for(file)
-        n = 0
-        b.upto(e) do |n|
-          if n > 0 && lines[n-1]
-            if n == line
-              print "=> %d  %s\n", n, lines[n-1].chomp
-            else
-              print "   %d  %s\n", n, lines[n-1].chomp
-            end
-          end
-        end
-      else
-        print "No sourcefile available for %s\n", file
       end
     end
   end
