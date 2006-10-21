@@ -1,3 +1,6 @@
+0.5
+- Added two output formats: plain and xml
+
 0.4.4
 - Renamed Context#set_suspend and Context#clear_suspend methods to Context#suspend and Context#resume respectively.
 - Context#resume method not only clears suspend flag, but also resumes the thread execution.
