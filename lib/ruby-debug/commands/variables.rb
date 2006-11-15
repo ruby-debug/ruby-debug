@@ -50,14 +50,28 @@ module Debugger
 
   class VarInstanceCommand < Command # :nodoc:
     def regexp
-      /^\s*v(?:ar)?\s+i(?:nstance)?\s+/
+      # evaluate an instance variable either by name or with its id
+      # if the instance variable is evaluated by name a stack from id
+      # can be given optionally
+      # stackFrame is second match, object Id third match
+      # name will be matched but read from postMatch
+      # e.g. v i 2 +0x123 eval object id +0x123 in stack frame 2
+      /^\s*v(?:ar)?\s+i(?:nstance)?\s*(\d+)?\s+((?:[\\+-]0x)[\dabcdef]+)?/
     end
 
     def execute
-      obj = debug_eval(@match.post_match)
-      print_variables(obj.instance_variables, obj.instance_eval{binding()}, 'instance')
+      if (@match[2])
+        obj = ObjectSpace._id2ref(@match[2].hex) rescue nil
+        unless obj
+          # TODO: ensure that empty variables frame will be printed
+          @printer.print_msg("Unknown object id : %s", @match[2])
+        end
+      else
+        obj = debug_eval(@match.post_match, @match[1])
+      end
+      print_variables(obj.instance_variables, obj.instance_eval{binding()}, 'instance') if obj
     end
-
+    
     class << self
       def help_command
         'var'

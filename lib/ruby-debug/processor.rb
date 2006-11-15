@@ -37,8 +37,8 @@ module Debugger
         rescue IOError, Errno::EPIPE
           self.interface = nil
         rescue Exception
-          print "INTERNAL ERROR!!! #\{$!\}\n" rescue nil
-          print $!.backtrace.map{|l| "\t#\{l\}"}.join("\n") rescue nil
+          @printer.print_error "INTERNAL ERROR!!! #\{$!\}\n" rescue nil
+          @printer.print_error $!.backtrace.map{|l| "\t#\{l\}"}.join("\n") rescue nil
         end
       }
     end
@@ -163,8 +163,8 @@ module Debugger
       end
     rescue IOError, Errno::EPIPE
     rescue Exception
-      print "INTERNAL ERROR!!! #{$!}\n" rescue nil
-      print $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
+      @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
+      @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
     ensure
       @interface.close
     end

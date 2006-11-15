@@ -69,9 +69,9 @@ module Debugger
       @state.confirm(msg) == 'y'
     end
 
-    def debug_eval(str)
+    def debug_eval(str, pos = nil)
       begin
-        val = eval(str, @state.binding)
+        val = eval(str, get_binding(pos))
       rescue StandardError, ScriptError => e
         @printer.print_exception(e, @state.binding)
         throw :debug_error
@@ -92,7 +92,20 @@ module Debugger
 
     def get_context(thnum)
       Debugger.contexts.find{|c| c.thnum == thnum}
-    end  
+    end
+    
+    def get_binding(pos)
+      # returns frame binding of frame pos, if pos is within bound,  @state.binding otherwise
+      return @state.binding unless pos
+      pos = pos.to_i
+      pos -= 1
+      if pos >= @state.context.frames.size || pos < 0 then
+        @printer.print_error("stack frame number must be between 1 and %i, was: %i, using 1.", @state.context.frames.size, pos+1)
+        return @state.binding
+      end
+      @printer.print_msg("Using frame %s for evaluation of variable.", pos)
+      return @state.context.frames[pos].binding
+    end
   end
   
   Command.load_commands

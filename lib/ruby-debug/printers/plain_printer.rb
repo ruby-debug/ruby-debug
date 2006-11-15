@@ -11,6 +11,8 @@ module Debugger
       print "\n"
     end
     
+    alias print_error print_msg
+    
     def print_frames(frames, cur_idx)
       frames.each_with_index do |frame, idx|
         print_frame(frame, idx, cur_idx)

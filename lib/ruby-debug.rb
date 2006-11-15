@@ -2,7 +2,8 @@ require 'pp'
 require 'stringio'
 require 'thread'
 require 'ruby_debug.so'
-require 'ruby-debug/printers'
+require 'ruby-debug/printers/plain_printer'
+require 'ruby-debug/printers/xml_printer'
 require 'ruby-debug/processor'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
@@ -232,12 +233,14 @@ class Module
   # Wraps the +meth+ method with Debugger.start {...} block.
   #
   def debug_method(meth)
-    alias_method "__debugee_#{meth}".to_sym, meth
+    old_meth = "__debugee_#{meth}"
+    old_meth = "#{$1}_set" if old_meth =~ /^(.+)=$/
+    alias_method old_meth.to_sym, meth
     class_eval <<-EOD
     def #{meth}(*args, &block)
       Debugger.start do
         debugger 2
-        __debugee_#{meth}(*args, &block)
+        #{old_meth}(*args, &block)
       end
     end
     EOD

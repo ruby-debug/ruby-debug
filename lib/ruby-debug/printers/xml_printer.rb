@@ -10,7 +10,15 @@ module Debugger
 
     def print_msg(*args)
       msg, *args = args
-      print "<message>#{msg % args}</message>\n"
+      xml_message = CGI.escapeHTML(msg % args)
+      print "<message>#{xml_message}</message>\n"
+    end
+    
+    def print_error(*args)
+      print_element("error") do
+        msg, *args = args
+        print CGI.escapeHTML(msg % args)
+      end
     end
     
     def print_frames(frames, cur_idx)
@@ -41,6 +49,10 @@ module Debugger
 
     def print_variables(vars, binding, kind)
       print_element("variables") do
+        # print self at top position
+        if kind == "local" && eval('self.to_s', binding) !~ /main/ then
+          print_variable("self", binding, kind)
+        end
         vars.sort.each do |v|
           print_variable(v, binding, kind)
         end
