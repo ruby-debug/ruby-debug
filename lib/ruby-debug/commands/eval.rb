@@ -6,7 +6,7 @@ module Debugger
     end
     
     def regexp
-      /^\s*(p|e(?:val)?)(?:\s+(on|off)|\s+)/
+      /^\s*(p|e(?:val)?)(?:\s+(on|off)$|\s+)/
     end
 
     def execute
