@@ -2,7 +2,8 @@ module Debugger
   class PlainPrinter # :nodoc:
     attr_accessor :interface
     
-    def initialize(interface)
+    def initialize(interface, is_debug=false)
+      # plain_printer does not support debug yet
       @interface = interface
     end
     
@@ -13,12 +14,15 @@ module Debugger
     
     alias print_error print_msg
     
+    def print_debug(*args)
+    end
+    
     def print_frames(frames, cur_idx)
       frames.each_with_index do |frame, idx|
         print_frame(frame, idx, cur_idx)
       end
     end
-
+    
     def print_frame(frame, idx, cur_idx)
       if idx == cur_idx
         print "--> "
@@ -48,14 +52,33 @@ module Debugger
     
     def print_variables(vars, binding, kind)
       vars.sort.each do |v|
-        print_variable(v, binding, kind)
+        print_variable(v, eval(v, binding).inspect, kind)
       end
     end
-
-    def print_variable(name, binding, kind)
-      print "  %s => %s\n", name, eval(name, binding).inspect
+    
+    def print_array(array)
+      index = 0 
+      array.each { |e|
+        print_variable('[' + index.to_s + ']', e) 
+        index += 1 
+      }
     end
-
+    
+    def print_hash(hash)
+      hash.keys.each { | k |
+        if k.class.name == "String"
+          name = '\'' + k + '\''
+        else
+          name = k.to_s
+        end
+        print_variable(name, hash[k]) 
+      }
+    end
+    
+    def print_variable(name, value, kind=nil)
+      print "  %s => %s\n", name, value
+    end
+    
     def print_breakpoints(breakpoints)
       unless breakpoints.empty?
         print "Breakpoints:\n"
@@ -154,16 +177,16 @@ module Debugger
         print "\tfrom %s\n", i
       end
     end
-
+    
     private
     
     def print(*params)
       @interface.print(*params)
     end
-
+    
     def print_element(name)
       yield
     end
-
+    
   end
 end

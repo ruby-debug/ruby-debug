@@ -1,12 +1,13 @@
 module Debugger
-  class NextCommand < Command # :nodoc:
+  class NextCommand < Command # :nodoc
     def regexp
-      /^\s*n(?:ext)?(?:\s+(\d+))?$/
+      /^\s*n(?:ext)?(?:\s+(\d+))?(?:\s+(\d+))?$/
     end
 
     def execute
       steps = @match[1] ? @match[1].to_i : 1
-      @state.context.step_over steps, @state.context.frames.size - @state.frame_pos
+      target_frame = @match[2] ? (@match[2].to_i() -1) : @state.frame_pos
+      @state.context.step_over steps, @state.context.frames.size - target_frame
       @state.proceed
     end
 
@@ -17,7 +18,7 @@ module Debugger
 
       def help(cmd)
         %{
-          n[ext][ nnn]\tgo over one line or till line nnn
+          n[ext][nl] [tf]\tgo over n lines, default is one, go to target frame tf (1-based)
         }
       end
     end

@@ -47,6 +47,8 @@ module Debugger
     
     attr_accessor :printer_class
     
+    attr_accessor :is_debug
+    
     def use_plain_printer
       @printer_class = PlainPrinter
       @processor.printer_class = @printer_class

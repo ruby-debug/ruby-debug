@@ -7,7 +7,7 @@ module Debugger
     def initialize(interface)
       @interface = interface
     end
-
+    
     def print_msg(*args)
       msg, *args = args
       xml_message = CGI.escapeHTML(msg % args)
@@ -21,6 +21,13 @@ module Debugger
       end
     end
     
+    def print_debug(*args)
+      if Debugger.is_debug
+        $stdout.printf(*args)
+        $stdout.flush
+      end
+    end
+    
     def print_frames(frames, cur_idx)
       print_element("frames") do
         frames.each_with_index do |frame, idx|
@@ -28,39 +35,61 @@ module Debugger
         end
       end
     end
-
+    
     def print_frame(frame, idx, cur_idx)
       print "<frame no=\"%s\" file=\"%s\" line=\"%s\" #{'current="true" ' if idx == cur_idx}/>\n",
-        idx+1, frame.file, frame.line
+      idx+1, frame.file, frame.line
     end
     
     def print_contexts(contexts)
       print_element("threads") do
         contexts.each do |c|
-          print_context(c)
+          print_context(c) unless c.ignore?
         end
       end
     end
-
+    
     def print_context(context)
       current = 'current="yes"' if context.thread == Thread.current
       print "<thread id=\"%s\" status=\"%s\" #{current}/>\n", context.thnum, context.thread.status
     end
-
+    
     def print_variables(vars, binding, kind)
       print_element("variables") do
         # print self at top position
         if kind == "local" && eval('self.to_s', binding) !~ /main/ then
-          print_variable("self", binding, kind)
+          print_variable("self", eval("self", binding), kind)
         end
         vars.sort.each do |v|
-          print_variable(v, binding, kind)
+          print_variable(v, eval(v, binding), kind)
         end
       end
     end
-
-    def print_variable(name, binding, kind)
-      value = eval(name, binding)
+    
+    def print_array(array)
+      print_element("variables") do
+        index = 0 
+        array.each { |e|
+          print_variable('[' + index.to_s + ']', e, 'instance') 
+          index += 1 
+        }
+      end
+    end
+    
+    def print_hash(hash)
+      print_element("variables") do
+        hash.keys.each { | k |
+          if k.class.name == "String"
+            name = '\'' + k + '\''
+          else
+            name = k.to_s
+          end
+          print_variable(name, hash[k], 'instance') 
+        }
+      end
+    end
+    
+    def print_variable(name, value, kind)
       if value == nil then
         print("<variable name=\"%s\" kind=\"%s\"/>\n", CGI.escapeHTML(name), kind)
         return
@@ -80,9 +109,10 @@ module Debugger
         end
       end
       print("<variable name=\"%s\" kind=\"%s\" value=\"%s\" type=\"%s\" hasChildren=\"%s\" objectId=\"%#+x\"/>\n",
-        CGI.escapeHTML(name), kind, CGI.escapeHTML(value_str), value.class, has_children, value.object_id)
+      CGI.escapeHTML(name), kind, CGI.escapeHTML(value_str), value.class, has_children, value.object_id)
     end
-
+    
+    
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
         breakpoints.each_with_index do |b, n|
@@ -106,7 +136,7 @@ module Debugger
     def print_eval(exp, value)
       print "<eval name=\"%s\" value=\"%s\" />\n", exp, value
     end
-
+    
     def print_pp(exp, value)
       print value
     end
@@ -141,35 +171,36 @@ module Debugger
     
     def print_breakpoint(n, breakpoint)
       print("<breakpoint file=\"%s\" line=\"%s\" threadId=\"%d\"/>\n", 
-        breakpoint.source, breakpoint.pos, Debugger.current_context.thnum)
+      breakpoint.source, breakpoint.pos, Debugger.current_context.thnum)
     end
-
+    
     def print_catchpoint(exception)
       context = Debugger.current_context
       frame = context.frames.first
       print("<exception file=\"%s\" line=\"%s\" type=\"%s\" message=\"%s\" threadId=\"%d\"/>\n", 
-        frame.file, frame.line, exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
+      frame.file, frame.line, exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
     end
-
+    
     def print_trace(context, file, line)
       print "<trace file=\"%s\" line=\"%s\" threadId=\"%d\" />\n", file, line, context.thnum
     end
     
     def print_at_line(file, line)
-      print "<suspended file=\"%s\" line=\"%s\" threadId=\"%d\"/>\n", 
-        file, line, Debugger.current_context.thnum
+      print "<suspended file=\"%s\" line=\"%s\" threadId=\"%d\" frames=\"%d\"/>\n",
+      file, line, Debugger.current_context.thnum, Debugger.current_context.frames.size
     end
     
     def print_exception(excpt, binding)
       print_catchpoint excpt
     end
-
+    
     private
-
+    
     def print(*params)
+      print_debug(*params)
       @interface.print(*params)
     end
-
+    
     def print_element(name)
       print("<#{name}>\n")
       begin

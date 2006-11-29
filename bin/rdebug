@@ -29,6 +29,9 @@ EOB
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
+  opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
+    Debugger.is_debug = true
+  end
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
@@ -38,7 +41,7 @@ EOB
       exit(1)
     end
   end
-  opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.port|}
+  opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.cport|}
   opts.on("-f", "--format FORMAT", String, "Name of the formatter to use (plain or xml)") do |format|
     unless %w[plain xml].include?(format)
       puts "Unknown format '#{options.format}'"

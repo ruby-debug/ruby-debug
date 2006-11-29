@@ -27,8 +27,9 @@ typedef struct {
     int flags;
     int stop_next;
     int dest_frame;
-    int stop_line;
+    VALUE stop_line;
     int stop_frame;
+    int stop_reason; /* -1 = initial, 0 = step, 1=breakpoint, 2= catchpoint */
     VALUE frames;
     VALUE thread;
     VALUE last_file;
@@ -258,6 +259,7 @@ debug_context_create(VALUE thread)
     debug_context->dest_frame = -1;
     debug_context->stop_line = -1;
     debug_context->stop_frame = -1;
+    debug_context->stop_reason = -1;
     debug_context->frames = rb_ary_new();
     debug_context->thread = thread;
     result = Data_Wrap_Struct(cContext, debug_context_mark, xfree, debug_context);
@@ -558,6 +560,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             (breakpoint_index = check_breakpoints(debug_context, file, klass, line)) != -1)
         {
             binding = self? create_binding(self) : Qnil;
+            debug_context->stop_reason = 0;
             /* check breakpoint expression */
             if(breakpoint_index != -1)
             {
@@ -565,6 +568,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 if(check_breakpoint_expression(breakpoint, binding))
                 {
                     rb_funcall(context, idAtBreakpoint, 1, breakpoint);
+                    debug_context->stop_reason = 1;                    
                 }
                 else
                     break;
@@ -574,7 +578,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->dest_frame = -1;
             debug_context->stop_line = -1;
             debug_context->stop_next = -1;
-
+			
             call_at_line(context, debug_context->thnum, binding, file, line);
         }
         break;
@@ -595,6 +599,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(check_breakpoint_expression(breakpoint, binding))
             {
                 rb_funcall(context, idAtBreakpoint, 1, breakpoint);
+                debug_context->stop_reason = 1;
                 call_at_line(context, debug_context->thnum, binding, file, line);
             }
         }
@@ -640,6 +645,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             {
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
                 binding = self? create_binding(self) : Qnil;
+                debug_context->stop_reason = 2;
                 call_at_line(context, debug_context->thnum, binding, file, line);
                 break;
             }
@@ -1357,6 +1363,24 @@ context_set_ignore(VALUE self, VALUE value)
     return value;
 }
 
+
+/*
+ *   call-seq:
+ *      context.stop_reason -> int
+ *   
+ *   Returns the tracing flag for the current context.
+ */
+static VALUE
+context_stop_reason(VALUE self)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    return INT2FIX(debug_context->stop_reason) ;
+}
+
 /*
  *   call-seq:
  *      frame.file -> string
@@ -1479,6 +1503,7 @@ Init_context()
     rb_define_method(cContext, "step_over", context_step_over, -1);
     rb_define_method(cContext, "stop_frame=", context_stop_frame, 1);
     rb_define_method(cContext, "frames", context_frames, 0);
+    rb_define_method(cContext, "stop_reason", context_stop_reason, 0);
     rb_define_method(cContext, "thread", context_thread, 0);
     rb_define_method(cContext, "thnum", context_thnum, 0);
     rb_define_method(cContext, "suspend", context_suspend, 0);
