@@ -5,11 +5,13 @@ require 'ruby_debug.so'
 require 'ruby-debug/processor'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
+SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
 
 module Debugger
   PORT = 8989
 
   @processor = CommandProcessor.new
+  @reload_source_on_change = true
   
   class Context
     def interrupt
@@ -47,6 +49,9 @@ module Debugger
     
     # in remote mode, wait for the remote connection 
     attr_accessor :wait_connection
+    
+    # if <tt>true</tt>, checks the modification time of source files and reloads if it was modified
+    attr_accessor :reload_source_on_change
     
     attr_reader :thread, :control_thread
     
@@ -164,12 +169,21 @@ module Debugger
     private :stop_main_thread
 
     def source_for(file) # :nodoc:
-      if source = SCRIPT_LINES__[file]
-        return source unless source == true
+      unless File.exists?(file)
+        return (source == true ? nil : source)
       end
-      if File.exists?(file)
+      
+      if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
         SCRIPT_LINES__[file] = File.readlines(file)
       end
+      
+      change_time = test(?M, file)
+      SCRIPT_TIMESTAMPS__[file] ||= change_time
+      if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
+        SCRIPT_LINES__[file] = File.readlines(file)
+      end
+      
+      SCRIPT_LINES__[file]
     end
     
     def line_at(file, line) # :nodoc:

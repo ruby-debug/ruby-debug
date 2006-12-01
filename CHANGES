@@ -1,3 +1,8 @@
+0.4.5
+- Fixed debug_method when applied to setter.
+- Added Debugger.reload_source_on_change option (true, by default) which controls whether ruby-debug should keep
+  track of the source files modification time and reload them if they've been changed.
+
 0.4.4
 - Renamed Context#set_suspend and Context#clear_suspend methods to Context#suspend and Context#resume respectively.
 - Context#resume method not only clears suspend flag, but also resumes the thread execution.
