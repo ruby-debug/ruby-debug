@@ -13,6 +13,7 @@ module Debugger
 
   @printer_class = PlainPrinter
   @processor = CommandProcessor.new(LocalInterface.new, @printer_class)
+  @reload_source_on_change = true
   
   class Context
     def interrupt
@@ -183,12 +184,21 @@ module Debugger
     private :stop_main_thread
 
     def source_for(file) # :nodoc:
-      if source = SCRIPT_LINES__[file]
-        return source unless source == true
+      unless File.exists?(file)
+        return (source == true ? nil : source)
       end
-      if File.exists?(file)
+      
+      if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
         SCRIPT_LINES__[file] = File.readlines(file)
       end
+      
+      change_time = test(?M, file)
+      SCRIPT_TIMESTAMPS__[file] ||= change_time
+      if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
+        SCRIPT_LINES__[file] = File.readlines(file)
+      end
+      
+      SCRIPT_LINES__[file]
     end
     
     def line_at(file, line) # :nodoc:
