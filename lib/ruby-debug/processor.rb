@@ -118,6 +118,7 @@ module Debugger
       def initialize
         @frame_pos = 0
         @previous_line = nil
+        @proceed = false
         yield self
       end
 

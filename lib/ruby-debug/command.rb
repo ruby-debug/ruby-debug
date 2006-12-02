@@ -22,7 +22,7 @@ module Debugger
       def load_commands
         dir = File.dirname(__FILE__)
         Dir[File.join(dir, 'commands', '*')].each do |file|
-          require file
+          require file if file =~ /\.rb$/
         end
       end
       
