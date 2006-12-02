@@ -11,7 +11,7 @@ module Debugger
   PORT = 8989
 
   @processor = CommandProcessor.new
-  @reload_source_on_change = true
+  @reload_source_on_change = false
   
   class Context
     def interrupt
@@ -184,6 +184,13 @@ module Debugger
       end
       
       SCRIPT_LINES__[file]
+    end
+    
+    def source_reload
+      SCRIPT_LINES__.keys.each do |file|
+        next unless File.exists?(file)
+        SCRIPT_LINES__[file] = nil
+      end
     end
     
     def line_at(file, line) # :nodoc:

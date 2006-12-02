@@ -1,5 +1,6 @@
 0.4.5
 - Fixed debug_method when applied to setter.
+- Added reload command which can be used to reload source code in case it's been changed.
 - Added Debugger.reload_source_on_change option (true, by default) which controls whether ruby-debug should keep
   track of the source files modification times and reload them if they've been changed.
 
