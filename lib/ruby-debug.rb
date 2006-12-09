@@ -7,6 +7,7 @@ require 'ruby-debug/printers/xml_printer'
 require 'ruby-debug/processor'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
+SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
 
 module Debugger
   PORT = 8989
