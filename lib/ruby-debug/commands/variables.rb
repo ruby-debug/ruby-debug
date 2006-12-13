@@ -79,8 +79,6 @@ module Debugger
       end 
     end
     
-    
-    
     class << self
       def help_command
         'var'

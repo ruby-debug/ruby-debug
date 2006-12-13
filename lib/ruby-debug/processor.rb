@@ -85,17 +85,17 @@ module Debugger
       commands = event_cmds.map{|cmd| cmd.new(state, @printer) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
       while !state.proceed? and input = @interface.read_command("(rdb:%d) " % context.thnum)
+        if input == ""
+          next unless @last_cmd
+          input = @last_cmd
+        else
+          @last_cmd = input
+        end
+        
         input.split(";").each {
           |input|
           input.strip!
           catch(:debug_error) do
-            if input == ""
-              next unless @last_cmd
-              input = @last_cmd
-            else
-              @last_cmd = input
-            end
-            
             @printer.print_debug "Processing: #{input}"
             if cmd = commands.find{ |c| c.match(input) }
               cmd.execute
