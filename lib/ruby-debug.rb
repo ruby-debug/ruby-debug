@@ -169,21 +169,23 @@ module Debugger
     private :stop_main_thread
 
     def source_for(file) # :nodoc:
-      unless File.exists?(file)
-        return (source == true ? nil : source)
+      Dir.chdir File.dirname($0) do
+        unless File.exists?(file)
+          return (SCRIPT_LINES__[file] == true ? nil : SCRIPT_LINES__[file])
+        end
+
+        if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
+          SCRIPT_LINES__[file] = File.readlines(file)
+        end
+
+        change_time = test(?M, file)
+        SCRIPT_TIMESTAMPS__[file] ||= change_time
+        if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
+          SCRIPT_LINES__[file] = File.readlines(file)
+        end
+
+        SCRIPT_LINES__[file]
       end
-      
-      if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
-        SCRIPT_LINES__[file] = File.readlines(file)
-      end
-      
-      change_time = test(?M, file)
-      SCRIPT_TIMESTAMPS__[file] ||= change_time
-      if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
-        SCRIPT_LINES__[file] = File.readlines(file)
-      end
-      
-      SCRIPT_LINES__[file]
     end
     
     def source_reload

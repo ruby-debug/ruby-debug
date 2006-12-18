@@ -1,11 +1,11 @@
 module Debugger
   class ListCommand < Command # :nodoc:
     def regexp
-      /^\s*l(?:ist)?(?:\s*(.+))?$/
+      /^\s*l(?:ist)?(?:\s*([-=])|\s+(.+))?$/
     end
 
     def execute
-      if !@match || !@match[1]
+      if !@match || !(@match[1] || @match[2])
         b = @state.previous_line ? @state.previous_line + 10 : @state.line - 5
         e = b + 9
       elsif @match[1] == '-'
@@ -15,16 +15,16 @@ module Debugger
         @state.previous_line = nil
         b = @state.line - 5
         e = b + 9
-      elsif @match[1] == 'on'
+      elsif @match[2] == 'on'
         self.class.always_run = true
         print "Listing is on.\n"
         return
-      elsif @match[1] == 'off'
+      elsif @match[2] == 'off'
         self.class.always_run = false
         print "Listing is off.\n"
         return
       else
-        b, e = @match[1].split(/[-,]/)
+        b, e = @match[2].split(/[-,]/)
         if e
           b = b.to_i
           e = e.to_i
