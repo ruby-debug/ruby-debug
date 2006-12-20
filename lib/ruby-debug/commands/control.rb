@@ -29,6 +29,7 @@ module Debugger
   class InterruptCommand < Command # :nodoc:
     self.event = false
     self.control = true
+    self.context = true
     
     def regexp
       /^\s*i(?:nterrupt)?\s*$/

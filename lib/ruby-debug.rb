@@ -213,7 +213,55 @@ module Debugger
       processor = ControlCommandProcessor.new(interface)
       processor.process_commands
     end
+
+    #
+    # Activates the post-mortem mode. There are two ways of using it:
+    # 
+    # == Global post-mortem mode
+    # By calling Debugger.post_mortem method without a block, you install
+    # at_exit hook that intercepts any unhandled by your script exceptions
+    # and enables post-mortem mode.
+    #
+    # == Local post-mortem mode
+    #
+    # If you know that a particular block of code raises an exception you can
+    # enable post-mortem mode by wrapping this block with Debugger.post_mortem, e.g.
+    #
+    #   def offender
+    #      raise 'error'
+    #   end
+    #   Debugger.post_mortem do
+    #      ...
+    #      offender
+    #      ...
+    #   end
+    def post_mortem
+      raise "Post-mortem is already activated" if self.post_mortem?
+      self.post_mortem = true
+      if block_given?
+        begin
+          yield
+        rescue Exception => exp
+          handle_post_mortem(exp)
+        ensure
+          self.post_mortem = false
+        end
+      else
+        debug_at_exit do
+          handle_post_mortem($!) if $! && post_mortem?
+        end
+      end
+    end
+    
+    def handle_post_mortem(exp)
+      processor.at_line(nil, exp.__debug_file, exp.__debug_line, exp.__debug_binding, exp.__debug_frames)
+    end
+    private :handle_post_mortem
   end
+end
+
+class Exception # :nodoc:
+  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_frames
 end
 
 module Kernel

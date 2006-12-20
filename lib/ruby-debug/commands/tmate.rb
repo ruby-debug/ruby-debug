@@ -8,11 +8,11 @@ module Debugger
       def execute
         if @match[1]
           frm_n = @match[1].to_i
-          if frm_n > @state.context.frames.size || frm_n == 0
+          if frm_n > @state.frames.size || frm_n == 0
             print "Wrong frame number\n"
             return
           end
-          frame = @state.context.frames[frm_n - 1]
+          frame = @state.frames[frm_n - 1]
           file, line = frame.file, frame.line
         else
           file, line = @state.file, @state.line

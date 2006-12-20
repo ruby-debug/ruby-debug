@@ -14,7 +14,7 @@ module Debugger
     end
 
     def execute
-      @state.context.frames.each_with_index do |frame, idx|
+      @state.frames.each_with_index do |frame, idx|
         if idx == @state.frame_pos
           print "--> "
         else
@@ -63,11 +63,11 @@ module Debugger
         @state.frame_pos += (arg ? arg.to_i : 1)
       end
       @state.frame_pos = 0 if @state.frame_pos < 0
-      if @state.frame_pos >= @state.context.frames.size
-        @state.frame_pos = @state.context.frames.size - 1
+      if @state.frame_pos >= @state.frames.size
+        @state.frame_pos = @state.frames.size - 1
         print "At toplevel\n"
       end
-      frame = @state.context.frames[@state.frame_pos]
+      frame = @state.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
       print format_frame(frame, @state.frame_pos)
     end
@@ -105,7 +105,7 @@ module Debugger
         @state.frame_pos = 0
         print "At stack bottom\n"
       end
-      frame = @state.context.frames[@state.frame_pos]
+      frame = @state.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
       print format_frame(frame, @state.frame_pos)
     end

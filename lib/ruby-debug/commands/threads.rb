@@ -47,6 +47,8 @@ module Debugger
 
   class ThreadSwitchCommand < Command # :nodoc:
     self.control = true
+    self.context = true
+    
     include ThreadFunctions
 
     def regexp
@@ -83,6 +85,8 @@ module Debugger
 
   class ThreadStopCommand < Command # :nodoc:
     self.control = true
+    self.context = true
+    
     include ThreadFunctions
 
     def regexp
@@ -118,6 +122,8 @@ module Debugger
   end
 
   class ThreadCurrentCommand < Command # :nodoc:
+    self.context = true
+    
     include ThreadFunctions
 
     def regexp
@@ -143,6 +149,8 @@ module Debugger
 
   class ThreadResumeCommand < Command # :nodoc:
     self.control = true
+    self.context = true
+    
     include ThreadFunctions
 
     def regexp

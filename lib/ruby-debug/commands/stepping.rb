@@ -1,12 +1,14 @@
 module Debugger
   class NextCommand < Command # :nodoc:
+    self.context = true
+    
     def regexp
       /^\s*n(?:ext)?(?:\s+(\d+))?$/
     end
 
     def execute
       steps = @match[1] ? @match[1].to_i : 1
-      @state.context.step_over steps, @state.context.frames.size - @state.frame_pos
+      @state.context.step_over steps, @state.frames.size - @state.frame_pos
       @state.proceed
     end
 
@@ -24,6 +26,8 @@ module Debugger
   end
 
   class StepCommand < Command # :nodoc:
+    self.context = true
+    
     def regexp
       /^\s*s(?:tep)?(?:\s+(\d+))?$/
     end
@@ -47,15 +51,17 @@ module Debugger
   end
 
   class FinishCommand < Command # :nodoc:
+    self.context = true
+    
     def regexp
       /^\s*fin(?:ish)?$/
     end
 
     def execute
-      if @state.frame_pos == @state.context.frames.size
+      if @state.frame_pos == @state.frames.size
         print "\"finish\" not meaningful in the outermost frame.\n"
       else
-        @state.context.stop_frame = @state.context.frames.size - @state.frame_pos
+        @state.context.stop_frame = @state.frames.size - @state.frame_pos
         @state.frame_pos = 0
         @state.proceed
       end

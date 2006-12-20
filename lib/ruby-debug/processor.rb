@@ -61,9 +61,9 @@ module Debugger
     end
     protect :at_tracing
 
-    def at_line(context, file, line, binding)
+    def at_line(context, file, line, binding, frames = context.frames)
       print "%s:%d: %s", file, line, Debugger.line_at(file, line)
-      process_commands(context, file, line, binding)
+      process_commands(context, file, line, binding, frames)
     end
     protect :at_line
 
@@ -73,7 +73,15 @@ module Debugger
       @interface.print(*args)
     end
     
-    def process_commands(context, file, line, binding)
+    def prompt(context)
+      if context
+        "(rdb:%d) " % context.thnum
+      else
+        "(rdb:post-mortem) "
+      end
+    end
+    
+    def process_commands(context, file, line, binding, frames)
       event_cmds = Command.commands.select{|cmd| cmd.event }
       state = State.new do |s|
         s.context = context
@@ -83,12 +91,14 @@ module Debugger
         s.display = display
         s.interface = interface
         s.commands = event_cmds
+        s.frames = frames
       end
       commands = event_cmds.map{|cmd| cmd.new(state) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
       
-      while !state.proceed? and input = @interface.read_command("(rdb:%d) " % context.thnum)
+      while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
+          
           if input == ""
             next unless @last_cmd
             input = @last_cmd
@@ -97,7 +107,11 @@ module Debugger
           end
           
           if cmd = commands.find{ |c| c.match(input) }
-            cmd.execute
+            if context.nil? && cmd.class.context
+              print "Command is unavailable\n"
+            else
+              cmd.execute
+            end
           else
             unknown_cmd = commands.find{|cmd| cmd.class.unknown }
             if unknown_cmd
@@ -113,7 +127,7 @@ module Debugger
     class State # :nodoc:
       attr_accessor :context, :file, :line, :binding
       attr_accessor :frame_pos, :previous_line, :display
-      attr_accessor :interface, :commands
+      attr_accessor :interface, :commands, :frames
 
       def initialize
         @frame_pos = 0
