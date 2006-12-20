@@ -77,7 +77,7 @@ module Debugger
 
   class ContinueCommand < Command # :nodoc:
     def regexp
-      /^\s*c(?:ont)?$|^\s*r(?:un)?$/
+      /^\s*c(?:ont)?$/
     end
 
     def execute
@@ -86,19 +86,13 @@ module Debugger
 
     class << self
       def help_command
-        %w|cont run|
+        'cont'
       end
 
       def help(cmd)
-        if cmd == 'cont'
-          %{
-            c[ont]\trun until program ends or hit breakpoint
-          }
-        else
-          %{
-            r[un]\talias for cont
-          }
-        end
+        %{
+          c[ont]\trun until program ends or hit breakpoint
+        }
       end
     end
   end
