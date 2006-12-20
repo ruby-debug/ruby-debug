@@ -722,7 +722,7 @@ debug_start(VALUE self)
     }
     
     if(rb_block_given_p())
-        return rb_ensure(rb_yield, Qnil, debug_stop_i, self);
+        return rb_ensure(rb_yield, self, debug_stop_i, self);
     return result;
 }
 
@@ -1064,6 +1064,8 @@ debug_post_mortem(VALUE self)
 static VALUE
 debug_set_post_mortem(VALUE self, VALUE value)
 {
+    debug_check_started();
+
     post_mortem = RTEST(value) ? Qtrue : Qfalse;
     return value;
 }
