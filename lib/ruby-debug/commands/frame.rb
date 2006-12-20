@@ -5,7 +5,7 @@ module Debugger
     end
 
     def execute
-      print_frames(@state.context.frames, @state.frame_pos)
+      print_frames(@state.frames, @state.frame_pos)
     end
 
     class << self
@@ -45,11 +45,11 @@ module Debugger
         @state.frame_pos += (arg ? arg.to_i : 1)
       end
       @state.frame_pos = 0 if @state.frame_pos < 0
-      if @state.frame_pos >= @state.context.frames.size
-        @state.frame_pos = @state.context.frames.size - 1
+      if @state.frame_pos >= @state.frames.size
+        @state.frame_pos = @state.frames.size - 1
         print_msg "At toplevel"
       end
-      frame = @state.context.frames[@state.frame_pos]
+      frame = @state.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
       print_frame(frame, @state.frame_pos, @state.frame_pos)
     end
@@ -85,7 +85,7 @@ module Debugger
         @state.frame_pos = 0
         print_msg "At stack bottom"
       end
-      frame = @state.context.frames[@state.frame_pos]
+      frame = @state.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
       print_frame(frame, @state.frame_pos, @state.frame_pos)
     end

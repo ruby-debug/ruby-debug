@@ -58,6 +58,7 @@ static VALUE breakpoints = Qnil;
 static VALUE catchpoint  = Qnil;
 static VALUE tracing     = Qfalse;
 static VALUE locker      = Qnil;
+static VALUE post_mortem = Qfalse;
 
 static VALUE mDebugger;
 static VALUE cThreadsTable;
@@ -474,7 +475,8 @@ check_breakpoint_expression(VALUE breakpoint, VALUE binding)
 static void
 debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 {
-    VALUE thread, context, binding, breakpoint;
+    VALUE thread, context, breakpoint;
+    VALUE binding = Qnil;
     debug_context_t *debug_context;
     VALUE file = Qnil, line = Qnil;
     int breakpoint_index = -1;
@@ -626,6 +628,16 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         VALUE ancestors;
         VALUE expn_class, aclass;
         int i;
+        
+        if(post_mortem == Qtrue && self)
+        {
+            binding = create_binding(self);
+            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
+            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_file"), file);
+            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_line"), line);
+            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
+            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_frames"), rb_obj_dup(debug_context->frames));
+        }
 
         expn_class = rb_obj_class(ruby_errinfo);
         if( !NIL_P(rb_class_inherited_p(expn_class, rb_eSystemExit)) )
@@ -644,7 +656,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(rb_str_cmp(rb_mod_name(aclass), catchpoint) == 0)
             {
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
-                binding = self? create_binding(self) : Qnil;
+                if(self && binding == Qnil)
+                    binding = create_binding(self);
                 debug_context->stop_reason = 2;
                 call_at_line(context, debug_context->thnum, binding, file, line);
                 break;
@@ -1008,7 +1021,7 @@ debug_resume(VALUE self)
  *   call-seq:
  *      Debugger.tracing -> bool
  *   
- *   Returns +true+ is a global tracing is activated.
+ *   Returns +true+ if the global tracing is activated.
  */
 static VALUE
 debug_tracing(VALUE self)
@@ -1020,7 +1033,7 @@ debug_tracing(VALUE self)
  *   call-seq:
  *      Debugger.tracing = bool
  *   
- *   Sets a global tracing flag.
+ *   Sets the global tracing flag.
  */
 static VALUE
 debug_set_tracing(VALUE self, VALUE value)
@@ -1031,10 +1044,36 @@ debug_set_tracing(VALUE self, VALUE value)
 
 /*
  *   call-seq:
+ *      Debugger.post_mortem? -> bool
+ *   
+ *   Returns +true+ if post-moterm debugging is enabled.
+ */
+static VALUE
+debug_post_mortem(VALUE self)
+{
+    return post_mortem;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.post_mortem = bool
+ *   
+ *   Sets post-moterm flag.
+ *   FOR INTERNAL USE ONLY.
+ */
+static VALUE
+debug_set_post_mortem(VALUE self, VALUE value)
+{
+    post_mortem = RTEST(value) ? Qtrue : Qfalse;
+    return value;
+}
+
+/*
+ *   call-seq:
  *      Debugger.debug_load(file) -> nil
  *   
  *   Same as Kernel#load but resets current context's frames. 
- *   FOR INTERNAL USE ONLY.
+ *   FOR INTERNAL USE ONLY. Use Debugger.post_mortem method instead.
  */
 static VALUE
 debug_debug_load(VALUE self, VALUE file)
@@ -1581,6 +1620,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "debug_load", debug_debug_load, 1);
     rb_define_module_function(mDebugger, "skip", debug_skip, 0);
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
+    rb_define_module_function(mDebugger, "post_mortem?", debug_post_mortem, 0);
+    rb_define_module_function(mDebugger, "post_mortem=", debug_set_post_mortem, 1);
     
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
     
