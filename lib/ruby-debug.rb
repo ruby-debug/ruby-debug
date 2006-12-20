@@ -244,6 +244,7 @@ module Debugger
           yield
         rescue Exception => exp
           handle_post_mortem(exp)
+          raise
         ensure
           self.post_mortem = false
         end
