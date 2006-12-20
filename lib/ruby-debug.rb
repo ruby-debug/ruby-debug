@@ -97,12 +97,13 @@ module Debugger
     #
     # Starts a remote debugger.
     #
-    def start_remote(host = nil, port = PORT)
+    def start_remote(host = nil, port = PORT, post_mortem = false)
       return if @thread
       return if started?
 
       self.interface = nil
       start
+      self.post_mortem if post_mortem
 
       require "socket"
       
