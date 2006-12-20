@@ -6,14 +6,15 @@ require "ostruct"
 require 'ruby-debug'
 
 options = OpenStruct.new(
-  'server' => false,
-  'client' => false,
-  'host'   => nil,
-  'port'   => Debugger::PORT,
-  'cport'  => Debugger::PORT + 1,
-  'wait'   => false,
-  'nostop' => false,
-  'script' => nil
+  'server'      => false,
+  'client'      => false,
+  'host'        => nil,
+  'port'        => Debugger::PORT,
+  'cport'       => Debugger::PORT + 1,
+  'wait'        => false,
+  'nostop'      => false,
+  'post_mortem' => false,
+  'script'      => nil
 )
 
 opts = OptionParser.new do |opts|
@@ -26,6 +27,7 @@ EOB
   opts.on("-s", "--server", "Listen for remote connections") {options.server = true}
   opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
   opts.on("-n", "--nostop", "Do not stop when a client connects, implies -s option") {options.nostop = true}
+  opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
@@ -75,13 +77,14 @@ else
   Debugger.wait_connection = options.wait
   load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")
   if options.server
-    Debugger.start_remote(options.host, [options.port, options.cport])
+    Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem)
     Debugger.debug_load ARGV.shift
   else
     Debugger.start
     if options.script
       Debugger.run_script(options.script)
     end
+    Debugger.post_mortem if options.post_mortem
     debugger 2
     Debugger.debug_load ARGV.shift
   end
