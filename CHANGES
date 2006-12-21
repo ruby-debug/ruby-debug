@@ -1,6 +1,10 @@
 0.6
 - Added two output formats: plain and xml
 
+0.5.2
+- Fixes interoperability problems with rspec.
+- Made 'exit' as an alias to 'quit'
+
 0.5.1
 - Bugfixes.
 
