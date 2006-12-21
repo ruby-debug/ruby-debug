@@ -10,7 +10,7 @@ module Debugger
         :control => false, 
         :always_run => false,
         :unknown => false,
-        :context => false,
+        :need_context => false,
       }
       
       def inherited(klass)

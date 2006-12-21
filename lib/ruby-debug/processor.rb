@@ -107,7 +107,7 @@ module Debugger
           catch(:debug_error) do
             @printer.print_debug "Processing: #{input}"
             if cmd = commands.find{ |c| c.match(input) }
-              if context.nil? && cmd.class.context
+              if context.nil? && cmd.class.need_context
                 print "Command is unavailable\n"
               else
                 cmd.execute

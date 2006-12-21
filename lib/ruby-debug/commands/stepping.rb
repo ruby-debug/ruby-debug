@@ -1,6 +1,6 @@
 module Debugger
   class NextCommand < Command # :nodoc
-    self.context = true
+    self.need_context = true
     
     def regexp
       /^\s*n(?:ext)?(?:\s+(\d+))?(?:\s+(\d+))?$/
@@ -27,7 +27,7 @@ module Debugger
   end
 
   class StepCommand < Command # :nodoc:
-    self.context = true
+    self.need_context = true
     
     def regexp
       /^\s*s(?:tep)?(?:\s+(\d+))?$/
@@ -52,7 +52,7 @@ module Debugger
   end
 
   class FinishCommand < Command # :nodoc:
-    self.context = true
+    self.need_context = true
     
     def regexp
       /^\s*fin(?:ish)?$/

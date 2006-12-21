@@ -25,7 +25,7 @@ module Debugger
 
   class ThreadSwitchCommand < Command # :nodoc:
     self.control = true
-    self.context = true
+    self.need_context = true
 
     def regexp
       /^\s*th(?:read)?\s+(?:sw(?:itch)?\s+)?(\d+)\s*$/
@@ -61,7 +61,7 @@ module Debugger
 
   class ThreadStopCommand < Command # :nodoc:
     self.control = true
-    self.context = true
+    self.need_context = true
 
     def regexp
       /^\s*th(?:read)?\s+stop\s+(\d+)\s*$/
@@ -94,7 +94,7 @@ module Debugger
   end
 
   class ThreadCurrentCommand < Command # :nodoc:
-    self.context = true
+    self.need_context = true
 
     def regexp
       /^\s*th(?:read)?\s+c(?:ur(?:rent)?)?\s*$/
@@ -119,7 +119,7 @@ module Debugger
 
   class ThreadResumeCommand < Command # :nodoc:
     self.control = true
-    self.context = true
+    self.need_context = true
     
     def regexp
       /^\s*th(?:read)?\s+resume\s+(\d+)\s*$/

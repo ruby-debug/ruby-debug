@@ -3,7 +3,7 @@ module Debugger
     self.control = true
 
     def regexp
-      /^\s*q(?:uit)?\s*$/
+      /^\s*(?:q(?:uit)?|exit)\s*$/
     end
 
     def execute
@@ -15,12 +15,13 @@ module Debugger
 
     class << self
       def help_command
-        'quit'
+        %w[quit exit]
       end
 
       def help(cmd)
         %{
-          q[uit]\texit from debugger
+          q[uit]\texit from debugger, 
+          exit\talias to quit
         }
       end
     end
@@ -29,7 +30,7 @@ module Debugger
   class InterruptCommand < Command # :nodoc:
     self.event = false
     self.control = true
-    self.context = true
+    self.need_context = true
     
     def regexp
       /^\s*i(?:nterrupt)?\s*$/
