@@ -33,17 +33,17 @@ module Debugger
       end
       IRB.start_session(@state.binding)
     end
-  end
-  
-  class << self
-    def help_command
-      'irb'
-    end
     
-    def help(cmd)
-      %{
-        irb\tstarts an IRB session. (EXPERIMENTAL)
-      }
+    class << self
+      def help_command
+        'irb'
+      end
+
+      def help(cmd)
+        %{
+          irb\tstarts an IRB session. (EXPERIMENTAL)
+        }
+      end
     end
   end
 end
