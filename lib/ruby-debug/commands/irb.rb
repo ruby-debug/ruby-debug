@@ -1,8 +1,14 @@
 require 'irb'
 module IRB # :nodoc:
   def self.start_session(binding)
-    IRB.setup(nil)
-
+    unless @__initialized
+      args = ARGV
+      ARGV.replace(ARGV.dup)
+      IRB.setup(nil)
+      ARGV.replace(args)
+      @__initialized = true
+    end
+    
     workspace = WorkSpace.new(binding)
 
     irb = Irb.new(workspace)
