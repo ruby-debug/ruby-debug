@@ -47,7 +47,7 @@ module Debugger
 
   class ThreadSwitchCommand < Command # :nodoc:
     self.control = true
-    self.context = true
+    self.need_context = true
     
     include ThreadFunctions
 
@@ -85,7 +85,7 @@ module Debugger
 
   class ThreadStopCommand < Command # :nodoc:
     self.control = true
-    self.context = true
+    self.need_context = true
     
     include ThreadFunctions
 
@@ -122,7 +122,7 @@ module Debugger
   end
 
   class ThreadCurrentCommand < Command # :nodoc:
-    self.context = true
+    self.need_context = true
     
     include ThreadFunctions
 
@@ -149,7 +149,7 @@ module Debugger
 
   class ThreadResumeCommand < Command # :nodoc:
     self.control = true
-    self.context = true
+    self.need_context = true
     
     include ThreadFunctions
 
