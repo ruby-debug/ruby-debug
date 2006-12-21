@@ -8,9 +8,9 @@ module Debugger
       if @match[2]
         Debugger.tracing = @match[1] == 'on'
       elsif @match[1]
-        @state.context.tracing = @match[1] == 'on'
+        Debugger.current_context.tracing = @match[1] == 'on'
       end
-      if Debugger.tracing || @state.context.tracing
+      if Debugger.tracing || Debugger.current_context.tracing
         print "Trace on.\n"
       else
         print "Trace off.\n"
