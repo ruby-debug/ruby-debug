@@ -55,7 +55,11 @@ end
 
 begin
   Debugger::ARGV = ARGV.clone
-  Debugger::RDEBUG_SCRIPT = File.expand_path($0)
+  rdebug_path = File.expand_path($0)
+  if RUBY_PLATFORM =~ /mswin/
+    rdebug_path += ".cmd" unless rdebug_path =~ /\.cmd$/i
+  end
+  Debugger::RDEBUG_SCRIPT = rdebug_path
   opts.parse! ARGV
 rescue StandardError => e
   puts opts
