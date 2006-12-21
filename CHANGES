@@ -1,6 +1,7 @@
 0.5.2
 - Fixes interoperability problems with rspec.
 - Made 'exit' as an alias to 'quit'
+- Added 'restart' command. Patch from R. Bernstein.
 
 0.5.1
 - Bugfixes.

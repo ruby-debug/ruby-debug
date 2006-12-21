@@ -1,6 +1,7 @@
 module Debugger
   module FrameFunctions # :nodoc:
     def format_frame(frame, pos)
+      printf "\032\032" if ENV['EMACS']
       file, line, id = frame.file, frame.line, frame.id
       "#%d %s:%s%s\n" % [pos + 1, file, line, (id ? ":in `#{id.id2name}'" : "")]
     end
