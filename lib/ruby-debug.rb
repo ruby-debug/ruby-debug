@@ -77,7 +77,7 @@ module Debugger
     def interface=(value) # :nodoc:
       processor.interface = value
     end
-    
+
     #
     # Starts a remote debugger.
     #

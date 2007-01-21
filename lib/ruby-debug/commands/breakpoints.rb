@@ -74,11 +74,11 @@ module Debugger
     def execute
       unless Debugger.breakpoints.empty?
         print "Breakpoints:\n"
-        Debugger.breakpoints.each_with_index do |b, n|
+        Debugger.breakpoints.sort_by{|b| b.id }.each do |b|
           if b.expr.nil?
-            print "  %d %s:%s\n", n+1, b.source, b.pos
+            print "  %d %s:%s\n", b.id, b.source, b.pos
           else
-            print "  %d %s:%s if %s\n", n+1, b.source, b.pos, b.expr
+            print "  %d %s:%s if %s\n", b.id, b.source, b.pos, b.expr
           end
         end
         print "\n"
@@ -115,7 +115,7 @@ module Debugger
         end
       else
         pos = pos.to_i
-        unless Debugger.breakpoints.delete_at(pos-1)
+        unless Debugger.remove_breakpoint(pos)
           print "Breakpoint %d is not defined\n", pos
         end
       end
