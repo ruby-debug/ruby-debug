@@ -272,7 +272,8 @@ module Debugger
     end
     
     def handle_post_mortem(exp)
-      processor.at_line(nil, exp.__debug_file, exp.__debug_line, exp.__debug_binding, exp.__debug_frames)
+      return if exp.__debug_frames.empty?
+      processor.at_line(nil, exp.__debug_file, exp.__debug_line, exp.__debug_frames.first.binding, exp.__debug_frames)
     end
     private :handle_post_mortem
   end
@@ -313,6 +314,24 @@ class Module
       Debugger.start do
         debugger 2
         #{old_meth}(*args, &block)
+      end
+    end
+    EOD
+  end
+  
+  #
+  # Wraps the +meth+ method with Debugger.post_mortem {...} block.
+  #
+  def post_mortem_method(meth)
+    old_meth = "__postmortem_#{meth}"
+    old_meth = "#{$1}_set" if old_meth =~ /^(.+)=$/
+    alias_method old_meth.to_sym, meth
+    class_eval <<-EOD
+    def #{meth}(*args, &block)
+      Debugger.start do |dbg|
+        dbg.post_mortem do
+          #{old_meth}(*args, &block)
+        end
       end
     end
     EOD

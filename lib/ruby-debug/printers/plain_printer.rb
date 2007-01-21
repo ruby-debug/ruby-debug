@@ -30,6 +30,7 @@ module Debugger
         print "    "
       end
       file, line, id = frame.file, frame.line, frame.id
+      printf "\032\032" if ENV['EMACS']
       print "#%d %s:%s%s\n", idx + 1, file, line, (id ? ":in `#{id.id2name}'" : "")
     end
     

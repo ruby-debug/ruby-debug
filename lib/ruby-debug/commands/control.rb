@@ -27,6 +27,49 @@ module Debugger
     end
   end
   
+  class RestartCommand < Command # :nodoc:
+    self.control = true
+
+    def regexp
+      / ^\s*
+      (restart|R)
+      (\s+ \S+ .*)?
+      $
+      /x
+    end
+    
+    def execute
+      if not defined? Debugger::RDEBUG_SCRIPT or not defined? Debugger::ARGV
+        print "We are not in a context we can restart from.\n"
+        return
+      end
+      if @match[2]
+        args = Debugger::PROG_SCRIPT + " " + @match[2]
+      else
+        args = Debugger::ARGV.join(" ")
+      end
+
+      # An execv would be preferable to the "exec" below.
+      cmd = Debugger::RDEBUG_SCRIPT + " " + args
+      print "Re exec'ing:\n\t#{cmd}\n"
+      exec cmd
+    end
+
+    class << self
+      def help_command
+        'restart'
+      end
+
+      def help(cmd)
+        %{
+          restart|R [args] 
+          Restart the program. This is is a re-exec - all debugger state
+          is lost. If command arguments are passed those are used.
+        }
+      end
+    end
+  end
+
   class InterruptCommand < Command # :nodoc:
     self.event = false
     self.control = true

@@ -89,7 +89,7 @@ module Debugger
   
   class ScriptInterface # :nodoc:
     def initialize(file, out)
-      @file = open(file)
+      @file = file.respond_to?(:gets) ? file : open(file)
       @out = out
     end
     

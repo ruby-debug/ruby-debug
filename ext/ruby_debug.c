@@ -632,7 +632,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         if(post_mortem == Qtrue && self)
         {
             binding = create_binding(self);
-            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_file"), file);
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_line"), line);
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);

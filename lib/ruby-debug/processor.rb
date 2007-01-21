@@ -13,6 +13,7 @@ module Debugger
       @display = []
       @mutex = Mutex.new
       @last_cmd = nil
+      @actions = []
     end
     
     def interface=(interface)
@@ -94,21 +95,19 @@ module Debugger
       commands = event_cmds.map{|cmd| cmd.new(state, @printer) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
       while !state.proceed? and input = @interface.read_command(prompt(context))
-        if input == ""
-          next unless @last_cmd
-          input = @last_cmd
-        else
-          @last_cmd = input
-        end
-        
-        input.split(";").each {
-          |input|
-          input.strip!
-          catch(:debug_error) do
-            @printer.print_debug "Processing: #{input}"
+        catch(:debug_error) do
+          
+          if input == ""
+            next unless @last_cmd
+            input = @last_cmd
+          else
+            @last_cmd = input
+          end
+          
+          input.split(";").each do |input|
             if cmd = commands.find{ |c| c.match(input) }
               if context.nil? && cmd.class.need_context
-                print "Command is unavailable\n"
+                @printer.print_msg "Command is unavailable\n"
               else
                 cmd.execute
               end
@@ -121,7 +120,7 @@ module Debugger
               end
             end
           end
-        }
+        end
       end
     end
     

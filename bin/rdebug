@@ -64,6 +64,12 @@ EOB
 end
 
 begin
+  Debugger::ARGV = ARGV.clone
+  rdebug_path = File.expand_path($0)
+  if RUBY_PLATFORM =~ /mswin/
+    rdebug_path += ".cmd" unless rdebug_path =~ /\.cmd$/i
+  end
+  Debugger::RDEBUG_SCRIPT = rdebug_path
   opts.parse! ARGV
 rescue StandardError => e
   puts opts
@@ -82,13 +88,14 @@ else
     exit(1)
   end
 
+  Debugger::PROG_SCRIPT = ARGV.shift
   trap('INT') { Debugger.interrupt_last }
   Debugger.stop_on_connect = !options.nostop
   Debugger.wait_connection = options.wait
   load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")
   if options.server
     Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem)
-    Debugger.debug_load ARGV.shift
+    Debugger.debug_load Debugger::PROG_SCRIPT
   else
     Debugger.start
     if options.script
@@ -96,6 +103,6 @@ else
     end
     Debugger.post_mortem if options.post_mortem
     debugger 2
-    Debugger.debug_load ARGV.shift
+    Debugger.debug_load Debugger::PROG_SCRIPT
   end
 end
