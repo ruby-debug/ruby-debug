@@ -46,8 +46,8 @@ module Debugger
         pos = pos.intern.id2name
       end
       
-      Debugger.add_breakpoint file, pos, expr
-      print "Set breakpoint %d at %s:%s\n", Debugger.breakpoints.size, file, pos.to_s
+      b = Debugger.add_breakpoint file, pos, expr
+      print "Set breakpoint %d at %s:%s\n", b.id, file, pos.to_s
     end
 
     class << self
