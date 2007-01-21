@@ -24,6 +24,7 @@ module Debugger
     def print_debug(*args)
       if Debugger.is_debug
         $stdout.printf(*args)
+        $stdout.printf("\n")
         $stdout.flush
       end
     end
@@ -34,6 +35,10 @@ module Debugger
           print_frame(frame, idx, cur_idx)
         end
       end
+    end
+    
+    def print_current_frame(frame, frame_pos)
+      print_debug "Selected frame no #{frame_pos}"
     end
     
     def print_frame(frame, idx, cur_idx)
@@ -112,13 +117,16 @@ module Debugger
       CGI.escapeHTML(name), kind, CGI.escapeHTML(value_str), value.class, has_children, value.object_id)
     end
     
-    
     def print_breakpoints(breakpoints)
       print_element 'breakpoints' do
-        breakpoints.each_with_index do |b, n|
-          print "<breakpoint n=\"%d\" file=\"%s\" line=\"%s\" />\n", n+1, b.source, b.pos.to_s
+        breakpoints.sort_by{|b| b.id }.each do |b|
+          print "<breakpoint n=\"%d\" file=\"%s\" line=\"%s\" />\n", b.id, b.source, b.pos.to_s
         end
       end
+    end
+    
+    def print_breakpoint_added(msg, no, file_or_klass, pos_or_method)
+      print "<breakpointAdded no=\"%s\" location=\"%s:%s\"/>", no, file_or_klass, pos_or_method
     end
     
     def print_expressions(exps)
@@ -191,7 +199,8 @@ module Debugger
     end
     
     def print_exception(excpt, binding)
-      print_catchpoint excpt
+      print "<processingException type=\"%s\" message=\"%s\"/>\n", 
+        exception.class, CGI.escapeHTML(exception.to_s)
     end
     
     private

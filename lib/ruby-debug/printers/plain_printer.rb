@@ -8,13 +8,18 @@ module Debugger
     end
     
     def print_msg(*args)
-      print *args
+      print(*args)
       print "\n"
     end
     
     alias print_error print_msg
+    alias print_breakpoint_added print_msg
     
     def print_debug(*args)
+    end
+    
+    def print_current_frame(frame, frame_pos)
+      print_frame(frame, frame_pos, frame_pos)
     end
     
     def print_frames(frames, cur_idx)
@@ -83,11 +88,11 @@ module Debugger
     def print_breakpoints(breakpoints)
       unless breakpoints.empty?
         print "Breakpoints:\n"
-        breakpoints.each_with_index do |b, n|
+        breakpoints.sort_by{|b| b.id }.each do |b|
           if b.expr.nil?
-            print "  %d %s:%s\n", n+1, b.source, b.pos
+            print "  %d %s:%s\n", b.id, b.source, b.pos
           else
-            print "  %d %s:%s if %s\n", n+1, b.source, b.pos, b.expr
+            print "  %d %s:%s if %s\n", b.id, b.source, b.pos, b.expr
           end
         end
         print "\n"

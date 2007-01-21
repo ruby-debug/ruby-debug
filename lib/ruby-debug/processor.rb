@@ -94,9 +94,9 @@ module Debugger
       end
       commands = event_cmds.map{|cmd| cmd.new(state, @printer) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
+      # commands may be separated with semicolons which can be escaped with backslash
       while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
-          
           if input == ""
             next unless @last_cmd
             input = @last_cmd
@@ -104,7 +104,11 @@ module Debugger
             @last_cmd = input
           end
           
-          input.split(";").each do |input|
+          input.split(/[^\\\\];/).each do |input|
+            input.strip!
+            input.gsub!(/[\\\\];/, ";")
+            # escape % since print_debug might use printf
+            @printer.print_debug "Processing: #{input.gsub('%', '%%')}"
             if cmd = commands.find{ |c| c.match(input) }
               if context.nil? && cmd.class.need_context
                 @printer.print_msg "Command is unavailable\n"

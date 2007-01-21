@@ -51,7 +51,7 @@ module Debugger
       end
       frame = @state.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print_frame(frame, @state.frame_pos, @state.frame_pos)
+      print_current_frame(frame, @state.frame_pos)
     end
 
     class << self
@@ -87,7 +87,7 @@ module Debugger
       end
       frame = @state.frames[@state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print_frame(frame, @state.frame_pos, @state.frame_pos)
+      print_current_frame(frame, @state.frame_pos)
     end
 
     class << self

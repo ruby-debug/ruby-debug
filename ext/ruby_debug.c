@@ -44,6 +44,7 @@ typedef struct {
 } debug_frame_t;
 
 typedef struct {
+    int   id;
     VALUE source;
     VALUE pos;
     VALUE expr;
@@ -82,6 +83,7 @@ static ID idIndex;
 
 static int start_count = 0;
 static int thnum_max = 0;
+static int bkp_count = 0;
 static int last_debugged_thnum = -1;
 
 static VALUE create_binding(VALUE);
@@ -789,11 +791,42 @@ debug_add_breakpoint(int argc, VALUE *argv, VALUE self)
 
     breakpoint = ALLOC(debug_breakpoint_t);
     breakpoint->source = StringValue(source);
+    breakpoint->id = ++bkp_count;
     breakpoint->pos = pos;
     breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
     result = Data_Wrap_Struct(cBreakpoint, breakpoint_mark, xfree, breakpoint);
     rb_ary_push(breakpoints, result);
     return result;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.remove_breakpoint(id) -> breakpoint
+ *   
+ *   Removes breakpoint by its id.
+ *   <i>id</i> is an identificator of a breakpoint.
+ */
+static VALUE
+debug_remove_breakpoint(VALUE self, VALUE id_value)
+{
+    int i;
+    int id;
+    VALUE breakpoint;
+    debug_breakpoint_t *debug_breakpoint;
+    
+    id = FIX2INT(id_value);
+    
+    for( i = 0; i < RARRAY(breakpoints)->len; i += 1 )
+    {
+        breakpoint = rb_ary_entry(breakpoints, i);
+        Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+        if(debug_breakpoint->id == id)
+        {
+            rb_ary_delete_at(breakpoints, i);
+            return breakpoint;
+        }
+    }
+    return Qnil;
 }
 
 /*
@@ -1527,6 +1560,21 @@ breakpoint_expr(VALUE self)
 }
 
 /*
+ *   call-seq:
+ *      breakpoint.id -> int
+ *   
+ *   Returns id of the breakpoint.
+ */
+static VALUE
+breakpoint_id(VALUE self)
+{
+    debug_breakpoint_t *breakpoint;
+    
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    return INT2FIX(breakpoint->id);
+}
+
+/*
  *   Document-class: Context
  *   
  *   == Summary
@@ -1586,6 +1634,7 @@ Init_breakpoint()
     rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
     rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
     rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
+    rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
 }
 
 /*
@@ -1609,6 +1658,7 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "started?", debug_is_started, 0);
     rb_define_module_function(mDebugger, "breakpoints", debug_breakpoints, 0);
     rb_define_module_function(mDebugger, "add_breakpoint", debug_add_breakpoint, -1);
+    rb_define_module_function(mDebugger, "remove_breakpoint", debug_remove_breakpoint, 1);
     rb_define_module_function(mDebugger, "catchpoint", debug_catchpoint, 0);
     rb_define_module_function(mDebugger, "catchpoint=", debug_set_catchpoint, 1);
     rb_define_module_function(mDebugger, "last_context", debug_last_interrupted, 0);
