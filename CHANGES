@@ -1,3 +1,7 @@
+0.5.3
+- Added Module#post_mortem_method method, which wraps any method with Debugger.post_mortem block.
+- Added breakpoint id, which is not dependent on the breakpoint position in Debugger.breakpoints array.
+
 0.5.2
 - Fixes interoperability problems with rspec.
 - Made 'exit' as an alias to 'quit'
