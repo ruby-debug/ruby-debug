@@ -11,6 +11,7 @@ module Debugger
       @display = []
       @mutex = Mutex.new
       @last_cmd = nil
+      @actions = []
     end
     
     def interface=(interface)
@@ -66,7 +67,7 @@ module Debugger
       process_commands(context, file, line, binding, frames)
     end
     protect :at_line
-
+    
     private
     
     def print(*args)
@@ -106,18 +107,20 @@ module Debugger
             @last_cmd = input
           end
           
-          if cmd = commands.find{ |c| c.match(input) }
-            if context.nil? && cmd.class.need_context
-              print "Command is unavailable\n"
+          input.split(";").each do |input|
+            if cmd = commands.find{ |c| c.match(input) }
+              if context.nil? && cmd.class.need_context
+                print "Command is unavailable\n"
+              else
+                cmd.execute
+              end
             else
-              cmd.execute
-            end
-          else
-            unknown_cmd = commands.find{|cmd| cmd.class.unknown }
-            if unknown_cmd
-              unknown_cmd.execute
-            else
-              print "Unknown command\n"
+              unknown_cmd = commands.find{|cmd| cmd.class.unknown }
+              if unknown_cmd
+                unknown_cmd.execute
+              else
+                print "Unknown command\n"
+              end
             end
           end
         end

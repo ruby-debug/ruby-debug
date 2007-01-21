@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.5.2"
+#define DEBUG_VERSION "0.5.3"
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
@@ -627,7 +627,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         if(post_mortem == Qtrue && self)
         {
             binding = create_binding(self);
-            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_file"), file);
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_line"), line);
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
