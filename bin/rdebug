@@ -95,7 +95,6 @@ else
     end
     Debugger.post_mortem if options.post_mortem
     if options.tracing
-      debugger 0
       Debugger.tracing = true
     else
       debugger 2
