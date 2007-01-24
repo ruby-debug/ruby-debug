@@ -1,3 +1,7 @@
+0.5.4
+- Added -x/--trace option to rdebug script. Patch from R. Bernstein.
+- Removed a live thread reference from the context's structure avoiding memory leakage.
+
 0.5.3
 - Added Module#post_mortem_method method, which wraps any method with Debugger.post_mortem block.
 - Added breakpoint id, which is not dependent on the breakpoint position in Debugger.breakpoints array.

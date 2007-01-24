@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.5.3"
+#define DEBUG_VERSION "0.5.4"
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
@@ -29,8 +29,8 @@ typedef struct {
     int dest_frame;
     int stop_line;
     int stop_frame;
+    unsigned long thread_id;
     VALUE frames;
-    VALUE thread;
     VALUE last_file;
     VALUE last_line;
 } debug_context_t;
@@ -68,6 +68,7 @@ static VALUE cBreakpoint;
 
 static VALUE file_separator;
 static VALUE alt_file_separator;
+static VALUE rb_mObjectSpace;
 
 static ID idAtLine;
 static ID idAtBreakpoint;
@@ -84,6 +85,7 @@ static int start_count = 0;
 static int thnum_max = 0;
 static int bkp_count = 0;
 static int last_debugged_thnum = -1;
+static time_t last_check = 0;
 
 static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
@@ -95,6 +97,41 @@ typedef struct locked_thread_t {
 
 static locked_thread_t *locked_head = NULL;
 static locked_thread_t *locked_tail = NULL;
+
+inline static unsigned long 
+ref2id(VALUE obj)
+{
+    return NUM2ULONG(rb_obj_id(obj));
+}
+
+static VALUE
+id2ref_unprotected(VALUE id)
+{
+    static ID id_id2ref = 0;
+    if(!id_id2ref)
+    {
+        id_id2ref = rb_intern("_id2ref");
+    }
+    return rb_funcall(rb_mObjectSpace, id_id2ref, 1, id);
+}
+
+static VALUE
+id2ref_error()
+{
+    return Qnil;
+}
+
+static VALUE
+id2ref(unsigned long id)
+{
+    return rb_rescue(id2ref_unprotected, ULONG2NUM(id), id2ref_error, 0);
+}
+
+inline static VALUE
+context_thread_0(debug_context_t *debug_context)
+{
+    return id2ref(debug_context->thread_id);
+}
 
 static int
 is_in_locked(VALUE thread)
@@ -149,7 +186,7 @@ remove_from_locked()
 static int
 thread_hash(VALUE thread)
 {
-    return (int)FIX2LONG(rb_obj_id(thread));
+    return (int)thread;
 }
 
 static int
@@ -168,7 +205,6 @@ static struct st_hash_type st_thread_hash = {
 static int
 threads_table_mark_keyvalue(VALUE key, VALUE value, int dummy)
 {
-    rb_gc_mark(key);
     rb_gc_mark(value);
     return ST_CONTINUE;
 }
@@ -213,6 +249,43 @@ threads_table_clear(VALUE table)
     st_foreach(threads_table->tbl, threads_table_clear_i, 0);
 }
 
+static VALUE
+is_thread_alive(VALUE thread)
+{
+    static ID id_alive = 0;
+    if(!id_alive)
+    {
+        id_alive = rb_intern("alive?");
+    }
+    return rb_funcall(thread, id_alive, 0);
+}
+
+static int
+threads_table_check_i(VALUE key, VALUE value, VALUE dummy)
+{
+    VALUE thread;
+    
+    thread = id2ref(key);
+    if(!rb_obj_is_kind_of(thread, rb_cThread))
+    {
+        return ST_DELETE;
+    }
+    if(rb_protect(is_thread_alive, thread, 0) != Qtrue)
+    {
+        return ST_DELETE;
+    }
+    return ST_CONTINUE;
+}
+
+static void
+check_thread_contexts()
+{
+    threads_table_t *threads_table;
+
+    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    st_foreach(threads_table->tbl, threads_table_check_i, 0);
+}
+
 /*
  *   call-seq:
  *      Debugger.started? -> bool
@@ -239,7 +312,6 @@ debug_context_mark(void* data)
 {
     debug_context_t *debug_context = (debug_context_t *)data;
     rb_gc_mark(debug_context->frames);
-    rb_gc_mark(debug_context->thread);
     rb_gc_mark(debug_context->last_file);
     rb_gc_mark(debug_context->last_line);
 }
@@ -262,7 +334,7 @@ debug_context_create(VALUE thread)
     debug_context->stop_line = -1;
     debug_context->stop_frame = -1;
     debug_context->frames = rb_ary_new();
-    debug_context->thread = thread;
+    debug_context->thread_id = ref2id(thread);
     result = Data_Wrap_Struct(cContext, debug_context_mark, xfree, debug_context);
     return result;
 }
@@ -272,14 +344,15 @@ thread_context_lookup(VALUE thread)
 {
     VALUE context;
     threads_table_t *threads_table;
+    unsigned long thread_id = ref2id(thread);
 
     debug_check_started();
 
     Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
-    if(!st_lookup(threads_table->tbl, thread, &context))
+    if(!st_lookup(threads_table->tbl, thread_id, &context))
     {
         context = debug_context_create(thread);
-        st_insert(threads_table->tbl, thread, context);
+        st_insert(threads_table->tbl, thread_id, context);
     }
     return context;
 }
@@ -669,6 +742,13 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 
     cleanup:
     
+    /* check that all contexts point to alive threads */
+    if(time(NULL) - last_check > 5)
+    {
+        check_thread_contexts();
+        last_check = time(NULL);
+    }
+    
     /* release a lock */
     locker = Qnil;
     /* let the next thread to run */
@@ -958,7 +1038,7 @@ debug_contexts(VALUE self)
     {
         context = rb_ary_entry(new_list, i);
         Data_Get_Struct(context, debug_context_t, debug_context);
-        st_insert(threads_table->tbl, debug_context->thread, context);
+        st_insert(threads_table->tbl, debug_context->thread_id, context);
     }
 
     return new_list;
@@ -1033,7 +1113,7 @@ debug_resume(VALUE self)
         if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
         {
             CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
-            rb_thread_run(debug_context->thread);
+            rb_thread_run(context_thread_0(debug_context));
         }
     }
     rb_thread_critical = saved_crit;
@@ -1295,7 +1375,7 @@ context_thread(VALUE self)
     debug_context_t *debug_context;
 
     Data_Get_Struct(self, debug_context_t, debug_context);
-    return debug_context->thread;
+    return context_thread_0(debug_context);
 }
 
 /*
@@ -1350,7 +1430,7 @@ context_resume(VALUE self)
     if(!CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
         rb_raise(rb_eRuntimeError, "Thread is not suspended.");
     CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
-    rb_thread_run(debug_context->thread);
+    rb_thread_run(context_thread_0(debug_context));
     return Qnil;
 }
 
@@ -1668,6 +1748,7 @@ Init_ruby_debug()
 
     file_separator = rb_eval_string("File::SEPARATOR");
     alt_file_separator = rb_eval_string("File::ALT_SEPARATOR");
+    rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
     rb_global_variable(&threads_tbl);
     rb_global_variable(&breakpoints);
