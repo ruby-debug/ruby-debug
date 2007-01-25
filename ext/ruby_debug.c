@@ -74,7 +74,6 @@ static ID idAtLine;
 static ID idAtBreakpoint;
 static ID idAtCatchpoint;
 static ID idAtTracing;
-static ID idBinding;
 static ID idBasename;
 static ID idEval;
 static ID idList;
@@ -98,6 +97,15 @@ typedef struct locked_thread_t {
 static locked_thread_t *locked_head = NULL;
 static locked_thread_t *locked_tail = NULL;
 
+inline static void *
+ruby_method_ptr(VALUE class, ID meth_id)
+{
+    NODE *body, *method;
+    st_lookup(RCLASS(class)->m_tbl, meth_id, (st_data_t *)&body);
+    method       = (NODE *)body->u2.value;
+    return (void *)method->u1.value;
+}
+
 inline static unsigned long 
 ref2id(VALUE obj)
 {
@@ -107,12 +115,13 @@ ref2id(VALUE obj)
 static VALUE
 id2ref_unprotected(VALUE id)
 {
-    static ID id_id2ref = 0;
-    if(!id_id2ref)
+    typedef VALUE (*id2ref_func_t)(VALUE, VALUE);
+    static id2ref_func_t f_id2ref = NULL;
+    if(f_id2ref == NULL)
     {
-        id_id2ref = rb_intern("_id2ref");
+        f_id2ref = ruby_method_ptr(rb_mObjectSpace, rb_intern("_id2ref"));
     }
-    return rb_funcall(rb_mObjectSpace, id_id2ref, 1, id);
+    return f_id2ref(rb_mObjectSpace, id);
 }
 
 static VALUE
@@ -511,10 +520,7 @@ create_binding(VALUE self)
 
     if(f_binding == NULL)
     {
-        NODE *body, *method;
-        st_lookup(RCLASS(rb_mKernel)->m_tbl, idBinding, (st_data_t *)&body);
-        method       = (NODE *)body->u2.value;
-        f_binding    = (bind_func_t)method->u1.value;
+        f_binding = (bind_func_t)ruby_method_ptr(rb_mKernel, rb_intern("binding"));
     }
     return f_binding(self);
 }
@@ -1740,7 +1746,6 @@ Init_ruby_debug()
     idAtBreakpoint = rb_intern("at_breakpoint");
     idAtCatchpoint = rb_intern("at_catchpoint");
     idAtTracing    = rb_intern("at_tracing");
-    idBinding      = rb_intern("binding");
     idBasename     = rb_intern("basename");
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
