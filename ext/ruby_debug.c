@@ -91,7 +91,7 @@ static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
 
 typedef struct locked_thread_t { 
-    VALUE thread;
+    unsigned long thread_id;
     struct locked_thread_t *next;
 } locked_thread_t;
 
@@ -134,7 +134,7 @@ context_thread_0(debug_context_t *debug_context)
 }
 
 static int
-is_in_locked(VALUE thread)
+is_in_locked(unsigned long thread_id)
 {
     locked_thread_t *node;
     
@@ -143,7 +143,7 @@ is_in_locked(VALUE thread)
     
     for(node = locked_head; node != locked_tail; node = node->next)
     {
-        if(node->thread == thread) return 1;
+        if(node->thread_id == thread_id) return 1;
     }
     return 0;
 }
@@ -152,12 +152,13 @@ static void
 add_to_locked(VALUE thread)
 {
     locked_thread_t *node;
+    unsigned long thread_id = ref2id(thread);
     
-    if(is_in_locked(thread))
+    if(is_in_locked(thread_id))
         return;
 
     node = ALLOC(locked_thread_t);
-    node->thread = thread;
+    node->thread_id = thread_id;
     node->next = NULL;
     if(locked_tail)
         locked_tail->next = node;
@@ -178,7 +179,7 @@ remove_from_locked()
     locked_head = locked_head->next;
     if(locked_tail == node)
         locked_tail = NULL;
-    thread = node->thread;
+    thread = id2ref(node->thread_id);
     xfree(node);
     return thread;
 }
