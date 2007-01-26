@@ -186,7 +186,7 @@ module Debugger
     private :stop_main_thread
 
     def source_for(file) # :nodoc:
-      Dir.chdir File.dirname($0) do
+      finder = lambda do
         unless File.exists?(file)
           return (SCRIPT_LINES__[file] == true ? nil : SCRIPT_LINES__[file])
         end
@@ -203,6 +203,7 @@ module Debugger
 
         SCRIPT_LINES__[file]
       end
+      Dir.chdir(File.dirname($0)){finder.call} || finder.call
     end
     
     def source_reload

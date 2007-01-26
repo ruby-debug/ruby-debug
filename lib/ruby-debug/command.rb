@@ -72,7 +72,7 @@ module Debugger
 
     def debug_eval(str, b = @state.binding)
       unless b
-        print "Can't evaluate in the current context.\n"
+        @printer.print_error "Can't evaluate in the current context.\n"
         throw :debug_error
       end
       begin
