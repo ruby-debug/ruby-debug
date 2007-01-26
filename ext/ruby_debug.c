@@ -21,6 +21,7 @@
                           strcmp(debug_context->last_file, file) != 0)
 
 #define IS_STARTED  (threads_tbl != Qnil)
+#define min(x,y) ((x) < (y) ? (x) : (y))
 
 typedef struct {
     int thnum;
@@ -449,27 +450,31 @@ save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug
 #define isdirsep(x) ((x) == '/')
 #endif
 
-inline char* 
-basename(char *file)
-{
-    int i;
-    
-    for( i = strlen(file) - 1; i >= 0; i-- )
-    {
-        if(isdirsep(file[i]))
-            return file + i + 1;
-    }
-    return file;
-}
-
 static int
 filename_cmp(VALUE source, char *file)
 {
     char *source_ptr, *file_ptr;
+    int s_len, f_len, min_len;
+    int s,f;
+    int dirsep_flag = 0;
     
-    source_ptr = basename(RSTRING(source)->ptr);
-    file_ptr = basename(file);
-    return strcmp(source_ptr, file_ptr) == 0;
+    s_len = RSTRING(source)->len;
+    f_len = strlen(file);
+    min_len = min(s_len, f_len);
+    
+    source_ptr = RSTRING(source)->ptr;
+    file_ptr   = file;
+    
+    for( s = s_len - 1, f = f_len - 1; s >= s_len - min_len && f >= f_len - min_len; s--, f-- )
+    {
+        if((source_ptr[s] == '.' || file_ptr[f] == '.') && dirsep_flag)
+            return 1;
+        if(source_ptr[s] != file_ptr[f])
+            return 0;
+        if(isdirsep(source_ptr[s]))
+            dirsep_flag = 1;
+    }
+    return 1;
 }
 
 static int
