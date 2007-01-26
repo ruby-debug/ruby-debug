@@ -34,9 +34,6 @@ module Debugger
             throw :debug_error
           end
           file = klass.name if klass
-        else
-          file = File.expand_path(file) if file.index(File::SEPARATOR) || \
-            File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
         end
       end
       
