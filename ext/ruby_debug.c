@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.5.4"
+#define DEBUG_VERSION "0.6"
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
@@ -36,10 +36,10 @@ typedef struct {
 } debug_context_t;
 
 typedef struct {
+    ID id;
     VALUE file;
     VALUE line;
     VALUE binding;
-    ID id;
 } debug_frame_t;
 
 typedef struct {
@@ -53,12 +53,13 @@ typedef struct {
     st_table *tbl;
 } threads_table_t;
 
-static VALUE threads_tbl = Qnil;
-static VALUE breakpoints = Qnil;
-static VALUE catchpoint  = Qnil;
-static VALUE tracing     = Qfalse;
-static VALUE locker      = Qnil;
-static VALUE post_mortem = Qfalse;
+static VALUE threads_tbl     = Qnil;
+static VALUE breakpoints     = Qnil;
+static VALUE catchpoint      = Qnil;
+static VALUE tracing         = Qfalse;
+static VALUE locker          = Qnil;
+static VALUE post_mortem     = Qfalse;
+static VALUE keep_frame_info = Qfalse;
 
 static VALUE mDebugger;
 static VALUE cThreadsTable;
@@ -420,14 +421,14 @@ call_at_line_unprotected(VALUE args)
 }
 
 static VALUE
-call_at_line(VALUE context, int thnum, VALUE binding, VALUE file, VALUE line)
+call_at_line(VALUE context, int thnum, VALUE file, VALUE line)
 {
     VALUE args;
     
     last_debugged_thnum = thnum;
     save_current_position(context);
     
-    args = rb_ary_new3(4, context, file, line, binding);
+    args = rb_ary_new3(3, context, file, line);
     return rb_protect(call_at_line_unprotected, args, 0);
 }
 
@@ -451,7 +452,7 @@ save_call_frame(VALUE self, VALUE file, VALUE line, ID mid, debug_context_t *deb
 {
     VALUE frame, binding;
     
-    binding = self? create_binding(self) : Qnil;
+    binding = self && RTEST(keep_frame_info)? create_binding(self) : Qnil;
     frame = debug_frame_create(file, line, binding, mid);
     rb_ary_unshift(debug_context->frames, frame);
 }
@@ -537,7 +538,7 @@ eval_expression(VALUE args)
     return rb_funcall2(rb_mKernel, idEval, 2, RARRAY(args)->ptr);
 }
 
-static int
+inline static int
 check_breakpoint_expression(VALUE breakpoint, VALUE binding)
 {
     debug_breakpoint_t *debug_breakpoint;
@@ -550,6 +551,28 @@ check_breakpoint_expression(VALUE breakpoint, VALUE binding)
     args = rb_ary_new3(2, debug_breakpoint->expr, binding);
     expr_result = rb_protect(eval_expression, args, 0);
     return RTEST(expr_result);
+}
+
+inline static debug_frame_t *
+get_top_frame(debug_context_t *debug_context)
+{
+    VALUE frame;
+    debug_frame_t *debug_frame;
+    if(RARRAY(debug_context->frames)->len == 0)
+        return NULL;
+    else {
+        frame = RARRAY(debug_context->frames)->ptr[0];
+        Data_Get_Struct(frame, debug_frame_t, debug_frame);
+        return debug_frame;
+    }
+}
+
+inline static void
+save_top_binding(debug_context_t *debug_context, VALUE binding)
+{
+    debug_frame_t *debug_frame;
+    debug_frame = get_top_frame(debug_context);
+    debug_frame->binding = binding;
 }
 
 static void
@@ -659,7 +682,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_line = -1;
             debug_context->stop_next = -1;
 
-            call_at_line(context, debug_context->thnum, binding, file, line);
+            save_top_binding(debug_context, binding);
+            call_at_line(context, debug_context->thnum, file, line);
         }
         break;
     }
@@ -674,12 +698,15 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         breakpoint_index = check_breakpoints(debug_context, file, klass, rb_str_new2(rb_id2name(mid)));
         if(breakpoint_index != -1)
         {
-            binding = self? create_binding(self) : Qnil;
+            binding = get_top_frame(debug_context)->binding;
+            if(NIL_P(binding) && self)
+                binding = create_binding(self);
             breakpoint = get_breakpoint_at(breakpoint_index);
             if(check_breakpoint_expression(breakpoint, binding))
             {
+                save_top_binding(debug_context, binding);
                 rb_funcall(context, idAtBreakpoint, 1, breakpoint);
-                call_at_line(context, debug_context->thnum, binding, file, line);
+                call_at_line(context, debug_context->thnum, file, line);
             }
         }
         break;
@@ -734,7 +761,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
                 if(self && binding == Qnil)
                     binding = create_binding(self);
-                call_at_line(context, debug_context->thnum, binding, file, line);
+                save_top_binding(debug_context, binding);
+                call_at_line(context, debug_context->thnum, file, line);
                 break;
             }
         }
@@ -1180,6 +1208,31 @@ debug_set_post_mortem(VALUE self, VALUE value)
     debug_check_started();
 
     post_mortem = RTEST(value) ? Qtrue : Qfalse;
+    return value;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.post_mortem? -> bool
+ *   
+ *   Returns +true+ if the debugger will collect frame bindings.
+ */
+static VALUE
+debug_keep_frame_info(VALUE self)
+{
+    return keep_frame_info;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.post_mortem = bool
+ *   
+ *   Setting to +true+ will make the debugger keep frame bindings.
+ */
+static VALUE
+debug_set_keep_frame_info(VALUE self, VALUE value)
+{
+    keep_frame_info = RTEST(value) ? Qtrue : Qfalse;
     return value;
 }
 
@@ -1735,6 +1788,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
     rb_define_module_function(mDebugger, "post_mortem?", debug_post_mortem, 0);
     rb_define_module_function(mDebugger, "post_mortem=", debug_set_post_mortem, 1);
+    rb_define_module_function(mDebugger, "keep_frame_info?", debug_keep_frame_info, 0);
+    rb_define_module_function(mDebugger, "keep_frame_info=", debug_set_keep_frame_info, 1);
     
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
     

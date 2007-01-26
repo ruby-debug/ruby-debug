@@ -62,11 +62,15 @@ module Debugger
       @state.confirm(msg) == 'y'
     end
 
-    def debug_eval(str)
+    def debug_eval(str, b = @state.binding)
+      unless b
+        print "Can't evaluate in the current context.\n"
+        throw :debug_error
+      end
       begin
-        val = eval(str, @state.binding)
+        val = eval(str, b)
       rescue StandardError, ScriptError => e
-        at = eval("caller(1)", @state.binding)
+        at = eval("caller(1)", b)
         print "%s:%s\n", at.shift, e.to_s.sub(/\(eval\):1:(in `.*?':)?/, '')
         for i in at
           print "\tfrom %s\n", i
@@ -76,6 +80,7 @@ module Debugger
     end
 
     def debug_silent_eval(str)
+      return nil unless @state.binding
       begin
         eval(str, @state.binding)
       rescue StandardError, ScriptError

@@ -1,10 +1,17 @@
 module Debugger
   module VarFunctions # :nodoc:
-    def var_list(ary, bind = nil)
-      bind ||= @state.binding
+    def var_list(ary, bind = @state.binding)
       ary.sort!
       for v in ary
-        print "  %s => %s\n", v, eval(v, bind).inspect
+        print "  %s => %s\n", v, debug_eval(v, bind).inspect
+      end
+    end
+    
+    def var_consts(mod)
+      constants = mod.constants
+      constants.sort!
+      for c in constants
+        print " %s => %s\n", c, mod.const_get(c)
       end
     end
   end
@@ -21,7 +28,7 @@ module Debugger
       unless obj.kind_of? Module
         print "Should be Class/Module: %s\n", @match.post_match
       else
-        var_list(obj.constants, obj.module_eval{binding()})
+        var_consts(obj)
       end
     end
 
@@ -95,7 +102,7 @@ module Debugger
     end
 
     def execute
-      var_list(eval("local_variables", @state.binding))
+      var_list(debug_eval("local_variables"))
     end
 
     class << self

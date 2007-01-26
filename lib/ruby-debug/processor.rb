@@ -62,9 +62,9 @@ module Debugger
     end
     protect :at_tracing
 
-    def at_line(context, file, line, binding, frames = context.frames)
+    def at_line(context, file, line, frames = context.frames)
       print "%s:%d: %s", file, line, Debugger.line_at(file, line)
-      process_commands(context, file, line, binding, frames)
+      process_commands(context, file, line, frames)
     end
     protect :at_line
     
@@ -82,13 +82,13 @@ module Debugger
       end
     end
     
-    def process_commands(context, file, line, binding, frames)
+    def process_commands(context, file, line, frames)
       event_cmds = Command.commands.select{|cmd| cmd.event }
       state = State.new do |s|
         s.context = context
         s.file    = file
         s.line    = line
-        s.binding = binding
+        s.binding = frames.first.binding
         s.display = display
         s.interface = interface
         s.commands = event_cmds

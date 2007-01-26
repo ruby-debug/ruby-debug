@@ -1,3 +1,6 @@
+0.6
+- Added option to exclude collecting of frame bindings
+
 0.5.4
 - Added -x/--trace option to rdebug script. Patch from R. Bernstein.
 - Removed a live thread reference from the context's structure avoiding memory leakage.
