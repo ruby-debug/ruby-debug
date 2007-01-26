@@ -21,7 +21,10 @@
                           strcmp(debug_context->last_file, file) != 0)
 
 #define IS_STARTED  (threads_tbl != Qnil)
+
+#ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
+#endif
 
 typedef struct {
     int thnum;
