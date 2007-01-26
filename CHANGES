@@ -1,6 +1,9 @@
-0.6
+0.7
 - Added two output formats: plain and xml
 - Applied patch from Markus Barchfeld. 
+
+0.6
+- Added option to exclude collecting of frame bindings
 
 0.5.4
 - Added -x/--trace option to rdebug script. Patch from R. Bernstein.

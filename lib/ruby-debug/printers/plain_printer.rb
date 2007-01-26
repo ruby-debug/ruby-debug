@@ -56,9 +56,9 @@ module Debugger
       print "\n"
     end
     
-    def print_variables(vars, binding, kind)
+    def print_variables(vars, kind)
       vars.sort.each do |v|
-        print_variable(v, eval(v, binding).inspect, kind)
+        print_variable(v, yield(v).inspect, kind)
       end
     end
     

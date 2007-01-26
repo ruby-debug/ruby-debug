@@ -15,7 +15,8 @@ options = OpenStruct.new(
   'nostop'      => false,
   'post_mortem' => false,
   'script'      => nil,
-  'tracing'     => false
+  'tracing'     => false,
+  'frame_info'  => false
 )
 
 opts = OptionParser.new do |opts|
@@ -31,6 +32,7 @@ EOB
   opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-n", "--nostop", "Do not stop when a client connects, implies -s option") {options.nostop = true}
+  opts.on("-f", "--keep-frame-state", "Keep frame state") {options.frame_info = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
@@ -94,6 +96,7 @@ else
   trap('INT') { Debugger.interrupt_last }
   Debugger.stop_on_connect = !options.nostop
   Debugger.wait_connection = options.wait
+  Debugger.keep_frame_info = options.frame_info
   load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")
   if options.server
     Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem)

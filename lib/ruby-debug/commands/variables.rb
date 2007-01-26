@@ -9,7 +9,9 @@ module Debugger
       unless obj.kind_of? Module
         print_msg "Should be Class/Module: %s", @match.post_match
       else
-        print_variables(obj.constants, obj.module_eval{binding()}, "constant")
+        print_variables(obj.constants, "constant") do |var|
+          obj.const_get(var)
+        end
       end
     end
     
@@ -32,7 +34,9 @@ module Debugger
     end
     
     def execute
-      print_variables(global_variables, @state.binding, 'global')
+      print_variables(global_variables, 'global') do |var|
+        debug_eval(var)
+      end
     end
     
     class << self
@@ -70,7 +74,10 @@ module Debugger
       elsif (obj.class.name == "Hash") then
         print_hash(obj)
       else
-        print_variables(obj.instance_variables, obj.instance_eval{binding()}, 'instance')
+        b = obj.instance_eval{binding()}
+        print_variables(obj.instance_variables, 'instance') do |var|
+          debug_eval(var, b)
+        end
       end 
     end
     
@@ -93,7 +100,9 @@ module Debugger
     end
     
     def execute
-      print_variables(eval("local_variables", @state.binding), @state.binding, 'local')
+      print_variables(debug_eval("local_variables"), 'local') do |var|
+        debug_eval(var)
+      end
     end
     
     class << self

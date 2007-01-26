@@ -70,9 +70,13 @@ module Debugger
       @state.confirm(msg) == 'y'
     end
 
-    def debug_eval(str, pos = nil)
+    def debug_eval(str, b = @state.binding)
+      unless b
+        print "Can't evaluate in the current context.\n"
+        throw :debug_error
+      end
       begin
-        val = eval(str, get_binding(pos))
+        val = eval(str, b)
       rescue StandardError, ScriptError => e
         @printer.print_exception(e, @state.binding)
         throw :debug_error
@@ -80,6 +84,7 @@ module Debugger
     end
 
     def debug_silent_eval(str)
+      return nil unless @state.binding
       begin
         eval(str, @state.binding)
       rescue StandardError, ScriptError

@@ -39,8 +39,8 @@ module Debugger
       processor.at_tracing(self, file, line)
     end
 
-    def at_line(file, line, binding)
-      processor.at_line(self, file, line, binding)
+    def at_line(file, line)
+      processor.at_line(self, file, line)
     end
   end
 
@@ -275,7 +275,7 @@ module Debugger
       return if exp.__debug_frames.empty?
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
-      processor.at_line(nil, exp.__debug_file, exp.__debug_line, exp.__debug_frames.first.binding, exp.__debug_frames)
+      processor.at_line(nil, exp.__debug_file, exp.__debug_line, exp.__debug_frames)
     ensure
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing
     end

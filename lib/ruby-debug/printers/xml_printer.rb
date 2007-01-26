@@ -59,14 +59,14 @@ module Debugger
       print "<thread id=\"%s\" status=\"%s\" #{current}/>\n", context.thnum, context.thread.status
     end
     
-    def print_variables(vars, binding, kind)
+    def print_variables(vars, kind)
       print_element("variables") do
         # print self at top position
-        if kind == "local" && eval('self.to_s', binding) !~ /main/ then
-          print_variable("self", eval("self", binding), kind)
+        if kind == "local" && yield('self.to_s') !~ /main/ then
+          print_variable("self", yield("self"), kind)
         end
         vars.sort.each do |v|
-          print_variable(v, eval(v, binding), kind)
+          print_variable(v, yield(v), kind)
         end
       end
     end
