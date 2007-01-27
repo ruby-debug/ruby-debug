@@ -1,3 +1,6 @@
+0.6.1
+- Another performance optimization.
+
 0.6
 - Added option to exclude collecting of frame bindings.
 - Several performance optimizations.
