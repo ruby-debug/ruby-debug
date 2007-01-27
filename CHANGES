@@ -2,6 +2,9 @@
 - Added two output formats: plain and xml
 - Applied patch from Markus Barchfeld. 
 
+0.6.1
+- Another performance optimization.
+
 0.6
 - Added option to exclude collecting of frame bindings
 
