@@ -6,7 +6,7 @@ module Debugger
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum
       print "%s\t", c.thread.inspect
-      last_frame = c.frames.first
+      last_frame = c.frames.last
       if last_frame
         print "%s:%d", last_frame.file, last_frame.line
       end

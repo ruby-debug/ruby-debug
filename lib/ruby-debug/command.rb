@@ -64,7 +64,7 @@ module Debugger
 
     def debug_eval(str, b = @state.binding)
       unless b
-        print "Can't evaluate in the current context.\n"
+        print "Can't evaluate in the current context.\nUse rdebug with -f option, or set Debugger.keep_frame_info = true.\n"
         throw :debug_error
       end
       begin

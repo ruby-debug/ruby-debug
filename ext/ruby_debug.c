@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.6"
+#define DEBUG_VERSION "0.6.1"
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
@@ -98,6 +98,7 @@ static unsigned long hook_count = 0;
 
 static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
+static void save_current_position(debug_context_t *);
 
 typedef struct locked_thread_t { 
     unsigned long thread_id;
@@ -398,25 +399,6 @@ debug_frame_create(char *file, int line, VALUE binding, ID id)
     return result;
 }
 
-static void
-save_current_position(VALUE context)
-{
-    VALUE cur_frame;
-    debug_context_t *debug_context;
-    debug_frame_t *debug_frame;
-
-    Data_Get_Struct(context, debug_context_t, debug_context);
-    if(RARRAY(debug_context->frames)->len == 0)
-        return;
-
-    cur_frame = *RARRAY(debug_context->frames)->ptr;
-    Data_Get_Struct(cur_frame, debug_frame_t, debug_frame);
-    
-    debug_context->last_file = debug_frame->file;
-    debug_context->last_line = debug_frame->line;
-    CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
-}
-
 static VALUE
 call_at_line_unprotected(VALUE args)
 {
@@ -426,12 +408,12 @@ call_at_line_unprotected(VALUE args)
 }
 
 static VALUE
-call_at_line(VALUE context, int thnum, VALUE file, VALUE line)
+call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE line)
 {
     VALUE args;
     
-    last_debugged_thnum = thnum;
-    save_current_position(context);
+    last_debugged_thnum = debug_context->thnum;
+    save_current_position(debug_context);
     
     args = rb_ary_new3(3, context, file, line);
     return rb_protect(call_at_line_unprotected, args, 0);
@@ -444,7 +426,7 @@ save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug
     
     binding = self && RTEST(keep_frame_info)? create_binding(self) : Qnil;
     frame = debug_frame_create(file, line, binding, mid);
-    rb_ary_unshift(debug_context->frames, frame);
+    rb_ary_push(debug_context->frames, frame);
 }
 
 #if defined DOSISH
@@ -589,7 +571,7 @@ get_top_frame(debug_context_t *debug_context)
     if(RARRAY(debug_context->frames)->len == 0)
         return NULL;
     else {
-        frame = RARRAY(debug_context->frames)->ptr[0];
+        frame = RARRAY(debug_context->frames)->ptr[RARRAY(debug_context->frames)->len-1];
         Data_Get_Struct(frame, debug_frame_t, debug_frame);
         return debug_frame;
     }
@@ -614,6 +596,18 @@ set_frame_source(debug_context_t *debug_context, char *file, int line)
         top_frame->file = file;
         top_frame->line = line;
     }
+}
+
+static void
+save_current_position(debug_context_t *debug_context)
+{
+    debug_frame_t *debug_frame;
+    
+    debug_frame = get_top_frame(debug_context);
+    if(!debug_frame) return;
+    debug_context->last_file = debug_frame->file;
+    debug_context->last_line = debug_frame->line;
+    CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
 }
 
 static void
@@ -679,9 +673,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         set_frame_source(debug_context, file, line);
 
         if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
-        {
             rb_funcall(context, idAtTracing, 2, rb_str_new2(file), INT2FIX(line));
-        }
         
         if(debug_context->dest_frame == -1 || 
             RARRAY(debug_context->frames)->len == debug_context->dest_frame)
@@ -691,9 +683,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 debug_context->stop_next = -1;
             /* we check that we actualy moved to another line */
             if(DID_MOVED)
-            {
                 debug_context->stop_line--;
-            }
         }
         else if(RARRAY(debug_context->frames)->len < debug_context->dest_frame)
         {
@@ -701,9 +691,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 
         if(RARRAY(debug_context->frames)->len == 0)
-        {
             save_call_frame(self, file, line, mid, debug_context);
-        }
 
         if(debug_context->stop_next == 0 || debug_context->stop_line == 0 ||
             (breakpoint_index = check_breakpoints_by_pos(debug_context, file, line)) != -1)
@@ -714,9 +702,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             {
                 breakpoint = get_breakpoint_at(breakpoint_index);
                 if(check_breakpoint_expression(breakpoint, binding))
-                {
                     rb_funcall(context, idAtBreakpoint, 1, breakpoint);
-                }
                 else
                     break;
             }
@@ -727,7 +713,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = -1;
 
             save_top_binding(debug_context, binding);
-            call_at_line(context, debug_context->thnum, rb_str_new2(file), INT2FIX(line));
+            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
         }
         break;
     }
@@ -753,7 +739,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             {
                 save_top_binding(debug_context, binding);
                 rb_funcall(context, idAtBreakpoint, 1, breakpoint);
-                call_at_line(context, debug_context->thnum, rb_str_new2(file), INT2FIX(line));
+                call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
             }
         }
         break;
@@ -766,7 +752,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-        rb_ary_shift(debug_context->frames);
+        rb_ary_pop(debug_context->frames);
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -809,7 +795,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 if(self && binding == Qnil)
                     binding = create_binding(self);
                 save_top_binding(debug_context, binding);
-                call_at_line(context, debug_context->thnum, rb_str_new2(file), INT2FIX(line));
+                call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
                 break;
             }
         }
@@ -1436,7 +1422,7 @@ context_step_over(int argc, VALUE *argv, VALUE self)
     {
         if(FIX2INT(frame) < 0 && FIX2INT(frame) >= RARRAY(debug_context->frames)->len)
             rb_raise(rb_eRuntimeError, "Destination frame is out of range.");
-        debug_context->dest_frame = FIX2INT(frame);
+        debug_context->dest_frame = RARRAY(debug_context->frames)->len - FIX2INT(frame);
     }
 
     return Qnil;
@@ -1458,7 +1444,7 @@ context_stop_frame(VALUE self, VALUE frame)
     Data_Get_Struct(self, debug_context_t, debug_context);
     if(FIX2INT(frame) < 0 && FIX2INT(frame) >= RARRAY(debug_context->frames)->len)
         rb_raise(rb_eRuntimeError, "Stop frame is out of range.");
-    debug_context->stop_frame = FIX2INT(frame);
+    debug_context->stop_frame = RARRAY(debug_context->frames)->len - FIX2INT(frame);
 
     return frame;
 }

@@ -46,7 +46,7 @@ module Debugger
     
     def at_catchpoint(context, excpt)
       frames = context.frames
-      print "Catchpoint at %s:%d: `%s' (%s)\n", frames[0].file, frames[0].line, excpt, excpt.class
+      print "Catchpoint at %s:%d: `%s' (%s)\n", frames.last.file, frames.last.line, excpt, excpt.class
       fs = frames.size
       tb = caller(0)[-fs..-1]
       if tb
@@ -88,7 +88,7 @@ module Debugger
         s.context = context
         s.file    = file
         s.line    = line
-        s.binding = frames.first.binding
+        s.binding = frames.last.binding
         s.display = display
         s.interface = interface
         s.commands = event_cmds

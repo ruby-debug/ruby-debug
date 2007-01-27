@@ -284,7 +284,7 @@ module Kernel
   # Returns a binding of n-th call frame
   #
   def binding_n(n = 0)
-    frame = Debugger.current_context.frames[n+1]
+    frame = Debugger.current_context.frames[-2 - n]
     raise "Unknown frame #{n}" unless frame
     frame.binding 
   end
