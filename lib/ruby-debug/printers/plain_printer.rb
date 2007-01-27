@@ -23,7 +23,7 @@ module Debugger
     end
     
     def print_frames(frames, cur_idx)
-      frames.each_with_index do |frame, idx|
+      frames.reverse.each_with_index do |frame, idx|
         print_frame(frame, idx, cur_idx)
       end
     end
@@ -51,7 +51,7 @@ module Debugger
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum
       print "%s\t", c.thread.inspect
-      last_frame = c.frames.first
+      last_frame = c.frames.last
       print "%s:%d", last_frame.file, last_frame.line if last_frame
       print "\n"
     end
@@ -158,7 +158,7 @@ module Debugger
     
     def print_catchpoint(excpt)
       frames = Debugger.current_context.frames
-      print "Catchpoint at %s:%d: `%s' (%s)\n", frames[0].file, frames[0].line, excpt, excpt.class
+      print "Catchpoint at %s:%d: `%s' (%s)\n", frames.last.file, frames.last.line, excpt, excpt.class
       fs = frames.size
       tb = caller(0)[-fs..-1]
       if tb

@@ -31,8 +31,8 @@ EOB
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
-  opts.on("-n", "--nostop", "Do not stop when a client connects, implies -s option") {options.nostop = true}
-  opts.on("-f", "--keep-frame-state", "Keep frame state") {options.frame_info = true}
+  opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
+  opts.on("-f", "--keep-frame-info", "Keep frame info") {options.frame_info = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
@@ -110,7 +110,7 @@ else
     if options.tracing
       Debugger.tracing = true
     else
-      debugger 2
+      debugger 2 unless options.nostop
     end
     Debugger.debug_load Debugger::PROG_SCRIPT
   end

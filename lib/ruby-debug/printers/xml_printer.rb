@@ -31,7 +31,7 @@ module Debugger
     
     def print_frames(frames, cur_idx)
       print_element("frames") do
-        frames.each_with_index do |frame, idx|
+        frames.reverse.each_with_index do |frame, idx|
           print_frame(frame, idx, cur_idx)
         end
       end
@@ -184,7 +184,7 @@ module Debugger
     
     def print_catchpoint(exception)
       context = Debugger.current_context
-      frame = context.frames.first
+      frame = context.frames.last
       print("<exception file=\"%s\" line=\"%s\" type=\"%s\" message=\"%s\" threadId=\"%d\"/>\n", 
       frame.file, frame.line, exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
     end

@@ -86,7 +86,7 @@ module Debugger
         s.context = context
         s.file    = file
         s.line    = line
-        s.binding = frames.first.binding
+        s.binding = frames.last.binding
         s.display = display
         s.interface = interface
         s.commands = event_cmds

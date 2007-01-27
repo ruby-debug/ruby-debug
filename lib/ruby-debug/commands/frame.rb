@@ -49,7 +49,7 @@ module Debugger
         @state.frame_pos = @state.frames.size - 1
         print_msg "At toplevel"
       end
-      frame = @state.frames[@state.frame_pos]
+      frame = @state.frames[-1 - @state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
       print_current_frame(frame, @state.frame_pos)
     end
@@ -85,7 +85,7 @@ module Debugger
         @state.frame_pos = 0
         print_msg "At stack bottom"
       end
-      frame = @state.frames[@state.frame_pos]
+      frame = @state.frames[-1 - @state.frame_pos]
       @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
       print_current_frame(frame, @state.frame_pos)
     end

@@ -12,7 +12,7 @@ module Debugger
             print_msg "Wrong frame number"
             return
           end
-          frame = @state.frames[frm_n - 1]
+          frame = @state.frames[-frm_n]
           file, line = frame.file, frame.line
         else
           file, line = @state.file, @state.line
