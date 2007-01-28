@@ -101,7 +101,6 @@ module Debugger
       proceed = ConditionVariable.new
       
       @thread = DebugThread.new do
-        current_context.ignore = true
         server = TCPServer.new(host, cmd_port)
         while (session = server.accept)
           self.interface = RemoteInterface.new(session)
