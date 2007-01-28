@@ -4,7 +4,9 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.6.1"
+#define DEBUG_VERSION "0.6.2"
+
+#define CACHED_THREAD_LOOKUP 1
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
@@ -72,6 +74,12 @@ static VALUE locker          = Qnil;
 static VALUE post_mortem     = Qfalse;
 static VALUE keep_frame_info = Qfalse;
 
+#ifdef CACHED_THREAD_LOOKUP
+static VALUE last_context                  = Qnil;
+static debug_context_t *last_debug_context = NULL;
+static unsigned long last_thread_id        = 0;
+#endif
+
 static VALUE mDebugger;
 static VALUE cThreadsTable;
 static VALUE cContext;
@@ -130,7 +138,7 @@ id2ref_unprotected(VALUE id)
     static id2ref_func_t f_id2ref = NULL;
     if(f_id2ref == NULL)
     {
-        f_id2ref = ruby_method_ptr(rb_mObjectSpace, rb_intern("_id2ref"));
+        f_id2ref = (id2ref_func_t)ruby_method_ptr(rb_mObjectSpace, rb_intern("_id2ref"));
     }
     return f_id2ref(rb_mObjectSpace, id);
 }
@@ -205,25 +213,6 @@ remove_from_locked()
 }
 
 static int
-thread_hash(unsigned long thread_id)
-{
-    return (int)thread_id;
-}
-
-static int
-thread_cmp(VALUE a, VALUE b)
-{
-    if(a == b) return 0;
-    if(a < b) return -1;
-    return 1;
-}
-
-static struct st_hash_type st_thread_hash = {
-    thread_cmp,
-    thread_hash
-};
-
-static int
 threads_table_mark_keyvalue(VALUE key, VALUE value, int dummy)
 {
     rb_gc_mark(value);
@@ -251,7 +240,7 @@ threads_table_create()
     threads_table_t *threads_table;
     
     threads_table = ALLOC(threads_table_t);
-    threads_table->tbl = st_init_table(&st_thread_hash);
+    threads_table->tbl = st_init_numtable();
     return Data_Wrap_Struct(cThreadsTable, threads_table_mark, threads_table_free, threads_table);
 }
 
@@ -273,12 +262,13 @@ threads_table_clear(VALUE table)
 static VALUE
 is_thread_alive(VALUE thread)
 {
-    static ID id_alive = 0;
-    if(!id_alive)
+    typedef VALUE (*thread_alive_func_t)(VALUE);
+    static thread_alive_func_t f_thread_alive = NULL;
+    if(!f_thread_alive)
     {
-        id_alive = rb_intern("alive?");
+        f_thread_alive = (thread_alive_func_t)ruby_method_ptr(rb_cThread, rb_intern("alive?"));
     }
-    return rb_funcall(thread, id_alive, 0);
+    return f_thread_alive(thread);
 }
 
 static int
@@ -358,22 +348,41 @@ debug_context_create(VALUE thread)
     return result;
 }
 
-static VALUE
-thread_context_lookup(VALUE thread)
+static void
+thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_context)
 {
-    VALUE context;
     threads_table_t *threads_table;
     unsigned long thread_id = ref2id(thread);
+    debug_context_t *l_debug_context;
 
     debug_check_started();
 
-    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
-    if(!st_lookup(threads_table->tbl, thread_id, &context))
+#ifdef CACHED_THREAD_LOOKUP
+    if(last_thread_id == thread_id && last_context != Qnil)
     {
-        context = debug_context_create(thread);
-        st_insert(threads_table->tbl, thread_id, context);
+        *context = last_context;
+        if(debug_context)
+            *debug_context = last_debug_context;
+        return;
     }
-    return context;
+#endif
+
+    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    if(!st_lookup(threads_table->tbl, thread_id, context))
+    {
+        *context = debug_context_create(thread);
+        st_insert(threads_table->tbl, thread_id, *context);
+    }
+    
+    Data_Get_Struct(*context, debug_context_t, l_debug_context);
+    if(debug_context)
+        *debug_context = l_debug_context;
+
+#ifdef CACHED_THREAD_LOOKUP
+    last_thread_id = thread_id;
+    last_context = *context;
+    last_debug_context = l_debug_context;
+#endif
 }
 
 static void
@@ -626,8 +635,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     if(!node) return;
     
     thread = rb_thread_current();
-    context = thread_context_lookup(thread);
-    Data_Get_Struct(context, debug_context_t, debug_context);
+    thread_context_lookup(thread, &context, &debug_context);
     
     /* return if thread is marked as 'ignored'.
        debugger's threads are marked this way
@@ -811,7 +819,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     cleanup:
     
     /* check that all contexts point to alive threads */
-    if(hook_count - last_check > 1000)
+    if(hook_count - last_check > 3000)
     {
         check_thread_contexts();
         last_check = hook_count;
@@ -1077,7 +1085,7 @@ debug_current_context(VALUE self)
     debug_check_started();
 
     thread = rb_thread_current();
-    context = thread_context_lookup(thread);
+    thread_context_lookup(thread, &context, NULL);
 
     return context;
 }
@@ -1105,7 +1113,7 @@ debug_contexts(VALUE self)
     for(i = 0; i < RARRAY(list)->len; i++)
     {
         thread = rb_ary_entry(list, i);
-        context = thread_context_lookup(thread);
+        thread_context_lookup(thread, &context, NULL);
         rb_ary_push(new_list, context);
     }
     threads_table_clear(threads_tbl);
@@ -1140,7 +1148,7 @@ debug_suspend(VALUE self)
     saved_crit = rb_thread_critical;
     rb_thread_critical = Qtrue;
     context_list = debug_contexts(self);
-    current = thread_context_lookup(rb_thread_current());
+    thread_context_lookup(rb_thread_current(), &current, NULL);
 
     for(i = 0; i < RARRAY(context_list)->len; i++)
     {
@@ -1179,7 +1187,7 @@ debug_resume(VALUE self)
     rb_thread_critical = Qtrue;
     context_list = debug_contexts(self);
 
-    current = thread_context_lookup(rb_thread_current());
+    thread_context_lookup(rb_thread_current(), &current, NULL);
     for(i = 0; i < RARRAY(context_list)->len; i++)
     {
         context = rb_ary_entry(context_list, i);
@@ -1856,4 +1864,5 @@ Init_ruby_debug()
     rb_global_variable(&breakpoints);
     rb_global_variable(&catchpoint);
     rb_global_variable(&locker);
+    rb_global_variable(&last_context);
 }

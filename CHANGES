@@ -1,3 +1,6 @@
+0.6.2
+- Added thread lookup cache.
+
 0.6.1
 - Another performance optimization.
 
