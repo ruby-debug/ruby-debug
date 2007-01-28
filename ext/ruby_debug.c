@@ -6,8 +6,6 @@
 
 #define DEBUG_VERSION "0.6.2"
 
-#define CACHED_THREAD_LOOKUP 1
-
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
 #define CTX_FL_TRACING      (1<<3)
@@ -75,11 +73,9 @@ static VALUE locker          = Qnil;
 static VALUE post_mortem     = Qfalse;
 static VALUE keep_frame_info = Qfalse;
 
-#ifdef CACHED_THREAD_LOOKUP
 static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
 static debug_context_t *last_debug_context = NULL;
-#endif
 
 static VALUE mDebugger;
 static VALUE cThreadsTable;
@@ -359,7 +355,6 @@ thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_cont
 
     debug_check_started();
 
-#ifdef CACHED_THREAD_LOOKUP
     if(last_thread == thread && last_context != Qnil)
     {
         *context = last_context;
@@ -367,7 +362,6 @@ thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_cont
             *debug_context = last_debug_context;
         return;
     }
-#endif
     thread_id = ref2id(thread);
     Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
     if(!st_lookup(threads_table->tbl, thread_id, context))
@@ -380,11 +374,9 @@ thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_cont
     if(debug_context)
         *debug_context = l_debug_context;
 
-#ifdef CACHED_THREAD_LOOKUP
     last_thread = thread;
     last_context = *context;
     last_debug_context = l_debug_context;
-#endif
 }
 
 static void
@@ -1883,8 +1875,6 @@ Init_ruby_debug()
     rb_global_variable(&breakpoints);
     rb_global_variable(&catchpoint);
     rb_global_variable(&locker);
-#ifdef CACHED_THREAD_LOOKUP
     rb_global_variable(&last_context);
     rb_global_variable(&last_thread);
-#endif
 }
