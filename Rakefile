@@ -12,6 +12,7 @@ FILES = FileList[
   'README',
   'LICENSE',
   'CHANGES',
+  'AUTHORS',
   'lib/**/*',
   'ext/*',
   'doc/*',

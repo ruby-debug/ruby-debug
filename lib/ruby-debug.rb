@@ -1,5 +1,6 @@
 require 'pp'
 require 'stringio'
+require "socket"
 require 'thread'
 require 'ruby_debug.so'
 require 'ruby-debug/printers/plain_printer'
@@ -70,11 +71,10 @@ module Debugger
     attr_reader :thread, :control_thread
     
     #
-    # Interrupts the main thread
+    # Interrupts the current thread
     #
     def interrupt
-      context = contexts.find{|c| c.thread == Thread.current }
-      context.interrupt
+      current_context.interrupt
     end
     
     #
@@ -105,29 +105,18 @@ module Debugger
       start
       self.post_mortem if post_mortem
 
-      require "socket"
-      
       if port.kind_of?(Array)
         cmd_port, ctrl_port = port
       else
         cmd_port, ctrl_port = port, port + 1
       end
 
-      @control_thread = Thread.start do
-        current_context.ignore = true
-        server = TCPServer.new(host, ctrl_port)
-        while (session = server.accept)
-          interface = RemoteInterface.new(session)
-          processor = ControlCommandProcessor.new(interface)
-          processor.process_commands
-        end
-      end
+      start_control(host, ctrl_port)
       
       mutex = Mutex.new
       proceed = ConditionVariable.new
       
-      @thread = Thread.start do
-        current_context.ignore = true
+      @thread = DebugThread.new do
         server = TCPServer.new(host, cmd_port)
         while (session = server.accept)
           self.interface = RemoteInterface.new(session)
@@ -148,6 +137,19 @@ module Debugger
       end
     end
     alias start_server start_remote
+    
+    def start_control(host = nil, ctrl_port = PORT + 1)
+      raise "Debugger is not started" unless started?
+      return if @control_thread
+      @control_thread = DebugThread.new do
+        server = TCPServer.new(host, ctrl_port)
+        while (session = server.accept)
+          interface = RemoteInterface.new(session)
+          processor = ControlCommandProcessor.new(interface)
+          processor.process_commands
+        end
+      end
+    end
     
     #
     # Connects to the remote debugger
@@ -180,7 +182,7 @@ module Debugger
     def stop_main_thread # :nodoc:
       return unless stop_on_connect
       
-      context = contexts.find{ |c| c.thread == Thread.main }
+      context = thread_context(Thread.main)
       context.stop_next = 2
     end
     private :stop_main_thread
@@ -286,6 +288,13 @@ end
 
 class Exception # :nodoc:
   attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_frames
+end
+
+class DebugThread < Thread # :nodoc:
+  def initialize(*args, &b)
+    Debugger.thread_context(self).ignore = true
+    super
+  end
 end
 
 module Kernel

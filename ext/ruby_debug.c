@@ -24,6 +24,13 @@
 #define min(x,y) ((x) < (y) ? (x) : (y))
 
 typedef struct {
+    ID id;
+    VALUE binding;
+    int line;
+    const char * file;
+} debug_frame_t;
+
+typedef struct {
     int thnum;
     int flags;
     int stop_next;
@@ -33,16 +40,10 @@ typedef struct {
     int stop_reason; /* -1 = initial, 0 = step, 1=breakpoint, 2= catchpoint */
     unsigned long thread_id;
     VALUE frames;
+    debug_frame_t *top_frame;
     const char * last_file;
     int last_line;
 } debug_context_t;
-
-typedef struct {
-    ID id;
-    VALUE binding;
-    int line;
-    const char * file;
-} debug_frame_t;
 
 enum bp_type {BP_POS_TYPE, BP_METHOD_TYPE};
 
@@ -70,6 +71,10 @@ static VALUE locker          = Qnil;
 static VALUE post_mortem     = Qfalse;
 static VALUE keep_frame_info = Qfalse;
 
+static VALUE last_context = Qnil;
+static VALUE last_thread  = Qnil;
+static debug_context_t *last_debug_context = NULL;
+
 static VALUE mDebugger;
 static VALUE cThreadsTable;
 static VALUE cContext;
@@ -84,8 +89,6 @@ static ID idAtCatchpoint;
 static ID idAtTracing;
 static ID idEval;
 static ID idList;
-static ID idClear;
-static ID idIndex;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -128,7 +131,7 @@ id2ref_unprotected(VALUE id)
     static id2ref_func_t f_id2ref = NULL;
     if(f_id2ref == NULL)
     {
-        f_id2ref = ruby_method_ptr(rb_mObjectSpace, rb_intern("_id2ref"));
+        f_id2ref = (id2ref_func_t)ruby_method_ptr(rb_mObjectSpace, rb_intern("_id2ref"));
     }
     return f_id2ref(rb_mObjectSpace, id);
 }
@@ -203,25 +206,6 @@ remove_from_locked()
 }
 
 static int
-thread_hash(unsigned long thread_id)
-{
-    return (int)thread_id;
-}
-
-static int
-thread_cmp(VALUE a, VALUE b)
-{
-    if(a == b) return 0;
-    if(a < b) return -1;
-    return 1;
-}
-
-static struct st_hash_type st_thread_hash = {
-    thread_cmp,
-    thread_hash
-};
-
-static int
 threads_table_mark_keyvalue(VALUE key, VALUE value, int dummy)
 {
     rb_gc_mark(value);
@@ -249,7 +233,7 @@ threads_table_create()
     threads_table_t *threads_table;
     
     threads_table = ALLOC(threads_table_t);
-    threads_table->tbl = st_init_table(&st_thread_hash);
+    threads_table->tbl = st_init_numtable();
     return Data_Wrap_Struct(cThreadsTable, threads_table_mark, threads_table_free, threads_table);
 }
 
@@ -271,12 +255,13 @@ threads_table_clear(VALUE table)
 static VALUE
 is_thread_alive(VALUE thread)
 {
-    static ID id_alive = 0;
-    if(!id_alive)
+    typedef VALUE (*thread_alive_func_t)(VALUE);
+    static thread_alive_func_t f_thread_alive = NULL;
+    if(!f_thread_alive)
     {
-        id_alive = rb_intern("alive?");
+        f_thread_alive = (thread_alive_func_t)ruby_method_ptr(rb_cThread, rb_intern("alive?"));
     }
-    return rb_funcall(thread, id_alive, 0);
+    return f_thread_alive(thread);
 }
 
 static int
@@ -352,27 +337,43 @@ debug_context_create(VALUE thread)
     debug_context->stop_frame = -1;
     debug_context->stop_reason = -1;
     debug_context->frames = rb_ary_new();
+    debug_context->top_frame = NULL;
     debug_context->thread_id = ref2id(thread);
     result = Data_Wrap_Struct(cContext, debug_context_mark, xfree, debug_context);
     return result;
 }
 
-static VALUE
-thread_context_lookup(VALUE thread)
+static void
+thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_context)
 {
-    VALUE context;
     threads_table_t *threads_table;
-    unsigned long thread_id = ref2id(thread);
+    unsigned long thread_id;
+    debug_context_t *l_debug_context;
 
     debug_check_started();
 
-    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
-    if(!st_lookup(threads_table->tbl, thread_id, &context))
+    if(last_thread == thread && last_context != Qnil)
     {
-        context = debug_context_create(thread);
-        st_insert(threads_table->tbl, thread_id, context);
+        *context = last_context;
+        if(debug_context)
+            *debug_context = last_debug_context;
+        return;
     }
-    return context;
+    thread_id = ref2id(thread);
+    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    if(!st_lookup(threads_table->tbl, thread_id, context))
+    {
+        *context = debug_context_create(thread);
+        st_insert(threads_table->tbl, thread_id, *context);
+    }
+    
+    Data_Get_Struct(*context, debug_context_t, l_debug_context);
+    if(debug_context)
+        *debug_context = l_debug_context;
+
+    last_thread = thread;
+    last_context = *context;
+    last_debug_context = l_debug_context;
 }
 
 static void
@@ -380,22 +381,6 @@ debug_frame_mark(void *data)
 {
     debug_frame_t *debug_frame = (debug_frame_t *)data;
     rb_gc_mark(debug_frame->binding);
-}
-
-static VALUE
-debug_frame_create(char *file, int line, VALUE binding, ID id)
-{
-    VALUE result;
-    debug_frame_t *debug_frame;
-    
-    debug_frame = ALLOC(debug_frame_t);
-    debug_frame->file = file;
-    debug_frame->line = line;
-    debug_frame->binding = binding;
-    debug_frame->id = id;
-    result = Data_Wrap_Struct(cFrame, debug_frame_mark, xfree, debug_frame);
-    
-    return result;
 }
 
 static VALUE
@@ -422,9 +407,17 @@ static void
 save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug_context)
 {
     VALUE frame, binding;
+    debug_frame_t *debug_frame;
     
     binding = self && RTEST(keep_frame_info)? create_binding(self) : Qnil;
-    frame = debug_frame_create(file, line, binding, mid);
+    debug_frame = ALLOC(debug_frame_t);
+    debug_frame->file = file;
+    debug_frame->line = line;
+    debug_frame->binding = binding;
+    debug_frame->id = mid;
+    frame = Data_Wrap_Struct(cFrame, debug_frame_mark, xfree, debug_frame);
+    
+    debug_context->top_frame = debug_frame;
     rb_ary_push(debug_context->frames, frame);
 }
 
@@ -569,9 +562,16 @@ get_top_frame(debug_context_t *debug_context)
     debug_frame_t *debug_frame;
     if(RARRAY(debug_context->frames)->len == 0)
         return NULL;
-    else {
-        frame = RARRAY(debug_context->frames)->ptr[RARRAY(debug_context->frames)->len-1];
-        Data_Get_Struct(frame, debug_frame_t, debug_frame);
+    else 
+    {
+        if(debug_context->top_frame == NULL)
+        {
+            frame = RARRAY(debug_context->frames)->ptr[RARRAY(debug_context->frames)->len-1];
+            Data_Get_Struct(frame, debug_frame_t, debug_frame);
+            debug_context->top_frame = debug_frame;
+        }
+        else
+            debug_frame = debug_context->top_frame;
         return debug_frame;
     }
 }
@@ -625,8 +625,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     if(!node) return;
     
     thread = rb_thread_current();
-    context = thread_context_lookup(thread);
-    Data_Get_Struct(context, debug_context_t, debug_context);
+    thread_context_lookup(thread, &context, &debug_context);
     
     /* return if thread is marked as 'ignored'.
        debugger's threads are marked this way
@@ -757,6 +756,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_frame = 0;
         }
         rb_ary_pop(debug_context->frames);
+        debug_context->top_frame = NULL;
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -816,7 +816,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     cleanup:
     
     /* check that all contexts point to alive threads */
-    if(hook_count - last_check > 1000)
+    if(hook_count - last_check > 3000)
     {
         check_thread_contexts();
         last_check = hook_count;
@@ -1082,8 +1082,24 @@ debug_current_context(VALUE self)
     debug_check_started();
 
     thread = rb_thread_current();
-    context = thread_context_lookup(thread);
+    thread_context_lookup(thread, &context, NULL);
 
+    return context;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.thread_context(thread) -> context
+ *   
+ *   Returns context of the thread passed as an argument. 
+ */
+static VALUE
+debug_thread_context(VALUE self, VALUE thread)
+{
+    VALUE context;
+    
+    debug_check_started();
+    thread_context_lookup(thread, &context, NULL);
     return context;
 }
 
@@ -1110,7 +1126,7 @@ debug_contexts(VALUE self)
     for(i = 0; i < RARRAY(list)->len; i++)
     {
         thread = rb_ary_entry(list, i);
-        context = thread_context_lookup(thread);
+        thread_context_lookup(thread, &context, NULL);
         rb_ary_push(new_list, context);
     }
     threads_table_clear(threads_tbl);
@@ -1145,7 +1161,7 @@ debug_suspend(VALUE self)
     saved_crit = rb_thread_critical;
     rb_thread_critical = Qtrue;
     context_list = debug_contexts(self);
-    current = thread_context_lookup(rb_thread_current());
+    thread_context_lookup(rb_thread_current(), &current, NULL);
 
     for(i = 0; i < RARRAY(context_list)->len; i++)
     {
@@ -1184,7 +1200,7 @@ debug_resume(VALUE self)
     rb_thread_critical = Qtrue;
     context_list = debug_contexts(self);
 
-    current = thread_context_lookup(rb_thread_current());
+    thread_context_lookup(rb_thread_current(), &current, NULL);
     for(i = 0; i < RARRAY(context_list)->len; i++)
     {
         context = rb_ary_entry(context_list, i);
@@ -1847,6 +1863,7 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "last_context", debug_last_interrupted, 0);
     rb_define_module_function(mDebugger, "contexts", debug_contexts, 0);
     rb_define_module_function(mDebugger, "current_context", debug_current_context, 0);
+    rb_define_module_function(mDebugger, "thread_context", debug_thread_context, 1);
     rb_define_module_function(mDebugger, "suspend", debug_suspend, 0);
     rb_define_module_function(mDebugger, "resume", debug_resume, 0);
     rb_define_module_function(mDebugger, "tracing", debug_tracing, 0);
@@ -1871,8 +1888,6 @@ Init_ruby_debug()
     idAtTracing    = rb_intern("at_tracing");
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
-    idClear        = rb_intern("clear");
-    idIndex        = rb_intern("index");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
@@ -1880,4 +1895,6 @@ Init_ruby_debug()
     rb_global_variable(&breakpoints);
     rb_global_variable(&catchpoint);
     rb_global_variable(&locker);
+    rb_global_variable(&last_context);
+    rb_global_variable(&last_thread);
 }

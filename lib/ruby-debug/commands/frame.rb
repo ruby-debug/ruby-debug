@@ -1,7 +1,46 @@
 module Debugger
+  module FrameFunctions # :nodoc:
+    def adjust_frame(frame_pos, absolute)
+      if absolute
+        if frame_pos < 0
+          abs_frame_pos = @state.frames.size + frame_pos
+        else
+          abs_frame_pos = frame_pos
+        end
+      else
+        abs_frame_pos = @state.frame_pos + frame_pos
+      end
+
+      if abs_frame_pos >= @state.frames.size then
+        print_error "Adjusting would put us beyond the oldest (initial) frame.\n"
+        return
+      elsif abs_frame_pos < 0 then
+        print_error "Adjusting would put us beyond the newest (innermost) frame.\n"
+        return
+      end
+      if @state.frame_pos != abs_frame_pos then
+        @state.previous_line = nil
+        @state.frame_pos = abs_frame_pos
+      end
+      frame = @state.frames[-1-@state.frame_pos]
+      @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
+      print_current_frame(frame, @state.frame_pos)
+    end
+
+    def get_int(str, cmd)
+      begin
+        return Integer(@match[1])
+      rescue
+        print_error "%s argument needs to be a number.\n" % cmd
+        return nil
+      end
+    end
+
+  end
+
   class WhereCommand < Command # :nodoc:
     def regexp
-      /^\s*(?:w(?:here)?|f(?:rame)?)$/
+      /^\s*(?:w(?:here)?|bt|backtrace)$/
     end
 
     def execute
@@ -20,7 +59,7 @@ module Debugger
           }
         else
           %{
-            f[rame]\t\talias for where
+            bt|backtrace\t\talias for where
           }
         end
       end
@@ -29,65 +68,45 @@ module Debugger
 
   class UpCommand < Command # :nodoc:
     def regexp
-      /^\s*(?:(up)(?:\s+(\d+))?|(f)(?:rame)?(?:\s+(\d+)))\s*$/
+      /^\s* u(?:p)? (?:\s+(.*))? .*$/x
     end
 
     def execute
-      if @match[1]
-        cmd, arg = @match.captures
+      unless @match[1]
+        pos = 1
       else
-        cmd, arg = @match.captures[2..-1]
+        pos = get_int(@match[1], "Up")
+        return unless pos
       end
-      @state.previous_line = nil
-      if cmd == 'f'
-        @state.frame_pos = arg.to_i - 1
-      else
-        @state.frame_pos += (arg ? arg.to_i : 1)
-      end
-      @state.frame_pos = 0 if @state.frame_pos < 0
-      if @state.frame_pos >= @state.frames.size
-        @state.frame_pos = @state.frames.size - 1
-        print_msg "At toplevel"
-      end
-      frame = @state.frames[-1 - @state.frame_pos]
-      @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print_current_frame(frame, @state.frame_pos)
+      adjust_frame(pos, false)
     end
 
     class << self
       def help_command
-        %w|up frame|
+        up
       end
 
       def help(cmd)
-        if cmd == 'up'
-          %{
-            up[ nn]\tmove to higher frame
-          }
-        else
-          %{
-            f[rame] n\tselect nth frame
-          }
-        end
+        %{
+          up[count]\tmove to higher frame
+        }
       end
     end
   end
 
   class DownCommand < Command # :nodoc:
     def regexp
-      /^\s*down(?:\s+(\d+))?$/
+      /^\s* d(?:own)? (?:\s+(.*))? .*$/x
     end
 
     def execute
-      @state.previous_line = nil
-      @state.frame_pos -= @match[1] ? @match[1].to_i : 1
-      if @state.frame_pos < 0
-        @state.frame_pos = 0
-        print_msg "At stack bottom"
+      if not @match[1]
+        pos = 1
+      else
+        pos = get_int(@match[1], "Down")
+        return unless pos
       end
-      frame = @state.frames[-1 - @state.frame_pos]
-      @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print_current_frame(frame, @state.frame_pos)
+      adjust_frame(-pos, false)
     end
 
     class << self
@@ -97,7 +116,42 @@ module Debugger
 
       def help(cmd)
         %{
-          down[ nn]\tmove to lower frame
+          down[count]\tmove to lower frame
+        }
+      end
+    end
+  end
+  
+  class FrameCommand < Command # :nodoc:
+    include FrameFunctions
+    def regexp
+      /^\s* f(?:rame)? (?:\s+ (.*))? \s*$/x
+    end
+
+    def execute
+      if not @match[1]
+        print "Missing a frame number argument.\n"
+        return
+      else
+        pos = get_int(@match[1], "Frame")
+        return unless pos
+      end
+      adjust_frame(pos < 0 ? pos : pos-1, true)
+    end
+
+    class << self
+      def help_command
+        'frame'
+      end
+
+      def help(cmd)
+        %{
+          f[rame] frame-number
+          Move the current frame to the specified frame number.
+
+          A negative number indicates position from the other end.  So
+          'frame -1' moves to the oldest frame, and 'frame 0' moves to
+          the newest frame.
         }
       end
     end

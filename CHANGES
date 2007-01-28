@@ -2,6 +2,11 @@
 - Added two output formats: plain and xml
 - Applied patch from Markus Barchfeld. 
 
+0.6.2
+- Added thread lookup cache.
+- Control thread is always started by rdebug script.
+- Ability to specify negative frame number to frame commands. Patch from R. Bernstein.
+
 0.6.1
 - Another performance optimization.
 

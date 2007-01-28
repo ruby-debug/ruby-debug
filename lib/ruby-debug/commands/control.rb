@@ -81,7 +81,7 @@ module Debugger
     
     def execute
       unless Debugger.interrupt_last
-        context = Debugger.contexts.find{ |c| c.thread == Thread.main }
+        context = Debugger.thread_context(Thread.main)
         context.interrupt
       end
     end
