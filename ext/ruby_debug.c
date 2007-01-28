@@ -91,8 +91,6 @@ static ID idAtCatchpoint;
 static ID idAtTracing;
 static ID idEval;
 static ID idList;
-static ID idClear;
-static ID idIndex;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -1866,8 +1864,6 @@ Init_ruby_debug()
     idAtTracing    = rb_intern("at_tracing");
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
-    idClear        = rb_intern("clear");
-    idIndex        = rb_intern("index");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 

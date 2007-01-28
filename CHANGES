@@ -1,6 +1,7 @@
 0.6.2
 - Added thread lookup cache.
 - Control thread is always started by rdebug script.
+- Ability to specify negative frame number to frame commands. Patch from R. Bernstein.
 
 0.6.1
 - Another performance optimization.
