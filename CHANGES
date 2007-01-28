@@ -1,5 +1,6 @@
 0.6.2
 - Added thread lookup cache.
+- Control thread is always started by rdebug script.
 
 0.6.1
 - Another performance optimization.

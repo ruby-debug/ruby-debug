@@ -27,14 +27,15 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   opts.on("-s", "--server", "Listen for remote connections") {options.server = true}
+  opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
-  opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
+  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
+  opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.port|}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
   opts.on("-f", "--keep-frame-info", "Keep frame info") {options.frame_info = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
-  opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
@@ -44,7 +45,6 @@ EOB
       exit
     end
   end
-  opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.port|}
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do
@@ -82,26 +82,43 @@ else
     exit(-1)
   end
 
+  # save script name
   Debugger::PROG_SCRIPT = ARGV.shift
+  
+  # install interruption handler
   trap('INT') { Debugger.interrupt_last }
+  
+  # set options
   Debugger.stop_on_connect = !options.nostop
   Debugger.wait_connection = options.wait
   Debugger.keep_frame_info = options.frame_info
+  
+  # load user script
   load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")
+  
   if options.server
+    # start remote mode
     Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem)
+    # load script
     Debugger.debug_load Debugger::PROG_SCRIPT
   else
+    # activate debugger
     Debugger.start
+    # start control thread
+    Debugger.start_control(options.host, options.cport)
+    
+    # run startup script if specified
     if options.script
       Debugger.run_script(options.script)
     end
+    # activate post-mortem
     Debugger.post_mortem if options.post_mortem
     if options.tracing
       Debugger.tracing = true
     else
       debugger 2 unless options.nostop
     end
+    # load script
     Debugger.debug_load Debugger::PROG_SCRIPT
   end
 end
