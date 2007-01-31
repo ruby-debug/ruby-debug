@@ -45,9 +45,8 @@ module Debugger
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      frames = context.frames
-      print "Catchpoint at %s:%d: `%s' (%s)\n", frames.last.file, frames.last.line, excpt, excpt.class
-      fs = frames.size
+      print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(1), context.frames_line(1), excpt, excpt.class
+      fs = context.stack_size
       tb = caller(0)[-fs..-1]
       if tb
         for i in tb
@@ -62,9 +61,9 @@ module Debugger
     end
     protect :at_tracing
 
-    def at_line(context, file, line, frames = context.frames)
+    def at_line(context, file, line)
       print "%s:%d: %s", file, line, Debugger.line_at(file, line)
-      process_commands(context, file, line, frames)
+      process_commands(context, file, line)
     end
     protect :at_line
     
@@ -82,17 +81,16 @@ module Debugger
       end
     end
     
-    def process_commands(context, file, line, frames)
+    def process_commands(context, file, line)
       event_cmds = Command.commands.select{|cmd| cmd.event }
       state = State.new do |s|
         s.context = context
         s.file    = file
         s.line    = line
-        s.binding = frames.last.binding
+        s.binding = context.frame_binding(0)
         s.display = display
         s.interface = interface
         s.commands = event_cmds
-        s.frames = frames
       end
       commands = event_cmds.map{|cmd| cmd.new(state) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
@@ -130,7 +128,7 @@ module Debugger
     class State # :nodoc:
       attr_accessor :context, :file, :line, :binding
       attr_accessor :frame_pos, :previous_line, :display
-      attr_accessor :interface, :commands, :frames
+      attr_accessor :interface, :commands
 
       def initialize
         @frame_pos = 0

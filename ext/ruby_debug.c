@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <ruby.h>
 #include <node.h>
+#include <env.h>
 #include <rubysig.h>
 #include <st.h>
 
@@ -21,16 +22,22 @@
                           strcmp(debug_context->last_file, file) != 0)
 
 #define IS_STARTED  (threads_tbl != Qnil)
+#define FRAME_N(n)  (debug_context->frames[debug_context->stack_size-(n)-1])
 
 #ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
 #endif
+
+#define STACK_SIZE_INCREMENT 512
 
 typedef struct {
     ID id;
     VALUE binding;
     int line;
     const char * file;
+    struct FRAME *frame;
+    struct SCOPE *scope;
+    struct RVarmap *dyna_vars;
 } debug_frame_t;
 
 typedef struct {
@@ -41,8 +48,9 @@ typedef struct {
     int stop_line;
     int stop_frame;
     unsigned long thread_id;
-    VALUE frames;
-    debug_frame_t *top_frame;
+    int stack_size;
+    int stack_len;
+    debug_frame_t *frames;
     const char * last_file;
     int last_line;
 } debug_context_t;
@@ -80,7 +88,6 @@ static debug_context_t *last_debug_context = NULL;
 static VALUE mDebugger;
 static VALUE cThreadsTable;
 static VALUE cContext;
-static VALUE cFrame;
 static VALUE cBreakpoint;
 
 static VALUE rb_mObjectSpace;
@@ -314,10 +321,22 @@ debug_check_started()
 }
 
 static void
-debug_context_mark(void* data)
+debug_context_mark(void *data)
+{
+    int i;
+    
+    debug_context_t *debug_context = (debug_context_t *)data;
+    for(i = 0; i < debug_context->stack_size; i++)
+    {
+	rb_gc_mark(debug_context->frames[i].binding);
+    }
+}
+
+static void
+debug_context_free(void *data)
 {
     debug_context_t *debug_context = (debug_context_t *)data;
-    rb_gc_mark(debug_context->frames);
+    xfree(debug_context->frames);
 }
 
 static VALUE
@@ -337,10 +356,11 @@ debug_context_create(VALUE thread)
     debug_context->dest_frame = -1;
     debug_context->stop_line = -1;
     debug_context->stop_frame = -1;
-    debug_context->frames = rb_ary_new();
-    debug_context->top_frame = NULL;
+    debug_context->stack_len = STACK_SIZE_INCREMENT;
+    debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
+    debug_context->stack_size = 0;
     debug_context->thread_id = ref2id(thread);
-    result = Data_Wrap_Struct(cContext, debug_context_mark, xfree, debug_context);
+    result = Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, debug_context);
     return result;
 }
 
@@ -377,13 +397,6 @@ thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_cont
     last_debug_context = l_debug_context;
 }
 
-static void
-debug_frame_mark(void *data)
-{
-    debug_frame_t *debug_frame = (debug_frame_t *)data;
-    rb_gc_mark(debug_frame->binding);
-}
-
 static VALUE
 call_at_line_unprotected(VALUE args)
 {
@@ -407,19 +420,26 @@ call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE li
 static void
 save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug_context)
 {
-    VALUE frame, binding;
+    VALUE binding;
     debug_frame_t *debug_frame;
+    int frame_n;
     
     binding = self && RTEST(keep_frame_info)? create_binding(self) : Qnil;
-    debug_frame = ALLOC(debug_frame_t);
+    
+    frame_n = debug_context->stack_size++;
+    if(frame_n >= debug_context->stack_len)
+    {
+	debug_context->stack_len += STACK_SIZE_INCREMENT;
+	debug_context->frames = REALLOC_N(debug_context->frames, debug_frame_t, debug_context->stack_len);
+    }
+    debug_frame = &debug_context->frames[frame_n];
     debug_frame->file = file;
     debug_frame->line = line;
     debug_frame->binding = binding;
     debug_frame->id = mid;
-    frame = Data_Wrap_Struct(cFrame, debug_frame_mark, xfree, debug_frame);
-    
-    debug_context->top_frame = debug_frame;
-    rb_ary_push(debug_context->frames, frame);
+    debug_frame->frame = ruby_frame;
+    debug_frame->scope = ruby_scope;
+    debug_frame->dyna_vars = ruby_dyna_vars;
 }
 
 #if defined DOSISH
@@ -559,22 +579,10 @@ check_breakpoint_expression(VALUE breakpoint, VALUE binding)
 inline static debug_frame_t *
 get_top_frame(debug_context_t *debug_context)
 {
-    VALUE frame;
-    debug_frame_t *debug_frame;
-    if(RARRAY(debug_context->frames)->len == 0)
+    if(debug_context->stack_size == 0)
         return NULL;
     else 
-    {
-        if(debug_context->top_frame == NULL)
-        {
-            frame = RARRAY(debug_context->frames)->ptr[RARRAY(debug_context->frames)->len-1];
-            Data_Get_Struct(frame, debug_frame_t, debug_frame);
-            debug_context->top_frame = debug_frame;
-        }
-        else
-            debug_frame = debug_context->top_frame;
-        return debug_frame;
-    }
+	return &(debug_context->frames[debug_context->stack_size-1]);
 }
 
 inline static void
@@ -586,7 +594,7 @@ save_top_binding(debug_context_t *debug_context, VALUE binding)
         debug_frame->binding = binding;
 }
 
-static void
+inline static void
 set_frame_source(debug_context_t *debug_context, char *file, int line)
 {
     debug_frame_t *top_frame;
@@ -595,6 +603,17 @@ set_frame_source(debug_context_t *debug_context, char *file, int line)
     {
         top_frame->file = file;
         top_frame->line = line;
+    }
+}
+
+inline static void 
+set_dyna_vars(debug_context_t *debug_context)
+{
+    debug_frame_t *top_frame;
+    top_frame = get_top_frame(debug_context);
+    if(top_frame)
+    {
+        top_frame->dyna_vars = ruby_dyna_vars;
     }
 }
 
@@ -670,12 +689,13 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     case RUBY_EVENT_LINE:
     {
         set_frame_source(debug_context, file, line);
+	set_dyna_vars(debug_context);
 
         if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
             rb_funcall(context, idAtTracing, 2, rb_str_new2(file), INT2FIX(line));
         
         if(debug_context->dest_frame == -1 || 
-            RARRAY(debug_context->frames)->len == debug_context->dest_frame)
+            debug_context->stack_size == debug_context->dest_frame)
         {
             debug_context->stop_next--;
             if(debug_context->stop_next < 0)
@@ -684,12 +704,12 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(DID_MOVED)
                 debug_context->stop_line--;
         }
-        else if(RARRAY(debug_context->frames)->len < debug_context->dest_frame)
+        else if(debug_context->stack_size < debug_context->dest_frame)
         {
             debug_context->stop_next = 0;
         }
 
-        if(RARRAY(debug_context->frames)->len == 0)
+        if(debug_context->stack_size == 0)
             save_call_frame(self, file, line, mid, debug_context);
 
         if(debug_context->stop_next == 0 || debug_context->stop_line == 0 ||
@@ -746,13 +766,12 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_END:
     {
-        if(RARRAY(debug_context->frames)->len == debug_context->stop_frame)
+        if(debug_context->stack_size == debug_context->stop_frame)
         {
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-        rb_ary_pop(debug_context->frames);
-        debug_context->top_frame = NULL;
+	debug_context->stack_size--;
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -772,7 +791,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_file"), rb_str_new2(file));
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_line"), INT2FIX(line));
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
-            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_frames"), rb_obj_dup(debug_context->frames));
+	    // FIXME
+            //rb_ivar_set(ruby_errinfo, rb_intern("@__debug_frames"), rb_obj_dup(debug_context->frames));
         }
 
         expn_class = rb_obj_class(ruby_errinfo);
@@ -1310,7 +1330,7 @@ debug_debug_load(VALUE self, VALUE file)
     
     context = debug_current_context(self);
     Data_Get_Struct(context, debug_context_t, debug_context);
-    rb_ary_clear(debug_context->frames);
+    debug_context->stack_size = 0;
     rb_load(file, 0);
     
     debug_stop(self);
@@ -1401,7 +1421,6 @@ context_stop_next(VALUE self, VALUE steps)
     debug_context_t *debug_context;
 
     debug_check_started();
-    
     Data_Get_Struct(self, debug_context_t, debug_context);
     if(FIX2INT(steps) < 0)
     rb_raise(rb_eRuntimeError, "Steps argument can't be negative.");
@@ -1423,22 +1442,21 @@ context_step_over(int argc, VALUE *argv, VALUE self)
     debug_context_t *debug_context;
 
     debug_check_started();
-
     Data_Get_Struct(self, debug_context_t, debug_context);
-    if(RARRAY(debug_context->frames)->len == 0)
+    if(debug_context->stack_size == 0)
         rb_raise(rb_eRuntimeError, "No frames collected.");
 
     rb_scan_args(argc, argv, "11", &lines, &frame);
     debug_context->stop_line = FIX2INT(lines);
     if(argc == 1)
     {
-        debug_context->dest_frame = RARRAY(debug_context->frames)->len;
+        debug_context->dest_frame = debug_context->stack_size;
     }
     else
     {
-        if(FIX2INT(frame) < 0 && FIX2INT(frame) >= RARRAY(debug_context->frames)->len)
+        if(FIX2INT(frame) < 0 && FIX2INT(frame) >= debug_context->stack_size)
             rb_raise(rb_eRuntimeError, "Destination frame is out of range.");
-        debug_context->dest_frame = RARRAY(debug_context->frames)->len - FIX2INT(frame);
+        debug_context->dest_frame = debug_context->stack_size - FIX2INT(frame);
     }
 
     return Qnil;
@@ -1456,28 +1474,156 @@ context_stop_frame(VALUE self, VALUE frame)
     debug_context_t *debug_context;
 
     debug_check_started();
-
     Data_Get_Struct(self, debug_context_t, debug_context);
-    if(FIX2INT(frame) < 0 && FIX2INT(frame) >= RARRAY(debug_context->frames)->len)
+    if(FIX2INT(frame) < 0 && FIX2INT(frame) >= debug_context->stack_size)
         rb_raise(rb_eRuntimeError, "Stop frame is out of range.");
-    debug_context->stop_frame = RARRAY(debug_context->frames)->len - FIX2INT(frame);
+    debug_context->stop_frame = debug_context->stack_size - FIX2INT(frame);
 
     return frame;
 }
 
 /*
  *   call-seq:
- *      context.frames -> array
+ *      context_bindingr(frame) -> binding
  *   
- *   Returns an array of frames.
+ *   Returns frame's binding.
  */
 static VALUE
-context_frames(VALUE self)
+context_frame_binding(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    int frame_n;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    frame_n = FIX2INT(frame);
+    if(frame_n < 0 || frame_n >= debug_context->stack_size)
+	rb_raise(rb_eArgError, "Invalid frame number");
+    return FRAME_N(frame_n).binding;
+}
+
+static VALUE
+context_frame_locals(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    debug_frame_t *debug_frame;
+    int frame_n;
+    struct SCOPE *scope;
+    ID *tbl;
+    int n, i;
+    struct RVarmap *vars;
+
+    VALUE hash = rb_hash_new();
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    frame_n = FIX2INT(frame);
+    if(frame_n < 0 || frame_n >= debug_context->stack_size)
+	rb_raise(rb_eArgError, "Invalid frame number");
+    
+    debug_frame = &FRAME_N(frame_n);
+    scope = debug_frame->scope;
+    tbl = scope->local_tbl;
+
+    if (tbl && scope->local_vars) {
+	n = *tbl++;
+	for (i=2; i<n; i++) {   /* skip first 2 ($_ and $~) */
+	    if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
+	    rb_hash_aset(hash, rb_str_new2(rb_id2name(tbl[i])), scope->local_vars[i]);
+	}
+    }
+
+    vars = debug_frame->dyna_vars;
+    while (vars) {
+	if (vars->id && rb_is_local_id(vars->id)) { /* skip $_, $~ and flip states */
+	    rb_hash_aset(hash, rb_str_new2(rb_id2name(vars->id)), vars->val);
+	}
+	vars = vars->next;
+    }
+    return hash;
+}
+
+/*
+ *   call-seq:
+ *      context.frame_id(frame) -> sym
+ *   
+ *   Returns the sym of the called method.
+ */
+static VALUE
+context_frame_id(VALUE self, VALUE frame)
+{
+
+    debug_context_t *debug_context;
+    int frame_n;
+    ID id;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    frame_n = FIX2INT(frame);
+    if(frame_n < 0 || frame_n >= debug_context->stack_size)
+	rb_raise(rb_eArgError, "Invalid frame number");
+
+    id = FRAME_N(frame_n).id;
+    return id ? ID2SYM(id): Qnil;
+}
+
+/*
+ *   call-seq:
+ *      context.frame_line(frame) -> int
+ *   
+ *   Returns the line number in the file.
+ */
+static VALUE
+context_frame_line(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    int frame_n;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    frame_n = FIX2INT(frame);
+    if(frame_n < 0 || frame_n >= debug_context->stack_size)
+	rb_raise(rb_eArgError, "Invalid frame number");
+
+    return INT2FIX(FRAME_N(frame_n).line);
+}
+
+/*
+ *   call-seq:
+ *      context.frame_file(frame) -> string
+ *   
+ *   Returns the name of the file.
+ */
+static VALUE
+context_frame_file(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    int frame_n;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    frame_n = FIX2INT(frame);
+    if(frame_n < 0 || frame_n >= debug_context->stack_size)
+	rb_raise(rb_eArgError, "Invalid frame number");
+
+    return rb_str_new2(FRAME_N(frame_n).file);
+}
+
+/*
+ *   call-seq:
+ *      context.stack_size-> int
+ *   
+ *   Returns the size of the context stack.
+ */
+static VALUE
+context_stack_size(VALUE self)
 {
     debug_context_t *debug_context;
 
+    debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
-    return debug_context->frames;
+
+    return INT2FIX(debug_context->stack_size);
 }
 
 /*
@@ -1491,6 +1637,7 @@ context_thread(VALUE self)
 {
     debug_context_t *debug_context;
 
+    debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
     return context_thread_0(debug_context);
 }
@@ -1629,66 +1776,6 @@ context_set_ignore(VALUE self, VALUE value)
 
 /*
  *   call-seq:
- *      frame.file -> string
- *   
- *   Returns the name of the file.
- */
-static VALUE
-frame_file(VALUE self)
-{
-    debug_frame_t *debug_frame;
-
-    Data_Get_Struct(self, debug_frame_t, debug_frame);
-    return rb_str_new2(debug_frame->file);
-}
-
-/*
- *   call-seq:
- *      frame.line -> int
- *   
- *   Returns the line number in the file.
- */
-static VALUE
-frame_line(VALUE self)
-{
-    debug_frame_t *debug_frame;
-
-    Data_Get_Struct(self, debug_frame_t, debug_frame);
-    return INT2FIX(debug_frame->line);
-}
-
-/*
- *   call-seq:
- *      frame.binding -> binding
- *   
- *   Returns the binding captured at the moment this frame was created.
- */
-static VALUE
-frame_binding(VALUE self)
-{
-    debug_frame_t *debug_frame;
-
-    Data_Get_Struct(self, debug_frame_t, debug_frame);
-    return debug_frame->binding;
-}
-
-/*
- *   call-seq:
- *      frame.id -> sym
- *   
- *   Returns the sym of the called method.
- */
-static VALUE
-frame_id(VALUE self)
-{
-    debug_frame_t *debug_frame;
-
-    Data_Get_Struct(self, debug_frame_t, debug_frame);
-    return debug_frame->id ? ID2SYM(debug_frame->id): Qnil;
-}
-
-/*
- *   call-seq:
  *      breakpoint.source -> string
  *   
  *   Returns a source of the breakpoint.
@@ -1766,7 +1853,6 @@ Init_context()
     rb_define_method(cContext, "stop_next=", context_stop_next, 1);
     rb_define_method(cContext, "step_over", context_step_over, -1);
     rb_define_method(cContext, "stop_frame=", context_stop_frame, 1);
-    rb_define_method(cContext, "frames", context_frames, 0);
     rb_define_method(cContext, "thread", context_thread, 0);
     rb_define_method(cContext, "thnum", context_thnum, 0);
     rb_define_method(cContext, "suspend", context_suspend, 0);
@@ -1775,23 +1861,12 @@ Init_context()
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
     rb_define_method(cContext, "ignore", context_ignore, 0);
     rb_define_method(cContext, "ignore=", context_set_ignore, 1);
-}
-
-/*
- *   Document-class: Frame
- *   
- *   == Summary
- *   
- *   This class holds infomation about a particular call frame.
- */
-static void
-Init_frame()
-{
-    cFrame = rb_define_class_under(cContext, "Frame", rb_cObject);
-    rb_define_method(cFrame, "file", frame_file, 0);
-    rb_define_method(cFrame, "line", frame_line, 0);
-    rb_define_method(cFrame, "binding", frame_binding, 0);
-    rb_define_method(cFrame, "id", frame_id, 0);
+    rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
+    rb_define_method(cContext, "frame_id", context_frame_id, 1);
+    rb_define_method(cContext, "frame_line", context_frame_line, 1);
+    rb_define_method(cContext, "frame_file", context_frame_file, 1);
+    rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
+    rb_define_method(cContext, "stack_size", context_stack_size, 0);
 }
 
 /*
@@ -1811,6 +1886,7 @@ Init_breakpoint()
     rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
     rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
 }
+
 
 /*
  *   Document-class: Debugger
@@ -1855,7 +1931,6 @@ Init_ruby_debug()
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
     
     Init_context();
-    Init_frame();
     Init_breakpoint();
 
     idAtLine       = rb_intern("at_line");

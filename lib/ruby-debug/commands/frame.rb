@@ -3,7 +3,7 @@ module Debugger
     def adjust_frame(frame_pos, absolute)
       if absolute
         if frame_pos < 0
-          abs_frame_pos = @state.frames.size + frame_pos
+          abs_frame_pos = @state.context.stack_size + frame_pos
         else
           abs_frame_pos = frame_pos
         end
@@ -11,7 +11,7 @@ module Debugger
         abs_frame_pos = @state.frame_pos + frame_pos
       end
 
-      if abs_frame_pos >= @state.frames.size then
+      if abs_frame_pos >= @state.context.stack_size then
         print "Adjusting would put us beyond the oldest (initial) frame.\n"
         return
       elsif abs_frame_pos < 0 then
@@ -22,9 +22,12 @@ module Debugger
         @state.previous_line = nil
         @state.frame_pos = abs_frame_pos
       end
-      frame = @state.frames[-1-@state.frame_pos]
-      @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print format_frame(frame, @state.frame_pos)
+      
+      @state.binding = @state.context.frame_binding(@state.frame_pos)
+      @state.file = @state.context.frame_file(@state.frame_pos)
+      @state.line = @state.context.frame_line(@state.frame_pos)
+      
+      print format_frame(@state.frame_pos)
     end
 
     def get_int(str, cmd)
@@ -36,10 +39,10 @@ module Debugger
       end
     end
 
-    def format_frame(frame, pos)
+    def format_frame(pos)
       printf "\032\032" if ENV['EMACS']
-      file, line, id = frame.file, frame.line, frame.id
-      "#%d %s:%s%s\n" % [pos + 1, file, line, (id ? ":in `#{id.id2name}'" : "")]
+      file, line, id = @state.context.frame_file(pos), @state.context.frame_line(pos), @state.context.frame_id(pos)
+      "#%d %s:%s%s\n" % [pos+1, file, line, (id ? ":in `#{id.id2name}'" : "")]
     end
   end
 
@@ -51,13 +54,13 @@ module Debugger
     end
 
     def execute
-      @state.frames.reverse.each_with_index do |frame, idx|
-        if idx == @state.frame_pos
+      (1..@state.context.stack_size).each do |idx|
+        if idx-1 == @state.frame_pos
           print "--> "
         else
           print "    "
         end
-        print format_frame(frame, idx)
+        print format_frame(idx-1)
       end
     end
 

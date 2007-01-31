@@ -6,6 +6,12 @@ module Debugger
         print "  %s => %s\n", v, debug_eval(v, bind).inspect
       end
     end
+
+    def var_locals(locals)
+      locals.keys.sort.each do |name|
+        print "  %s => %s\n", name, locals[name]
+      end
+    end
     
     def var_consts(mod)
       constants = mod.constants
@@ -102,7 +108,7 @@ module Debugger
     end
 
     def execute
-      var_list(debug_eval("local_variables"))
+      var_locals(@state.context.frame_locals(@state.frame_pos))
     end
 
     class << self
