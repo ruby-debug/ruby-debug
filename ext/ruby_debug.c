@@ -24,6 +24,7 @@
 
 #define IS_STARTED  (threads_tbl != Qnil)
 #define FRAME_N(n)  (debug_context->frames[debug_context->stack_size-(n)-1])
+#define GET_FRAME       (FRAME_N(check_frame_number(debug_context, frame)))
 
 #ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
@@ -42,13 +43,13 @@ typedef struct {
 } debug_frame_t;
 
 typedef struct {
+    unsigned long thread_id;
     int thnum;
     int flags;
     int stop_next;
     int dest_frame;
     int stop_line;
     int stop_frame;
-    unsigned long thread_id;
     int stack_size;
     int stack_len;
     debug_frame_t *frames;
@@ -370,6 +371,10 @@ debug_context_dup(debug_context_t *debug_context)
 
     new_debug_context = ALLOC(debug_context_t);
     memcpy(new_debug_context, debug_context, sizeof(debug_context_t));
+    new_debug_context->stop_next = -1;
+    new_debug_context->dest_frame = -1;
+    new_debug_context->stop_line = -1;
+    new_debug_context->stop_frame = -1;
     CTX_FL_SET(new_debug_context, CTX_FL_DEAD);
     new_debug_context->frames = ALLOC_N(debug_frame_t, debug_context->stack_len);
     memcpy(new_debug_context->frames, debug_context->frames, sizeof(debug_frame_t) * debug_context->stack_size);
@@ -783,7 +788,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-	debug_context->stack_size--;
+	if(debug_context->stack_size > 0)
+	    debug_context->stack_size--;
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -1493,9 +1499,21 @@ context_stop_frame(VALUE self, VALUE frame)
     return frame;
 }
 
+inline static int
+check_frame_number(debug_context_t *debug_context, VALUE frame)
+{
+    int frame_n;
+
+    frame_n = FIX2INT(frame);
+    if(frame_n < 0 || frame_n >= debug_context->stack_size)
+	rb_raise(rb_eArgError, "Invalid frame number %d, stack (0...%d)",
+		frame_n, debug_context->stack_size); 
+    return frame_n;
+}
+
 /*
  *   call-seq:
- *      context_bindingr(frame) -> binding
+ *      context.frame_binding(frame) -> binding
  *   
  *   Returns frame's binding.
  */
@@ -1507,12 +1525,72 @@ context_frame_binding(VALUE self, VALUE frame)
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
-    frame_n = FIX2INT(frame);
-    if(frame_n < 0 || frame_n >= debug_context->stack_size)
-	rb_raise(rb_eArgError, "Invalid frame number");
-    return FRAME_N(frame_n).binding;
+    return GET_FRAME.binding;
 }
 
+/*
+ *   call-seq:
+ *      context.frame_id(frame) -> sym
+ *   
+ *   Returns the sym of the called method.
+ */
+static VALUE
+context_frame_id(VALUE self, VALUE frame)
+{
+
+    debug_context_t *debug_context;
+    int frame_n;
+    ID id;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    id = GET_FRAME.id;
+    return id ? ID2SYM(id): Qnil;
+}
+
+/*
+ *   call-seq:
+ *      context.frame_line(frame) -> int
+ *   
+ *   Returns the line number in the file.
+ */
+static VALUE
+context_frame_line(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    int frame_n;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    return INT2FIX(GET_FRAME.line);
+}
+
+/*
+ *   call-seq:
+ *      context.frame_file(frame) -> string
+ *   
+ *   Returns the name of the file.
+ */
+static VALUE
+context_frame_file(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    int frame_n;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    return rb_str_new2(GET_FRAME.file);
+}
+
+/*
+ *   call-seq:
+ *      context.frame_locals(frame) -> hash
+ *   
+ *   Returns frame's local variables.
+ */
 static VALUE
 context_frame_locals(VALUE self, VALUE frame)
 {
@@ -1528,11 +1606,8 @@ context_frame_locals(VALUE self, VALUE frame)
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
-    frame_n = FIX2INT(frame);
-    if(frame_n < 0 || frame_n >= debug_context->stack_size)
-	rb_raise(rb_eArgError, "Invalid frame number");
     
-    debug_frame = &FRAME_N(frame_n);
+    debug_frame = &GET_FRAME;
     scope = debug_frame->scope;
     tbl = scope->local_tbl;
 
@@ -1556,68 +1631,20 @@ context_frame_locals(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_id(frame) -> sym
+ *      context.frame_self(frame) -> obj
  *   
- *   Returns the sym of the called method.
+ *   Returns self object of the frame.
  */
 static VALUE
-context_frame_id(VALUE self, VALUE frame)
-{
-
-    debug_context_t *debug_context;
-    int frame_n;
-    ID id;
-
-    debug_check_started();
-    Data_Get_Struct(self, debug_context_t, debug_context);
-    frame_n = FIX2INT(frame);
-    if(frame_n < 0 || frame_n >= debug_context->stack_size)
-	rb_raise(rb_eArgError, "Invalid frame number");
-
-    id = FRAME_N(frame_n).id;
-    return id ? ID2SYM(id): Qnil;
-}
-
-/*
- *   call-seq:
- *      context.frame_line(frame) -> int
- *   
- *   Returns the line number in the file.
- */
-static VALUE
-context_frame_line(VALUE self, VALUE frame)
+context_frame_self(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
     int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
-    frame_n = FIX2INT(frame);
-    if(frame_n < 0 || frame_n >= debug_context->stack_size)
-	rb_raise(rb_eArgError, "Invalid frame number");
 
-    return INT2FIX(FRAME_N(frame_n).line);
-}
-
-/*
- *   call-seq:
- *      context.frame_file(frame) -> string
- *   
- *   Returns the name of the file.
- */
-static VALUE
-context_frame_file(VALUE self, VALUE frame)
-{
-    debug_context_t *debug_context;
-    int frame_n;
-
-    debug_check_started();
-    Data_Get_Struct(self, debug_context_t, debug_context);
-    frame_n = FIX2INT(frame);
-    if(frame_n < 0 || frame_n >= debug_context->stack_size)
-	rb_raise(rb_eArgError, "Invalid frame number");
-
-    return rb_str_new2(FRAME_N(frame_n).file);
+    return GET_FRAME.frame->self;
 }
 
 /*
@@ -1893,6 +1920,7 @@ Init_context()
     rb_define_method(cContext, "frame_line", context_frame_line, 1);
     rb_define_method(cContext, "frame_file", context_frame_file, 1);
     rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
+    rb_define_method(cContext, "frame_self", context_frame_self, 1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
     rb_define_method(cContext, "dead?", context_dead, 0);
 }

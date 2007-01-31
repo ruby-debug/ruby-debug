@@ -84,7 +84,12 @@ module Debugger
     end
 
     def hbinding(hash)
-      eval(hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding')
+      code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
+      if obj = @state.context.frame_self(@state.frame_pos)
+        obj.instance_eval code
+      else
+        eval code
+      end
     end
     private :hbinding
  
