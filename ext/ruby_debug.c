@@ -52,7 +52,7 @@ typedef struct {
 } debug_frame_t;
 
 typedef struct {
-    unsigned long thread_id;
+    VALUE thread_id;
     int thnum;
     int flags;
     int stop_next;
@@ -123,7 +123,7 @@ static void save_current_position(debug_context_t *);
 static VALUE context_copy_locals(debug_frame_t *);
 
 typedef struct locked_thread_t { 
-    unsigned long thread_id;
+    VALUE thread_id;
     struct locked_thread_t *next;
 } locked_thread_t;
 
@@ -139,10 +139,10 @@ ruby_method_ptr(VALUE class, ID meth_id)
     return (void *)method->u1.value;
 }
 
-inline static unsigned long 
+inline static VALUE
 ref2id(VALUE obj)
 {
-    return NUM2ULONG(rb_obj_id(obj));
+    return rb_obj_id(obj);
 }
 
 static VALUE
@@ -160,13 +160,14 @@ id2ref_unprotected(VALUE id)
 static VALUE
 id2ref_error()
 {
+    rb_p(ruby_errinfo);
     return Qnil;
 }
 
 static VALUE
-id2ref(unsigned long id)
+id2ref(VALUE id)
 {
-    return rb_rescue(id2ref_unprotected, ULONG2NUM(id), id2ref_error, 0);
+    return rb_rescue(id2ref_unprotected, id, id2ref_error, 0);
 }
 
 inline static VALUE
@@ -176,7 +177,7 @@ context_thread_0(debug_context_t *debug_context)
 }
 
 static int
-is_in_locked(unsigned long thread_id)
+is_in_locked(VALUE thread_id)
 {
     locked_thread_t *node;
     
@@ -194,7 +195,7 @@ static void
 add_to_locked(VALUE thread)
 {
     locked_thread_t *node;
-    unsigned long thread_id = ref2id(thread);
+    VALUE thread_id = ref2id(thread);
     
     if(is_in_locked(thread_id))
         return;
@@ -411,7 +412,7 @@ static void
 thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_context)
 {
     threads_table_t *threads_table;
-    unsigned long thread_id;
+    VALUE thread_id;
     debug_context_t *l_debug_context;
 
     debug_check_started();
@@ -1549,7 +1550,6 @@ static VALUE
 context_frame_binding(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
-    int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
@@ -1567,7 +1567,6 @@ context_frame_id(VALUE self, VALUE frame)
 {
 
     debug_context_t *debug_context;
-    int frame_n;
     ID id;
 
     debug_check_started();
@@ -1587,7 +1586,6 @@ static VALUE
 context_frame_line(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
-    int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
@@ -1605,7 +1603,6 @@ static VALUE
 context_frame_file(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
-    int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
@@ -1654,7 +1651,6 @@ context_frame_locals(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
-    int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
@@ -1677,7 +1673,6 @@ context_frame_self(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
-    int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
