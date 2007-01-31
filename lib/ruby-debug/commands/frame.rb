@@ -170,7 +170,7 @@ module Debugger
           Move the current frame to the specified frame number.
 
           A negative number indicates position from the other end.  So
-          'frame -1' moves to the oldest frame, and 'frame 0' moves to
+          'frame -1' moves to the oldest frame, and 'frame 1' moves to
           the newest frame.
         }
       end
