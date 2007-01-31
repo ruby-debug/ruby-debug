@@ -45,7 +45,7 @@ module Debugger
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(1), context.frames_line(1), excpt, excpt.class
+      print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(1), context.frame_line(1), excpt, excpt.class
       fs = context.stack_size
       tb = caller(0)[-fs..-1]
       if tb

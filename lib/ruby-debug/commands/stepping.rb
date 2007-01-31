@@ -58,7 +58,7 @@ module Debugger
     end
 
     def execute
-      if @state.frame_pos == @state.frames.size
+      if @state.frame_pos == @state.context.stack_size - 1
         print "\"finish\" not meaningful in the outermost frame.\n"
       else
         @state.context.stop_frame = @state.frame_pos
