@@ -259,10 +259,10 @@ module Debugger
     end
     
     def handle_post_mortem(exp)
-      return if exp.__debug_frames.empty?
+      return if exp.__debug_context.stack_size == 0
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
-      processor.at_line(nil, exp.__debug_file, exp.__debug_line, exp.__debug_frames)
+      processor.at_line(exp.__debug_context, exp.__debug_file, exp.__debug_line)
     ensure
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing
     end
@@ -271,7 +271,7 @@ module Debugger
 end
 
 class Exception # :nodoc:
-  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_frames
+  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
 end
 
 class DebugThread < Thread # :nodoc:

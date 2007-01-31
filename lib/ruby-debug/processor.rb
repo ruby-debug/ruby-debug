@@ -74,10 +74,10 @@ module Debugger
     end
     
     def prompt(context)
-      if context
-        "(rdb:%d) " % context.thnum
-      else
+      if context.dead?
         "(rdb:post-mortem) "
+      else
+        "(rdb:%d) " % context.thnum
       end
     end
     
@@ -107,7 +107,7 @@ module Debugger
           
           input.split(";").each do |input|
             if cmd = commands.find{ |c| c.match(input) }
-              if context.nil? && cmd.class.need_context
+              if context.dead? && cmd.class.need_context
                 print "Command is unavailable\n"
               else
                 cmd.execute

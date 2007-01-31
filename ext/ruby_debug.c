@@ -5,13 +5,14 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.6.2"
+#define DEBUG_VERSION "0.7"
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
 #define CTX_FL_TRACING      (1<<3)
 #define CTX_FL_SKIPPED      (1<<4)
 #define CTX_FL_IGNORE       (1<<5)
+#define CTX_FL_DEAD         (1<<6)
 
 #define CTX_FL_TEST(c,f) ((c)->flags & (f))
 #define CTX_FL_SET(c,f) do { (c)->flags |= (f); } while (0)
@@ -73,13 +74,13 @@ typedef struct {
     st_table *tbl;
 } threads_table_t;
 
-static VALUE threads_tbl     = Qnil;
-static VALUE breakpoints     = Qnil;
-static VALUE catchpoint      = Qnil;
-static VALUE tracing         = Qfalse;
-static VALUE locker          = Qnil;
-static VALUE post_mortem     = Qfalse;
-static VALUE keep_frame_info = Qfalse;
+static VALUE threads_tbl        = Qnil;
+static VALUE breakpoints        = Qnil;
+static VALUE catchpoint         = Qnil;
+static VALUE tracing            = Qfalse;
+static VALUE locker             = Qnil;
+static VALUE post_mortem        = Qfalse;
+static VALUE keep_frame_binding = Qfalse;
 
 static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
@@ -342,7 +343,6 @@ debug_context_free(void *data)
 static VALUE
 debug_context_create(VALUE thread)
 {
-    VALUE result;
     debug_context_t *debug_context;
     
     debug_context = ALLOC(debug_context_t);
@@ -360,8 +360,20 @@ debug_context_create(VALUE thread)
     debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
     debug_context->stack_size = 0;
     debug_context->thread_id = ref2id(thread);
-    result = Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, debug_context);
-    return result;
+    return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, debug_context);
+}
+
+static VALUE
+debug_context_dup(debug_context_t *debug_context)
+{
+    debug_context_t *new_debug_context;
+
+    new_debug_context = ALLOC(debug_context_t);
+    memcpy(new_debug_context, debug_context, sizeof(debug_context_t));
+    CTX_FL_SET(new_debug_context, CTX_FL_DEAD);
+    new_debug_context->frames = ALLOC_N(debug_frame_t, debug_context->stack_len);
+    memcpy(new_debug_context->frames, debug_context->frames, sizeof(debug_frame_t) * debug_context->stack_size);
+    return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, new_debug_context);
 }
 
 static void
@@ -424,7 +436,7 @@ save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug
     debug_frame_t *debug_frame;
     int frame_n;
     
-    binding = self && RTEST(keep_frame_info)? create_binding(self) : Qnil;
+    binding = self && RTEST(keep_frame_binding)? create_binding(self) : Qnil;
     
     frame_n = debug_context->stack_size++;
     if(frame_n >= debug_context->stack_len)
@@ -791,8 +803,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_file"), rb_str_new2(file));
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_line"), INT2FIX(line));
             rb_ivar_set(ruby_errinfo, rb_intern("@__debug_binding"), binding);
-	    // FIXME
-            //rb_ivar_set(ruby_errinfo, rb_intern("@__debug_frames"), rb_obj_dup(debug_context->frames));
+            rb_ivar_set(ruby_errinfo, rb_intern("@__debug_context"), debug_context_dup(debug_context));
         }
 
         expn_class = rb_obj_class(ruby_errinfo);
@@ -1290,26 +1301,26 @@ debug_set_post_mortem(VALUE self, VALUE value)
 
 /*
  *   call-seq:
- *      Debugger.post_mortem? -> bool
+ *      Debugger.keep_frame_binding? -> bool
  *   
  *   Returns +true+ if the debugger will collect frame bindings.
  */
 static VALUE
-debug_keep_frame_info(VALUE self)
+debug_keep_frame_binding(VALUE self)
 {
-    return keep_frame_info;
+    return keep_frame_binding;
 }
 
 /*
  *   call-seq:
- *      Debugger.post_mortem = bool
+ *      Debugger.keep_frame_binding = bool
  *   
- *   Setting to +true+ will make the debugger keep frame bindings.
+ *   Setting to +true+ will make the debugger create frame bindings.
  */
 static VALUE
-debug_set_keep_frame_info(VALUE self, VALUE value)
+debug_set_keep_frame_binding(VALUE self, VALUE value)
 {
-    keep_frame_info = RTEST(value) ? Qtrue : Qfalse;
+    keep_frame_binding = RTEST(value) ? Qtrue : Qfalse;
     return value;
 }
 
@@ -1776,6 +1787,24 @@ context_set_ignore(VALUE self, VALUE value)
 
 /*
  *   call-seq:
+ *      context.dead? = bool
+ *   
+ *   Returns +true+ if context doesn't represent a live context and is created
+ *   during post-mortem exception handling.
+ */
+static VALUE
+context_dead(VALUE self)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    return CTX_FL_TEST(debug_context, CTX_FL_DEAD) ? Qtrue : Qfalse;
+}
+
+/*
+ *   call-seq:
  *      breakpoint.source -> string
  *   
  *   Returns a source of the breakpoint.
@@ -1843,8 +1872,6 @@ breakpoint_id(VALUE self)
  *   == Summary
  *   
  *   Debugger keeps a single instance of this class for each Ruby thread. 
- *   This class provides access to stack frames (see Frame class). Also it
- *   gives you ability to step thought the code.
  */
 static void
 Init_context()
@@ -1867,6 +1894,7 @@ Init_context()
     rb_define_method(cContext, "frame_file", context_frame_file, 1);
     rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
+    rb_define_method(cContext, "dead?", context_dead, 0);
 }
 
 /*
@@ -1925,8 +1953,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
     rb_define_module_function(mDebugger, "post_mortem?", debug_post_mortem, 0);
     rb_define_module_function(mDebugger, "post_mortem=", debug_set_post_mortem, 1);
-    rb_define_module_function(mDebugger, "keep_frame_info?", debug_keep_frame_info, 0);
-    rb_define_module_function(mDebugger, "keep_frame_info=", debug_set_keep_frame_info, 1);
+    rb_define_module_function(mDebugger, "keep_frame_binding?", debug_keep_frame_binding, 0);
+    rb_define_module_function(mDebugger, "keep_frame_binding=", debug_set_keep_frame_binding, 1);
     
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
     

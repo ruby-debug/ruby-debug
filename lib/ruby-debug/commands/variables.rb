@@ -1,9 +1,9 @@
 module Debugger
   module VarFunctions # :nodoc:
-    def var_list(ary, bind = @state.binding)
+    def var_list(ary, b = get_binding)
       ary.sort!
       for v in ary
-        print "  %s => %s\n", v, debug_eval(v, bind).inspect
+        print "  %s => %s\n", v, debug_eval(v, b).inspect
       end
     end
 

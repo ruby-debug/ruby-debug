@@ -23,7 +23,6 @@ module Debugger
         @state.frame_pos = abs_frame_pos
       end
       
-      @state.binding = @state.context.frame_binding(@state.frame_pos)
       @state.file = @state.context.frame_file(@state.frame_pos)
       @state.line = @state.context.frame_line(@state.frame_pos)
       
