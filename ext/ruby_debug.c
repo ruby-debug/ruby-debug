@@ -38,6 +38,7 @@ typedef struct {
     int line;
     const char * file;
     short dead;
+    VALUE self;
     union {
 	struct {
 	    struct FRAME *frame;
@@ -45,7 +46,6 @@ typedef struct {
 	    struct RVarmap *dyna_vars;
 	} runtime;
 	struct {
-	    VALUE self;
 	    VALUE locals;
 	} copy;
     } info;
@@ -343,9 +343,9 @@ debug_context_mark(void *data)
     {
 	frame = &(debug_context->frames[i]);
 	rb_gc_mark(frame->binding);
+	rb_gc_mark(frame->self);
 	if(frame->dead)
 	{
-	    rb_gc_mark(frame->info.copy.self);
 	    rb_gc_mark(frame->info.copy.locals);
 	}
     }
@@ -402,7 +402,6 @@ debug_context_dup(debug_context_t *debug_context)
 	new_frame = &new_debug_context->frames[i];
 	old_frame = &debug_context->frames[i];
 	new_frame->dead = 1;
-	new_frame->info.copy.self = old_frame->info.runtime.frame->self;
 	new_frame->info.copy.locals = context_copy_locals(old_frame);
     }
     return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, new_debug_context);
@@ -482,6 +481,7 @@ save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug
     debug_frame->binding = binding;
     debug_frame->id = mid;
     debug_frame->dead = 0;
+    debug_frame->self = self;
     debug_frame->info.runtime.frame = ruby_frame;
     debug_frame->info.runtime.scope = ruby_scope;
     debug_frame->info.runtime.dyna_vars = ruby_dyna_vars;
@@ -1683,10 +1683,7 @@ context_frame_self(VALUE self, VALUE frame)
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     debug_frame = GET_FRAME;
-    if(debug_frame->dead)
-	return debug_frame->info.copy.self;
-    else
-	return debug_frame->info.runtime.frame->self;
+    return debug_frame->self;
 }
 
 /*
