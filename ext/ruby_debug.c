@@ -23,7 +23,7 @@
                           strcmp(debug_context->last_file, file) != 0)
 
 #define IS_STARTED  (threads_tbl != Qnil)
-#define FRAME_N(n)  (debug_context->frames[debug_context->stack_size-(n)-1])
+#define FRAME_N(n)  (&debug_context->frames[debug_context->stack_size-(n)-1])
 #define GET_FRAME       (FRAME_N(check_frame_number(debug_context, frame)))
 
 #ifndef min
@@ -31,15 +31,24 @@
 #endif
 
 #define STACK_SIZE_INCREMENT 512
-
+				     
 typedef struct {
-    ID id;
     VALUE binding;
+    ID id;
     int line;
     const char * file;
-    struct FRAME *frame;
-    struct SCOPE *scope;
-    struct RVarmap *dyna_vars;
+    short dead;
+    union {
+	struct {
+	    struct FRAME *frame;
+	    struct SCOPE *scope;
+	    struct RVarmap *dyna_vars;
+	} runtime;
+	struct {
+	    VALUE self;
+	    VALUE locals;
+	} copy;
+    } info;
 } debug_frame_t;
 
 typedef struct {
@@ -111,6 +120,7 @@ static unsigned long hook_count = 0;
 static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
 static void save_current_position(debug_context_t *);
+static VALUE context_copy_locals(debug_frame_t *);
 
 typedef struct locked_thread_t { 
     unsigned long thread_id;
@@ -325,12 +335,19 @@ debug_check_started()
 static void
 debug_context_mark(void *data)
 {
+    debug_frame_t *frame;
     int i;
     
     debug_context_t *debug_context = (debug_context_t *)data;
     for(i = 0; i < debug_context->stack_size; i++)
     {
-	rb_gc_mark(debug_context->frames[i].binding);
+	frame = &(debug_context->frames[i]);
+	rb_gc_mark(frame->binding);
+	if(frame->dead)
+	{
+	    rb_gc_mark(frame->info.copy.self);
+	    rb_gc_mark(frame->info.copy.locals);
+	}
     }
 }
 
@@ -368,6 +385,8 @@ static VALUE
 debug_context_dup(debug_context_t *debug_context)
 {
     debug_context_t *new_debug_context;
+    debug_frame_t *new_frame, *old_frame;
+    int i;
 
     new_debug_context = ALLOC(debug_context_t);
     memcpy(new_debug_context, debug_context, sizeof(debug_context_t));
@@ -378,6 +397,14 @@ debug_context_dup(debug_context_t *debug_context)
     CTX_FL_SET(new_debug_context, CTX_FL_DEAD);
     new_debug_context->frames = ALLOC_N(debug_frame_t, debug_context->stack_len);
     memcpy(new_debug_context->frames, debug_context->frames, sizeof(debug_frame_t) * debug_context->stack_size);
+    for(i = 0; i < debug_context->stack_size; i++)
+    {
+	new_frame = &new_debug_context->frames[i];
+	old_frame = &debug_context->frames[i];
+	new_frame->dead = 1;
+	new_frame->info.copy.self = old_frame->info.runtime.frame->self;
+	new_frame->info.copy.locals = context_copy_locals(old_frame);
+    }
     return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, new_debug_context);
 }
 
@@ -454,9 +481,10 @@ save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug
     debug_frame->line = line;
     debug_frame->binding = binding;
     debug_frame->id = mid;
-    debug_frame->frame = ruby_frame;
-    debug_frame->scope = ruby_scope;
-    debug_frame->dyna_vars = ruby_dyna_vars;
+    debug_frame->dead = 0;
+    debug_frame->info.runtime.frame = ruby_frame;
+    debug_frame->info.runtime.scope = ruby_scope;
+    debug_frame->info.runtime.dyna_vars = ruby_dyna_vars;
 }
 
 #if defined DOSISH
@@ -630,7 +658,7 @@ set_dyna_vars(debug_context_t *debug_context)
     top_frame = get_top_frame(debug_context);
     if(top_frame)
     {
-        top_frame->dyna_vars = ruby_dyna_vars;
+        top_frame->info.runtime.dyna_vars = ruby_dyna_vars;
     }
 }
 
@@ -1525,7 +1553,7 @@ context_frame_binding(VALUE self, VALUE frame)
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
-    return GET_FRAME.binding;
+    return GET_FRAME->binding;
 }
 
 /*
@@ -1545,7 +1573,7 @@ context_frame_id(VALUE self, VALUE frame)
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
 
-    id = GET_FRAME.id;
+    id = GET_FRAME->id;
     return id ? ID2SYM(id): Qnil;
 }
 
@@ -1564,7 +1592,7 @@ context_frame_line(VALUE self, VALUE frame)
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
 
-    return INT2FIX(GET_FRAME.line);
+    return INT2FIX(GET_FRAME->line);
 }
 
 /*
@@ -1582,7 +1610,37 @@ context_frame_file(VALUE self, VALUE frame)
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
 
-    return rb_str_new2(GET_FRAME.file);
+    return rb_str_new2(GET_FRAME->file);
+}
+
+static VALUE
+context_copy_locals(debug_frame_t *debug_frame)
+{
+    ID *tbl;
+    int n, i;
+    struct SCOPE *scope;
+    struct RVarmap *vars;
+    VALUE hash = rb_hash_new();
+
+    scope = debug_frame->info.runtime.scope;
+    tbl = scope->local_tbl;
+
+    if (tbl && scope->local_vars) {
+	n = *tbl++;
+	for (i=2; i<n; i++) {   /* skip first 2 ($_ and $~) */
+	    if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
+	    rb_hash_aset(hash, rb_str_new2(rb_id2name(tbl[i])), scope->local_vars[i]);
+	}
+    }
+
+    vars = debug_frame->info.runtime.dyna_vars;
+    while (vars) {
+	if (vars->id && rb_is_local_id(vars->id)) { /* skip $_, $~ and flip states */
+	    rb_hash_aset(hash, rb_str_new2(rb_id2name(vars->id)), vars->val);
+	}
+	vars = vars->next;
+    }
+    return hash;
 }
 
 /*
@@ -1597,36 +1655,15 @@ context_frame_locals(VALUE self, VALUE frame)
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
     int frame_n;
-    struct SCOPE *scope;
-    ID *tbl;
-    int n, i;
-    struct RVarmap *vars;
-
-    VALUE hash = rb_hash_new();
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
     
-    debug_frame = &GET_FRAME;
-    scope = debug_frame->scope;
-    tbl = scope->local_tbl;
-
-    if (tbl && scope->local_vars) {
-	n = *tbl++;
-	for (i=2; i<n; i++) {   /* skip first 2 ($_ and $~) */
-	    if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
-	    rb_hash_aset(hash, rb_str_new2(rb_id2name(tbl[i])), scope->local_vars[i]);
-	}
-    }
-
-    vars = debug_frame->dyna_vars;
-    while (vars) {
-	if (vars->id && rb_is_local_id(vars->id)) { /* skip $_, $~ and flip states */
-	    rb_hash_aset(hash, rb_str_new2(rb_id2name(vars->id)), vars->val);
-	}
-	vars = vars->next;
-    }
-    return hash;
+    debug_frame = GET_FRAME;
+    if(debug_frame->dead)
+	return debug_frame->info.copy.locals;
+    else
+	return context_copy_locals(debug_frame);
 }
 
 /*
@@ -1639,12 +1676,17 @@ static VALUE
 context_frame_self(VALUE self, VALUE frame)
 {
     debug_context_t *debug_context;
+    debug_frame_t *debug_frame;
     int frame_n;
 
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
 
-    return GET_FRAME.frame->self;
+    debug_frame = GET_FRAME;
+    if(debug_frame->dead)
+	return debug_frame->info.copy.self;
+    else
+	return debug_frame->info.runtime.frame->self;
 }
 
 /*
