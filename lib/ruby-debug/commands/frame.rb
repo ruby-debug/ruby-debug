@@ -101,7 +101,7 @@ module Debugger
 
     class << self
       def help_command
-        up
+        'up'
       end
 
       def help(cmd)
