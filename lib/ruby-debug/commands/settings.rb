@@ -30,7 +30,7 @@ module Debugger
       def help(cmd)
         %{
            set <setting>, where <setting>:
-           autolist - executes 'list' command on every breakpoint
+           autolist - execute 'list' command on every breakpoint
            autoeval - evaluate every unrecognized command
            trace    - display stack trace when 'eval' raises exception
            To disable setting, use 'no' prefix, like 'noautolist'
