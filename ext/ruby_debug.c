@@ -432,6 +432,7 @@ debug_context_dup(debug_context_t *debug_context)
     new_debug_context->stop_frame = -1;
     CTX_FL_SET(new_debug_context, CTX_FL_DEAD);
     new_debug_context->frames = ALLOC_N(debug_frame_t, debug_context->stack_size);
+    new_debug_context->stack_len = debug_context->stack_size;
     memcpy(new_debug_context->frames, debug_context->frames, sizeof(debug_frame_t) * debug_context->stack_size);
     for(i = 0; i < debug_context->stack_size; i++)
     {

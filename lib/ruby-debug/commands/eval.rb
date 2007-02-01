@@ -1,5 +1,7 @@
 module Debugger
   class EvalCommand < Command # :nodoc:
+    self.control = true
+
     def match(input)
       @input = input
       super
@@ -11,7 +13,8 @@ module Debugger
 
     def execute
       expr = @match ? @match.post_match : @input
-      print "%s\n", debug_eval(expr).inspect
+      binding = @state.context ? get_binding : TOPLEVEL_BINDING
+      print "%s\n", debug_eval(expr, binding).inspect
     end
 
     class << self
@@ -28,7 +31,6 @@ module Debugger
           %{
             e[val] expression\tevaluate expression and print its value,
             \t\t\talias for p.
-            e[val] on/off\t\twhen 'on', debugger will evaluate every unknown command.
           }
         end
       end
