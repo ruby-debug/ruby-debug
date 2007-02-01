@@ -1751,6 +1751,23 @@ context_suspend(VALUE self)
 
 /*
  *   call-seq:
+ *      context.suspended? -> bool
+ *   
+ *   Returns +true+ if the thread is suspended by debugger.
+ */
+static VALUE
+context_is_suspended(VALUE self)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    return CTX_FL_TEST(debug_context, CTX_FL_SUSPEND) ? Qtrue : Qfalse;
+}
+
+/*
+ *   call-seq:
  *      context.resume -> nil
  *   
  *   Resumes the thread from the suspended mode.
@@ -1944,6 +1961,7 @@ Init_context()
     rb_define_method(cContext, "thread", context_thread, 0);
     rb_define_method(cContext, "thnum", context_thnum, 0);
     rb_define_method(cContext, "suspend", context_suspend, 0);
+    rb_define_method(cContext, "suspended?", context_is_suspended, 0);
     rb_define_method(cContext, "resume", context_resume, 0);
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);

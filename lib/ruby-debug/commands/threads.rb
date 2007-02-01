@@ -2,6 +2,7 @@ module Debugger
   module ThreadFunctions # :nodoc:
     def display_context(c)
       c_flag = c.thread == Thread.current ? '+' : ' '
+      c_flag = '$' if c.suspended?
       d_flag = debugger_thread?(c) ? '!' : ' '
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum
@@ -99,11 +100,9 @@ module Debugger
         print "It's the current thread.\n"
       when debugger_thread?(c)
         print "Can't stop the debugger thread.\n"
-      when c.thread.stop?
-        print "Already stopped.\n"
       else
-        display_context(c)
         c.suspend
+        display_context(c)
       end
     end
 
@@ -166,8 +165,8 @@ module Debugger
       when !c.thread.stop?
         print "Already running."
       else
-        display_context(c)
         c.resume
+        display_context(c)
       end
     end
 

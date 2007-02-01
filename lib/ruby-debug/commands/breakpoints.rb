@@ -81,7 +81,6 @@ module Debugger
             print "  %d %s:%s if %s\n", b.id, b.source, b.pos, b.expr
           end
         end
-        print "\n"
       else
         print "No breakpoints\n"
       end

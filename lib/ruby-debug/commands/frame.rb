@@ -41,7 +41,7 @@ module Debugger
     def format_frame(pos)
       printf "\032\032" if ENV['EMACS']
       file, line, id = @state.context.frame_file(pos), @state.context.frame_line(pos), @state.context.frame_id(pos)
-      "#%d %s:%s%s\n" % [pos+1, file, line, (id ? ":in `#{id.id2name}'" : "")]
+      "#%d %s:%s%s\n" % [pos, file, line, (id ? ":in `#{id.id2name}'" : "")]
     end
   end
 
@@ -53,13 +53,13 @@ module Debugger
     end
 
     def execute
-      (1..@state.context.stack_size).each do |idx|
-        if idx-1 == @state.frame_pos
+      (0...@state.context.stack_size).each do |idx|
+        if idx == @state.frame_pos
           print "--> "
         else
           print "    "
         end
-        print format_frame(idx-1)
+        print format_frame(idx)
       end
     end
 
@@ -116,7 +116,7 @@ module Debugger
     include FrameFunctions
 
     def regexp
-      /^\s* d(?:own)? (?:\s+(.*))? .*$/x
+      /^\s* d(?!isp)(?:own)? (?:\s+(.*))? .*$/x
     end
 
     def execute
@@ -156,7 +156,7 @@ module Debugger
         pos = get_int(@match[1], "Frame")
         return unless pos
       end
-      adjust_frame(pos < 0 ? pos : pos-1, true)
+      adjust_frame(pos, true)
     end
 
     class << self
@@ -170,7 +170,7 @@ module Debugger
           Move the current frame to the specified frame number.
 
           A negative number indicates position from the other end.  So
-          'frame -1' moves to the oldest frame, and 'frame 1' moves to
+          'frame -1' moves to the oldest frame, and 'frame 0' moves to
           the newest frame.
         }
       end

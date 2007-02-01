@@ -6,15 +6,10 @@ module Debugger
     end
     
     def regexp
-      /^\s*(p|e(?:val)?)(?:\s+(on|off)$|\s+)/
+      /^\s*(p|e(?:val)?)\s+/
     end
 
     def execute
-      if @match && @match[1] != 'p' && %w[on off].include?(@match[2])
-        self.class.unknown = @match[2] == 'on'
-        print "Evaluation of unknown command is #{self.class.unknown ? 'on': 'off'}.\n"
-        return
-      end
       expr = @match ? @match.post_match : @input
       print "%s\n", debug_eval(expr).inspect
     end
