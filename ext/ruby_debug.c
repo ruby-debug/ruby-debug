@@ -1,11 +1,46 @@
 #include <stdio.h>
 #include <ruby.h>
 #include <node.h>
-#include <env.h>
 #include <rubysig.h>
 #include <st.h>
 
 #define DEBUG_VERSION "0.7"
+
+#ifdef _WIN32
+struct FRAME {
+	VALUE self;
+	int argc;
+	ID last_func;
+	ID orig_func;
+	VALUE last_class;
+	struct FRAME *prev;
+	struct FRAME *tmp;
+	struct RNode *node;
+	int iter;
+	int flags;
+	unsigned long uniq;
+};
+
+struct SCOPE {
+	struct RBasic super;
+	ID *local_tbl;
+	VALUE *local_vars;
+	int flags;
+};
+
+struct RVarmap {
+	struct RBasic super;
+	ID id;
+	VALUE val;
+	struct RVarmap *next;
+};
+
+RUBY_EXTERN struct SCOPE   *ruby_scope;
+RUBY_EXTERN struct FRAME   *ruby_frame;
+RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
+#else
+#include <env.h>
+#endif
 
 #define CTX_FL_MOVED        (1<<1)
 #define CTX_FL_SUSPEND      (1<<2)
