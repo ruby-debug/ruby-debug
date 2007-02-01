@@ -1,3 +1,10 @@
+0.7
+- Eliminated explicit Frame object. Use Context.frame_[binding,file,line] instead.
+- Fixed help command.
+- Renamed Debugger.keep_frame_info to Debugger.keep_frame_binding
+- 'eval' command is available, even when keep_frame_binding is not used.
+- New 'set' command is available.
+
 0.6.2
 - Added thread lookup cache.
 - Control thread is always started by rdebug script.
