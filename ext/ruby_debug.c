@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.7"
+#define DEBUG_VERSION "0.7.1"
 
 #ifdef _WIN32
 struct FRAME {

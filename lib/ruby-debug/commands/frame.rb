@@ -116,7 +116,7 @@ module Debugger
     include FrameFunctions
 
     def regexp
-      /^\s* d(?!isp)(?:own)? (?:\s+(.*))? .*$/x
+      /^\s* down (?:\s+(.*))? .*$/x
     end
 
     def execute
