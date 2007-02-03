@@ -1,3 +1,11 @@
+0.7.2
+- Fixed a case when a frame is not popped up properly (ruby's bug!).
+- Fixed Context#resume (a thread should be waked up only when it was running when it wsa suspened).
+- When handling post-mortem exception, all threads must be suspended.
+
+0.7.1
+- Fixed 'delete' command
+
 0.7
 - Eliminated explicit Frame object. Use Context.frame_[binding,file,line] instead.
 - Fixed help command.
