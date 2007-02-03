@@ -754,7 +754,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     hook_count++;
     
     if (mid == ID_ALLOCATOR) return;
-    if(!node) return;
 
     thread = rb_thread_current();
     thread_context_lookup(thread, &context, &debug_context);
@@ -790,8 +789,14 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     /* ignore a skipped section of code */
     if(CTX_FL_TEST(debug_context, CTX_FL_SKIPPED)) goto cleanup;
 
-    file = node->nd_file;
-    line = nd_line(node);
+    if(!node && !(event == RUBY_EVENT_RETURN || event == RUBY_EVENT_C_RETURN)) 
+      goto cleanup;
+    
+    if(node)
+    {
+      file = node->nd_file;
+      line = nd_line(node);
+    }
 
     if(DID_MOVED)
         CTX_FL_SET(debug_context, CTX_FL_MOVED);
@@ -883,15 +888,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-	// frame's method id must be checked to avoid a nasty Ruby's bug where
-	// [call] event is received without corresponding [return] event. 
-	// For example, it happens when singleton methods are called.
-	while(debug_context->stack_size > 0)
-	{
-	    debug_context->stack_size--;
-	    if(debug_context->frames[debug_context->stack_size].id == mid)
-	      break;
-	}
+	if(debug_context->stack_size > 0)
+	  debug_context->stack_size--;
         break;
     }
     case RUBY_EVENT_CLASS:
