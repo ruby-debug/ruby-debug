@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.7.1"
+#define DEBUG_VERSION "0.7.2"
 
 #ifdef _WIN32
 struct FRAME {
@@ -48,6 +48,7 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #define CTX_FL_SKIPPED      (1<<4)
 #define CTX_FL_IGNORE       (1<<5)
 #define CTX_FL_DEAD         (1<<6)
+#define CTX_FL_WAS_RUNNING  (1<<7)
 
 #define CTX_FL_TEST(c,f) ((c)->flags & (f))
 #define CTX_FL_SET(c,f) do { (c)->flags |= (f); } while (0)
@@ -156,6 +157,8 @@ static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
 static void save_current_position(debug_context_t *);
 static VALUE context_copy_locals(debug_frame_t *);
+static void context_suspend_0(debug_context_t *);
+static void context_resume_0(debug_context_t *);
 
 typedef struct locked_thread_t { 
     VALUE thread_id;
@@ -521,6 +524,7 @@ save_call_frame(VALUE self, char *file, int line, ID mid, debug_context_t *debug
     debug_frame->self = self;
     debug_frame->info.runtime.frame = ruby_frame;
     debug_frame->info.runtime.scope = ruby_scope;
+    
     debug_frame->info.runtime.dyna_vars = ruby_dyna_vars;
 }
 
@@ -711,6 +715,32 @@ save_current_position(debug_context_t *debug_context)
     CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
 }
 
+static char *
+get_event_name(rb_event_t event)
+{
+  switch (event) {
+    case RUBY_EVENT_LINE:
+      return "line";
+    case RUBY_EVENT_CLASS:
+      return "class";
+    case RUBY_EVENT_END:
+      return "end";
+    case RUBY_EVENT_CALL:
+      return "call";
+    case RUBY_EVENT_RETURN:
+      return "return";
+    case RUBY_EVENT_C_CALL:
+      return "c-call";
+    case RUBY_EVENT_C_RETURN:
+      return "c-return";
+    case RUBY_EVENT_RAISE:
+      return "raise";
+    default:
+      return "unknown";
+  }
+}
+
+
 static void
 debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 {
@@ -725,7 +755,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     
     if (mid == ID_ALLOCATOR) return;
     if(!node) return;
-    
+
     thread = rb_thread_current();
     thread_context_lookup(thread, &context, &debug_context);
     
@@ -853,8 +883,15 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-	if(debug_context->stack_size > 0)
+	// frame's method id must be checked to avoid a nasty Ruby's bug where
+	// [call] event is received without corresponding [return] event. 
+	// For example, it happens when singleton methods are called.
+	while(debug_context->stack_size > 0)
+	{
 	    debug_context->stack_size--;
+	    if(debug_context->frames[debug_context->stack_size].id == mid)
+	      break;
+	}
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -1266,7 +1303,7 @@ debug_suspend(VALUE self)
         if(current == context)
             continue;
         Data_Get_Struct(context, debug_context_t, debug_context);
-        CTX_FL_SET(debug_context, CTX_FL_SUSPEND);
+	context_suspend_0(debug_context);
     }
     rb_thread_critical = saved_crit;
 
@@ -1304,11 +1341,7 @@ debug_resume(VALUE self)
         if(current == context)
             continue;
         Data_Get_Struct(context, debug_context_t, debug_context);
-        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
-        {
-            CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
-            rb_thread_run(context_thread_0(debug_context));
-        }
+	context_resume_0(debug_context);
     }
     rb_thread_critical = saved_crit;
 
@@ -1765,6 +1798,31 @@ context_thnum(VALUE self)
     return INT2FIX(debug_context->thnum);
 }
 
+static void 
+context_suspend_0(debug_context_t *debug_context)
+{
+    VALUE status;
+
+    status = rb_funcall(context_thread_0(debug_context), rb_intern("status"), 0);
+    if(rb_str_cmp(status, rb_str_new2("run")) == 0)
+      CTX_FL_SET(debug_context, CTX_FL_WAS_RUNNING);
+    else if(rb_str_cmp(status, rb_str_new2("sleep")) == 0)
+      CTX_FL_UNSET(debug_context, CTX_FL_WAS_RUNNING);
+    else
+      return;
+    CTX_FL_SET(debug_context, CTX_FL_SUSPEND);
+}
+
+static void
+context_resume_0(debug_context_t *debug_context)
+{
+    if(!CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+      return;
+    CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
+    if(CTX_FL_TEST(debug_context, CTX_FL_WAS_RUNNING))
+      rb_thread_wakeup(context_thread_0(debug_context));
+}
+
 /*
  *   call-seq:
  *      context.suspend -> nil
@@ -1781,7 +1839,7 @@ context_suspend(VALUE self)
     Data_Get_Struct(self, debug_context_t, debug_context);
     if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
         rb_raise(rb_eRuntimeError, "Already suspended.");
-    CTX_FL_SET(debug_context, CTX_FL_SUSPEND);
+    context_suspend_0(debug_context);
     return Qnil;
 }
 
@@ -1818,8 +1876,7 @@ context_resume(VALUE self)
     Data_Get_Struct(self, debug_context_t, debug_context);
     if(!CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
         rb_raise(rb_eRuntimeError, "Thread is not suspended.");
-    CTX_FL_UNSET(debug_context, CTX_FL_SUSPEND);
-    rb_thread_run(context_thread_0(debug_context));
+    context_resume_0(debug_context);
     return Qnil;
 }
 

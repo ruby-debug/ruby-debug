@@ -94,6 +94,22 @@ module Debugger
       end
       commands = event_cmds.map{|cmd| cmd.new(state) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
+
+      splitter = lambda do |str|
+	str.split(/;/).inject([]) do |m, v|
+	  if m.empty?
+	    m << v
+	  else
+	    if m.last[-1] == ?\\
+	      m.last[-1,1] = ''
+	      m.last << ';' << v
+	    else
+	      m << v
+	    end
+	  end
+	  m
+	end
+      end
       
       while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
@@ -105,7 +121,7 @@ module Debugger
             @last_cmd = input
           end
           
-          input.split(";").each do |input|
+          splitter[input].each do |input|
             if cmd = commands.find{ |c| c.match(input) }
               if context.dead? && cmd.class.need_context
                 print "Command is unavailable\n"
