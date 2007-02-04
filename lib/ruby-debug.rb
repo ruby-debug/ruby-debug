@@ -276,13 +276,6 @@ class Exception # :nodoc:
   attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
 end
 
-class DebugThread < Thread # :nodoc:
-  def initialize(*args, &b)
-    Debugger.thread_context(self).ignore = true
-    super
-  end
-end
-
 module Kernel
   #
   # Stops the current thread after a number of _steps_ made.

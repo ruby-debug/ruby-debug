@@ -136,6 +136,7 @@ static VALUE mDebugger;
 static VALUE cThreadsTable;
 static VALUE cContext;
 static VALUE cBreakpoint;
+static VALUE cDebugThread;
 
 static VALUE rb_mObjectSpace;
 
@@ -417,6 +418,8 @@ debug_context_create(VALUE thread)
     debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
     debug_context->stack_size = 0;
     debug_context->thread_id = ref2id(thread);
+    if(rb_obj_class(thread) == cDebugThread)
+      CTX_FL_SET(debug_context, CTX_FL_IGNORE);
     return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, debug_context);
 }
 
@@ -1426,6 +1429,12 @@ debug_set_keep_frame_binding(VALUE self, VALUE value)
     return value;
 }
 
+static VALUE
+debug_thread_inherited(VALUE klass)
+{
+  rb_raise(rb_eRuntimeError, "Can't inherite Debugger::DebugThread class");
+}
+
 /*
  *   call-seq:
  *      Debugger.debug_load(file) -> nil
@@ -1935,27 +1944,6 @@ context_ignore(VALUE self)
 
 /*
  *   call-seq:
- *      context.tracking = bool
- *   
- *   Controls the ignore flag for this context.
- */
-static VALUE
-context_set_ignore(VALUE self, VALUE value)
-{
-    debug_context_t *debug_context;
-
-    debug_check_started();
-
-    Data_Get_Struct(self, debug_context_t, debug_context);
-    if(RTEST(value))
-        CTX_FL_SET(debug_context, CTX_FL_IGNORE);
-    else
-        CTX_FL_UNSET(debug_context, CTX_FL_IGNORE);
-    return value;
-}
-
-/*
- *   call-seq:
  *      context.dead? = bool
  *   
  *   Returns +true+ if context doesn't represent a live context and is created
@@ -2057,7 +2045,6 @@ Init_context()
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
     rb_define_method(cContext, "ignore", context_ignore, 0);
-    rb_define_method(cContext, "ignore=", context_set_ignore, 1);
     rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
     rb_define_method(cContext, "frame_id", context_frame_id, 1);
     rb_define_method(cContext, "frame_line", context_frame_line, 1);
@@ -2128,6 +2115,9 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "keep_frame_binding=", debug_set_keep_frame_binding, 1);
     
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
+
+    cDebugThread  = rb_define_class_under(mDebugger, "DebugThread", rb_cThread);
+    rb_define_singleton_method(cDebugThread, "inherited", debug_thread_inherited, 1);
     
     Init_context();
     Init_breakpoint();

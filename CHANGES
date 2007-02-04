@@ -1,5 +1,8 @@
+0.7.3
+- Fixed a case when a frame is not popped up properly.
+- Removed Context.ignore= method, since it can result with the segmentation fault error.
+
 0.7.2
-- Fixed a case when a frame is not popped up properly (ruby's bug!).
 - Fixed Context#resume (a thread should be waked up only when it was running when it wsa suspened).
 - When handling post-mortem exception, all threads must be suspended.
 
