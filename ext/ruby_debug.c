@@ -891,8 +891,12 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-	if(debug_context->stack_size > 0)
+	while(debug_context->stack_size > 0)
+	{
 	  debug_context->stack_size--;
+	  if(debug_context->frames[debug_context->stack_size].id == mid)
+	    break;
+	}
         break;
     }
     case RUBY_EVENT_CLASS:
