@@ -1,6 +1,8 @@
 0.7.3
 - Fixed a case when a frame is not popped up properly.
 - Removed Context.ignore= method, since it can result with the segmentation fault error.
+- Fixed the case when Context#suspend may effect the state of the thread on Context#resume
+- Fixed several cases of seg faults when accessing dyna_vars structure.
 
 0.7.2
 - Fixed Context#resume (a thread should be waked up only when it was running when it wsa suspened).

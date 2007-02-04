@@ -16,7 +16,7 @@ module Debugger
         print "Evaluation of unrecognized command is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?trace$/
         @@display_stack_trace = $1.nil?
-	print "Display stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "Display stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
       else
         print "Unknown setting.\n"
       end
@@ -34,7 +34,7 @@ module Debugger
            autoeval - evaluate every unrecognized command
            trace    - display stack trace when 'eval' raises exception
            To disable setting, use 'no' prefix, like 'noautolist'
-	}
+         }
       end
     end
   end
