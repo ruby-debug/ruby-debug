@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.7.3"
+#define DEBUG_VERSION "0.7.4"
 
 #ifdef _WIN32
 struct FRAME {
@@ -792,10 +792,10 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     {
       file = node->nd_file;
       line = nd_line(node);
-    }
 
-    if(DID_MOVED)
-        CTX_FL_SET(debug_context, CTX_FL_MOVED);
+      if(DID_MOVED)
+          CTX_FL_SET(debug_context, CTX_FL_MOVED);
+    }
 
     switch(event)
     {
