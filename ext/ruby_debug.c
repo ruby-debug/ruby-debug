@@ -128,6 +128,7 @@ static VALUE tracing            = Qfalse;
 static VALUE locker             = Qnil;
 static VALUE post_mortem        = Qfalse;
 static VALUE keep_frame_binding = Qfalse;
+static VALUE debug              = Qfalse;
 
 static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
@@ -793,14 +794,16 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
       file = node->nd_file;
       line = nd_line(node);
       
-/*      fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));*/
+      if(debug == Qtrue)
+          fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));
 
       if(DID_MOVED)
           CTX_FL_SET(debug_context, CTX_FL_MOVED);
     }
     else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)
     {
-/*        fprintf(stderr, "return [%s] %s\n", get_event_name(event), rb_id2name(mid));*/
+        if(debug == Qtrue)
+            fprintf(stderr, "return [%s] %s\n", get_event_name(event), rb_id2name(mid));
         goto cleanup;
     }
 
@@ -1431,6 +1434,19 @@ static VALUE
 debug_set_keep_frame_binding(VALUE self, VALUE value)
 {
     keep_frame_binding = RTEST(value) ? Qtrue : Qfalse;
+    return value;
+}
+
+static VALUE
+debug_debug(VALUE self)
+{
+    return debug;
+}
+
+static VALUE
+debug_set_debug(VALUE self, VALUE value)
+{
+    debug = RTEST(value) ? Qtrue : Qfalse;
     return value;
 }
 
@@ -2122,6 +2138,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "post_mortem=", debug_set_post_mortem, 1);
     rb_define_module_function(mDebugger, "keep_frame_binding?", debug_keep_frame_binding, 0);
     rb_define_module_function(mDebugger, "keep_frame_binding=", debug_set_keep_frame_binding, 1);
+    rb_define_module_function(mDebugger, "debug", debug_debug, 0);
+    rb_define_module_function(mDebugger, "debug=", debug_set_debug, 1);
 
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
 
