@@ -26,7 +26,7 @@ module Debugger
       @state.file = @state.context.frame_file(@state.frame_pos)
       @state.line = @state.context.frame_line(@state.frame_pos)
       
-      print format_frame(@state.frame_pos)
+      print_frame(@state.frame_pos)
     end
 
     def get_int(str, cmd)
@@ -38,10 +38,10 @@ module Debugger
       end
     end
 
-    def format_frame(pos)
-      printf "\032\032" if ENV['EMACS']
+    def print_frame(pos)
       file, line, id = @state.context.frame_file(pos), @state.context.frame_line(pos), @state.context.frame_id(pos)
-      "#%d %s:%s%s\n" % [pos, file, line, (id ? ":in `#{id.id2name}'" : "")]
+      print "#%d %s:%d%s\n", pos, file, line, id ? " in `#{id.id2name}'" : ""
+      print "\032\032%s:%d\n", file, line if ENV['EMACS']
     end
   end
 
@@ -59,7 +59,7 @@ module Debugger
         else
           print "    "
         end
-        print format_frame(idx)
+        print_frame(idx)
       end
     end
 
