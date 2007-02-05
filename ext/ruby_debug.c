@@ -683,25 +683,16 @@ save_top_binding(debug_context_t *debug_context, VALUE binding)
 }
 
 inline static void
-set_frame_source(debug_context_t *debug_context, char *file, int line)
+set_frame_source(rb_event_t event, debug_context_t *debug_context, VALUE self, char *file, int line)
 {
     debug_frame_t *top_frame;
     top_frame = get_top_frame(debug_context);
     if(top_frame)
     {
+        top_frame->self = self;
         top_frame->file = file;
         top_frame->line = line;
-    }
-}
-
-inline static void
-set_dyna_vars(debug_context_t *debug_context)
-{
-    debug_frame_t *top_frame;
-    top_frame = get_top_frame(debug_context);
-    if(top_frame)
-    {
-        top_frame->info.runtime.dyna_vars = ruby_dyna_vars;
+        top_frame->info.runtime.dyna_vars = event == RUBY_EVENT_C_CALL ? NULL : ruby_dyna_vars;
     }
 }
 
@@ -810,8 +801,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     {
     case RUBY_EVENT_LINE:
     {
-        set_frame_source(debug_context, file, line);
-        set_dyna_vars(debug_context);
+        set_frame_source(event, debug_context, self, file, line);
 
         if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
             rb_funcall(context, idAtTracing, 2, rb_str_new2(file), INT2FIX(line));
@@ -860,7 +850,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     case RUBY_EVENT_C_CALL:
     {
-        set_frame_source(debug_context, file, line);
+        set_frame_source(event, debug_context, self, file, line);
         break;
     }
     case RUBY_EVENT_CALL:
@@ -908,7 +898,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         VALUE expn_class, aclass;
         int i;
 
-        set_dyna_vars(debug_context);
+        set_frame_source(event, debug_context, self, file, line);
 
         if(post_mortem == Qtrue && self)
         {
