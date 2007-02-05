@@ -71,6 +71,7 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 typedef struct {
     VALUE binding;
     ID id;
+    ID orig_id;
     int line;
     const char * file;
     short dead;
@@ -523,6 +524,7 @@ save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debu
     debug_frame->line = line;
     debug_frame->binding = binding;
     debug_frame->id = mid;
+    debug_frame->orig_id = mid;
     debug_frame->dead = 0;
     debug_frame->self = self;
     debug_frame->info.runtime.frame = ruby_frame;
@@ -748,7 +750,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     hook_count++;
 
     if (mid == ID_ALLOCATOR) return;
-
+    
     thread = rb_thread_current();
     thread_context_lookup(thread, &context, &debug_context);
 
@@ -786,16 +788,20 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     /* ignore a skipped section of code */
     if(CTX_FL_TEST(debug_context, CTX_FL_SKIPPED)) goto cleanup;
 
-    if(!node && !(event == RUBY_EVENT_RETURN || event == RUBY_EVENT_C_RETURN))
-      goto cleanup;
-
     if(node)
     {
       file = node->nd_file;
       line = nd_line(node);
+      
+/*      fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));*/
 
       if(DID_MOVED)
           CTX_FL_SET(debug_context, CTX_FL_MOVED);
+    }
+    else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)
+    {
+/*        fprintf(stderr, "return [%s] %s\n", get_event_name(event), rb_id2name(mid));*/
+        goto cleanup;
     }
 
     switch(event)
@@ -884,8 +890,12 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 1;
             debug_context->stop_frame = 0;
         }
-        if(debug_context->stack_size > 0)
+        while(debug_context->stack_size > 0)
+        {
             debug_context->stack_size--;
+            if(debug_context->frames[debug_context->stack_size].orig_id == mid)
+                break;
+        }
         break;
     }
     case RUBY_EVENT_CLASS:

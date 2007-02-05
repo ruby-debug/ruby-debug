@@ -65,7 +65,7 @@ module Debugger
 
     class << self
       def help_command
-        %w|where frame|
+        %w|where backtrace|
       end
 
       def help(cmd)
