@@ -70,13 +70,13 @@ module Debugger
       rescue StandardError, ScriptError => e
         if @@display_stack_trace
           at = eval("caller(1)", b)
-	  print "%s:%s\n", at.shift, e.to_s.sub(/\(eval\):1:(in `.*?':)?/, '')
+          print "%s:%s\n", at.shift, e.to_s.sub(/\(eval\):1:(in `.*?':)?/, '')
           for i in at
             print "\tfrom %s\n", i
           end
-	else
-	  print "Exception #{e.class}: #{e.message}\n"
-	end
+        else
+          print "#{e.class} Exception: #{e.message}\n"
+        end
         throw :debug_error
       end
     end
