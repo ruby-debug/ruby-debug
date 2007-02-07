@@ -29,21 +29,21 @@ module Debugger
       end
     end
     
-    def print_frames(frames, cur_idx)
+    def print_frames(context, cur_idx)
       print_element("frames") do
-        frames.reverse.each_with_index do |frame, idx|
-          print_frame(frame, idx, cur_idx)
+        (0...context.stack_size).each do |idx|
+          print_frame(context, idx, cur_idx)
         end
       end
     end
     
-    def print_current_frame(frame, frame_pos)
+    def print_current_frame(context, frame_pos)
       print_debug "Selected frame no #{frame_pos}"
     end
     
-    def print_frame(frame, idx, cur_idx)
+    def print_frame(context, idx, cur_idx)
       print "<frame no=\"%s\" file=\"%s\" line=\"%s\" #{'current="true" ' if idx == cur_idx}/>\n",
-      idx+1, frame.file, frame.line
+        idx, context.frame_file(idx), context.frame_line(idx)
     end
     
     def print_contexts(contexts)

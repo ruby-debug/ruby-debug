@@ -15,14 +15,6 @@ module Debugger
         @state.previous_line = nil
         b = @state.line - 5
         e = b + 9
-      elsif @match[2] == 'on'
-        self.class.always_run = true
-        print_msg "Listing is on."
-        return
-      elsif @match[2] == 'off'
-        self.class.always_run = false
-        print_msg "Listing is off."
-        return
       else
         b, e = @match[2].split(/[-,]/)
         if e

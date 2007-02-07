@@ -43,6 +43,8 @@ module Debugger
         @options ||= {}
       end
     end
+
+    @@display_stack_trace = false
     
     def initialize(state, printer)
       @state, @printer = state, printer
@@ -70,26 +72,40 @@ module Debugger
       @state.confirm(msg) == 'y'
     end
 
-    def debug_eval(str, b = @state.binding)
-      unless b
-        @printer.print_error "Can't evaluate in the current context.\nUse rdebug with -f option, or set Debugger.keep_frame_info = true.\n"
-        throw :debug_error
-      end
+    def debug_eval(str, b = get_binding)
       begin
         val = eval(str, b)
       rescue StandardError, ScriptError => e
-        @printer.print_exception(e, @state.binding)
+        if @@display_stack_trace
+          @printer.print_exception(e, @state.binding) 
+        else
+          print_error "#{e.class} Exception: #{e.message}\n"
+        end
         throw :debug_error
       end
     end
 
     def debug_silent_eval(str)
-      return nil unless @state.binding
       begin
-        eval(str, @state.binding)
+        eval(str, get_binding)
       rescue StandardError, ScriptError
         nil
       end
+    end
+
+    def hbinding(hash)
+      code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
+      if obj = @state.context.frame_self(@state.frame_pos)
+        obj.instance_eval code
+      else
+        eval code
+      end
+    end
+    private :hbinding
+ 
+    def get_binding
+      binding = @state.context.frame_binding(@state.frame_pos)
+      binding || hbinding(@state.context.frame_locals(@state.frame_pos))
     end
 
     def line_at(file, line)

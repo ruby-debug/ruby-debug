@@ -16,7 +16,7 @@ options = OpenStruct.new(
   'post_mortem' => false,
   'script'      => nil,
   'tracing'     => false,
-  'frame_info'  => false
+  'frame_bind'  => false
 )
 
 opts = OptionParser.new do |opts|
@@ -31,10 +31,9 @@ EOB
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
-  opts.on("--cport PORT", Integer, "Port used for contol commands, implies -s option") {|options.port|}
+  opts.on("--cport PORT", Integer, "Port used for contol commands") {|options.cport|}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
-  opts.on("-f", "--keep-frame-info", "Keep frame info") {options.frame_info = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
     Debugger.is_debug = true
@@ -55,6 +54,7 @@ EOB
     end
     Debugger.send "use_#{format}_printer"
   end
+  opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do
@@ -101,7 +101,7 @@ else
   # set options
   Debugger.stop_on_connect = !options.nostop
   Debugger.wait_connection = options.wait
-  Debugger.keep_frame_info = options.frame_info
+  Debugger.keep_frame_binding = options.frame_bind
   
   # load user script
   load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")

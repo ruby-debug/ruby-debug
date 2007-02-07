@@ -1,22 +1,20 @@
 module Debugger
   class EvalCommand < Command # :nodoc:
+    self.control = true
+
     def match(input)
       @input = input
       super
     end
     
     def regexp
-      /^\s*(p|e(?:val)?)(?:\s+(on|off)$|\s+)/
+      /^\s*(p|e(?:val)?)\s+/
     end
 
     def execute
-      if @match && @match[1] != 'p' && %w[on off].include?(@match[2])
-        self.class.unknown = @match[2] == 'on'
-        print_msg "Evaluation of unknown command is #{self.class.unknown ? 'on': 'off'}."
-        return
-      end
       expr = @match ? @match.post_match : @input
-      print_eval expr, debug_eval(expr).inspect
+      binding = @state.context ? get_binding : TOPLEVEL_BINDING
+      print_eval "%s\n", debug_eval(expr, binding).inspect
     end
 
     class << self
@@ -33,7 +31,6 @@ module Debugger
           %{
             e[val] expression\tevaluate expression and print its value,
             \t\t\talias for p.
-            e[val] on/off\t\twhen 'on', debugger will evaluate every unknown command.
           }
         end
       end

@@ -60,9 +60,9 @@ module Debugger
     end
     protect :at_tracing
     
-    def at_line(context, file, line, frames = context.frames)
+    def at_line(context, file, line)
       @printer.print_at_line(file, line) if context.nil? || context.stop_reason == 0
-      process_commands(context, file, line, frames)
+      process_commands(context, file, line)
     end
     protect :at_line
     
@@ -73,28 +73,44 @@ module Debugger
     end
     
     def prompt(context)
-      if context
-        "(rdb:%d) " % context.thnum
-      else
+      if context.dead?
         "(rdb:post-mortem) "
+      else
+        "(rdb:%d) " % context.thnum
       end
     end
     
-    def process_commands(context, file, line, frames)
+    def process_commands(context, file, line)
       event_cmds = Command.commands.select{|cmd| cmd.event }
       state = State.new do |s|
         s.context = context
         s.file    = file
         s.line    = line
-        s.binding = frames.last.binding
+        s.binding = context.frame_binding(0)
         s.display = display
         s.interface = interface
         s.commands = event_cmds
-        s.frames = frames
       end
       commands = event_cmds.map{|cmd| cmd.new(state, @printer) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
       # commands may be separated with semicolons which can be escaped with backslash
+
+      splitter = lambda do |str|
+        str.split(/;/).inject([]) do |m, v|
+          if m.empty?
+            m << v
+          else
+            if m.last[-1] == ?\\
+              m.last[-1,1] = ''
+              m.last << ';' << v
+            else
+              m << v
+            end
+          end
+          m
+        end
+      end
+      
       while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
           if input == ""
@@ -104,13 +120,11 @@ module Debugger
             @last_cmd = input
           end
           
-          input.split(/[^\\\\];/).each do |input|
-            input.strip!
-            input.gsub!(/[\\\\];/, ";")
+          splitter[input].each do |input|
             # escape % since print_debug might use printf
             @printer.print_debug "Processing: #{input.gsub('%', '%%')}"
             if cmd = commands.find{ |c| c.match(input) }
-              if context.nil? && cmd.class.need_context
+              if context.dead? && cmd.class.need_context
                 @printer.print_msg "Command is unavailable\n"
               else
                 cmd.execute
@@ -131,7 +145,7 @@ module Debugger
     class State # :nodoc:
       attr_accessor :context, :file, :line, :binding
       attr_accessor :frame_pos, :previous_line, :display
-      attr_accessor :interface, :commands, :frames
+      attr_accessor :interface, :commands
       
       def initialize
         @frame_pos = 0

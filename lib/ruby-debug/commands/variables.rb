@@ -100,8 +100,9 @@ module Debugger
     end
     
     def execute
-      print_variables(debug_eval("local_variables"), 'local') do |var|
-        debug_eval(var)
+      locals = @state.context.frame_locals(@state.frame_pos)
+      print_variables(locals.keys, 'local') do |var|
+        locals[var]
       end
     end
     

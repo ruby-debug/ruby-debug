@@ -18,25 +18,28 @@ module Debugger
     def print_debug(*args)
     end
     
-    def print_current_frame(frame, frame_pos)
-      print_frame(frame, frame_pos, frame_pos)
+    def print_current_frame(context, frame_pos)
+      print_frame(context, frame_pos, frame_pos)
+       if ENV['EMACS']
+         file, line = context.frame_file(frame_pos), context.frame_line(frame_pos)
+         print "\032\032%s:%d\n", file, line
+       end
     end
     
-    def print_frames(frames, cur_idx)
-      frames.reverse.each_with_index do |frame, idx|
-        print_frame(frame, idx, cur_idx)
+    def print_frames(context, cur_idx)
+      (0...context.stack_size).each do |idx|
+        print_frame(context, idx, cur_idx)
       end
     end
     
-    def print_frame(frame, idx, cur_idx)
+    def print_frame(context, idx, cur_idx)
+      file, line, id = context.frame_file(idx), context.frame_line(idx), context.frame_id(idx)
       if idx == cur_idx
         print "--> "
       else
         print "    "
       end
-      file, line, id = frame.file, frame.line, frame.id
-      printf "\032\032" if ENV['EMACS']
-      print "#%d %s:%s%s\n", idx + 1, file, line, (id ? ":in `#{id.id2name}'" : "")
+      print "#%d %s:%s%s\n", idx, file, line, (id ? ":in `#{id.id2name}'" : "")
     end
     
     def print_contexts(contexts)
@@ -47,6 +50,7 @@ module Debugger
     
     def print_context(c)
       c_flag = c.thread == Thread.current ? '+' : ' '
+      c_flag = '$' if c.suspended?
       d_flag = c.ignore? ? '!' : ' '
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum

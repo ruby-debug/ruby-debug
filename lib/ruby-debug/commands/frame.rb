@@ -3,7 +3,7 @@ module Debugger
     def adjust_frame(frame_pos, absolute)
       if absolute
         if frame_pos < 0
-          abs_frame_pos = @state.frames.size + frame_pos
+          abs_frame_pos = @state.context.stack_size + frame_pos
         else
           abs_frame_pos = frame_pos
         end
@@ -11,7 +11,7 @@ module Debugger
         abs_frame_pos = @state.frame_pos + frame_pos
       end
 
-      if abs_frame_pos >= @state.frames.size then
+      if abs_frame_pos >= @state.context.stack_size then
         print_error "Adjusting would put us beyond the oldest (initial) frame.\n"
         return
       elsif abs_frame_pos < 0 then
@@ -22,9 +22,10 @@ module Debugger
         @state.previous_line = nil
         @state.frame_pos = abs_frame_pos
       end
-      frame = @state.frames[-1-@state.frame_pos]
-      @state.binding, @state.file, @state.line = frame.binding, frame.file, frame.line
-      print_current_frame(frame, @state.frame_pos)
+      @state.file = @state.context.frame_file(@state.frame_pos)
+      @state.line = @state.context.frame_line(@state.frame_pos)
+      
+      print_current_frame(@state.context, @state.frame_pos)
     end
 
     def get_int(str, cmd)
@@ -35,7 +36,6 @@ module Debugger
         return nil
       end
     end
-
   end
 
   class WhereCommand < Command # :nodoc:
@@ -44,12 +44,12 @@ module Debugger
     end
 
     def execute
-      print_frames(@state.frames, @state.frame_pos)
+      print_frames(@state.context, @state.frame_pos)
     end
 
     class << self
       def help_command
-        %w|where frame|
+        %w|where backtrace|
       end
 
       def help(cmd)
@@ -83,7 +83,7 @@ module Debugger
 
     class << self
       def help_command
-        up
+        'up'
       end
 
       def help(cmd)
@@ -96,7 +96,7 @@ module Debugger
 
   class DownCommand < Command # :nodoc:
     def regexp
-      /^\s* d(?:own)? (?:\s+(.*))? .*$/x
+      /^\s* down (?:\s+(.*))? .*$/x
     end
 
     def execute
@@ -136,7 +136,7 @@ module Debugger
         pos = get_int(@match[1], "Frame")
         return unless pos
       end
-      adjust_frame(pos < 0 ? pos : pos-1, true)
+      adjust_frame(pos, true)
     end
 
     class << self

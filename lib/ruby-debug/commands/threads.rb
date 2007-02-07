@@ -75,8 +75,8 @@ module Debugger
       when c.ignore?
         print_msg "Can't stop the debugger thread."
       else
-        print_context(c)
         c.suspend
+        print_context(c)
       end
     end
 
@@ -133,8 +133,8 @@ module Debugger
       when c.ignore?
         print_msg "Can't resume the debugger thread."
       else
-        print_context(c)
         c.resume
+        print_context(c)
       end
     end
 
