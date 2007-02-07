@@ -51,7 +51,7 @@ module Debugger
     def print_context(c)
       c_flag = c.thread == Thread.current ? '+' : ' '
       c_flag = '$' if c.suspended?
-      d_flag = c.ignore? ? '!' : ' '
+      d_flag = c.ignored? ? '!' : ' '
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum
       print "%s\t", c.thread.inspect

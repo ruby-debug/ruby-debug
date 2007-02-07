@@ -36,7 +36,7 @@ module Debugger
       case
       when c == @state.context
         print_msg "It's the current thread."
-      when c.ignore?
+      when c.ignored?
         print_msg "Can't switch to the debugger thread."
       else
         print_context(c)
@@ -72,7 +72,7 @@ module Debugger
       case
       when c == @state.context
         print_msg "It's the current thread."
-      when c.ignore?
+      when c.ignored?
         print_msg "Can't stop the debugger thread."
       else
         c.suspend
@@ -130,7 +130,7 @@ module Debugger
       case
       when c == @state.context
         print_msg "It's the current thread."
-      when c.ignore?
+      when c.ignored?
         print_msg "Can't resume the debugger thread."
       else
         c.resume

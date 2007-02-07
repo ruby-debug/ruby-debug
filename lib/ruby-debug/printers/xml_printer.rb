@@ -49,7 +49,7 @@ module Debugger
     def print_contexts(contexts)
       print_element("threads") do
         contexts.each do |c|
-          print_context(c) unless c.ignore?
+          print_context(c) unless c.ignored?
         end
       end
     end
