@@ -184,9 +184,8 @@ module Debugger
     
     def print_catchpoint(exception)
       context = Debugger.current_context
-      frame = context.frames.last
       print("<exception file=\"%s\" line=\"%s\" type=\"%s\" message=\"%s\" threadId=\"%d\"/>\n", 
-      frame.file, frame.line, exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
+      context.frame_file(0), context.frame_line(0), exception.class, CGI.escapeHTML(exception.to_s), context.thnum)
     end
     
     def print_trace(context, file, line)
@@ -195,7 +194,7 @@ module Debugger
     
     def print_at_line(file, line)
       print "<suspended file=\"%s\" line=\"%s\" threadId=\"%d\" frames=\"%d\"/>\n",
-      file, line, Debugger.current_context.thnum, Debugger.current_context.frames.size
+      file, line, Debugger.current_context.thnum, Debugger.current_context.stack_size
     end
     
     def print_exception(excpt, binding)

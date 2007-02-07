@@ -55,8 +55,7 @@ module Debugger
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum
       print "%s\t", c.thread.inspect
-      last_frame = c.frames.last
-      print "%s:%d", last_frame.file, last_frame.line if last_frame
+      print "%s:%d", c.frame_file(0), c.frame_line(0) if c.stack_size > 0
       print "\n"
     end
     
@@ -161,9 +160,9 @@ module Debugger
     end
     
     def print_catchpoint(excpt)
-      frames = Debugger.current_context.frames
-      print "Catchpoint at %s:%d: `%s' (%s)\n", frames.last.file, frames.last.line, excpt, excpt.class
-      fs = frames.size
+      context = Debugger.current_context
+      print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(0), context.frame_line(0), excpt, excpt.class
+      fs = context.stack_size
       tb = caller(0)[-fs..-1]
       if tb
         for i in tb
