@@ -125,8 +125,12 @@ module Debugger
       end
     end
     
-    def print_breakpoint_added(msg, no, file_or_klass, pos_or_method)
-      print "<breakpointAdded no=\"%s\" location=\"%s:%s\"/>", no, file_or_klass, pos_or_method
+    def print_breakpoint_added(b)
+      print "<breakpointAdded no=\"%s\" location=\"%s:%s\"/>", b.id, b.source, b.pos
+    end
+
+    def print_breakpoint_deleted(b)
+      print "<breakpointDeleted no=\"%s\"/>", b.id
     end
     
     def print_expressions(exps)

@@ -47,7 +47,7 @@ module Debugger
       end
       
       b = Debugger.add_breakpoint file, pos, expr
-      print_breakpoint_added "Set breakpoint %d at %s:%s", b.id, file, pos.to_s
+      print_breakpoint_added b
     end
 
     class << self
@@ -103,8 +103,10 @@ module Debugger
         end
       else
         pos = pos.to_i
-        unless Debugger.remove_breakpoint(pos)
-          print_msg "Breakpoint %d is not defined", pos
+        if b = Debugger.remove_breakpoint(pos)
+          print_breakpoint_deleted b
+        else
+          print_error "Breakpoint %d is not defined", pos
         end
       end
     end

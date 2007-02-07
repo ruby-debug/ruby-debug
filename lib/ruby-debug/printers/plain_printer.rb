@@ -13,17 +13,24 @@ module Debugger
     end
     
     alias print_error print_msg
-    alias print_breakpoint_added print_msg
     
     def print_debug(*args)
     end
     
+    def print_breakpoint_added(b)
+      print_msg "Set breakpoint %d at %s:%s", b.id, b.source, b.pos
+    end
+    
+    def print_breakpoint_deleted(b)
+      print_msg "Deleted breakpoint %d", b.id
+    end
+    
     def print_current_frame(context, frame_pos)
       print_frame(context, frame_pos, frame_pos)
-       if ENV['EMACS']
-         file, line = context.frame_file(frame_pos), context.frame_line(frame_pos)
-         print "\032\032%s:%d\n", file, line
-       end
+      if ENV['EMACS']
+        file, line = context.frame_file(frame_pos), context.frame_line(frame_pos)
+        print "\032\032%s:%d\n", file, line
+      end
     end
     
     def print_frames(context, cur_idx)
