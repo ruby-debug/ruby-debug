@@ -96,19 +96,19 @@ module Debugger
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
 
       splitter = lambda do |str|
-	str.split(/;/).inject([]) do |m, v|
-	  if m.empty?
-	    m << v
-	  else
-	    if m.last[-1] == ?\\
-	      m.last[-1,1] = ''
-	      m.last << ';' << v
-	    else
-	      m << v
-	    end
-	  end
-	  m
-	end
+        str.split(/;/).inject([]) do |m, v|
+          if m.empty?
+            m << v
+          else
+            if m.last[-1] == ?\\
+              m.last[-1,1] = ''
+              m.last << ';' << v
+            else
+              m << v
+            end
+          end
+          m
+        end
       end
       
       while !state.proceed? and input = @interface.read_command(prompt(context))

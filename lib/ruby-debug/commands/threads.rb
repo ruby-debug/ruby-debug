@@ -3,7 +3,7 @@ module Debugger
     def display_context(c)
       c_flag = c.thread == Thread.current ? '+' : ' '
       c_flag = '$' if c.suspended?
-      d_flag = debugger_thread?(c) ? '!' : ' '
+      d_flag = c.ignored? ? '!' : ' '
       print "%s%s", c_flag, d_flag
       print "%d ", c.thnum
       print "%s\t", c.thread.inspect
@@ -11,10 +11,6 @@ module Debugger
         print "%s:%d", c.frame_file(0), c.frame_line(0)
       end
       print "\n"
-    end
-    
-    def debugger_thread?(c)
-      [Debugger.thread, Debugger.control_thread].include?(c.thread)
     end
   end
 
@@ -60,7 +56,7 @@ module Debugger
       case
       when c == @state.context
         print "It's the current thread.\n"
-      when debugger_thread?(c)
+      when c.ignored?
         print "Can't switch to the debugger thread.\n"
       else
         display_context(c)
@@ -98,7 +94,7 @@ module Debugger
       case
       when c == @state.context
         print "It's the current thread.\n"
-      when debugger_thread?(c)
+      when c.ignored?
         print "Can't stop the debugger thread.\n"
       else
         c.suspend
@@ -160,7 +156,7 @@ module Debugger
       case
       when c == @state.context
         print "It's the current thread.\n"
-      when debugger_thread?(c)
+      when c.ignored?
         print "Can't resume the debugger thread.\n"
       when !c.thread.stop?
         print "Already running."

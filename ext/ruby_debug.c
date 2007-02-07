@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.7.4"
+#define DEBUG_VERSION "0.7.5"
 
 #ifdef _WIN32
 struct FRAME {
@@ -1952,12 +1952,12 @@ context_set_tracing(VALUE self, VALUE value)
 
 /*
  *   call-seq:
- *      context.ignore -> bool
+ *      context.ignored? -> bool
  *
  *   Returns the ignore flag for the current context.
  */
 static VALUE
-context_ignore(VALUE self)
+context_ignored(VALUE self)
 {
     debug_context_t *debug_context;
 
@@ -2069,7 +2069,7 @@ Init_context()
     rb_define_method(cContext, "resume", context_resume, 0);
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
-    rb_define_method(cContext, "ignore", context_ignore, 0);
+    rb_define_method(cContext, "ignored?", context_ignored, 0);
     rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
     rb_define_method(cContext, "frame_id", context_frame_id, 1);
     rb_define_method(cContext, "frame_line", context_frame_line, 1);
