@@ -100,9 +100,10 @@ else
   
   if options.server
     # start remote mode
-    Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem)
-    # load initrc script
-    load_initrc.call
+    Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem) do
+      # load initrc script
+      load_initrc.call
+    end
     # load script
     Debugger.debug_load Debugger::PROG_SCRIPT
   else

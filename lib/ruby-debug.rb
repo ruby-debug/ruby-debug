@@ -97,6 +97,8 @@ module Debugger
 
       start_control(host, ctrl_port)
       
+      yield if block_given?
+      
       mutex = Mutex.new
       proceed = ConditionVariable.new
       
