@@ -94,7 +94,7 @@ else
   Debugger.keep_frame_binding = options.frame_bind
   
   load_initrc = lambda do
-    script_file = "#{ENV["HOME"] || ENV["HOMEDIR" || "."]}/.rdebugrc"
+    script_file = "#{ENV["HOME"] || ENV["HOMEPATH" || "."]}/.rdebugrc"
     Debugger.run_script script_file  if File.exists?(script_file)
   end
   
