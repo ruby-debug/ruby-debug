@@ -10,13 +10,16 @@ module Debugger
       case @match[1]
       when /^(no)?autolist$/
         ListCommand.always_run = $1.nil?
-        print "Listing is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "autolist is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoeval$/
         EvalCommand.unknown = $1.nil?
-        print "Evaluation of unrecognized command is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "autoeval is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?trace$/
         @@display_stack_trace = $1.nil?
         print "Display stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
+      when /^(no)?autoreload$/
+        Debugger.reload_source_on_change = $1.nil?
+        print "autoreload is #{$1.nil? ? 'on' : 'off'}.\n"
       else
         print "Unknown setting.\n"
       end
@@ -30,9 +33,10 @@ module Debugger
       def help(cmd)
         %{
            set <setting>, where <setting>:
-           autolist - execute 'list' command on every breakpoint
-           autoeval - evaluate every unrecognized command
-           trace    - display stack trace when 'eval' raises exception
+           autolist   - execute 'list' command on every breakpoint
+           autoeval   - evaluate every unrecognized command
+           autoreload - enables automatic source code reloading
+           trace      - display stack trace when 'eval' raises exception
            To disable setting, use 'no' prefix, like 'noautolist'
          }
       end

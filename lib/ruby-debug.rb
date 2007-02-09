@@ -173,23 +173,23 @@ module Debugger
 
     def source_for(file) # :nodoc:
       finder = lambda do
-        unless File.exists?(file)
-          return (SCRIPT_LINES__[file] == true ? nil : SCRIPT_LINES__[file])
-        end
+        if File.exists?(file)
+          if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
+            SCRIPT_LINES__[file] = File.readlines(file)
+          end
 
-        if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
-          SCRIPT_LINES__[file] = File.readlines(file)
-        end
+          change_time = test(?M, file)
+          SCRIPT_TIMESTAMPS__[file] ||= change_time
+          if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
+            SCRIPT_LINES__[file] = File.readlines(file)
+          end
 
-        change_time = test(?M, file)
-        SCRIPT_TIMESTAMPS__[file] ||= change_time
-        if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
-          SCRIPT_LINES__[file] = File.readlines(file)
+          SCRIPT_LINES__[file]
         end
-
-        SCRIPT_LINES__[file]
       end
-      Dir.chdir(File.dirname($0)){finder.call} || finder.call
+      
+      Dir.chdir(File.dirname($0)){finder.call} || finder.call ||
+        (SCRIPT_LINES__[file] == true ? nil : SCRIPT_LINES__[file])
     end
     
     def source_reload
