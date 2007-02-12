@@ -183,6 +183,7 @@ module Debugger
     end
     
     def print_at_line(file, line)
+      print "\032\032" if ENV['EMACS']
       print "%s:%d: %s", file, line, Debugger.line_at(file, line)
     end
     

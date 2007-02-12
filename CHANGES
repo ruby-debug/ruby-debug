@@ -2,6 +2,11 @@
 - Added two output formats: plain and xml
 - Applied patch from Markus Barchfeld. 
 
+0.7.5
+- Fixed 'reload on' command
+- 'reload on' command is removed in favor of 'set autoreload'
+- rdebug will evaluate ~/.rdebugrc script on startup
+
 0.7.4
 - Added a workaround of the Ruby interpreter problem where a method created with Module#define_method 
   and which raises an exception doesn't trigger a :return event, this way screwing the stack trace.

@@ -55,6 +55,7 @@ EOB
     Debugger.send "use_#{format}_printer"
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
+  opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do
@@ -103,12 +104,17 @@ else
   Debugger.wait_connection = options.wait
   Debugger.keep_frame_binding = options.frame_bind
   
-  # load user script
-  load "#{ENV["HOME"]}/.rdebugrc" if File.exists?("#{ENV["HOME"]}/.rdebugrc")
+  load_initrc = lambda do
+    script_file = "#{ENV["HOME"] || ENV["HOMEPATH" || "."]}/.rdebugrc"
+    Debugger.run_script script_file, StringIO.new  if File.exists?(script_file)
+  end
   
   if options.server
     # start remote mode
-    Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem)
+    Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem) do
+      # load initrc script
+      load_initrc.call
+    end
     # load script
     Debugger.debug_load Debugger::PROG_SCRIPT
   else
@@ -116,6 +122,9 @@ else
     Debugger.start
     # start control thread
     Debugger.start_control(options.host, options.cport)
+
+    # load initrc script
+    load_initrc.call
     
     # run startup script if specified
     if options.script

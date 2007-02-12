@@ -67,6 +67,7 @@ module Debugger
   end
 
   class UpCommand < Command # :nodoc:
+    include FrameFunctions
     def regexp
       /^\s* u(?:p)? (?:\s+(.*))? .*$/x
     end
@@ -95,6 +96,7 @@ module Debugger
   end
 
   class DownCommand < Command # :nodoc:
+    include FrameFunctions
     def regexp
       /^\s* down (?:\s+(.*))? .*$/x
     end

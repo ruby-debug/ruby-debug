@@ -50,17 +50,12 @@ module Debugger
     self.control = true
     
     def regexp
-      /^\s*r(?:eload)?(?:\s*(on|off))?$/
+      /^\s*r(?:eload)?$/
     end
     
     def execute
-      if @match[1]
-        Debugger.reload_source_on_change = (@match[1] == 'on')
-        print_msg "Automatic reloading is #{source_reloading}.\n"
-      else
-        Debugger.source_reload
-        print_msg "Source code is reloaded. Automatic reloading is #{source_reloading}.\n"
-      end
+      Debugger.source_reload
+      print_msg "Source code is reloaded. Automatic reloading is #{source_reloading}.\n"
     end
     
     private
@@ -77,7 +72,6 @@ module Debugger
       def help(cmd)
         %{
           r[eload]\tforces source code reloading
-          r[eload] on/off\tenales/disables automatic source code reloading
         }
       end
     end
