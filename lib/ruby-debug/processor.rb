@@ -62,7 +62,7 @@ module Debugger
     protect :at_tracing
 
     def at_line(context, file, line)
-      print "%s:%d: %s", file, line, Debugger.line_at(file, line)
+      print "#{"\032\032" if ENV['EMACS']}%s:%d %s", file, line, Debugger.line_at(file, line)
       process_commands(context, file, line)
     end
     protect :at_line

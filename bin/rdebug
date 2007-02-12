@@ -45,6 +45,7 @@ EOB
     end
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
+  opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do
@@ -95,7 +96,7 @@ else
   
   load_initrc = lambda do
     script_file = "#{ENV["HOME"] || ENV["HOMEPATH" || "."]}/.rdebugrc"
-    Debugger.run_script script_file  if File.exists?(script_file)
+    Debugger.run_script script_file, StringIO.new  if File.exists?(script_file)
   end
   
   if options.server
