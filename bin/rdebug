@@ -90,7 +90,6 @@ else
   trap('INT') { Debugger.interrupt_last }
   
   # set options
-  Debugger.stop_on_connect = !options.nostop
   Debugger.wait_connection = options.wait
   Debugger.keep_frame_binding = options.frame_bind
   
@@ -106,7 +105,7 @@ else
       load_initrc.call
     end
     # load script
-    Debugger.debug_load Debugger::PROG_SCRIPT
+    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
   else
     # activate debugger
     Debugger.start
@@ -122,12 +121,8 @@ else
     end
     # activate post-mortem
     Debugger.post_mortem if options.post_mortem
-    if options.tracing
-      Debugger.tracing = true
-    else
-      debugger 2 unless options.nostop
-    end
+    Debugger.tracing = options.nostop = true if options.tracing
     # load script
-    Debugger.debug_load Debugger::PROG_SCRIPT
+    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
   end
 end

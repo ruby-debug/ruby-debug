@@ -45,9 +45,6 @@ module Debugger
   class << self
     attr_accessor :processor
     
-    # stop main thread when remote connection established
-    attr_accessor :stop_on_connect
-    
     # in remote mode, wait for the remote connection 
     attr_accessor :wait_connection
     
@@ -110,8 +107,6 @@ module Debugger
             mutex.synchronize do
               proceed.signal
             end
-          else
-            stop_main_thread
           end
         end
       end
@@ -119,7 +114,6 @@ module Debugger
         mutex.synchronize do
           proceed.wait(mutex)
         end 
-        stop_main_thread
       end
     end
     alias start_server start_remote
@@ -165,14 +159,6 @@ module Debugger
       socket.close
     end
     
-    def stop_main_thread # :nodoc:
-      return unless stop_on_connect
-      
-      context = thread_context(Thread.main)
-      context.stop_next = 2
-    end
-    private :stop_main_thread
-
     def source_for(file) # :nodoc:
       finder = lambda do
         if File.exists?(file)

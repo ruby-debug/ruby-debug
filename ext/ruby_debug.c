@@ -1458,22 +1458,27 @@ debug_thread_inherited(VALUE klass)
 
 /*
  *   call-seq:
- *      Debugger.debug_load(file) -> nil
+ *      Debugger.debug_load(file, stop = false) -> nil
  *
  *   Same as Kernel#load but resets current context's frames.
- *   FOR INTERNAL USE ONLY. Use Debugger.post_mortem method instead.
+ *   +stop+ parameter force the debugger to stop at the first line of code in the +file+
+ *   FOR INTERNAL USE ONLY.
  */
 static VALUE
-debug_debug_load(VALUE self, VALUE file)
+debug_debug_load(int argc, VALUE *argv, VALUE self)
 {
-    VALUE context;
+    VALUE file, stop, context;
     debug_context_t *debug_context;
 
-    debug_start(self);
+    if(rb_scan_args(argc, argv, "11", &file, &stop) == 1)
+      stop = Qfalse;
 
+    debug_start(self);
     context = debug_current_context(self);
     Data_Get_Struct(context, debug_context_t, debug_context);
     debug_context->stack_size = 0;
+    if(RTEST(stop))
+      debug_context->stop_next = 1;
     rb_load(file, 0);
 
     debug_stop(self);
@@ -2131,7 +2136,7 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "resume", debug_resume, 0);
     rb_define_module_function(mDebugger, "tracing", debug_tracing, 0);
     rb_define_module_function(mDebugger, "tracing=", debug_set_tracing, 1);
-    rb_define_module_function(mDebugger, "debug_load", debug_debug_load, 1);
+    rb_define_module_function(mDebugger, "debug_load", debug_debug_load, -1);
     rb_define_module_function(mDebugger, "skip", debug_skip, 0);
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
     rb_define_module_function(mDebugger, "post_mortem?", debug_post_mortem, 0);
