@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.7.6"
+#define DEBUG_VERSION "0.8"
 
 #ifdef _WIN32
 struct FRAME {
@@ -772,7 +772,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 
         /* stop the current thread if it's marked as suspended */
-        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND) && locker != thread)
         {
             CTX_FL_SET(debug_context, CTX_FL_WAS_RUNNING);
             rb_thread_stop();
@@ -1437,12 +1437,14 @@ debug_set_keep_frame_binding(VALUE self, VALUE value)
     return value;
 }
 
+/* :nodoc: */
 static VALUE
 debug_debug(VALUE self)
 {
     return debug;
 }
 
+/* :nodoc: */
 static VALUE
 debug_set_debug(VALUE self, VALUE value)
 {
@@ -1450,6 +1452,7 @@ debug_set_debug(VALUE self, VALUE value)
     return value;
 }
 
+/* :nodoc: */
 static VALUE
 debug_thread_inherited(VALUE klass)
 {

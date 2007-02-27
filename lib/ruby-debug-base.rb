@@ -1,57 +1,59 @@
-require 'pp'
-require 'stringio'
-require "socket"
-require 'thread'
 require 'ruby_debug.so'
-require 'ruby-debug/processor'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
 
 module Debugger
-  PORT = 8989
-
-  @processor = CommandProcessor.new
-  @reload_source_on_change = false
-  
   class Context
     def interrupt
       self.stop_next = 1
     end
+    
+    alias __c_frame_binding frame_binding
+    def frame_binding(frame)
+      __c_frame_binding(frame) || hbinding(frame_locals(frame))
+    end
 
     private
 
-    def processor
-      Debugger.processor
+    def hbinding(hash)
+      code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
+      if obj = @state.context.frame_self(@state.frame_pos)
+        obj.instance_eval code
+      else
+        eval code
+      end
+    end
+
+    def handler
+      Debugger.handler or raise 'No interface loaded'
     end
 
     def at_breakpoint(breakpoint)
-      processor.at_breakpoint(self, breakpoint)
+      handler.at_breakpoint(self, breakpoint)
     end
 
     def at_catchpoint(excpt)
-      processor.at_catchpoint(self, excpt)
+      handler.at_catchpoint(self, excpt)
     end
 
     def at_tracing(file, line)
-      processor.at_tracing(self, file, line)
+      handler.at_tracing(self, file, line)
     end
 
     def at_line(file, line)
-      processor.at_line(self, file, line)
+      handler.at_line(self, file, line)
     end
   end
-
+  
+  @reload_source_on_change = false
+  
   class << self
-    attr_accessor :processor
-    
-    # in remote mode, wait for the remote connection 
-    attr_accessor :wait_connection
+    # interface modules provide +handler+ object
+    attr_accessor :handler
     
     # if <tt>true</tt>, checks the modification time of source files and reloads if it was modified
     attr_accessor :reload_source_on_change
-    
-    attr_reader :thread, :control_thread
     
     #
     # Interrupts the current thread
@@ -69,94 +71,6 @@ module Debugger
         context.interrupt
       end
       context
-    end
-    
-    def interface=(value) # :nodoc:
-      processor.interface = value
-    end
-
-    #
-    # Starts a remote debugger.
-    #
-    def start_remote(host = nil, port = PORT, post_mortem = false)
-      return if @thread
-      return if started?
-
-      self.interface = nil
-      start
-      self.post_mortem if post_mortem
-
-      if port.kind_of?(Array)
-        cmd_port, ctrl_port = port
-      else
-        cmd_port, ctrl_port = port, port + 1
-      end
-
-      start_control(host, ctrl_port)
-      
-      yield if block_given?
-      
-      mutex = Mutex.new
-      proceed = ConditionVariable.new
-      
-      @thread = DebugThread.new do
-        server = TCPServer.new(host, cmd_port)
-        while (session = server.accept)
-          self.interface = RemoteInterface.new(session)
-          if wait_connection
-            mutex.synchronize do
-              proceed.signal
-            end
-          end
-        end
-      end
-      if wait_connection
-        mutex.synchronize do
-          proceed.wait(mutex)
-        end 
-      end
-    end
-    alias start_server start_remote
-    
-    def start_control(host = nil, ctrl_port = PORT + 1)
-      raise "Debugger is not started" unless started?
-      return if @control_thread
-      @control_thread = DebugThread.new do
-        server = TCPServer.new(host, ctrl_port)
-        while (session = server.accept)
-          interface = RemoteInterface.new(session)
-          processor = ControlCommandProcessor.new(interface)
-          processor.process_commands
-        end
-      end
-    end
-    
-    #
-    # Connects to the remote debugger
-    #
-    def start_client(host = 'localhost', port = PORT)
-      require "socket"
-      interface = Debugger::LocalInterface.new
-      socket = TCPSocket.new(host, port)
-      puts "Connected."
-
-      catch(:exit) do
-        while (line = socket.gets)
-          case line 
-          when /^PROMPT (.*)$/
-            input = interface.read_command($1)
-            throw :exit unless input
-            socket.puts input
-          when /^CONFIRM (.*)$/
-            input = interface.confirm($1)
-            throw :exit unless input
-            socket.puts input
-          else
-            print line
-          end
-        end
-      end
-      socket.close
     end
     
     def source_for(file) # :nodoc:
@@ -195,15 +109,6 @@ module Debugger
         return "#{line.gsub(/^\s+/, '').chomp}\n"
       end
       return "\n"
-    end
-
-    #
-    # Runs a script file
-    #
-    def run_script(file, out = processor.interface)
-      interface = ScriptInterface.new(file, out)
-      processor = ControlCommandProcessor.new(interface)
-      processor.process_commands
     end
 
     #

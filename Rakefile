@@ -8,7 +8,6 @@ SO_NAME = "ruby_debug.so"
 RUBY_DEBUG_VERSION = open("ext/ruby_debug.c"){|f| f.grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]}
 
 FILES = FileList[
-  'Rakefile',
   'README',
   'LICENSE',
   'CHANGES',
@@ -16,12 +15,21 @@ FILES = FileList[
   'lib/**/*',
   'ext/*',
   'doc/*',
-  'bin/*'
 ]
 
-# Default GEM Specification
-default_spec = Gem::Specification.new do |spec|
-  spec.name = "ruby-debug"
+CLI_FILES = FileList[
+  'README',
+  'LICENSE',
+  'CHANGES',
+  'AUTHORS',
+  'bin/*',
+  "cli/**/*",
+  'doc/*',
+]
+
+# Base GEM Specification
+base_spec = Gem::Specification.new do |spec|
+  spec.name = "ruby-debug-base"
   
   spec.homepage = "http://rubyforge.org/projects/ruby-debug/"
   spec.summary = "Fast Ruby debugger"
@@ -35,11 +43,9 @@ EOF
   spec.author = "Kent Sibilev"
   spec.email = "ksibilev@yahoo.com"
   spec.platform = Gem::Platform::RUBY
-  spec.require_path = "lib" 
-  spec.bindir = "bin"
-  spec.executables = ["rdebug"]
+  spec.require_path = "lib"
   spec.extensions = ["ext/extconf.rb"]
-  spec.autorequire = "ruby-debug"
+  spec.autorequire = "ruby-debug-base"
   spec.files = FILES.to_a  
 
   spec.required_ruby_version = '>= 1.8.2'
@@ -48,18 +54,51 @@ EOF
   
   # rdoc
   spec.has_rdoc = true
+  spec.extra_rdoc_files = ['README', 'ext/ruby_debug.c']
+end
+
+cli_spec = Gem::Specification.new do |spec|
+  spec.name = "ruby-debug"
+  
+  spec.homepage = "http://rubyforge.org/projects/ruby-debug/"
+  spec.summary = "Command line interface (CLI) for ruby-debug"
+  spec.description = <<-EOF
+A generic command line interface for ruby-debug.
+EOF
+
+  spec.version = RUBY_DEBUG_VERSION
+
+  spec.author = "Kent Sibilev"
+  spec.email = "ksibilev@yahoo.com"
+  spec.platform = Gem::Platform::RUBY
+  spec.require_path = "cli"
+  spec.bindir = "bin"
+  spec.executables = ["rdebug"]
+  spec.autorequire = "ruby-debug"
+  spec.files = CLI_FILES.to_a
+
+  spec.required_ruby_version = '>= 1.8.2'
+  spec.date = DateTime.now
+  spec.rubyforge_project = 'ruby-debug'
+  spec.add_dependency('ruby-debug-base', RUBY_DEBUG_VERSION)
+  
+  # rdoc
+  spec.has_rdoc = true
+  spec.extra_rdoc_files = ['README']
 end
 
 # Rake task to build the default package
-Rake::GemPackageTask.new(default_spec) do |pkg|
+Rake::GemPackageTask.new(base_spec) do |pkg|
   pkg.need_tar = true
+end
+Rake::GemPackageTask.new(cli_spec) do |pkg|
   pkg.need_tar = true
 end
 
 task :default => [:package]
 
 # Windows specification
-win_spec = default_spec.clone
+win_spec = cli_spec.clone
 win_spec.extensions = []
 win_spec.platform = Gem::Platform::WIN32
 win_spec.files += ["lib/#{SO_NAME}"]
@@ -80,7 +119,6 @@ task :win32_gem do
   # Remove win extension fro top level directory	
 	rm(target)
 end
-
 
 desc "Publish ruby-debug to RubyForge."
 task :publish do 
