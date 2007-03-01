@@ -11,14 +11,15 @@ module Debugger
     
     alias __c_frame_binding frame_binding
     def frame_binding(frame)
-      __c_frame_binding(frame) || hbinding(frame_locals(frame))
+      __c_frame_binding(frame) || hbinding(frame)
     end
 
     private
 
-    def hbinding(hash)
+    def hbinding(frame)
+      hash = frame_locals(frame)
       code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
-      if obj = @state.context.frame_self(@state.frame_pos)
+      if obj = frame_self(frame)
         obj.instance_eval code
       else
         eval code
@@ -156,7 +157,7 @@ module Debugger
       Debugger.suspend
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
-      processor.at_line(exp.__debug_context, exp.__debug_file, exp.__debug_line)
+      handler.at_line(exp.__debug_context, exp.__debug_file, exp.__debug_line)
     ensure
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing
       Debugger.resume
