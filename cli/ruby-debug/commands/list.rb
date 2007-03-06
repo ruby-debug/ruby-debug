@@ -40,7 +40,7 @@ module Debugger
           l[ist] -\tlist backward
           l[ist] =\tlist current line
           l[ist] nn-mm\tlist given lines
-          l[ist] on/off\tprint listing on every stop
+          * NOTE - to turn on autolist, use 'set autolist'
         }
       end
     end

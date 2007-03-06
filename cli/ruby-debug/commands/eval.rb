@@ -31,6 +31,7 @@ module Debugger
           %{
             e[val] expression\tevaluate expression and print its value,
             \t\t\talias for p.
+            * NOTE - to turn on autoeval, use 'set autoeval'
           }
         end
       end
