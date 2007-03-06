@@ -92,9 +92,11 @@ module Debugger
         s.interface = interface
         s.commands = event_cmds
       end
+      @interface.state = state if @interface.respond_to?('state=')
+      
       commands = event_cmds.map{|cmd| cmd.new(state) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
-
+      
       splitter = lambda do |str|
         str.split(/;/).inject([]) do |m, v|
           if m.empty?
