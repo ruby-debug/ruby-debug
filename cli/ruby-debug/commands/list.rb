@@ -66,7 +66,7 @@ module Debugger
     end
   end
 
-  class ReloadCommand < Command # :nodoc
+  class ReloadCommand < Command # :nodoc:
     self.control = true
     
     def regexp

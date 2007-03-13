@@ -164,6 +164,12 @@ module Debugger
     end
     private :handle_post_mortem
   end
+  
+  class DebugThread # :nodoc:
+  end
+  
+  class ThreadsTable # :nodoc:
+  end
 end
 
 class Exception # :nodoc:

@@ -98,7 +98,7 @@ end
 task :default => [:package]
 
 # Windows specification
-win_spec = cli_spec.clone
+win_spec = base_spec.clone
 win_spec.extensions = []
 win_spec.platform = Gem::Platform::WIN32
 win_spec.files += ["lib/#{SO_NAME}"]
