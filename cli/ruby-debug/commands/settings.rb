@@ -20,6 +20,9 @@ module Debugger
       when /^(no)?autoreload$/
         Debugger.reload_source_on_change = $1.nil?
         print "autoreload is #{$1.nil? ? 'on' : 'off'}.\n"
+      when /^(no)?autoirb$/
+        IRBCommand.always_run = $1.nil?
+        print "autoirb is #{$1.nil? ? 'on' : 'off'}.\n"
       else
         print "Unknown setting.\n"
       end
