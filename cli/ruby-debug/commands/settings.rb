@@ -39,6 +39,7 @@ module Debugger
            autolist   - execute 'list' command on every breakpoint
            autoeval   - evaluate every unrecognized command
            autoreload - enables automatic source code reloading
+           autoirb    - debugger invokes IRB on every stop
            trace      - display stack trace when 'eval' raises exception
            To disable setting, use 'no' prefix, like 'noautolist'
          }
