@@ -41,10 +41,6 @@ module Debugger
     end
 
     def execute
-      if @state.display.empty?
-        print "Nothing to display\n"
-        return
-      end
       n = 1
       for d in @state.display
         if d[0]
