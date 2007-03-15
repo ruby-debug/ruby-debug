@@ -61,7 +61,7 @@ cli_spec = Gem::Specification.new do |spec|
   spec.name = "ruby-debug"
   
   spec.homepage = "http://rubyforge.org/projects/ruby-debug/"
-  spec.summary = "Command line interface (CLI) for ruby-debug"
+  spec.summary = "Command line interface (CLI) for ruby-debug-base"
   spec.description = <<-EOF
 A generic command line interface for ruby-debug.
 EOF
