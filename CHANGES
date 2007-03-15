@@ -1,3 +1,7 @@
+0.8
+- Extract the base debugger API into a separate gem (ruby-debug-base), so it will be easier to add a new interface.
+- Bugfixes.
+
 0.7.5
 - Fixed 'reload on' command
 - 'reload on' command is removed in favor of 'set autoreload'
