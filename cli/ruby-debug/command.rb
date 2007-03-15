@@ -18,7 +18,7 @@ module Debugger
           klass.options[o] = v if klass.options[o].nil?
         end
         commands << klass
-      end
+      end 
 
       def load_commands
         dir = File.dirname(__FILE__)
