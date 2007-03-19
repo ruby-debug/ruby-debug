@@ -18,7 +18,7 @@ module Debugger
     attr_reader :thread, :control_thread
 
     def interface=(value) # :nodoc:
-      processor.interface = value
+      handler.interface = value
     end
     
     #
@@ -108,7 +108,7 @@ module Debugger
     #
     # Runs a script file
     #
-    def run_script(file, out = processor.interface)
+    def run_script(file, out = handler.interface)
       interface = ScriptInterface.new(file, out)
       processor = ControlCommandProcessor.new(interface)
       processor.process_commands

@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.8"
+#define DEBUG_VERSION "0.8.1"
 
 #ifdef _WIN32
 struct FRAME {
@@ -744,8 +744,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     VALUE thread, context, breakpoint;
     VALUE binding = Qnil;
     debug_context_t *debug_context;
-    char *file;
-    int line;
+    char *file = NULL;
+    int line = 0;
     int breakpoint_index = -1;
 
     hook_count++;
