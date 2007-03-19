@@ -1,3 +1,7 @@
+0.8.1
+- Added a shortcut module 'debugger'. require "ruby-debug/debugger" will start the debugger and stop at the next line (similar to require 'debug').
+- Fixed remote debugging.
+
 0.8
 - Extract the base debugger API into a separate gem (ruby-debug-base), so it will be easier to add a new interface.
 - Added 'set autoirb' setting.
