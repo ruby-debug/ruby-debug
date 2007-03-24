@@ -34,7 +34,7 @@ module Debugger
     
     def execute
       unless @state.interface.kind_of?(LocalInterface)
-        print_msg "Command is available only in local mode.\n"
+        print "Command is available only in local mode.\n"
         throw :debug_error
       end
       IRB.start_session(get_binding)

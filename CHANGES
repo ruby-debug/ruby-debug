@@ -1,6 +1,11 @@
+0.8.1
+- Added a shortcut module 'debugger'. require "ruby-debug/debugger" will start the debugger and stop at the next line (similar to require 'debug').
+- Fixed remote debugging.
+
 0.8
-- Added two output formats: plain and xml
-- Applied patch from Markus Barchfeld. 
+- Extract the base debugger API into a separate gem (ruby-debug-base), so it will be easier to add a new interface.
+- Added 'set autoirb' setting.
+- Bugfixes.
 
 0.7.5
 - Fixed 'reload on' command
@@ -42,7 +47,8 @@
 - Another performance optimization.
 
 0.6
-- Added option to exclude collecting of frame bindings
+- Added option to exclude collecting of frame bindings.
+- Several performance optimizations.
 
 0.5.4
 - Added -x/--trace option to rdebug script. Patch from R. Bernstein.
@@ -68,7 +74,7 @@
 - Fixed debug_method when applied to setter.
 - Added 'reload' command which can be used to reload source code in case it's been changed.
 - Added Debugger.reload_source_on_change option (true, by default) which controls whether ruby-debug should keep
-  track of the source files modification time and reload them if they've been changed.
+  track of the source files modification times and reload them if they've been changed.
 
 0.4.4
 - Renamed Context#set_suspend and Context#clear_suspend methods to Context#suspend and Context#resume respectively.

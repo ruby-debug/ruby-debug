@@ -18,7 +18,7 @@ module Debugger
           klass.options[o] = v if klass.options[o].nil?
         end
         commands << klass
-      end
+      end 
 
       def load_commands
         dir = File.dirname(__FILE__)
@@ -46,8 +46,8 @@ module Debugger
 
     @@display_stack_trace = false
     
-    def initialize(state, printer)
-      @state, @printer = state, printer
+    def initialize(state)
+      @state = state
     end
 
     def match(input)
@@ -55,14 +55,6 @@ module Debugger
     end
 
     protected
-    
-    def method_missing(meth, *args, &block)
-      if @printer.respond_to? meth
-        @printer.send meth, *args, &block
-      else
-        super
-      end
-    end
 
     def print(*args)
       @state.print(*args)
@@ -77,9 +69,13 @@ module Debugger
         val = eval(str, b)
       rescue StandardError, ScriptError => e
         if @@display_stack_trace
-          @printer.print_exception(e, @state.binding) 
+          at = eval("caller(1)", b)
+          print "%s:%s\n", at.shift, e.to_s.sub(/\(eval\):1:(in `.*?':)?/, '')
+          for i in at
+            print "\tfrom %s\n", i
+          end
         else
-          print_error "#{e.class} Exception: #{e.message}\n"
+          print "#{e.class} Exception: #{e.message}\n"
         end
         throw :debug_error
       end
@@ -93,19 +89,8 @@ module Debugger
       end
     end
 
-    def hbinding(hash)
-      code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
-      if obj = @state.context.frame_self(@state.frame_pos)
-        obj.instance_eval code
-      else
-        eval code
-      end
-    end
-    private :hbinding
- 
     def get_binding
-      binding = @state.context.frame_binding(@state.frame_pos)
-      binding || hbinding(@state.context.frame_locals(@state.frame_pos))
+      @state.context.frame_binding(@state.frame_pos)
     end
 
     def line_at(file, line)
@@ -114,7 +99,7 @@ module Debugger
 
     def get_context(thnum)
       Debugger.contexts.find{|c| c.thnum == thnum}
-    end
+    end  
   end
   
   Command.load_commands

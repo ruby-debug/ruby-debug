@@ -53,6 +53,8 @@ module Debugger
       cmd = Debugger::RDEBUG_SCRIPT + " " + args
       print "Re exec'ing:\n\t#{cmd}\n"
       exec cmd
+    rescue Errno::EOPNOTSUPP
+      print "Restart command is not available at this time.\n"
     end
 
     class << self

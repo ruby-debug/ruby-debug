@@ -1,15 +1,14 @@
 module Debugger
-  class NextCommand < Command # :nodoc
+  class NextCommand < Command # :nodoc:
     self.need_context = true
     
     def regexp
-      /^\s*n(?:ext)?(?:\s+(\d+))?(?:\s+(\d+))?$/
+      /^\s*n(?:ext)?(?:\s+(\d+))?$/
     end
 
     def execute
       steps = @match[1] ? @match[1].to_i : 1
-      target_frame = @match[2] ? (@match[2].to_i -1) : @state.frame_pos
-      @state.context.step_over steps, target_frame
+      @state.context.step_over steps, @state.frame_pos
       @state.proceed
     end
 
@@ -20,7 +19,7 @@ module Debugger
 
       def help(cmd)
         %{
-          n[ext][nl] [tf]\tgo over n lines, default is one, go to target frame tf (1-based)
+          n[ext][ nnn]\tgo over one line or till line nnn
         }
       end
     end
@@ -60,7 +59,7 @@ module Debugger
 
     def execute
       if @state.frame_pos == @state.context.stack_size - 1
-        print_msg "\"finish\" not meaningful in the outermost frame."
+        print "\"finish\" not meaningful in the outermost frame.\n"
       else
         @state.context.stop_frame = @state.frame_pos
         @state.frame_pos = 0

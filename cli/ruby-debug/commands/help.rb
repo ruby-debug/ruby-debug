@@ -21,7 +21,7 @@ module Debugger
         cmds.each do |cmd|
           if buf.length + cmd.length > 70
             print "%s\n", buf
-            buf = ""
+            buf = "#{cmd} "
           else
             buf << cmd << ' '
           end

@@ -10,16 +10,16 @@ module Debugger
       if excn = @match[1]
         if excn == 'off'
           Debugger.catchpoint = nil
-          print_msg "Clear catchpoint."
+          print "Clear catchpoint.\n"
         else
           Debugger.catchpoint = excn
-          print_msg "Set catchpoint %s.", excn
+          print "Set catchpoint %s.\n", excn
         end
       else
         if Debugger.catchpoint
-          print_msg "Catchpoint %s.", Debugger.catchpoint
+          print "Catchpoint %s.\n", Debugger.catchpoint
         else
-          print_msg "No catchpoint."
+          print "No catchpoint.\n"
         end
       end
     end

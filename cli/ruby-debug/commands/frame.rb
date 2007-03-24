@@ -12,39 +12,55 @@ module Debugger
       end
 
       if abs_frame_pos >= @state.context.stack_size then
-        print_error "Adjusting would put us beyond the oldest (initial) frame.\n"
+        print "Adjusting would put us beyond the oldest (initial) frame.\n"
         return
       elsif abs_frame_pos < 0 then
-        print_error "Adjusting would put us beyond the newest (innermost) frame.\n"
+        print "Adjusting would put us beyond the newest (innermost) frame.\n"
         return
       end
       if @state.frame_pos != abs_frame_pos then
         @state.previous_line = nil
         @state.frame_pos = abs_frame_pos
       end
+      
       @state.file = @state.context.frame_file(@state.frame_pos)
       @state.line = @state.context.frame_line(@state.frame_pos)
       
-      print_current_frame(@state.context, @state.frame_pos)
+      print_frame(@state.frame_pos, true)
     end
 
     def get_int(str, cmd)
       begin
         return Integer(@match[1])
       rescue
-        print_error "%s argument needs to be a number.\n" % cmd
+        print "%s argument needs to be a number.\n" % cmd
         return nil
       end
+    end
+
+    def print_frame(pos, adjust = false)
+      file, line, id = @state.context.frame_file(pos), @state.context.frame_line(pos), @state.context.frame_id(pos)
+      print "#%d %s:%d%s\n", pos, file, line, id ? " in `#{id.id2name}'" : ""
+      print "\032\032%s:%d\n", file, line if ENV['EMACS'] && adjust
     end
   end
 
   class WhereCommand < Command # :nodoc:
+    include FrameFunctions
+
     def regexp
       /^\s*(?:w(?:here)?|bt|backtrace)$/
     end
 
     def execute
-      print_frames(@state.context, @state.frame_pos)
+      (0...@state.context.stack_size).each do |idx|
+        if idx == @state.frame_pos
+          print "--> "
+        else
+          print "    "
+        end
+        print_frame(idx)
+      end
     end
 
     class << self
@@ -68,6 +84,7 @@ module Debugger
 
   class UpCommand < Command # :nodoc:
     include FrameFunctions
+
     def regexp
       /^\s* u(?:p)? (?:\s+(.*))? .*$/x
     end
@@ -97,6 +114,7 @@ module Debugger
 
   class DownCommand < Command # :nodoc:
     include FrameFunctions
+
     def regexp
       /^\s* down (?:\s+(.*))? .*$/x
     end

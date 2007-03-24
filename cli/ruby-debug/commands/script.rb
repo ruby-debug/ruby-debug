@@ -8,7 +8,7 @@ module Debugger
     
     def execute
       unless File.exists?(@match[1])
-        print_msg "Script file '#{@match[1]}' is not found"
+        print "Script file '#{@match[1]}' is not found\n"
         return
       end
       Debugger.run_script(@match[1], @state)
@@ -41,7 +41,7 @@ module Debugger
         end
         file.puts "catch #{Debugger.catchpoint}" if Debugger.catchpoint
       end
-      print_msg "Saved to '#{@match[1]}'"
+      print "Saved to '#{@match[1]}'\n"
     end
 
     class << self

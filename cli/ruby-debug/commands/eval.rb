@@ -14,7 +14,7 @@ module Debugger
     def execute
       expr = @match ? @match.post_match : @input
       binding = @state.context ? get_binding : TOPLEVEL_BINDING
-      print_eval "%s\n", debug_eval(expr, binding).inspect
+      print "%s\n", debug_eval(expr, binding).inspect
     end
 
     class << self
@@ -31,6 +31,7 @@ module Debugger
           %{
             e[val] expression\tevaluate expression and print its value,
             \t\t\talias for p.
+            * NOTE - to turn on autoeval, use 'set autoeval'
           }
         end
       end
@@ -43,10 +44,9 @@ module Debugger
     end
 
     def execute
-      exp = @match.post_match
       out = StringIO.new
-      PP.pp(debug_eval(exp), out) rescue out.puts $!.message
-      print_pp exp, out.string
+      PP.pp(debug_eval(@match.post_match), out) rescue out.puts $!.message
+      print out.string
     end
 
     class << self

@@ -9,7 +9,7 @@ module Debugger
         if @match[1]
           frm_n = @match[1].to_i
           if frm_n > @state.context.stack_size || frm_n == 0
-            print_msg "Wrong frame number"
+            print "Wrong frame number\n"
             return
           end
           file, line = @state.context.frame_file(frm_n-1), @state.context.frame_line(frm_n-1)

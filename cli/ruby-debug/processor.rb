@@ -6,10 +6,8 @@ module Debugger
     attr_accessor :interface
     attr_reader   :display
     
-    def initialize(interface = LocalInterface.new, printer_class = Debugger.printer_class)
+    def initialize(interface = LocalInterface.new)
       @interface = interface
-      self.printer_class = printer_class
-      @printer = PlainPrinter.new(@interface)
       @display = []
       @mutex = Mutex.new
       @last_cmd = nil
@@ -19,12 +17,8 @@ module Debugger
     def interface=(interface)
       @mutex.synchronize do
         @interface.close if @interface
-        @interface = @printer.interface = interface
+        @interface = interface
       end
-    end
-    
-    def printer_class=(printer_class)
-      @printer = printer_class.new(@interface)
     end
     
     def self.protect(mname)
@@ -38,30 +32,37 @@ module Debugger
         rescue IOError, Errno::EPIPE
           self.interface = nil
         rescue Exception
-          @printer.print_error "INTERNAL ERROR!!! #\{$!\}\n" rescue nil
-          @printer.print_error $!.backtrace.map{|l| "\t#\{l\}"}.join("\n") rescue nil
+          print "INTERNAL ERROR!!! #\{$!\}\n" rescue nil
+          print $!.backtrace.map{|l| "\t#\{l\}"}.join("\n") rescue nil
         end
       }
     end
     
     def at_breakpoint(context, breakpoint)
       n = Debugger.breakpoints.index(breakpoint) + 1
-      @printer.print_breakpoint n, breakpoint
+      print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
     end
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      @printer.print_catchpoint(excpt)
+      print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(1), context.frame_line(1), excpt, excpt.class
+      fs = context.stack_size
+      tb = caller(0)[-fs..-1]
+      if tb
+        for i in tb
+          print "\tfrom %s\n", i
+        end
+      end
     end
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      @printer.print_trace(context, file, line)
+      print "Tracing(%d):%s:%s %s", context.thnum, file, line, Debugger.line_at(file, line)
     end
     protect :at_tracing
-    
+
     def at_line(context, file, line)
-      @printer.print_at_line(file, line) if context.nil? || context.stop_reason == 0
+      print "#{"\032\032" if ENV['EMACS']}%s:%d %s", file, line, Debugger.line_at(file, line)
       process_commands(context, file, line)
     end
     protect :at_line
@@ -91,10 +92,11 @@ module Debugger
         s.interface = interface
         s.commands = event_cmds
       end
-      commands = event_cmds.map{|cmd| cmd.new(state, @printer) }
+      @interface.state = state if @interface.respond_to?('state=')
+      
+      commands = event_cmds.map{|cmd| cmd.new(state) }
       commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
-      # commands may be separated with semicolons which can be escaped with backslash
-
+      
       splitter = lambda do |str|
         str.split(/;/).inject([]) do |m, v|
           if m.empty?
@@ -113,6 +115,7 @@ module Debugger
       
       while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
+          
           if input == ""
             next unless @last_cmd
             input = @last_cmd
@@ -121,11 +124,9 @@ module Debugger
           end
           
           splitter[input].each do |input|
-            # escape % since print_debug might use printf
-            @printer.print_debug "Processing: #{input.gsub('%', '%%')}"
             if cmd = commands.find{ |c| c.match(input) }
               if context.dead? && cmd.class.need_context
-                @printer.print_msg "Command is unavailable\n"
+                print "Command is unavailable\n"
               else
                 cmd.execute
               end
@@ -134,38 +135,38 @@ module Debugger
               if unknown_cmd
                 unknown_cmd.execute
               else
-                @printer.print_msg "Unknown command: #{input}"
+                print "Unknown command\n"
               end
             end
           end
         end
       end
     end
-    
+
     class State # :nodoc:
       attr_accessor :context, :file, :line, :binding
       attr_accessor :frame_pos, :previous_line, :display
       attr_accessor :interface, :commands
-      
+
       def initialize
         @frame_pos = 0
         @previous_line = nil
         @proceed = false
         yield self
       end
-      
+
       def print(*args)
         @interface.print(*args)
       end
-      
+
       def confirm(*args)
         @interface.confirm(*args)
       end
-      
+
       def proceed?
         @proceed
       end
-      
+
       def proceed
         @proceed = true
       end
@@ -173,9 +174,8 @@ module Debugger
   end
   
   class ControlCommandProcessor # :nodoc:
-    def initialize(interface, printer_class = Debugger.printer_class)
+    def initialize(interface)
       @interface = interface
-      @printer = printer_class.new(@interface)
     end
     
     def print(*args)
@@ -185,21 +185,21 @@ module Debugger
     def process_commands
       control_cmds = Command.commands.select{|cmd| cmd.control }
       state = State.new(@interface, control_cmds)
-      commands = control_cmds.map{|cmd| cmd.new(state, @printer) }
+      commands = control_cmds.map{|cmd| cmd.new(state) }
       
       while input = @interface.read_command("(rdb:ctrl) ")
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }
             cmd.execute
-            else
-              @printer.print_msg "Unknown command"
-            end
+          else
+            print "Unknown command\n"
+          end
         end
       end
     rescue IOError, Errno::EPIPE
     rescue Exception
-      @printer.print_error "INTERNAL ERROR!!! #{$!}\n" rescue nil
-    @printer.print_error $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
+      print "INTERNAL ERROR!!! #{$!}\n" rescue nil
+      print $!.backtrace.map{|l| "\t#{l}"}.join("\n") rescue nil
     ensure
       @interface.close
     end
@@ -227,7 +227,7 @@ module Debugger
       end
 
       def file
-        print "ERROR: No filename given.\n"
+        print "No filename given.\n"
         throw :debug_error
       end
     end

@@ -35,24 +35,14 @@ EOB
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
-  opts.on("-d", "--debug", "Debug self - prints information for debugging ruby-debug itself") do
-    Debugger.is_debug = true
-  end
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
   opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
     unless File.exists?(options.script)
       puts "Script file '#{options.script}' is not found"
-      exit(1)
+      exit
     end
-  end
-  opts.on("-f", "--format FORMAT", String, "Name of the formatter to use (plain or xml)") do |format|
-    unless %w[plain xml].include?(format)
-      puts "Unknown format '#{options.format}'"
-      exit(1)
-    end
-    Debugger.send "use_#{format}_printer"
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
@@ -80,7 +70,7 @@ rescue StandardError => e
   puts opts
   puts
   puts e.message
-  exit(1)
+  exit(-1)
 end
 
 if options.client
@@ -90,7 +80,7 @@ else
     puts opts
     puts
     puts "Must specify a script to run"
-    exit(1)
+    exit(-1)
   end
 
   # save script name
@@ -100,7 +90,6 @@ else
   trap('INT') { Debugger.interrupt_last }
   
   # set options
-  Debugger.stop_on_connect = !options.nostop
   Debugger.wait_connection = options.wait
   Debugger.keep_frame_binding = options.frame_bind
   
@@ -116,7 +105,7 @@ else
       load_initrc.call
     end
     # load script
-    Debugger.debug_load Debugger::PROG_SCRIPT
+    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
   else
     # activate debugger
     Debugger.start
@@ -132,12 +121,8 @@ else
     end
     # activate post-mortem
     Debugger.post_mortem if options.post_mortem
-    if options.tracing
-      Debugger.tracing = true
-    else
-      debugger 2 unless options.nostop
-    end
+    Debugger.tracing = options.nostop = true if options.tracing
     # load script
-    Debugger.debug_load Debugger::PROG_SCRIPT
+    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
   end
 end

@@ -10,18 +10,21 @@ module Debugger
       case @match[1]
       when /^(no)?autolist$/
         ListCommand.always_run = $1.nil?
-        print_msg "autolist is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "autolist is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoeval$/
         EvalCommand.unknown = $1.nil?
-        print_msg "autoeval is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "autoeval is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?trace$/
         @@display_stack_trace = $1.nil?
-        print_msg "Display stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "Display stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoreload$/
         Debugger.reload_source_on_change = $1.nil?
-        print_msg "autoreload is #{$1.nil? ? 'on' : 'off'}.\n"
+        print "autoreload is #{$1.nil? ? 'on' : 'off'}.\n"
+      when /^(no)?autoirb$/
+        IRBCommand.always_run = $1.nil?
+        print "autoirb is #{$1.nil? ? 'on' : 'off'}.\n"
       else
-        print_error "Unknown setting.\n"
+        print "Unknown setting.\n"
       end
     end
 
@@ -36,6 +39,7 @@ module Debugger
            autolist   - execute 'list' command on every breakpoint
            autoeval   - evaluate every unrecognized command
            autoreload - enables automatic source code reloading
+           autoirb    - debugger invokes IRB on every stop
            trace      - display stack trace when 'eval' raises exception
            To disable setting, use 'no' prefix, like 'noautolist'
          }

@@ -7,13 +7,32 @@ module Debugger
     def execute
       if @match[1]
         obj = debug_eval(@match.post_match)
-        print_methods(obj.methods)
+
+        len = 0
+        for v in obj.methods.sort
+          len += v.size + 1
+          if len > 70
+            len = v.size + 1
+            print "\n"
+          end
+          print "%s ", v
+        end
+        print "\n"
       else
         obj = debug_eval(@match.post_match)
         unless obj.kind_of? Module
-          print_msg "Should be Class/Module: %s", @match.post_match
+          print "Should be Class/Module: %s\n", @match.post_match
         else
-          print_methods(obj.instance_methods(false))
+          len = 0
+          for v in obj.instance_methods(false).sort
+            len += v.size + 1
+            if len > 70
+              len = v.size + 1
+              print "\n"
+            end
+            print "%s ", v
+          end
+          print "\n"
         end
       end
     end

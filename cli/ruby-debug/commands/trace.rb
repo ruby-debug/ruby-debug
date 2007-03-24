@@ -11,9 +11,9 @@ module Debugger
         Debugger.current_context.tracing = @match[1] == 'on'
       end
       if Debugger.tracing || Debugger.current_context.tracing
-        print_msg "Trace on."
+        print "Trace on.\n"
       else
-        print_msg "Trace off."
+        print "Trace off.\n"
       end
     end
 

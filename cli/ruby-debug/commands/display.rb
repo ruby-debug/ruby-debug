@@ -1,5 +1,13 @@
 module Debugger
+  module DisplayFunctions # :nodoc:
+    def display_expression(exp)
+      print "%s = %s\n", exp, debug_silent_eval(exp).to_s
+    end
+  end
+
   class AddDisplayCommand < Command # :nodoc:
+    include DisplayFunctions
+
     def regexp
       /^\s*disp(?:lay)?\s+(.+)$/
     end
@@ -7,7 +15,8 @@ module Debugger
     def execute
       exp = @match[1]
       @state.display.push [true, exp]
-      print_expression(exp, debug_silent_eval(exp).to_s, @state.display.size)
+      print "%d: ", @state.display.size
+      display_expression(exp)
     end
 
     class << self
@@ -25,16 +34,21 @@ module Debugger
 
   class DisplayCommand < Command # :nodoc:
     self.always_run = true
+    include DisplayFunctions
     
     def regexp
       /^\s*disp(?:lay)?$/
     end
 
     def execute
-      exps = @state.display.select{|status, exp| status }.map do |status, exp|
-        [exp, debug_silent_eval(d[1]).to_s]
+      n = 1
+      for d in @state.display
+        if d[0]
+          print "%d: ", n
+          display_expression(d[1])
+        end
+        n += 1
       end
-      print_expressions(exps)
     end
 
     class << self
@@ -51,6 +65,8 @@ module Debugger
   end
 
   class DeleteDisplayCommand < Command # :nodoc:
+    include DisplayFunctions
+
     def regexp
       /^\s*undisp(?:lay)?(?:\s+(\d+))?$/
     end
@@ -67,7 +83,7 @@ module Debugger
         if @state.display[pos-1]
           @state.display[pos-1][0] = false
         else
-          print_msg "Display expression %d is not defined", pos
+          print "Display expression %d is not defined\n", pos
         end
       end
     end

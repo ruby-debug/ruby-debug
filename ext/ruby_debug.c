@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.8"
+#define DEBUG_VERSION "0.8.2"
 
 #ifdef _WIN32
 struct FRAME {
@@ -50,8 +50,8 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #define CTX_FL_DEAD         (1<<6)
 #define CTX_FL_WAS_RUNNING  (1<<7)
 
-#define CTX_FL_TEST(c,f) ((c)->flags & (f))
-#define CTX_FL_SET(c,f) do { (c)->flags |= (f); } while (0)
+#define CTX_FL_TEST(c,f)  ((c)->flags & (f))
+#define CTX_FL_SET(c,f)   do { (c)->flags |= (f); } while (0)
 #define CTX_FL_UNSET(c,f) do { (c)->flags &= ~(f); } while (0)
 
 #define DID_MOVED   (debug_context->last_line != line || \
@@ -60,7 +60,7 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 
 #define IS_STARTED  (threads_tbl != Qnil)
 #define FRAME_N(n)  (&debug_context->frames[debug_context->stack_size-(n)-1])
-#define GET_FRAME       (FRAME_N(check_frame_number(debug_context, frame)))
+#define GET_FRAME   (FRAME_N(check_frame_number(debug_context, frame)))
 
 #ifndef min
 #define min(x,y) ((x) < (y) ? (x) : (y))
@@ -88,15 +88,17 @@ typedef struct {
     } info;
 } debug_frame_t;
 
+enum ctx_stop_reason {CTX_STOP_INIT, CTX_STOP_STEP, CTX_STOP_BREAKPOINT, CTX_STOP_CATCHPOINT};
+
 typedef struct {
     VALUE thread_id;
     int thnum;
     int flags;
+    enum ctx_stop_reason stop_reason;
     int stop_next;
     int dest_frame;
     int stop_line;
     int stop_frame;
-    int stop_reason; /* -1 = initial, 0 = step, 1=breakpoint, 2= catchpoint */
     int stack_size;
     int stack_len;
     debug_frame_t *frames;
@@ -108,7 +110,7 @@ enum bp_type {BP_POS_TYPE, BP_METHOD_TYPE};
 
 typedef struct {
     int   id;
-    int   type;
+    enum bp_type type;
     VALUE source;
     union
     {
@@ -417,7 +419,7 @@ debug_context_create(VALUE thread)
     debug_context->dest_frame = -1;
     debug_context->stop_line = -1;
     debug_context->stop_frame = -1;
-    debug_context->stop_reason = -1;
+    debug_context->stop_reason = CTX_STOP_INIT;
     debug_context->stack_len = STACK_SIZE_INCREMENT;
     debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
     debug_context->stack_size = 0;
@@ -746,8 +748,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     VALUE thread, context, breakpoint;
     VALUE binding = Qnil;
     debug_context_t *debug_context;
-    char *file;
-    int line;
+    char *file = NULL;
+    int line = 0;
     int breakpoint_index = -1;
 
     hook_count++;
@@ -774,7 +776,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 
         /* stop the current thread if it's marked as suspended */
-        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND))
+        if(CTX_FL_TEST(debug_context, CTX_FL_SUSPEND) && locker != thread)
         {
             CTX_FL_SET(debug_context, CTX_FL_WAS_RUNNING);
             rb_thread_stop();
@@ -840,15 +842,15 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             (breakpoint_index = check_breakpoints_by_pos(debug_context, file, line)) != -1)
         {
             binding = self? create_binding(self) : Qnil;
-            debug_context->stop_reason = 0;
+            debug_context->stop_reason = CTX_STOP_STEP;
             /* check breakpoint expression */
             if(breakpoint_index != -1)
             {
                 breakpoint = get_breakpoint_at(breakpoint_index);
                 if(check_breakpoint_expression(breakpoint, binding))
                 {
-                    debug_context->stop_reason = 1;                    
-                    rb_funcall(context, idAtBreakpoint, 1, breakpoint);
+                  debug_context->stop_reason = CTX_STOP_BREAKPOINT;
+                  rb_funcall(context, idAtBreakpoint, 1, breakpoint);
                 }
                 else
                     break;
@@ -885,8 +887,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(check_breakpoint_expression(breakpoint, binding))
             {
                 save_top_binding(debug_context, binding);
+                debug_context->stop_reason = CTX_STOP_BREAKPOINT;
                 rb_funcall(context, idAtBreakpoint, 1, breakpoint);
-                debug_context->stop_reason = 1;
                 call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
             }
         }
@@ -946,10 +948,10 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             aclass = rb_ary_entry(ancestors, i);
             if(rb_str_cmp(rb_mod_name(aclass), catchpoint) == 0)
             {
+                debug_context->stop_reason = CTX_STOP_CATCHPOINT;
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
                 if(self && binding == Qnil)
                     binding = create_binding(self);
-                debug_context->stop_reason = 2;
                 save_top_binding(debug_context, binding);
                 call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
                 break;
@@ -1445,12 +1447,14 @@ debug_set_keep_frame_binding(VALUE self, VALUE value)
     return value;
 }
 
+/* :nodoc: */
 static VALUE
 debug_debug(VALUE self)
 {
     return debug;
 }
 
+/* :nodoc: */
 static VALUE
 debug_set_debug(VALUE self, VALUE value)
 {
@@ -1458,6 +1462,7 @@ debug_set_debug(VALUE self, VALUE value)
     return value;
 }
 
+/* :nodoc: */
 static VALUE
 debug_thread_inherited(VALUE klass)
 {
@@ -1466,22 +1471,27 @@ debug_thread_inherited(VALUE klass)
 
 /*
  *   call-seq:
- *      Debugger.debug_load(file) -> nil
+ *      Debugger.debug_load(file, stop = false) -> nil
  *
  *   Same as Kernel#load but resets current context's frames.
- *   FOR INTERNAL USE ONLY. Use Debugger.post_mortem method instead.
+ *   +stop+ parameter force the debugger to stop at the first line of code in the +file+
+ *   FOR INTERNAL USE ONLY.
  */
 static VALUE
-debug_debug_load(VALUE self, VALUE file)
+debug_debug_load(int argc, VALUE *argv, VALUE self)
 {
-    VALUE context;
+    VALUE file, stop, context;
     debug_context_t *debug_context;
 
-    debug_start(self);
+    if(rb_scan_args(argc, argv, "11", &file, &stop) == 1)
+      stop = Qfalse;
 
+    debug_start(self);
     context = debug_current_context(self);
     Data_Get_Struct(context, debug_context_t, debug_context);
     debug_context->stack_size = 0;
+    if(RTEST(stop))
+      debug_context->stop_next = 1;
     rb_load(file, 0);
 
     debug_stop(self);
@@ -1993,23 +2003,44 @@ context_dead(VALUE self)
     return CTX_FL_TEST(debug_context, CTX_FL_DEAD) ? Qtrue : Qfalse;
 }
 
-
 /*
  *   call-seq:
-  *      context.stop_reason -> int
-  *   
-  *   Returns the tracing flag for the current context.
-  */
- static VALUE
- context_stop_reason(VALUE self)
- {
-     debug_context_t *debug_context;
+ *      context.stop_reason -> sym
+ *   
+ *   Returns the reason for the stop. It maybe of the following values:
+ *   :initial, :step, :breakpoint, :catchpoint, :post-mortem
+ */
+static VALUE
+context_stop_reason(VALUE self)
+{
+    debug_context_t *debug_context;
+    char * sym_name;
 
-     debug_check_started();
+    debug_check_started();
 
-     Data_Get_Struct(self, debug_context_t, debug_context);
-     return INT2FIX(debug_context->stop_reason) ;
- }
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    
+    switch(debug_context->stop_reason)
+    {
+        case CTX_STOP_STEP:
+            sym_name = "step";
+            break;
+        case CTX_STOP_BREAKPOINT:
+            sym_name = "breakpoint";
+            break;
+        case CTX_STOP_CATCHPOINT:
+            sym_name = "catchpoint";
+            break;
+        case CTX_STOP_INIT:
+        default:
+            sym_name = "initial";
+    }
+    if(CTX_FL_TEST(debug_context, CTX_FL_DEAD))
+        sym_name = "post-mortem";
+    
+    return ID2SYM(rb_intern(sym_name));
+}
+
 
 /*
  *   call-seq:
@@ -2088,9 +2119,9 @@ Init_context()
     rb_define_method(cContext, "stop_next=", context_stop_next, 1);
     rb_define_method(cContext, "step_over", context_step_over, -1);
     rb_define_method(cContext, "stop_frame=", context_stop_frame, 1);
-    rb_define_method(cContext, "stop_reason", context_stop_reason, 0);
     rb_define_method(cContext, "thread", context_thread, 0);
     rb_define_method(cContext, "thnum", context_thnum, 0);
+    rb_define_method(cContext, "stop_reason", context_stop_reason, 0);
     rb_define_method(cContext, "suspend", context_suspend, 0);
     rb_define_method(cContext, "suspended?", context_is_suspended, 0);
     rb_define_method(cContext, "resume", context_resume, 0);
@@ -2158,7 +2189,7 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "resume", debug_resume, 0);
     rb_define_module_function(mDebugger, "tracing", debug_tracing, 0);
     rb_define_module_function(mDebugger, "tracing=", debug_set_tracing, 1);
-    rb_define_module_function(mDebugger, "debug_load", debug_debug_load, 1);
+    rb_define_module_function(mDebugger, "debug_load", debug_debug_load, -1);
     rb_define_module_function(mDebugger, "skip", debug_skip, 0);
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
     rb_define_module_function(mDebugger, "post_mortem?", debug_post_mortem, 0);
