@@ -181,6 +181,7 @@ module Kernel
   # Stops the current thread after a number of _steps_ made.
   #
   def debugger(steps = 1)
+    Debugger.start unless Debugger.started?
     Debugger.current_context.stop_next = steps
   end
   
