@@ -151,6 +151,7 @@ static ID idAtCatchpoint;
 static ID idAtTracing;
 static ID idEval;
 static ID idList;
+static ID idCall;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -866,11 +867,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
         break;
     }
-    case RUBY_EVENT_C_CALL:
-    {
-        set_frame_source(event, debug_context, self, file, line, mid);
-        break;
-    }
     case RUBY_EVENT_CALL:
     {
         save_call_frame(event, self, file, line, mid, debug_context);
@@ -893,6 +889,19 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             }
         }
         break;
+    }
+    case RUBY_EVENT_C_CALL:
+    {
+        if(klass == rb_cProc && mid == idCall)
+            save_call_frame(event, self, file, line, mid, debug_context);
+        else
+            set_frame_source(event, debug_context, self, file, line, mid);
+        break;
+    }
+    case RUBY_EVENT_C_RETURN:
+    {
+        if(klass != rb_cProc || mid != idCall)
+            break;
     }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_END:
@@ -958,10 +967,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             }
         }
 
-        break;
-    }
-    case RUBY_EVENT_C_RETURN:
-    {
         break;
     }
     }
@@ -2213,6 +2218,7 @@ Init_ruby_debug()
     idAtTracing    = rb_intern("at_tracing");
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
+    idCall         = rb_intern("call");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
