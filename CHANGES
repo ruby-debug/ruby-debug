@@ -1,5 +1,6 @@
 0.8.2
 - Added Context#stop_reason method.
+- Proc#call method now creates a new frame.
 
 0.8.1
 - Added a shortcut module 'debugger'. require "ruby-debug/debugger" will start the debugger and stop at the next line (similar to require 'debug').
