@@ -152,6 +152,7 @@ static ID idAtTracing;
 static ID idEval;
 static ID idList;
 static ID idCall;
+static ID idCall2;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -717,7 +718,13 @@ save_current_position(debug_context_t *debug_context)
     CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
 }
 
-static char *
+inline static int
+is_proc_call(VALUE klass, ID mid)
+{
+    return klass == rb_cProc && (mid == idCall || mid == idCall2);
+}
+
+inline static char *
 get_event_name(rb_event_t event)
 {
   switch (event) {
@@ -892,7 +899,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     case RUBY_EVENT_C_CALL:
     {
-        if(klass == rb_cProc && mid == idCall)
+        if(is_proc_call(klass, mid))
             save_call_frame(event, self, file, line, mid, debug_context);
         else
             set_frame_source(event, debug_context, self, file, line, mid);
@@ -900,7 +907,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     case RUBY_EVENT_C_RETURN:
     {
-        if(klass != rb_cProc || mid != idCall)
+        if(!is_proc_call(klass, mid))
             break;
     }
     case RUBY_EVENT_RETURN:
@@ -2219,6 +2226,7 @@ Init_ruby_debug()
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
     idCall         = rb_intern("call");
+    idCall2        = rb_intern("[]");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
