@@ -889,10 +889,18 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     case RUBY_EVENT_C_CALL:
     {
-        save_call_frame(event, self, file, line, mid, debug_context);
+        if(rb_block_given_p())
+            save_call_frame(event, self, file, line, mid, debug_context);
+        else
+            set_frame_source(event, debug_context, self, file, line, mid);
         break;
     }
     case RUBY_EVENT_C_RETURN:
+    {
+        /* note if a block is given we fall through! */
+        if(!rb_block_given_p())
+            break;
+    }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_END:
     {
