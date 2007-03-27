@@ -834,9 +834,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next--;
             if(debug_context->stop_next < 0)
                 debug_context->stop_next = -1;
-            /* we check that we actualy moved to another line */
-            if(DID_MOVED)
-                debug_context->stop_line--;
+            debug_context->stop_line--;
         }
         else if(debug_context->stack_size < debug_context->dest_frame)
         {
@@ -1574,9 +1572,8 @@ static VALUE
 debug_at_exit(VALUE self)
 {
     VALUE proc;
-    if (!rb_block_given_p()) {
+    if (!rb_block_given_p())
         rb_raise(rb_eArgError, "called without a block");
-    }
     proc = rb_block_proc();
     rb_set_end_proc(debug_at_exit_i, proc);
     return proc;
@@ -1596,7 +1593,7 @@ context_stop_next(VALUE self, VALUE steps)
     debug_check_started();
     Data_Get_Struct(self, debug_context_t, debug_context);
     if(FIX2INT(steps) < 0)
-    rb_raise(rb_eRuntimeError, "Steps argument can't be negative.");
+        rb_raise(rb_eRuntimeError, "Steps argument can't be negative.");
     debug_context->stop_next = FIX2INT(steps);
 
     return steps;
