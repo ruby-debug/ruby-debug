@@ -1,6 +1,6 @@
 0.8.2
 - Added Context#stop_reason method.
-- Proc#call method now creates a new frame.
+- Calling a method with a block will create a new frame. This changes the behavior of 'next' command. So in order to step into a block, 'step' command must be used. That fixes bug #9629.
 
 0.8.1
 - Added a shortcut module 'debugger'. require "ruby-debug/debugger" will start the debugger and stop at the next line (similar to require 'debug').
