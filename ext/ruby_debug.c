@@ -104,6 +104,7 @@ typedef struct {
     debug_frame_t *frames;
     const char * last_file;
     int last_line;
+    VALUE breakpoint;
 } debug_context_t;
 
 enum bp_type {BP_POS_TYPE, BP_METHOD_TYPE};
@@ -394,6 +395,7 @@ debug_context_mark(void *data)
             rb_gc_mark(frame->info.copy.locals);
         }
     }
+    rb_gc_mark(debug_context->breakpoint);
 }
 
 static void
@@ -424,6 +426,7 @@ debug_context_create(VALUE thread)
     debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
     debug_context->stack_size = 0;
     debug_context->thread_id = ref2id(thread);
+    debug_context->breakpoint = Qnil;
     if(rb_obj_class(thread) == cDebugThread)
       CTX_FL_SET(debug_context, CTX_FL_IGNORE);
     return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, debug_context);
@@ -442,6 +445,7 @@ debug_context_dup(debug_context_t *debug_context)
     new_debug_context->dest_frame = -1;
     new_debug_context->stop_line = -1;
     new_debug_context->stop_frame = -1;
+    new_debug_context->breakpoint = Qnil;
     CTX_FL_SET(new_debug_context, CTX_FL_DEAD);
     new_debug_context->frames = ALLOC_N(debug_frame_t, debug_context->stack_size);
     new_debug_context->stack_len = debug_context->stack_size;
@@ -571,29 +575,43 @@ filename_cmp(VALUE source, char *file)
 }
 
 static int
+check_breakpoint_by_pos(VALUE breakpoint, char *file, int line)
+{
+    debug_breakpoint_t *debug_breakpoint;
+
+    if(breakpoint == Qnil)
+        return 0;
+    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+    if(debug_breakpoint->type != BP_POS_TYPE)
+        return 0;
+    if(debug_breakpoint->pos.line != line)
+        return 0;
+    if(filename_cmp(debug_breakpoint->source, file))
+        return 1;
+    return 0;
+}
+
+static VALUE
 check_breakpoints_by_pos(debug_context_t *debug_context, char *file, int line)
 {
     VALUE breakpoint;
-    debug_breakpoint_t *debug_breakpoint;
     int i;
 
-    if(RARRAY(breakpoints)->len == 0)
-        return -1;
     if(!CTX_FL_TEST(debug_context, CTX_FL_MOVED))
-        return -1;
+        return Qnil;
+    
+    if(check_breakpoint_by_pos(debug_context->breakpoint, file, line))
+        return debug_context->breakpoint;
 
+    if(RARRAY(breakpoints)->len == 0)
+        return Qnil;
     for(i = 0; i < RARRAY(breakpoints)->len; i++)
     {
         breakpoint = rb_ary_entry(breakpoints, i);
-        Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-        if(debug_breakpoint->type != BP_POS_TYPE)
-            continue;
-        if(debug_breakpoint->pos.line != line)
-            continue;
-        if(filename_cmp(debug_breakpoint->source, file))
-            return i;
+        if(check_breakpoint_by_pos(breakpoint, file, line))
+            return breakpoint;
     }
-    return -1;
+    return Qnil;
 }
 
 inline static int
@@ -603,28 +621,43 @@ classname_cmp(VALUE name, VALUE klass)
 }
 
 static int
+check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid)
+{
+    debug_breakpoint_t *debug_breakpoint;
+
+    if(breakpoint == Qnil)
+        return 0;
+    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+    if(debug_breakpoint->type != BP_METHOD_TYPE)
+        return 0;
+    if(debug_breakpoint->pos.mid != mid)
+        return 0;
+    if(classname_cmp(debug_breakpoint->source, klass))
+        return 1;
+    return 0;
+}
+
+static VALUE
 check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
 {
     VALUE breakpoint;
-    debug_breakpoint_t *debug_breakpoint;
     int i;
 
-    if(RARRAY(breakpoints)->len == 0)
-        return -1;
     if(!CTX_FL_TEST(debug_context, CTX_FL_MOVED))
-        return -1;
+        return Qnil;
+        
+    if(check_breakpoint_by_method(debug_context->breakpoint, klass, mid))
+        return debug_context->breakpoint;
+
+    if(RARRAY(breakpoints)->len == 0)
+        return Qnil;
     for(i = 0; i < RARRAY(breakpoints)->len; i++)
     {
         breakpoint = rb_ary_entry(breakpoints, i);
-        Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-        if(debug_breakpoint->type != BP_METHOD_TYPE)
-            continue;
-        if(debug_breakpoint->pos.mid != mid)
-            continue;
-        if(classname_cmp(debug_breakpoint->source, klass))
-            return i;
+        if(check_breakpoint_by_method(breakpoint, klass, mid))
+            return breakpoint;
     }
-    return -1;
+    return Qnil;
 }
 
 /*
@@ -642,12 +675,6 @@ create_binding(VALUE self)
         f_binding = (bind_func_t)ruby_method_ptr(rb_mKernel, rb_intern("binding"));
     }
     return f_binding(self);
-}
-
-static VALUE
-get_breakpoint_at(int index)
-{
-    return rb_ary_entry(breakpoints, index);
 }
 
 static VALUE
@@ -745,12 +772,11 @@ get_event_name(rb_event_t event)
 static void
 debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 {
-    VALUE thread, context, breakpoint;
-    VALUE binding = Qnil;
+    VALUE thread, context;
+    VALUE breakpoint = Qnil, binding = Qnil;
     debug_context_t *debug_context;
     char *file = NULL;
     int line = 0;
-    int breakpoint_index = -1;
 
     hook_count++;
 
@@ -837,21 +863,25 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             save_call_frame(event, self, file, line, mid, debug_context);
 
         if(debug_context->stop_next == 0 || debug_context->stop_line == 0 ||
-            (breakpoint_index = check_breakpoints_by_pos(debug_context, file, line)) != -1)
+            (breakpoint = check_breakpoints_by_pos(debug_context, file, line)) != Qnil)
         {
             binding = self? create_binding(self) : Qnil;
+            save_top_binding(debug_context, binding);
+
             debug_context->stop_reason = CTX_STOP_STEP;
+
             /* check breakpoint expression */
-            if(breakpoint_index != -1)
+            if(breakpoint != Qnil)
             {
-                breakpoint = get_breakpoint_at(breakpoint_index);
-                if(check_breakpoint_expression(breakpoint, binding))
+                if(!check_breakpoint_expression(breakpoint, binding))
+                    break;
+                if(breakpoint != debug_context->breakpoint)
                 {
                   debug_context->stop_reason = CTX_STOP_BREAKPOINT;
                   rb_funcall(context, idAtBreakpoint, 1, breakpoint);
                 }
                 else
-                    break;
+                    debug_context->breakpoint = Qnil;
             }
 
             /* reset all pointers */
@@ -859,7 +889,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_line = -1;
             debug_context->stop_next = -1;
 
-            save_top_binding(debug_context, binding);
             call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
         }
         break;
@@ -867,8 +896,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     case RUBY_EVENT_CALL:
     {
         save_call_frame(event, self, file, line, mid, debug_context);
-        breakpoint_index = check_breakpoints_by_method(debug_context, klass, mid);
-        if(breakpoint_index != -1)
+        breakpoint = check_breakpoints_by_method(debug_context, klass, mid);
+        if(breakpoint != Qnil)
         {
             debug_frame_t *debug_frame;
             debug_frame = get_top_frame(debug_context);
@@ -876,14 +905,18 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 binding = debug_frame->binding;
             if(NIL_P(binding) && self)
                 binding = create_binding(self);
-            breakpoint = get_breakpoint_at(breakpoint_index);
-            if(check_breakpoint_expression(breakpoint, binding))
+            save_top_binding(debug_context, binding);
+
+            if(!check_breakpoint_expression(breakpoint, binding))
+                break;
+            if(breakpoint != debug_context->breakpoint)
             {
-                save_top_binding(debug_context, binding);
                 debug_context->stop_reason = CTX_STOP_BREAKPOINT;
                 rb_funcall(context, idAtBreakpoint, 1, breakpoint);
-                call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
             }
+            else
+                debug_context->breakpoint = Qnil;
+            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
         }
         break;
     }
@@ -1067,6 +1100,34 @@ breakpoint_mark(void *data)
     rb_gc_mark(breakpoint->expr);
 }
 
+static VALUE
+create_breakpoint_from_args(int argc, VALUE *argv, int id)
+{
+    VALUE source, pos, expr;
+    debug_breakpoint_t *breakpoint;
+    int type;
+
+    if(rb_scan_args(argc, argv, "21", &source, &pos, &expr) == 2)
+    {
+        expr = Qnil;
+    }
+    type = FIXNUM_P(pos) ? BP_POS_TYPE : BP_METHOD_TYPE;
+    if(type == BP_POS_TYPE)
+        source = StringValue(source);
+    else
+        pos = StringValue(pos);
+    breakpoint = ALLOC(debug_breakpoint_t);
+    breakpoint->id = id;
+    breakpoint->source = source;
+    breakpoint->type = type;
+    if(type == BP_POS_TYPE)
+        breakpoint->pos.line = FIX2INT(pos);
+    else
+        breakpoint->pos.mid = rb_intern(RSTRING(pos)->ptr);
+    breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
+    return Data_Wrap_Struct(cBreakpoint, breakpoint_mark, xfree, breakpoint);
+}
+
 /*
  *   call-seq:
  *      Debugger.add_breakpoint(source, pos, condition = nil) -> breakpoint
@@ -1080,32 +1141,11 @@ breakpoint_mark(void *data)
 static VALUE
 debug_add_breakpoint(int argc, VALUE *argv, VALUE self)
 {
-    VALUE source, pos, expr;
     VALUE result;
-    debug_breakpoint_t *breakpoint;
-    int type;
 
     debug_check_started();
 
-    if(rb_scan_args(argc, argv, "21", &source, &pos, &expr) == 2)
-    {
-        expr = Qnil;
-    }
-    type = FIXNUM_P(pos) ? BP_POS_TYPE : BP_METHOD_TYPE;
-    if(type == BP_POS_TYPE)
-        source = StringValue(source);
-    else
-        pos = StringValue(pos);
-    breakpoint = ALLOC(debug_breakpoint_t);
-    breakpoint->id = ++bkp_count;
-    breakpoint->source = source;
-    breakpoint->type = type;
-    if(type == BP_POS_TYPE)
-        breakpoint->pos.line = FIX2INT(pos);
-    else
-        breakpoint->pos.mid = rb_intern(RSTRING(pos)->ptr);
-    breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
-    result = Data_Wrap_Struct(cBreakpoint, breakpoint_mark, xfree, breakpoint);
+    result = create_breakpoint_from_args(argc, argv, ++bkp_count);
     rb_ary_push(breakpoints, result);
     return result;
 }
@@ -1989,7 +2029,7 @@ context_ignored(VALUE self)
 
 /*
  *   call-seq:
- *      context.dead? = bool
+ *      context.dead? -> bool
  *
  *   Returns +true+ if context doesn't represent a live context and is created
  *   during post-mortem exception handling.
@@ -2003,6 +2043,50 @@ context_dead(VALUE self)
 
     Data_Get_Struct(self, debug_context_t, debug_context);
     return CTX_FL_TEST(debug_context, CTX_FL_DEAD) ? Qtrue : Qfalse;
+}
+
+/*
+ *   call-seq:
+ *      context.breakpoint -> breakpoint
+ *
+ *   Returns a context-specific temporary Breakpoint object.
+ */
+static VALUE
+context_breakpoint(VALUE self)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    return debug_context->breakpoint;
+}
+
+/*
+ *   call-seq:
+ *      context.set_breakpoint(source, pos, condition = nil) -> breakpoint
+ *
+ *   Sets a context-specific temporary breakpoint, which can be used to implement
+ *   'Run to Cursor' debugger function. When this breakpoint is reached, it will be
+ *   cleared out.
+ *
+ *   <i>source</i> is a name of a file or a class.
+ *   <i>pos</i> is a line number or a method name if <i>source</i> is a class name.
+ *   <i>condition</i> is a string which is evaluated to +true+ when this breakpoint
+ *   is activated.
+ */
+static VALUE
+context_set_breakpoint(int argc, VALUE *argv, VALUE self)
+{
+    VALUE result;
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    result = create_breakpoint_from_args(argc, argv, 0);
+    debug_context->breakpoint = result;
+    return result;
 }
 
 /*
@@ -2138,6 +2222,8 @@ Init_context()
     rb_define_method(cContext, "frame_self", context_frame_self, 1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
     rb_define_method(cContext, "dead?", context_dead, 0);
+    rb_define_method(cContext, "breakpoint", context_breakpoint, 0);
+    rb_define_method(cContext, "set_breakpoint", context_set_breakpoint, -1);
 }
 
 /*

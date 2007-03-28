@@ -19,7 +19,7 @@ module Debugger
 
       def help(cmd)
         %{
-          n[ext][ nnn]\tgo over one line or till line nnn
+          n[ext][ nnn]\tstep over once or nnn times
         }
       end
     end
@@ -44,7 +44,7 @@ module Debugger
 
       def help(cmd)
         %{
-          s[tep][ nnn]\tstep (into methods) one line or till line nnn
+          s[tep][ nnn]\tstep (into methods) once or nnn times
         }
       end
     end
@@ -82,10 +82,14 @@ module Debugger
 
   class ContinueCommand < Command # :nodoc:
     def regexp
-      /^\s*c(?:ont)?$/
+      /^\s*c(?:ont)?(?:\s+(\d+))?$/
     end
 
     def execute
+      if @match[1] && !@state.context.dead?
+        file = File.expand_path(@state.file)
+        @state.context.set_breakpoint(file, @match[1].to_i)
+      end
       @state.proceed
     end
 
@@ -96,7 +100,8 @@ module Debugger
 
       def help(cmd)
         %{
-          c[ont]\trun until program ends or hit breakpoint
+          c[ont]\trun until program ends or hits breakpoint
+          c[ont] [nnn]\trun until program ends or hits breakpoint or reaches line nnn 
         }
       end
     end
