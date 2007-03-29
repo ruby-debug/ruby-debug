@@ -47,12 +47,12 @@ module Debugger
       method = ""
       if id
         method << " in '"
-        method << "#{klass}." if klass
+        method << "#{klass}." if Command.setting('full_class_names') && klass
         method << id.id2name
         method << "'"
       end
       
-      unless Command.send(:class_variable_get, '@@full_file_names')
+      unless Command.setting('full_file_names')
         path_components = file.split(/[\\\/]/)
         if path_components.size > 3
           path_components[0...-3] = '...'

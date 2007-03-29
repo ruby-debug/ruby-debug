@@ -5,8 +5,8 @@
 - Added the possibility to add a temporary context-specific breakpoint. Context#breakpoint and Context#set_breakpoint methods are added. 
 - 'cont' command now accepts a numerical parameter which implements 'Continue until line' behavior.
 - Added new Context.frame_class method
-- 'frame' command will display a class name along with method name
-- Added new 'fullpath' setting.
+- Added new 'framefullpath' setting.
+- Added new 'frameclassname' setting.
 
 0.8.1
 - Added a shortcut module 'debugger'. require "ruby-debug/debugger" will start the debugger and stop at the next line (similar to require 'debug').

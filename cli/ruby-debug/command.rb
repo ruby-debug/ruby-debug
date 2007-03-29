@@ -42,10 +42,15 @@ module Debugger
       def options
         @options ||= {}
       end
+      
+      def setting(name)
+        class_variable_get("@@#{name}")
+      end
     end
 
     @@display_stack_trace = false
     @@full_file_names = true
+    @@full_class_names = false
     
     def initialize(state)
       @state = state
