@@ -1,4 +1,4 @@
-0.8.2
+0.9
 - Kernel#debugger method will start the debugger if it's not running.
 - Added Context#stop_reason method.
 - Calling a method with a block will create a new frame. This changes the behavior of 'next' command. So in order to step into a block, 'step' command must be used. That fixes bug #9629.
