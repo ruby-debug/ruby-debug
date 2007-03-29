@@ -42,13 +42,14 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #include <env.h>
 #endif
 
-#define CTX_FL_MOVED        (1<<1)
-#define CTX_FL_SUSPEND      (1<<2)
-#define CTX_FL_TRACING      (1<<3)
-#define CTX_FL_SKIPPED      (1<<4)
-#define CTX_FL_IGNORE       (1<<5)
-#define CTX_FL_DEAD         (1<<6)
-#define CTX_FL_WAS_RUNNING  (1<<7)
+#define CTX_FL_SUSPEND      (1<<1)
+#define CTX_FL_TRACING      (1<<2)
+#define CTX_FL_SKIPPED      (1<<3)
+#define CTX_FL_IGNORE       (1<<4)
+#define CTX_FL_DEAD         (1<<5)
+#define CTX_FL_WAS_RUNNING  (1<<6)
+#define CTX_FL_MOVED        (1<<7)
+#define CTX_FL_STEPPED      (1<<8)
 
 #define CTX_FL_TEST(c,f)  ((c)->flags & (f))
 #define CTX_FL_SET(c,f)   do { (c)->flags |= (f); } while (0)
@@ -741,6 +742,7 @@ save_current_position(debug_context_t *debug_context)
     debug_context->last_file = debug_frame->file;
     debug_context->last_line = debug_frame->line;
     CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
+    CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
 }
 
 inline static char *
@@ -836,12 +838,23 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             fprintf(stderr, "return [%s] %s\n", get_event_name(event), rb_id2name(mid));
         goto cleanup;
     }
+    
+    if(event != RUBY_EVENT_LINE)
+        CTX_FL_SET(debug_context, CTX_FL_STEPPED);
 
     switch(event)
     {
     case RUBY_EVENT_LINE:
     {
-        set_frame_source(event, debug_context, self, file, line, mid);
+        
+        if(debug_context->stack_size == 0)
+            save_call_frame(event, self, file, line, mid, debug_context);
+        else
+            set_frame_source(event, debug_context, self, file, line, mid);
+        
+        /* avoid useless step on the beginning of 'if' statement */
+        if(nd_type(node) == NODE_IF)
+            break;
 
         if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
             rb_funcall(context, idAtTracing, 2, rb_str_new2(file), INT2FIX(line));
@@ -852,15 +865,16 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next--;
             if(debug_context->stop_next < 0)
                 debug_context->stop_next = -1;
-            debug_context->stop_line--;
+            if(CTX_FL_TEST(debug_context, CTX_FL_STEPPED) || CTX_FL_TEST(debug_context, CTX_FL_MOVED))
+            {
+                debug_context->stop_line--;
+                CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
+            }
         }
         else if(debug_context->stack_size < debug_context->dest_frame)
         {
             debug_context->stop_next = 0;
         }
-
-        if(debug_context->stack_size == 0)
-            save_call_frame(event, self, file, line, mid, debug_context);
 
         if(debug_context->stop_next == 0 || debug_context->stop_line == 0 ||
             (breakpoint = check_breakpoints_by_pos(debug_context, file, line)) != Qnil)
@@ -1651,6 +1665,7 @@ context_step_over(int argc, VALUE *argv, VALUE self)
 
     rb_scan_args(argc, argv, "11", &lines, &frame);
     debug_context->stop_line = FIX2INT(lines);
+    CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
     if(argc == 1)
     {
         debug_context->dest_frame = debug_context->stack_size;
