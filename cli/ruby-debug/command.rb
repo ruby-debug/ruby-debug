@@ -45,6 +45,7 @@ module Debugger
     end
 
     @@display_stack_trace = false
+    @@full_file_names = true
     
     def initialize(state)
       @state = state

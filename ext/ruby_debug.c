@@ -1730,7 +1730,7 @@ context_frame_binding(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_id(frame) -> sym
+ *      context.frame_method(frame) -> sym
  *
  *   Returns the sym of the called method.
  */
@@ -1856,6 +1856,43 @@ context_frame_self(VALUE self, VALUE frame)
     debug_frame = GET_FRAME;
     return debug_frame->self;
 }
+
+/*
+ *   call-seq:
+ *      context.frame_class(frame) -> obj
+ *
+ *   Returns the real class of the frame. 
+ *   It could be different than context.frame_self(frame).class
+ */
+static VALUE
+context_frame_class(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    debug_frame_t *debug_frame;
+    VALUE klass;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    debug_frame = GET_FRAME;
+    
+    if(CTX_FL_TEST(debug_context, CTX_FL_DEAD))
+        return Qnil;
+    
+    klass = debug_frame->info.runtime.frame->last_class;
+    if (klass) {
+        if (TYPE(klass) == T_ICLASS) {
+            klass = RBASIC(klass)->klass;
+        }
+        else if (FL_TEST(klass, FL_SINGLETON)) {
+            klass = rb_iv_get(klass, "__attached__");
+        }
+    }
+    if(TYPE(klass) == T_CLASS || TYPE(klass) == T_MODULE)
+        return klass;
+    return Qnil;
+}
+
 
 /*
  *   call-seq:
@@ -2231,10 +2268,12 @@ Init_context()
     rb_define_method(cContext, "ignored?", context_ignored, 0);
     rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
     rb_define_method(cContext, "frame_id", context_frame_id, 1);
+    rb_define_method(cContext, "frame_method", context_frame_id, 1);
     rb_define_method(cContext, "frame_line", context_frame_line, 1);
     rb_define_method(cContext, "frame_file", context_frame_file, 1);
     rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
     rb_define_method(cContext, "frame_self", context_frame_self, 1);
+    rb_define_method(cContext, "frame_class", context_frame_class, 1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
     rb_define_method(cContext, "dead?", context_dead, 0);
     rb_define_method(cContext, "breakpoint", context_breakpoint, 0);

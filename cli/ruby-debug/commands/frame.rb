@@ -39,8 +39,28 @@ module Debugger
     end
 
     def print_frame(pos, adjust = false)
-      file, line, id = @state.context.frame_file(pos), @state.context.frame_line(pos), @state.context.frame_id(pos)
-      print "#%d %s:%d%s\n", pos, file, line, id ? " in `#{id.id2name}'" : ""
+      file = @state.context.frame_file(pos)
+      line = @state.context.frame_line(pos)
+      id = @state.context.frame_method(pos)
+      klass = @state.context.frame_class(pos)
+
+      method = ""
+      if id
+        method << " in '"
+        method << "#{klass}." if klass
+        method << id.id2name
+        method << "'"
+      end
+      
+      unless Command.send(:class_variable_get, '@@full_file_names')
+        path_components = file.split(/[\\\/]/)
+        if path_components.size > 3
+          path_components[0...-3] = '...'
+          file = path_components.join(File::ALT_SEPARATOR || File::SEPARATOR)
+        end
+      end
+      
+      print "#%d %s:%d%s\n", pos, file, line, method
       print "\032\032%s:%d\n", file, line if ENV['EMACS'] && adjust
     end
   end

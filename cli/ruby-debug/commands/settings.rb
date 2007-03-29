@@ -17,6 +17,9 @@ module Debugger
       when /^(no)?trace$/
         @@display_stack_trace = $1.nil?
         print "Display stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
+      when /^(no)?fullpath$/
+        @@full_file_names = $1.nil?
+        print "Display full file names is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoreload$/
         Debugger.reload_source_on_change = $1.nil?
         print "autoreload is #{$1.nil? ? 'on' : 'off'}.\n"
@@ -41,6 +44,7 @@ module Debugger
            autoreload - enables automatic source code reloading
            autoirb    - debugger invokes IRB on every stop
            trace      - display stack trace when 'eval' raises exception
+           fullpath   - 'where' command will display full file names 
            To disable setting, use 'no' prefix, like 'noautolist'
          }
       end
