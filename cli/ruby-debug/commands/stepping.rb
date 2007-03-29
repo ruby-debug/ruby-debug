@@ -100,7 +100,7 @@ module Debugger
 
       def help(cmd)
         %{
-          c[ont]\trun until program ends or hits breakpoint
+          c[ont]\t\trun until program ends or hits breakpoint
           c[ont] [nnn]\trun until program ends or hits breakpoint or reaches line nnn 
         }
       end
