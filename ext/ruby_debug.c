@@ -187,6 +187,7 @@ real_class(VALUE klass)
             return rb_iv_get(klass, "__attached__");
         }
     }
+    return klass;
 }
 
 inline static void *
