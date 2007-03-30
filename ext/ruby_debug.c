@@ -153,11 +153,6 @@ static ID idAtCatchpoint;
 static ID idAtTracing;
 static ID idList;
 static ID idEval;
-static ID idInstanceEval;
-static ID idClassEval;
-static ID idModuleEval;
-static ID idRequire;
-static ID idLoad;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -793,11 +788,7 @@ c_call_new_frame_p(VALUE klass, ID mid)
 {
     klass = real_class(klass);
     if(rb_block_given_p()) return 1;
-    if(klass == rb_cProc) return 1;
-    if(klass == rb_mKernel)
-        return mid == idEval || mid == idRequire || mid == idInstanceEval || mid == idLoad;
-    if(klass == rb_cModule)
-        return mid == idClassEval || mid == idModuleEval;
+    if(klass == rb_cProc || klass == rb_mKernel || klass == rb_cModule) return 1;
     return 0;
 }
 
@@ -2378,11 +2369,6 @@ Init_ruby_debug()
     idAtTracing    = rb_intern("at_tracing");
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
-    idRequire      = rb_intern("require");
-    idLoad         = rb_intern("load");
-    idInstanceEval = rb_intern("instance_eval");
-    idClassEval    = rb_intern("class_eval");
-    idModuleEval   = rb_intern("module_eval");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
