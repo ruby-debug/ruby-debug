@@ -151,8 +151,13 @@ static ID idAtLine;
 static ID idAtBreakpoint;
 static ID idAtCatchpoint;
 static ID idAtTracing;
-static ID idEval;
 static ID idList;
+static ID idEval;
+static ID idInstanceEval;
+static ID idClassEval;
+static ID idModuleEval;
+static ID idRequire;
+static ID idLoad;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -175,6 +180,19 @@ typedef struct locked_thread_t {
 
 static locked_thread_t *locked_head = NULL;
 static locked_thread_t *locked_tail = NULL;
+
+inline static VALUE
+real_class(VALUE klass)
+{
+    if (klass) {
+        if (TYPE(klass) == T_ICLASS) {
+            return RBASIC(klass)->klass;
+        }
+        else if (FL_TEST(klass, FL_SINGLETON)) {
+            return rb_iv_get(klass, "__attached__");
+        }
+    }
+}
 
 inline static void *
 ruby_method_ptr(VALUE class, ID meth_id)
@@ -770,6 +788,18 @@ get_event_name(rb_event_t event)
   }
 }
 
+inline static int
+c_call_new_frame_p(VALUE klass, ID mid)
+{
+    klass = real_class(klass);
+    if(rb_block_given_p()) return 1;
+    if(klass == rb_cProc) return 1;
+    if(klass == rb_mKernel)
+        return mid == idEval || mid == idRequire || mid == idInstanceEval || mid == idLoad;
+    if(klass == rb_cModule)
+        return mid == idClassEval || mid == idModuleEval;
+    return 0;
+}
 
 static void
 debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
@@ -936,7 +966,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     case RUBY_EVENT_C_CALL:
     {
-        if(rb_block_given_p() || klass == rb_cProc)
+        if(c_call_new_frame_p(klass, mid))
             save_call_frame(event, self, file, line, mid, debug_context);
         else
             set_frame_source(event, debug_context, self, file, line, mid);
@@ -945,7 +975,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     case RUBY_EVENT_C_RETURN:
     {
         /* note if a block is given we fall through! */
-        if(!rb_block_given_p() && klass != rb_cProc)
+        if(!c_call_new_frame_p(klass, mid))
             break;
     }
     case RUBY_EVENT_RETURN:
@@ -1880,14 +1910,7 @@ context_frame_class(VALUE self, VALUE frame)
         return Qnil;
     
     klass = debug_frame->info.runtime.frame->last_class;
-    if (klass) {
-        if (TYPE(klass) == T_ICLASS) {
-            klass = RBASIC(klass)->klass;
-        }
-        else if (FL_TEST(klass, FL_SINGLETON)) {
-            klass = rb_iv_get(klass, "__attached__");
-        }
-    }
+    klass = real_class(klass);
     if(TYPE(klass) == T_CLASS || TYPE(klass) == T_MODULE)
         return klass;
     return Qnil;
@@ -2355,6 +2378,11 @@ Init_ruby_debug()
     idAtTracing    = rb_intern("at_tracing");
     idEval         = rb_intern("eval");
     idList         = rb_intern("list");
+    idRequire      = rb_intern("require");
+    idLoad         = rb_intern("load");
+    idInstanceEval = rb_intern("instance_eval");
+    idClassEval    = rb_intern("class_eval");
+    idModuleEval   = rb_intern("module_eval");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 

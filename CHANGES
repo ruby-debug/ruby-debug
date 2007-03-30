@@ -7,6 +7,7 @@
 - Added new Context.frame_class method
 - Added new 'framefullpath' setting.
 - Added new 'frameclassname' setting.
+- All Ruby's 'eval' and require/load methods create a new frame.
 
 0.8.1
 - Added a shortcut module 'debugger'. require "ruby-debug/debugger" will start the debugger and stop at the next line (similar to require 'debug').
