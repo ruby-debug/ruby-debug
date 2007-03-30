@@ -746,6 +746,17 @@ set_frame_source(rb_event_t event, debug_context_t *debug_context, VALUE self, c
     }
 }
 
+inline static void
+reset_frame_mid(debug_context_t *debug_context)
+{
+    debug_frame_t *top_frame;
+    top_frame = get_top_frame(debug_context);
+    if(top_frame)
+    {
+        top_frame->id = 0;
+    }
+}
+
 static void
 save_current_position(debug_context_t *debug_context)
 {
@@ -988,6 +999,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
     case RUBY_EVENT_CLASS:
     {
+        reset_frame_mid(debug_context);
         save_call_frame(event, self, file, line, mid, debug_context);
         break;
     }
