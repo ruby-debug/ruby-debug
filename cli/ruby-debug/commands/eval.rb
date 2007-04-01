@@ -86,7 +86,7 @@ module Debugger
 
       def help(cmd)
         %{
-          pp expression\tevaluate expression and print its value
+          pp expression\tevaluate expression and pretty-print its value
         }
       end
     end
