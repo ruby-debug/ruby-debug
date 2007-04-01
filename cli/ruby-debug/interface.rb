@@ -34,7 +34,7 @@ module Debugger
             Readline::HISTORY.to_a.last(500).each do |line|
               file.puts line unless line.strip.empty?
             end
-	  end rescue nil
+          end rescue nil
         end
         public :save_history 
       end

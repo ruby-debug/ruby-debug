@@ -1,6 +1,27 @@
 module Debugger
+  module EvalFunctions
+    def run_with_binding
+      binding = @state.context ? get_binding : TOPLEVEL_BINDING
+      $__dbg_interface = @state.interface
+      eval(<<-EOC, binding)
+        def dbg_print(*args)
+          $__dbg_interface.print(*args)
+        end
+        def dbg_puts(*args)
+          $__dbg_interface.print(*args)
+          $__dbg_interface.print("\n")
+        end
+      EOC
+      yield binding
+    ensure
+      $__dbg_interface = nil
+    end
+  end
+  
   class EvalCommand < Command # :nodoc:
     self.control = true
+    
+    include EvalFunctions
 
     def match(input)
       @input = input
@@ -13,8 +34,9 @@ module Debugger
 
     def execute
       expr = @match ? @match.post_match : @input
-      binding = @state.context ? get_binding : TOPLEVEL_BINDING
-      print "%s\n", debug_eval(expr, binding).inspect
+      run_with_binding do |b|
+        print "%s\n", debug_eval(expr, b).inspect
+      end
     end
 
     class << self
@@ -39,14 +61,22 @@ module Debugger
   end
 
   class PPCommand < Command # :nodoc:
+    self.control = true
+    
+    include EvalFunctions
+    
     def regexp
       /^\s*pp\s+/
     end
 
     def execute
       out = StringIO.new
-      PP.pp(debug_eval(@match.post_match), out) rescue out.puts $!.message
+      run_with_binding do |b|
+        PP.pp(debug_eval(@match.post_match, b), out)
+      end
       print out.string
+    rescue 
+      out.puts $!.message
     end
 
     class << self

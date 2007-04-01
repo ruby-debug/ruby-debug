@@ -205,7 +205,8 @@ module Debugger
     end
     
     class State # :nodoc:
-      attr_reader :commands
+      attr_reader :commands, :interface
+      
       def initialize(interface, commands)
         @interface = interface
         @commands = commands
