@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.9"
+#define DEBUG_VERSION "0.9.1"
 
 #ifdef _WIN32
 struct FRAME {
@@ -868,8 +868,13 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)
     {
         if(debug == Qtrue)
-            fprintf(stderr, "return [%s] %s\n", get_event_name(event), rb_id2name(mid));
+            fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(mid));
         goto cleanup;
+    }
+    else
+    {
+        if(debug == Qtrue)
+            fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(mid));
     }
     
     if(event != RUBY_EVENT_LINE)
@@ -978,7 +983,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     case RUBY_EVENT_C_RETURN:
     {
         /* note if a block is given we fall through! */
-        if(!c_call_new_frame_p(klass, mid))
+        if(!node || !c_call_new_frame_p(klass, mid))
             break;
     }
     case RUBY_EVENT_RETURN:

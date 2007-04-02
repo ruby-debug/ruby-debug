@@ -1,3 +1,6 @@
+0.9.1
+- Fixed incorrent stack calculation.
+
 0.9
 - Kernel#debugger method will start the debugger if it's not running.
 - Added Context#stop_reason method.
