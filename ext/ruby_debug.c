@@ -50,14 +50,11 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #define CTX_FL_WAS_RUNNING  (1<<6)
 #define CTX_FL_MOVED        (1<<7)
 #define CTX_FL_STEPPED      (1<<8)
+#define CTX_FL_FORCE_MOVE   (1<<9)
 
 #define CTX_FL_TEST(c,f)  ((c)->flags & (f))
 #define CTX_FL_SET(c,f)   do { (c)->flags |= (f); } while (0)
 #define CTX_FL_UNSET(c,f) do { (c)->flags &= ~(f); } while (0)
-
-#define DID_MOVED   (debug_context->last_line != line || \
-                          debug_context->last_file == NULL || \
-                          strcmp(debug_context->last_file, file) != 0)
 
 #define IS_STARTED  (threads_tbl != Qnil)
 #define FRAME_N(n)  (&debug_context->frames[debug_context->stack_size-(n)-1])
@@ -768,6 +765,7 @@ save_current_position(debug_context_t *debug_context)
     debug_context->last_line = debug_frame->line;
     CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
     CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
+    CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
 }
 
 inline static char *
@@ -811,7 +809,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     VALUE breakpoint = Qnil, binding = Qnil;
     debug_context_t *debug_context;
     char *file = NULL;
-    int line = 0;
+    int line = 0, moved = 0;
 
     hook_count++;
 
@@ -862,8 +860,12 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
       if(debug == Qtrue)
           fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));
 
-      if(DID_MOVED)
+      if(debug_context->last_line != line || debug_context->last_file == NULL ||
+          strcmp(debug_context->last_file, file) != 0)
+      {
           CTX_FL_SET(debug_context, CTX_FL_MOVED);
+          moved = 1;
+      }
     }
     else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)
     {
@@ -903,7 +905,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next--;
             if(debug_context->stop_next < 0)
                 debug_context->stop_next = -1;
-            if(CTX_FL_TEST(debug_context, CTX_FL_STEPPED) || CTX_FL_TEST(debug_context, CTX_FL_MOVED))
+            if(moved || (CTX_FL_TEST(debug_context, CTX_FL_STEPPED) && 
+                        !CTX_FL_TEST(debug_context, CTX_FL_FORCE_MOVE)))
             {
                 debug_context->stop_line--;
                 CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
@@ -1687,14 +1690,16 @@ context_stop_next(VALUE self, VALUE steps)
 
 /*
  *   call-seq:
- *      context.step_over(steps)
+ *      context.step_over(steps, frame = nil, force = false)
  *
  *   Steps over a +steps+ number of times.
+ *   Make step over operation on +frame+, by default the current frame.
+ *   +force+ parameter (if true) ensures that the cursor moves from the current line.
  */
 static VALUE
 context_step_over(int argc, VALUE *argv, VALUE self)
 {
-    VALUE lines, frame;
+    VALUE lines, frame, force;
     debug_context_t *debug_context;
 
     debug_check_started();
@@ -1702,10 +1707,10 @@ context_step_over(int argc, VALUE *argv, VALUE self)
     if(debug_context->stack_size == 0)
         rb_raise(rb_eRuntimeError, "No frames collected.");
 
-    rb_scan_args(argc, argv, "11", &lines, &frame);
+    rb_scan_args(argc, argv, "12", &lines, &frame, &force);
     debug_context->stop_line = FIX2INT(lines);
     CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
-    if(argc == 1)
+    if(frame == Qnil)
     {
         debug_context->dest_frame = debug_context->stack_size;
     }
@@ -1714,6 +1719,10 @@ context_step_over(int argc, VALUE *argv, VALUE self)
         if(FIX2INT(frame) < 0 && FIX2INT(frame) >= debug_context->stack_size)
             rb_raise(rb_eRuntimeError, "Destination frame is out of range.");
         debug_context->dest_frame = debug_context->stack_size - FIX2INT(frame);
+    }
+    if(RTEST(force))
+    {
+        CTX_FL_SET(debug_context, CTX_FL_FORCE_MOVE);
     }
 
     return Qnil;

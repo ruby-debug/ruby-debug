@@ -1,5 +1,7 @@
 0.9.1
 - Fixed incorrent stack calculation.
+- Added the third parameter to Context#step_over.
+- 'next+' command forces to move to another line
 
 0.9
 - Kernel#debugger method will start the debugger if it's not running.

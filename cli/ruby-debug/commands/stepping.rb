@@ -3,12 +3,13 @@ module Debugger
     self.need_context = true
     
     def regexp
-      /^\s*n(?:ext)?(?:\s+(\d+))?$/
+      /^\s*n(?:ext)?(\+)?(?:\s+(\d+))?$/
     end
 
     def execute
-      steps = @match[1] ? @match[1].to_i : 1
-      @state.context.step_over steps, @state.frame_pos
+      force = @match[1]
+      steps = @match[2] ? @match[2].to_i : 1
+      @state.context.step_over steps, @state.frame_pos, force
       @state.proceed
     end
 
@@ -19,7 +20,8 @@ module Debugger
 
       def help(cmd)
         %{
-          n[ext][ nnn]\tstep over once or nnn times
+          n[ext][+][ nnn]\tstep over once or nnn times, 
+          \t\t'+' forces to move to another line
         }
       end
     end
