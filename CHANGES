@@ -1,7 +1,10 @@
 0.9.1
 - Fixed incorrent stack calculation.
-- Added the third parameter to Context#step_over.
-- 'next+' command forces to move to another line
+- Context#stop_next= method aliased as Context#step.
+- Added the 'force' parameter to Context#step_over.
+- Added the 'force' parameter to Context#step.
+- 'next+/step+' commands forces to move to another line
+- Added a new 'forcestep' setting.
 
 0.9
 - Kernel#debugger method will start the debugger if it's not running.

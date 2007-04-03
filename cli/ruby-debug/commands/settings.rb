@@ -29,6 +29,9 @@ module Debugger
       when /^(no)?autoirb$/
         IRBCommand.always_run = $1.nil?
         print "autoirb is #{$1.nil? ? 'on' : 'off'}.\n"
+      when /^(no)?forcestep$/
+        @@force_stepping = $1.nil?
+        print "force-stepping is #{$1.nil? ? 'on' : 'off'}.\n"
       else
         print "Unknown setting.\n"
       end
@@ -49,6 +52,7 @@ module Debugger
            trace          - display stack trace when 'eval' raises exception
            framefullpath  - frame will display full file names
            frameclassname - frame will display class names
+           forcestep      - make sure 'next/step' commands always move to a new line
            To disable setting, use 'no' prefix, like 'noautolist'
          }
       end

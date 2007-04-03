@@ -902,7 +902,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         if(debug_context->dest_frame == -1 ||
             debug_context->stack_size == debug_context->dest_frame)
         {
-            debug_context->stop_next--;
+            if(moved || !CTX_FL_TEST(debug_context, CTX_FL_FORCE_MOVE))
+                debug_context->stop_next--;
             if(debug_context->stop_next < 0)
                 debug_context->stop_next = -1;
             if(moved || (CTX_FL_TEST(debug_context, CTX_FL_STEPPED) && 
@@ -1670,20 +1671,29 @@ debug_at_exit(VALUE self)
 
 /*
  *   call-seq:
- *      context.stop_next = steps
+ *      context.step(steps, force = false)
  *
- *   Stops the current context after a number +steps+ are made.
+ *   Stops the current context after a number of +steps+ are made.
+ *   +force+ parameter (if true) ensures that the cursor moves from the current line.
  */
 static VALUE
-context_stop_next(VALUE self, VALUE steps)
+context_stop_next(int argc, VALUE *argv, VALUE self)
 {
+    VALUE steps, force;
     debug_context_t *debug_context;
 
     debug_check_started();
-    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    rb_scan_args(argc, argv, "11", &steps, &force);
     if(FIX2INT(steps) < 0)
         rb_raise(rb_eRuntimeError, "Steps argument can't be negative.");
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
     debug_context->stop_next = FIX2INT(steps);
+    if(RTEST(force))
+        CTX_FL_SET(debug_context, CTX_FL_FORCE_MOVE);
+    else
+        CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
 
     return steps;
 }
@@ -1721,9 +1731,9 @@ context_step_over(int argc, VALUE *argv, VALUE self)
         debug_context->dest_frame = debug_context->stack_size - FIX2INT(frame);
     }
     if(RTEST(force))
-    {
         CTX_FL_SET(debug_context, CTX_FL_FORCE_MOVE);
-    }
+    else
+        CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
 
     return Qnil;
 }
@@ -2295,7 +2305,8 @@ static void
 Init_context()
 {
     cContext = rb_define_class_under(mDebugger, "Context", rb_cObject);
-    rb_define_method(cContext, "stop_next=", context_stop_next, 1);
+    rb_define_method(cContext, "stop_next=", context_stop_next, -1);
+    rb_define_method(cContext, "step", context_stop_next, -1);
     rb_define_method(cContext, "step_over", context_step_over, -1);
     rb_define_method(cContext, "stop_frame=", context_stop_frame, 1);
     rb_define_method(cContext, "thread", context_thread, 0);

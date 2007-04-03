@@ -3,11 +3,11 @@ module Debugger
     self.need_context = true
     
     def regexp
-      /^\s*n(?:ext)?(\+)?(?:\s+(\d+))?$/
+      /^\s*n(?:ext)?([+-])?(?:\s+(\d+))?$/
     end
 
     def execute
-      force = @match[1]
+      force = @match[1] == '+' || (@match[1].nil? && @@force_stepping)
       steps = @match[2] ? @match[2].to_i : 1
       @state.context.step_over steps, @state.frame_pos, force
       @state.proceed
@@ -31,11 +31,13 @@ module Debugger
     self.need_context = true
     
     def regexp
-      /^\s*s(?:tep)?(?:\s+(\d+))?$/
+      /^\s*s(?:tep)?([+-])?(?:\s+(\d+))?$/
     end
 
     def execute
-      @state.context.stop_next = @match[1] ? @match[1].to_i : 1
+      force = @match[1] == '+' || (@match[1].nil? && @@force_stepping)
+      steps = @match[2] ? @match[2].to_i : 1
+      @state.context.step(steps, force)
       @state.proceed
     end
 
