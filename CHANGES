@@ -1,5 +1,5 @@
 0.9.1
-- Fixed incorrent stack calculation.
+- Fixed incorrect stack calculation.
 - Context#stop_next= method aliased as Context#step.
 - Added the 'force' parameter to Context#step_over.
 - Added the 'force' parameter to Context#step.
