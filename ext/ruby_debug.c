@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.9.1"
+#define DEBUG_VERSION "0.9.2"
 
 #ifdef _WIN32
 struct FRAME {
@@ -578,10 +578,10 @@ filename_cmp(VALUE source, char *file)
     {
         if((source_ptr[s] == '.' || file_ptr[f] == '.') && dirsep_flag)
             return 1;
-        if(source_ptr[s] != file_ptr[f])
-            return 0;
-        if(isdirsep(source_ptr[s]))
+        if(isdirsep(source_ptr[s]) && isdirsep(file_ptr[f]))
             dirsep_flag = 1;
+        else if(source_ptr[s] != file_ptr[f])
+            return 0;
     }
     return 1;
 }
