@@ -48,7 +48,7 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #define CTX_FL_IGNORE       (1<<4)
 #define CTX_FL_DEAD         (1<<5)
 #define CTX_FL_WAS_RUNNING  (1<<6)
-#define CTX_FL_MOVED        (1<<7)
+#define CTX_FL_ENABLE_BKPT  (1<<7)
 #define CTX_FL_STEPPED      (1<<8)
 #define CTX_FL_FORCE_MOVE   (1<<9)
 
@@ -86,7 +86,7 @@ typedef struct {
     } info;
 } debug_frame_t;
 
-enum ctx_stop_reason {CTX_STOP_INIT, CTX_STOP_STEP, CTX_STOP_BREAKPOINT, CTX_STOP_CATCHPOINT};
+enum ctx_stop_reason {CTX_STOP_NONE, CTX_STOP_STEP, CTX_STOP_BREAKPOINT, CTX_STOP_CATCHPOINT};
 
 typedef struct {
     VALUE thread_id;
@@ -106,6 +106,7 @@ typedef struct {
 } debug_context_t;
 
 enum bp_type {BP_POS_TYPE, BP_METHOD_TYPE};
+enum hit_condition {HIT_COND_NONE, HIT_COND_GE, HIT_COND_EQ, HIT_COND_MOD};
 
 typedef struct {
     int   id;
@@ -117,6 +118,9 @@ typedef struct {
         ID  mid;
     } pos;
     VALUE expr;
+    int hit_count;
+    int hit_value;
+    enum hit_condition hit_condition;
 } debug_breakpoint_t;
 
 typedef struct {
@@ -433,7 +437,7 @@ debug_context_create(VALUE thread)
     debug_context->dest_frame = -1;
     debug_context->stop_line = -1;
     debug_context->stop_frame = -1;
-    debug_context->stop_reason = CTX_STOP_INIT;
+    debug_context->stop_reason = CTX_STOP_NONE;
     debug_context->stack_len = STACK_SIZE_INCREMENT;
     debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
     debug_context->stack_size = 0;
@@ -586,6 +590,48 @@ filename_cmp(VALUE source, char *file)
     return 1;
 }
 
+inline static int
+classname_cmp(VALUE name, VALUE klass)
+{
+    return (klass != Qnil && rb_str_cmp(name, rb_mod_name(klass)) == 0);
+}
+
+static int
+check_breakpoint_hit_condition(VALUE breakpoint)
+{
+    debug_breakpoint_t *debug_breakpoint;
+    
+    if(breakpoint == Qnil)
+        return 0;
+    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+
+    debug_breakpoint->hit_count++;
+    switch(debug_breakpoint->hit_condition)
+    {
+        case HIT_COND_NONE:
+            return 1;
+        case HIT_COND_GE:
+        {
+            if(debug_breakpoint->hit_count >= debug_breakpoint->hit_value)
+                return 1;
+            break;
+        }
+        case HIT_COND_EQ:
+        {
+            if(debug_breakpoint->hit_count == debug_breakpoint->hit_value)
+                return 1;
+            break;
+        }
+        case HIT_COND_MOD:
+        {
+            if(debug_breakpoint->hit_count % debug_breakpoint->hit_value == 0)
+                return 1;
+            break;
+        }
+    }
+    return 0;
+}
+
 static int
 check_breakpoint_by_pos(VALUE breakpoint, char *file, int line)
 {
@@ -601,35 +647,6 @@ check_breakpoint_by_pos(VALUE breakpoint, char *file, int line)
     if(filename_cmp(debug_breakpoint->source, file))
         return 1;
     return 0;
-}
-
-static VALUE
-check_breakpoints_by_pos(debug_context_t *debug_context, char *file, int line)
-{
-    VALUE breakpoint;
-    int i;
-
-    if(!CTX_FL_TEST(debug_context, CTX_FL_MOVED))
-        return Qnil;
-    
-    if(check_breakpoint_by_pos(debug_context->breakpoint, file, line))
-        return debug_context->breakpoint;
-
-    if(RARRAY(breakpoints)->len == 0)
-        return Qnil;
-    for(i = 0; i < RARRAY(breakpoints)->len; i++)
-    {
-        breakpoint = rb_ary_entry(breakpoints, i);
-        if(check_breakpoint_by_pos(breakpoint, file, line))
-            return breakpoint;
-    }
-    return Qnil;
-}
-
-inline static int
-classname_cmp(VALUE name, VALUE klass)
-{
-    return (klass != Qnil && rb_str_cmp(name, rb_mod_name(klass)) == 0);
 }
 
 static int
@@ -650,12 +667,35 @@ check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid)
 }
 
 static VALUE
+check_breakpoints_by_pos(debug_context_t *debug_context, char *file, int line)
+{
+    VALUE breakpoint;
+    int i;
+
+    if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
+        return Qnil;
+    
+    if(check_breakpoint_by_pos(debug_context->breakpoint, file, line))
+        return debug_context->breakpoint;
+
+    if(RARRAY(breakpoints)->len == 0)
+        return Qnil;
+    for(i = 0; i < RARRAY(breakpoints)->len; i++)
+    {
+        breakpoint = rb_ary_entry(breakpoints, i);
+        if(check_breakpoint_by_pos(breakpoint, file, line))
+            return breakpoint;
+    }
+    return Qnil;
+}
+
+static VALUE
 check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
 {
     VALUE breakpoint;
     int i;
 
-    if(!CTX_FL_TEST(debug_context, CTX_FL_MOVED))
+    if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
         return Qnil;
         
     if(check_breakpoint_by_method(debug_context->breakpoint, klass, mid))
@@ -763,7 +803,7 @@ save_current_position(debug_context_t *debug_context)
     if(!debug_frame) return;
     debug_context->last_file = debug_frame->file;
     debug_context->last_line = debug_frame->line;
-    CTX_FL_UNSET(debug_context, CTX_FL_MOVED);
+    CTX_FL_UNSET(debug_context, CTX_FL_ENABLE_BKPT);
     CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
     CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
 }
@@ -863,7 +903,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
       if(debug_context->last_line != line || debug_context->last_file == NULL ||
           strcmp(debug_context->last_file, file) != 0)
       {
-          CTX_FL_SET(debug_context, CTX_FL_MOVED);
+          CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
           moved = 1;
       }
     }
@@ -931,6 +971,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             {
                 if(!check_breakpoint_expression(breakpoint, binding))
                     break;
+                if(!check_breakpoint_hit_condition(breakpoint))
+                    break;
                 if(breakpoint != debug_context->breakpoint)
                 {
                   debug_context->stop_reason = CTX_STOP_BREAKPOINT;
@@ -964,6 +1006,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             save_top_binding(debug_context, binding);
 
             if(!check_breakpoint_expression(breakpoint, binding))
+                break;
+            if(!check_breakpoint_hit_condition(breakpoint))
                 break;
             if(breakpoint != debug_context->breakpoint)
             {
@@ -1004,6 +1048,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(debug_context->frames[debug_context->stack_size].orig_id == mid)
                 break;
         }
+        CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -1060,6 +1105,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     }
 
     cleanup:
+    
+    debug_context->stop_reason = CTX_STOP_NONE;
 
     /* check that all contexts point to alive threads */
     if(hook_count - last_check > 3000)
@@ -1182,6 +1229,9 @@ create_breakpoint_from_args(int argc, VALUE *argv, int id)
     else
         breakpoint->pos.mid = rb_intern(RSTRING(pos)->ptr);
     breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
+    breakpoint->hit_count = 0;
+    breakpoint->hit_value = 0;
+    breakpoint->hit_condition = HIT_COND_NONE;
     return Data_Wrap_Struct(cBreakpoint, breakpoint_mark, xfree, breakpoint);
 }
 
@@ -2220,9 +2270,9 @@ context_stop_reason(VALUE self)
         case CTX_STOP_CATCHPOINT:
             sym_name = "catchpoint";
             break;
-        case CTX_STOP_INIT:
+        case CTX_STOP_NONE:
         default:
-            sym_name = "initial";
+            sym_name = "none";
     }
     if(CTX_FL_TEST(debug_context, CTX_FL_DEAD))
         sym_name = "post-mortem";
@@ -2248,6 +2298,22 @@ breakpoint_source(VALUE self)
 
 /*
  *   call-seq:
+ *      breakpoint.source = string
+ *
+ *   Sets the source of the breakpoint.
+ */
+static VALUE
+breakpoint_set_source(VALUE self, VALUE value)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    breakpoint->source = StringValue(value);
+    return value;
+}
+
+/*
+ *   call-seq:
  *      breakpoint.pos -> string or int
  *
  *   Returns a position of this breakpoint.
@@ -2262,6 +2328,27 @@ breakpoint_pos(VALUE self)
         return rb_str_new2(rb_id2name(breakpoint->pos.mid));
     else
         return INT2FIX(breakpoint->pos.line);
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.pos = string or int
+ *
+ *   Sets the position of this breakpoint.
+ */
+static VALUE
+breakpoint_set_pos(VALUE self, VALUE value)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    if(breakpoint->type == BP_METHOD_TYPE)
+    {
+        breakpoint->pos.mid = rb_to_id(StringValue(value));
+    }
+    else
+        breakpoint->pos.line = FIX2INT(value);
+    return value;
 }
 
 /*
@@ -2281,6 +2368,22 @@ breakpoint_expr(VALUE self)
 
 /*
  *   call-seq:
+ *      breakpoint.expr = string
+ *
+ *   Sets the codition expression when this breakpoint should be activated.
+ */
+static VALUE
+breakpoint_set_expr(VALUE self, VALUE value)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    breakpoint->expr = StringValue(value);
+    return value;
+}
+
+/*
+ *   call-seq:
  *      breakpoint.id -> int
  *
  *   Returns id of the breakpoint.
@@ -2292,6 +2395,110 @@ breakpoint_id(VALUE self)
 
     Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
     return INT2FIX(breakpoint->id);
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.hit_count -> int
+ *
+ *   Returns the hit count of the breakpoint.
+ */
+static VALUE
+breakpoint_hit_count(VALUE self)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    return INT2FIX(breakpoint->hit_count);
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.hit_value -> int
+ *
+ *   Returns the hit value of the breakpoint.
+ */
+static VALUE
+breakpoint_hit_value(VALUE self)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    return INT2FIX(breakpoint->hit_value);
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.hit_value = int
+ *
+ *   Sets the hit value of the breakpoint.
+ */
+static VALUE
+breakpoint_set_hit_value(VALUE self, VALUE value)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    breakpoint->hit_value = FIX2INT(value);
+    return value;
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.hit_condition -> symbol
+ *
+ *   Returns the hit condition of the breakpoint:
+ *
+ *   +nil+ if it is an unconditional breakpoint, or
+ *   :greater_or_equal, :equal, :modulo
+ */
+static VALUE
+breakpoint_hit_condition(VALUE self)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    switch(breakpoint->hit_condition)
+    {
+        case HIT_COND_GE:
+            return ID2SYM(rb_intern("greater_or_equal"));
+        case HIT_COND_EQ:
+            return ID2SYM(rb_intern("equal"));
+        case HIT_COND_MOD:
+            return ID2SYM(rb_intern("modulo"));
+        case HIT_COND_NONE:
+        default:
+            return Qnil;
+    }
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.hit_condition = symbol
+ *
+ *   Sets the hit condition of the breakpoint which must be one of the following values:
+ *
+ *   +nil+ if it is an unconditional breakpoint, or
+ *   :greater_or_equal(:ge), :equal(:eq), :modulo(:mod)
+ */
+static VALUE
+breakpoint_set_hit_condition(VALUE self, VALUE value)
+{
+    debug_breakpoint_t *breakpoint;
+    ID id_value;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    id_value = rb_to_id(value);
+    
+    if(rb_intern("greater_or_equal") == id_value || rb_intern("ge") == id_value)
+        breakpoint->hit_condition = HIT_COND_GE;
+    else if(rb_intern("equal") == id_value || rb_intern("eq") == id_value)
+        breakpoint->hit_condition = HIT_COND_EQ;
+    else if(rb_intern("modulo") == id_value || rb_intern("mod") == id_value)
+        breakpoint->hit_condition = HIT_COND_MOD;
+    else
+        rb_raise(rb_eArgError, "Invalid condition parameter");
+    return value;
 }
 
 /*
@@ -2344,10 +2551,18 @@ static void
 Init_breakpoint()
 {
     cBreakpoint = rb_define_class_under(mDebugger, "Breakpoint", rb_cObject);
-    rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
-    rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
-    rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
     rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
+    rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
+    rb_define_method(cBreakpoint, "source=", breakpoint_set_source, 1);
+    rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
+    rb_define_method(cBreakpoint, "pos=", breakpoint_set_pos, 1);
+    rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
+    rb_define_method(cBreakpoint, "expr=", breakpoint_set_expr, 1);
+    rb_define_method(cBreakpoint, "hit_count", breakpoint_hit_count, 0);
+    rb_define_method(cBreakpoint, "hit_value", breakpoint_hit_value, 0);
+    rb_define_method(cBreakpoint, "hit_value=", breakpoint_set_hit_value, 1);
+    rb_define_method(cBreakpoint, "hit_condition", breakpoint_hit_condition, 0);
+    rb_define_method(cBreakpoint, "hit_condition=", breakpoint_set_hit_condition, 1);
 }
 
 

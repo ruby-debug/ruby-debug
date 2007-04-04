@@ -1,5 +1,10 @@
 0.9.2
 - Fixed file comparison in Windows platform.
+- Added setter methods to Breakpoint properties
+- Added breakpoint hit condition functionality (not available via CLI yet) and methods:
+    Breakpoint:hit_count
+    Breakpoint:hit_value[=]
+    Breakpoint:hit_condition[=]
 
 0.9.1
 - Fixed incorrect stack calculation.
