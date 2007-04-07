@@ -4,7 +4,7 @@
 #include <rubysig.h>
 #include <st.h>
 
-#define DEBUG_VERSION "0.9.2"
+#define DEBUG_VERSION "0.9.3"
 
 #ifdef _WIN32
 struct FRAME {
@@ -932,10 +932,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         else
             set_frame_source(event, debug_context, self, file, line, mid);
         
-        /* avoid useless step on the beginning of 'if' statement */
-        if(nd_type(node) == NODE_IF)
-            break;
-
         if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
             rb_funcall(context, idAtTracing, 2, rb_str_new2(file), INT2FIX(line));
 
