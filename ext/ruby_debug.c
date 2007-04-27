@@ -75,14 +75,14 @@ typedef struct {
     short dead;
     VALUE self;
     union {
-    struct {
-        struct FRAME *frame;
-        struct SCOPE *scope;
-        struct RVarmap *dyna_vars;
-    } runtime;
-    struct {
-        VALUE locals;
-    } copy;
+        struct {
+            struct FRAME *frame;
+            struct SCOPE *scope;
+            struct RVarmap *dyna_vars;
+        } runtime;
+        struct {
+            VALUE locals;
+        } copy;
     } info;
 } debug_frame_t;
 
@@ -196,7 +196,7 @@ ruby_method_ptr(VALUE class, ID meth_id)
 {
     NODE *body, *method;
     st_lookup(RCLASS(class)->m_tbl, meth_id, (st_data_t *)&body);
-    method       = (NODE *)body->u2.value;
+    method = (NODE *)body->u2.value;
     return (void *)method->u1.value;
 }
 
