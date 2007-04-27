@@ -7,7 +7,7 @@ module Debugger
     end
 
     def execute
-      force = @match[1] == '+' || (@match[1].nil? && @@force_stepping)
+      force = @match[1] == '+' || (@match[1].nil? && Command.settings[:force_stepping])
       steps = @match[2] ? @match[2].to_i : 1
       @state.context.step_over steps, @state.frame_pos, force
       @state.proceed
@@ -35,7 +35,7 @@ module Debugger
     end
 
     def execute
-      force = @match[1] == '+' || (@match[1].nil? && @@force_stepping)
+      force = @match[1] == '+' || (@match[1].nil? && Command.settings[:force_stepping])
       steps = @match[2] ? @match[2].to_i : 1
       @state.context.step(steps, force)
       @state.proceed

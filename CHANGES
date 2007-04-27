@@ -1,6 +1,7 @@
 0.9.3
 - Fixed if..elsif..end stepping.
-- Ctrl-C from irb continues without showing the debugger prompt.
+- Ctrl-C from irb or 'cont' command continues execution without showing the debugger prompt.
+- added Debugger.settings method to programatically modify command settings
 
 0.9.2
 - Fixed file comparison in Windows platform.

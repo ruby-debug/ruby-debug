@@ -1,5 +1,15 @@
 require 'irb'
+
 module IRB # :nodoc:
+  module ExtendCommand
+    class Continue
+      def self.execute(conf)
+        throw :IRB_EXIT, :cont
+      end
+    end
+  end
+  ExtendCommandBundle.def_extend_command "cont", :Continue
+  
   def self.start_session(binding)
     unless @__initialized
       args = ARGV
@@ -24,6 +34,14 @@ end
 
 module Debugger
   class IRBCommand < Command # :nodoc:
+
+    register_setting_get(:autoirb) do 
+      IRBCommand.always_run
+    end
+    register_setting_set(:autoirb) do |value|
+      IRBCommand.always_run = value
+    end
+
     def regexp
       /^irb$/
     end
@@ -34,13 +52,13 @@ module Debugger
         throw :debug_error
       end
 
-      save_trap = trap("SIGINT") do 
+      save_trap = trap("SIGINT") do
         throw :IRB_EXIT, :cont
       end
 
       cont = IRB.start_session(get_binding)
       @state.proceed if cont == :cont
-    rescue
+    ensure
       trap("SIGINT", save_trap) if save_trap
     end
     

@@ -1,5 +1,13 @@
 module Debugger
   class ListCommand < Command # :nodoc:
+
+    register_setting_get(:autolist) do
+      ListCommand.always_run 
+    end
+    register_setting_set(:autolist) do |value|
+      ListCommand.always_run = value
+    end
+
     def regexp
       /^\s*l(?:ist)?(?:\s*([-=])|\s+(.+))?$/
     end
@@ -68,6 +76,13 @@ module Debugger
 
   class ReloadCommand < Command # :nodoc:
     self.control = true
+
+    register_setting_get(:reload_source_on_change) do 
+      Debugger.reload_source_on_change
+    end
+    register_setting_set(:reload_source_on_change) do |value|
+      Debugger.reload_source_on_change = value
+    end
     
     def regexp
       /^\s*r(?:eload)?$/

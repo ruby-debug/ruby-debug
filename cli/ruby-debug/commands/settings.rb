@@ -9,28 +9,28 @@ module Debugger
     def execute
       case @match[1]
       when /^(no)?autolist$/
-        ListCommand.always_run = $1.nil?
+        Command.settings[:autolist] = $1.nil?
         print "autolist is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoeval$/
-        EvalCommand.unknown = $1.nil?
+        Command.settings[:autoeval] = $1.nil?
         print "autoeval is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?trace$/
-        @@display_stack_trace = $1.nil?
+        Command.settings[:stack_trace_on_error] = $1.nil?
         print "Displaying stack trace is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?framefullpath$/
-        @@full_file_names = $1.nil?
+        Command.settings[:frame_full_path] = $1.nil?
         print "Displaying frame's full file names is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?frameclassname$/
-        @@full_class_names = $1.nil?
+        Command.settings[:frame_class_names] = $1.nil?
         print "Displaying frame's original class name is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoreload$/
-        Debugger.reload_source_on_change = $1.nil?
+        Command.settings[:reload_source_on_change] = $1.nil?
         print "autoreload is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?autoirb$/
-        IRBCommand.always_run = $1.nil?
+        Command.settings[:autoirb] = $1.nil?
         print "autoirb is #{$1.nil? ? 'on' : 'off'}.\n"
       when /^(no)?forcestep$/
-        @@force_stepping = $1.nil?
+        self.class.settings[:force_stepping] = $1.nil?
         print "force-stepping is #{$1.nil? ? 'on' : 'off'}.\n"
       else
         print "Unknown setting.\n"

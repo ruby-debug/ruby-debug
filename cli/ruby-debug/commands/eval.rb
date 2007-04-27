@@ -23,6 +23,13 @@ module Debugger
     
     include EvalFunctions
 
+    register_setting_get(:autoeval) do
+      EvalCommand.unknown
+    end
+    register_setting_set(:autoeval) do |value|
+      EvalCommand.unknown = value
+    end
+
     def match(input)
       @input = input
       super

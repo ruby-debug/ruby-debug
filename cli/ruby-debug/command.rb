@@ -42,16 +42,50 @@ module Debugger
       def options
         @options ||= {}
       end
+
+      def settings_map
+        @@settings_map ||= {}
+      end
+      private :settings_map
       
-      def setting(name)
-        class_variable_get("@@#{name}")
+      def settings
+        unless @settings
+          @settings = Object.new
+          map = settings_map
+          class << @settings; self end.send(:define_method, :[]) do |name|
+            raise "No such setting #{name}" unless map.has_key?(name)
+            map[name][:getter].call
+          end
+          class << @settings; self end.send(:define_method, :[]=) do |name, value|
+            raise "No such setting #{name}" unless map.has_key?(name)
+            map[name][:setter].call(value)
+          end
+        end
+        @settings
+      end
+
+      def register_setting_var(name, default)
+        var_name = "@@#{name}"
+        class_variable_set(var_name, default)
+        register_setting_get(name) { class_variable_get(var_name) }
+        register_setting_set(name) { |value| class_variable_set(var_name, value) }
+      end
+
+      def register_setting_get(name, &block)
+        settings_map[name] ||= {}
+        settings_map[name][:getter] = block
+      end
+
+      def register_setting_set(name, &block)
+        settings_map[name] ||= {}
+        settings_map[name][:setter] = block
       end
     end
 
-    @@display_stack_trace = false
-    @@full_file_names = true
-    @@full_class_names = false
-    @@force_stepping = false
+    register_setting_var(:stack_trace_on_error, false)
+    register_setting_var(:frame_full_path, true)
+    register_setting_var(:frame_class_names, false)
+    register_setting_var(:force_stepping, false)
     
     def initialize(state)
       @state = state
@@ -75,7 +109,7 @@ module Debugger
       begin
         val = eval(str, b)
       rescue StandardError, ScriptError => e
-        if @@display_stack_trace
+        if Command.settings[:stack_trace_on_error]
           at = eval("caller(1)", b)
           print "%s:%s\n", at.shift, e.to_s.sub(/\(eval\):1:(in `.*?':)?/, '')
           for i in at
@@ -110,4 +144,11 @@ module Debugger
   end
   
   Command.load_commands
+
+  # Returns setting object.
+  # Use Debugger.settings[] and Debugger.settings[]= methods to query and set
+  # debugger settings.
+  def self.settings
+    Command.settings
+  end
 end
