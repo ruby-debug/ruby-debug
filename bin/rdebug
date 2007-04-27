@@ -8,6 +8,7 @@ require 'ruby-debug'
 options = OpenStruct.new(
   'server'      => false,
   'client'      => false,
+  'debug_module'=> 'debug',
   'host'        => nil,
   'port'        => Debugger::PORT,
   'cport'       => Debugger::PORT + 1,
@@ -42,6 +43,13 @@ EOB
     unless File.exists?(options.script)
       puts "Script file '#{options.script}' is not found"
       exit
+    end
+  end
+  opts.on("-r", "--require debug", String,
+          "Compatibility with Ruby-distributed debug module") do |options.debug_module|
+    if options.debug_module != 'debug'
+      puts "Use '-r' option only with 'debug' (You supplied '#{options.debug_module}'). " + 
+        "This option is ignored."
     end
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
