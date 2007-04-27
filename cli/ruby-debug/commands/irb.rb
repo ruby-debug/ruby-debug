@@ -16,10 +16,6 @@ module IRB # :nodoc:
     @CONF[:IRB_RC].call(irb.context) if @CONF[:IRB_RC]
     @CONF[:MAIN_CONTEXT] = irb.context
 
-#     trap("SIGINT") do
-#       irb.signal_handle
-#     end
-
     catch(:IRB_EXIT) do
       irb.eval_input
     end
@@ -37,7 +33,15 @@ module Debugger
         print "Command is available only in local mode.\n"
         throw :debug_error
       end
-      IRB.start_session(get_binding)
+
+      save_trap = trap("SIGINT") do 
+        throw :IRB_EXIT, :cont
+      end
+
+      cont = IRB.start_session(get_binding)
+      @state.proceed if cont == :cont
+    rescue
+      trap("SIGINT", save_trap) if save_trap
     end
     
     class << self
