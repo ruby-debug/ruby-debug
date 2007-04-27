@@ -184,6 +184,8 @@ module Kernel
     Debugger.start unless Debugger.started?
     Debugger.current_context.stop_next = steps
   end
+  alias breakpoint debugger unless respond_to?(:breakpoint)
+
   
   #
   # Returns a binding of n-th call frame
