@@ -53,12 +53,14 @@ module Debugger
       end
 
       save_trap = trap("SIGINT") do
-        throw :IRB_EXIT, :cont
+        throw :IRB_EXIT, :cont if $in_irb
       end
 
+      $in_irb = true
       cont = IRB.start_session(get_binding)
       @state.proceed if cont == :cont
     ensure
+      $in_irb = false
       trap("SIGINT", save_trap) if save_trap
     end
     
