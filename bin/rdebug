@@ -12,6 +12,7 @@ options = OpenStruct.new(
   'host'        => nil,
   'port'        => Debugger::PORT,
   'cport'       => Debugger::PORT + 1,
+  'control'     => true,
   'wait'        => false,
   'nostop'      => false,
   'post_mortem' => false,
@@ -33,6 +34,7 @@ EOB
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
   opts.on("-p", "--port PORT", Integer, "Port used for remote debugging") {|options.port|}
   opts.on("--cport PORT", Integer, "Port used for contol commands") {|options.cport|}
+  opts.on("--no-control", "Do not automatically start control thread") {options.control = false}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
   opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
@@ -118,7 +120,7 @@ else
     # activate debugger
     Debugger.start
     # start control thread
-    Debugger.start_control(options.host, options.cport)
+    Debugger.start_control(options.host, options.cport) if options.control
 
     # load initrc script
     load_initrc.call
