@@ -1,8 +1,8 @@
 require 'irb'
 
 module IRB # :nodoc:
-  module ExtendCommand
-    class Continue
+  module ExtendCommand # :nodoc:
+    class Continue # :nodoc:
       def self.execute(conf)
         throw :IRB_EXIT, :cont
       end

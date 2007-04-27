@@ -1,5 +1,5 @@
 module Debugger
-  module EvalFunctions
+  module EvalFunctions # :nodoc:
     def run_with_binding
       binding = @state.context ? get_binding : TOPLEVEL_BINDING
       $__dbg_interface = @state.interface

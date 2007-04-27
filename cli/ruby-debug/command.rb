@@ -147,7 +147,17 @@ module Debugger
 
   # Returns setting object.
   # Use Debugger.settings[] and Debugger.settings[]= methods to query and set
-  # debugger settings.
+  # debugger settings. These settings are available:
+  # 
+  # - :autolist - automatically calls 'list' command on breakpoint
+  # - :autoeval - evaluates input in the current binding if it's not recognized as a debugger command
+  # - :autoirb - automatically calls 'irb' command on breakpoint
+  # - :stack_trace_on_error - shows full stack trace if eval command results with an exception
+  # - :frame_full_path - displays full paths when showing frame stack
+  # - :frame_class_names - displays method's class name when showing frame stack
+  # - :reload_source_on_change - makes 'list' command to always display up-to-date source code
+  # - :force_stepping - stepping command asways move to the new line
+  # 
   def self.settings
     Command.settings
   end

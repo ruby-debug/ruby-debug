@@ -64,7 +64,7 @@ module Debugger
     end
     alias start_server start_remote
     
-    def start_control(host = nil, ctrl_port = PORT + 1)
+    def start_control(host = nil, ctrl_port = PORT + 1) # :nodoc:
       raise "Debugger is not started" unless started?
       return if @control_thread
       @control_thread = DebugThread.new do
