@@ -109,7 +109,7 @@ module Debugger
     # Runs a script file
     #
     def run_script(file, out = handler.interface)
-      interface = ScriptInterface.new(file, out)
+      interface = ScriptInterface.new(File.expand_path(file), out)
       processor = ControlCommandProcessor.new(interface)
       processor.process_commands
     end
