@@ -8,7 +8,6 @@ require 'ruby-debug'
 options = OpenStruct.new(
   'server'      => false,
   'client'      => false,
-  'debug_module'=> 'debug',
   'host'        => nil,
   'port'        => Debugger::PORT,
   'cport'       => Debugger::PORT + 1,
@@ -47,12 +46,11 @@ EOB
       exit
     end
   end
-  opts.on("-r", "--require debug", String,
-          "Compatibility with Ruby-distributed debug module") do |options.debug_module|
-    if options.debug_module != 'debug'
-      puts "Use '-r' option only with 'debug' (You supplied '#{options.debug_module}'). " + 
-        "This option is ignored."
+  opts.on("-r", "--require SCRIPT", String,"Require the library, before executing your script") do |name|
+    if options.debug_module == 'debug'
+      puts "ruby-debug is not compatible with Ruby's 'debug' library. This option is ignored."
     end
+    require name
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
