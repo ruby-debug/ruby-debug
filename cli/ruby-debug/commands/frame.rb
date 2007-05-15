@@ -29,15 +29,6 @@ module Debugger
       print_frame(@state.frame_pos, true)
     end
 
-    def get_int(str, cmd)
-      begin
-        return Integer(@match[1])
-      rescue
-        print "%s argument needs to be a number.\n" % cmd
-        return nil
-      end
-    end
-
     def print_frame(pos, adjust = false)
       file = @state.context.frame_file(pos)
       line = @state.context.frame_line(pos)
@@ -67,6 +58,7 @@ module Debugger
 
   class WhereCommand < Command # :nodoc:
     include FrameFunctions
+    include ParseFunctions
 
     def regexp
       /^\s*(?:w(?:here)?|bt|backtrace)$/
@@ -104,18 +96,15 @@ module Debugger
 
   class UpCommand < Command # :nodoc:
     include FrameFunctions
+    include ParseFunctions
 
     def regexp
-      /^\s* u(?:p)? (?:\s+(.*))? .*$/x
+      /^\s* u(?:p)? (?:\s+(.*))?$/x
     end
 
     def execute
-      unless @match[1]
-        pos = 1
-      else
-        pos = get_int(@match[1], "Up")
-        return unless pos
-      end
+      pos = get_int(@match[1], "Up")
+      return unless pos
       adjust_frame(pos, false)
     end
 
@@ -134,18 +123,15 @@ module Debugger
 
   class DownCommand < Command # :nodoc:
     include FrameFunctions
+    include ParseFunctions
 
     def regexp
       /^\s* down (?:\s+(.*))? .*$/x
     end
 
     def execute
-      if not @match[1]
-        pos = 1
-      else
-        pos = get_int(@match[1], "Down")
-        return unless pos
-      end
+      pos = get_int(@match[1], "Down")
+      return unless pos
       adjust_frame(-pos, false)
     end
 
@@ -164,6 +150,7 @@ module Debugger
   
   class FrameCommand < Command # :nodoc:
     include FrameFunctions
+    include ParseFunctions
     def regexp
       /^\s* f(?:rame)? (?:\s+ (.*))? \s*$/x
     end

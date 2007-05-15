@@ -1,5 +1,9 @@
 0.9.4
-- '-r' option can be used to require additional libraries
+- '-r' option can be used to require additional libraries.
+- Fixed 'var const' command. Issue #10847.
+- Using pretty-print for all var commands. Patch from R. Bernstein.
+- Better error reporting for commands that require a numeric argument.
+- Fixed Kernel#binding_n method
 
 0.9.3
 - Fixed if..elsif..end stepping.

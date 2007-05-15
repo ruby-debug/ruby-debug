@@ -45,15 +45,20 @@ module Debugger
     self.control = true
     self.need_context = true
     
+    include ParseFunctions
     include ThreadFunctions
 
     def regexp
-      /^\s*th(?:read)?\s+(?:sw(?:itch)?\s+)?(\d+)\s*$/
+      /^\s*th(?:read)?\s+(?:sw(?:itch)?\s+)?(.*)$/
     end
 
     def execute
-      c = get_context(@match[1].to_i)
+      num = get_int(@match[1], "Thread", 1, nil, 1)
+      return unless num
+      c = get_context(num)
       case
+      when c == nil
+        print "No such thread\n"
       when c == @state.context
         print "It's the current thread.\n"
       when c.ignored?

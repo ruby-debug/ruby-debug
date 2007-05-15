@@ -22,7 +22,7 @@ module Debugger
       if obj = frame_self(frame)
         obj.instance_eval code
       else
-        eval code
+        eval code, TOPLEVEL_BINDING
       end
     end
 
@@ -190,7 +190,9 @@ module Kernel
   # Returns a binding of n-th call frame
   #
   def binding_n(n = 0)
-    Debugger.current_context.frame_binding[n+1]
+    Debugger.skip do
+      Debugger.current_context.frame_binding(n+2)
+    end
   end
 end
 

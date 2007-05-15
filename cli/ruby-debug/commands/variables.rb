@@ -3,21 +3,7 @@ module Debugger
     def var_list(ary, b = get_binding)
       ary.sort!
       for v in ary
-        print "  %s => %s\n", v, debug_eval(v, b).inspect
-      end
-    end
-
-    def var_locals(locals)
-      locals.keys.sort.each do |name|
-        print "  %s => %s\n", name, locals[name]
-      end
-    end
-    
-    def var_consts(mod)
-      constants = mod.constants
-      constants.sort!
-      for c in constants
-        print " %s => %s\n", c, mod.const_get(c)
+        print "  %s => %p\n", v, debug_eval(v, b)
       end
     end
   end
@@ -34,7 +20,13 @@ module Debugger
       unless obj.kind_of? Module
         print "Should be Class/Module: %s\n", @match.post_match
       else
-        var_consts(obj)
+        constants = debug_eval("#{@match.post_match}.constants")
+        constants.sort!
+        for c in constants
+          next if c =~ /SCRIPT/
+          value = obj.const_get(c) rescue "ERROR: #{$!}"
+          print " %s => %p\n", c, value
+        end
       end
     end
 
@@ -79,11 +71,11 @@ module Debugger
     include VarFunctions
 
     def regexp
-      /^\s*v(?:ar)?\s+i(?:nstance)?\s+/
+      /^\s*v(?:ar)?\s+i(?:nstance)?\s*/
     end
 
     def execute
-      obj = debug_eval(@match.post_match)
+      obj = debug_eval(@match.post_match.empty? ? 'self' : @match.post_match)
       var_list(obj.instance_variables, obj.instance_eval{binding()})
     end
 
@@ -108,7 +100,10 @@ module Debugger
     end
 
     def execute
-      var_locals(@state.context.frame_locals(@state.frame_pos))
+      locals = @state.context.frame_locals(@state.frame_pos)
+      locals.keys.sort.each do |name|
+        print "  %s => %p\n", name, locals[name]
+      end
     end
 
     class << self

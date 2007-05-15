@@ -101,10 +101,11 @@ module Debugger
   end
 
   class DeleteBreakpointCommand < Command # :nodoc:
+    include ParseFunctions
     self.control = true
 
     def regexp
-      /^\s*del(?:ete)?(?:\s+(\d+))?$/
+      /^\s*del(?:ete)?(?:\s+(.*))?$/
     end
 
     def execute
@@ -114,7 +115,8 @@ module Debugger
           Debugger.breakpoints.clear
         end
       else
-        pos = pos.to_i
+        pos = get_int(pos, "Delete", 1)
+        return unless pos
         unless Debugger.remove_breakpoint(pos)
           print "Breakpoint %d is not defined\n", pos
         end

@@ -1,14 +1,16 @@
 module Debugger
   class NextCommand < Command # :nodoc:
+    include ParseFunctions
     self.need_context = true
     
     def regexp
-      /^\s*n(?:ext)?([+-])?(?:\s+(\d+))?$/
+      /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/
     end
 
     def execute
       force = @match[1] == '+' || (@match[1].nil? && Command.settings[:force_stepping])
-      steps = @match[2] ? @match[2].to_i : 1
+      steps = get_int(@match[2], "Next", 1)
+      return unless steps
       @state.context.step_over steps, @state.frame_pos, force
       @state.proceed
     end
@@ -28,15 +30,17 @@ module Debugger
   end
 
   class StepCommand < Command # :nodoc:
+    include ParseFunctions
     self.need_context = true
     
     def regexp
-      /^\s*s(?:tep)?([+-])?(?:\s+(\d+))?$/
+      /^\s*s(?:tep)?([+-])?(?:\s+(.*))?$/
     end
 
     def execute
       force = @match[1] == '+' || (@match[1].nil? && Command.settings[:force_stepping])
-      steps = @match[2] ? @match[2].to_i : 1
+      steps = get_int(@match[2], "Step", 1)
+      return unless steps
       @state.context.step(steps, force)
       @state.proceed
     end
@@ -85,14 +89,18 @@ module Debugger
   end
 
   class ContinueCommand < Command # :nodoc:
+    include FrameFunctions
+    include ParseFunctions
+    
     def regexp
-      /^\s*c(?:ont)?(?:\s+(\d+))?$/
+      /^\s*c(?:ont)?(?:\s+(.*))?$/
     end
 
     def execute
       if @match[1] && !@state.context.dead?
         file = File.expand_path(@state.file)
-        @state.context.set_breakpoint(file, @match[1].to_i)
+        line = get_int(@match[1], "Continue", 0, nil, 0)
+        @state.context.set_breakpoint(file, line)
       end
       @state.proceed
     end
