@@ -89,7 +89,6 @@ module Debugger
   end
 
   class ContinueCommand < Command # :nodoc:
-    include FrameFunctions
     include ParseFunctions
     
     def regexp
