@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+# -*- Ruby -*-
 
 require 'rubygems'
 require 'optparse'
@@ -28,6 +29,7 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   opts.on("-s", "--server", "Listen for remote connections") {options.server = true}
+  opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
   opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
@@ -60,9 +62,18 @@ EOB
     puts opts
     exit
   end
-  opts.on_tail("-v", "--version", "Show version") do
+  opts.on_tail("--version", 
+               "print the version") do
     puts "ruby-debug #{Debugger::VERSION}"
     exit
+  end
+  opts.on("--verbose", "turn on verbose mode") do
+    $VERBOSE = true
+  end
+  opts.on_tail("-v", 
+               "print version number, then turn on verbose mode") do
+    puts "ruby-debug #{Debugger::VERSION}"
+    $VERBOSE = true
   end
 end
 
@@ -85,6 +96,7 @@ if options.client
   Debugger.start_client(options.host, options.port)
 else
   if ARGV.empty?
+    exit if $VERBOSE
     puts opts
     puts
     puts "Must specify a script to run"
