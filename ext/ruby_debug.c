@@ -221,7 +221,8 @@ id2ref_unprotected(VALUE id)
 static VALUE
 id2ref_error()
 {
-    rb_p(ruby_errinfo);
+    if(debug == Qtrue)
+      rb_p(ruby_errinfo);
     return Qnil;
 }
 
