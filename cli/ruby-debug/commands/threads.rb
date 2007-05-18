@@ -15,6 +15,7 @@ module Debugger
   end
 
   class ThreadListCommand < Command # :nodoc:
+    puts "foo"
     self.control = true
     include ThreadFunctions
 
@@ -41,61 +42,25 @@ module Debugger
     end
   end
 
-  class ThreadSwitchCommand < Command # :nodoc:
-    self.control = true
-    self.need_context = true
-    
-    include ParseFunctions
-    include ThreadFunctions
-
-    def regexp
-      /^\s*th(?:read)?\s+(?:sw(?:itch)?\s+)?(.*)$/
-    end
-
-    def execute
-      num = get_int(@match[1], "Thread", 1, nil, 1)
-      return unless num
-      c = get_context(num)
-      case
-      when c == nil
-        print "No such thread\n"
-      when c == @state.context
-        print "It's the current thread.\n"
-      when c.ignored?
-        print "Can't switch to the debugger thread.\n"
-      else
-        display_context(c)
-        c.stop_next = 1
-        c.thread.run
-        @state.proceed
-      end
-    end
-
-    class << self
-      def help_command
-        'thread'
-      end
-
-      def help(cmd)
-        %{
-          th[read] [sw[itch]] <nnn>\tswitch thread context to nnn
-        }
-      end
-    end
-  end
-
   class ThreadStopCommand < Command # :nodoc:
     self.control = true
     self.need_context = true
     
     include ThreadFunctions
+    include ParseFunctions
 
     def regexp
-      /^\s*th(?:read)?\s+stop\s+(\d+)\s*$/
+      /^\s*th(?:read)?\s+stop\s*(\S*)\s*$/
     end
 
     def execute
-      c = get_context(@match[1].to_i)
+      if '' == @match[1]
+        print "'thread stop' needs a thread number\n" 
+        return 
+      end
+      thread_num = get_int(@match[1], "Thread stop", 1)
+      return unless thread_num
+      c = get_context(thred_num)
       case
       when c == @state.context
         print "It's the current thread.\n"
@@ -151,13 +116,20 @@ module Debugger
     self.need_context = true
     
     include ThreadFunctions
+    include ParseFunctions
 
     def regexp
-      /^\s*th(?:read)?\s+resume\s+(\d+)\s*$/
+      /^\s*th(?:read)?\s+resume\s+(\S*)\s*$/
     end
 
     def execute
-      c = get_context(@match[1].to_i)
+      if '' == @match[1]
+        print "'Thread resume' needs a thread number\n" 
+        return 
+      end
+      thread_num = get_int(@match[1], "Thread resume", 1)
+      return unless thread_num
+      c = get_context(thread_num)
       case
       when c == @state.context
         print "It's the current thread.\n"
@@ -179,6 +151,56 @@ module Debugger
       def help(cmd)
         %{
           th[read] resume <nnn>\t\tresume thread nnn
+        }
+      end
+    end
+  end
+
+  # Thread switch Must come after "Thread resume" because "switch" is
+  # optional
+
+  class ThreadSwitchCommand < Command # :nodoc:
+    self.control = true
+    self.need_context = true
+    
+    include ParseFunctions
+    include ThreadFunctions
+
+    def regexp
+      /^\s*th(?:read)?\s+(?:sw(?:itch)?\s*)?(\S*)\s*$/
+    end
+
+    def execute
+      if '' == @match[1]
+        print "'thread switch' needs a thread number\n" 
+        return 
+      end
+      num = get_int(@match[1], "Thread switch", 1, nil, 1)
+      return unless num
+      c = get_context(num)
+      case
+      when c == nil
+        print "No such thread\n"
+      when c == @state.context
+        print "It's the current thread.\n"
+      when c.ignored?
+        print "Can't switch to the debugger thread.\n"
+      else
+        display_context(c)
+        c.stop_next = 1
+        c.thread.run
+        @state.proceed
+      end
+    end
+
+    class << self
+      def help_command
+        'thread'
+      end
+
+      def help(cmd)
+        %{
+          th[read] [sw[itch]] <nnn>\tswitch thread context to nnn
         }
       end
     end
