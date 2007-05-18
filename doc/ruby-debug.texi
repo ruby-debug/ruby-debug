@@ -1,0 +1,1060 @@
+\input texinfo      @c -*-texinfo-*-
+@setfilename ruby-debug.info
+
+@set DBG ruby-debug
+@set ttrdebug @code{rdebug}
+@set ttDBG @code{@value{DBG}}
+
+@macro DBG {}
+@value{DBG}
+@end macro
+
+@macro ttDBG {}
+@value{ttrdebug}
+@end macro
+
+@c How to show optional variables.
+@macro ovar{varname}
+@r{[}@var{\varname\}@r{]}
+@end macro
+
+@settitle ruby-debug
+@setchapternewpage odd
+@c %**end of header
+
+@include version.texi
+
+@finalout
+
+@c THIS MANUAL REQUIRES TEXINFO 4.0 OR LATER.
+
+@c This is a dir.info fragment to support semi-automated addition of
+@c manuals to an info tree.
+@dircategory Programming & development tools.
+@direntry
+* ruby-debug: (ruby-debug).    Ruby Debugger
+@end direntry
+
+@titlepage
+@title Debugging with @code{ruby-debug}
+@sp 1
+@subtitle @value{EDITION} Edition
+@subtitle @value{UPDATED-MONTH}
+@c @author ...
+@page
+@ifset WHERETO
+@tex
+{\parskip=0pt
+\hfill (Send bugs and comments on ruby-debug to fill in...)\par
+\hfill {\it Debugging with {\tt ruby-debug}\par
+\hfill \TeX{}info \texinfoversion\par
+}
+@end tex
+@end ifset
+@end titlepage
+@page
+
+@ifnottex
+@node Top, Summary, (dir), (dir)
+@top Debugging with ruby-debug
+
+This file describes ruby-debug, the Ruby Debugger.
+
+@c This is the @value{EDITION} Edition, @value{UPDATED}
+@c Copyright (C) 2007 ...
+
+@menu
+* Summary::                     Overview of Debugger with a sample session
+* Invocation::                  Getting in and out
+* Debugger Command Reference::  rdebug command reference
+* Post-Mortem Debugging::       Debugging on an uncaught exception
+* Debugger Module and Class::   ruby-debug's Debugger module and class
+* GNU Emacs::                   Using @code{ruby-debug} from GNU Emacs
+
+Indexes (nodes containing large menus)
+* Command Index::             An item for each command name.
+* General Index::             An item for each concept.
+@end menu
+
+@end ifnottex
+
+@contents
+
+@node Summary
+@chapter Summary of @code{ruby-debug}
+
+The purpose of a debugger such as @DBG is to allow you to see what is
+going on ``inside'' a Ruby program while it executes.
+
+@ttDBG{} can do four main kinds of things (plus other things in support of
+these) to help you catch bugs in the act:
+
+@itemize @bullet
+@item
+Start your script, specifying anything that might affect its behavior.
+
+@item
+Make your script stop on specified conditions.
+
+@item
+Examine what has happened, when your script has stopped.
+
+@item
+Change things in your script, so you can experiment with correcting the
+effects of one bug and go on to learn about another.
+@end itemize
+
+Although you can use @value{ttrdebug} to invoke your Ruby programs via
+a debugger at the outset, there are other ways to use and enter the
+debugger. 
+
+@menu
+* Sample Session::                    A Sample @code{rdebug} session
+@end menu
+
+@node Sample Session
+@section A Sample @code{rdebug} Session
+
+You can use this manual at your leisure to read all about @value{ttDBG}.
+However, a handful of commands are enough to get started using the
+debugger.  This chapter illustrates those commands.
+
+@iftex
+In this sample session, we emphasize user input like this: @b{input},
+to make it easier to pick out from the surrounding output.
+@end iftex
+
+Below we will debug a simple Ruby program to solve the classic Towers
+of Hanoi puzzle.
+
+@smallexample
+@cartouche
+$ @b{rdebug hanoi.rb}
+./hanoi.rb:3 def hanoi(n,a,b,c)
+(rdb:1) @b{list}
+[-2, 7] in ./hanoi.rb
+   1  #!/usr/bin/env ruby
+   2
+=> 3  def hanoi(n,a,b,c)
+   4      if n-1 > 0
+   5         hanoi(n-1, a, c, b)
+   6      end
+   7      puts "Move disk %s to %s" % [a, b]
+(rdb:1) l
+[8, 17] in ./hanoi.rb
+   8      if n-1 > 0
+   9         hanoi(n-1, c, b, a)
+   10      end
+   11  end
+   12
+   13  i_args=ARGV.length
+   14  if i_args != 1 and i_args != 2:
+   15      puts "*** Need number of disks or no parameter"
+   16      exit 1
+   17  end
+@end cartouche
+@end smallexample 
+
+@noindent
+
+There are lots of command options, but we don't need them for now. See
+@ref{rdebug command-line options} for a full list of command options.
+
+Position information consists of a filename and line number,
+e.g. @code{/hanoi.rb:3}. 
+
+The first command, @code{list}, prints 10 lines centered around the
+current line. However since there aren't 5 lines before the current
+line those additional lines are dropped and we print 8 lines instead.
+This command can be abbreviated with @code{l} which is what we use
+next. Notice we continue listing from the place we last left off, and
+this time 10 lines are shown.
+
+@smallexample
+@cartouche
+(rdb:1) @b{step}
+./hanoi.rb:13 i_args=ARGV.length
+(rdb:1) @b{@key{RET}}
+./hanoi.rb:14 if i_args != 1 and i_args != 2:
+(rdb:1) @b{p i_args}
+0
+(rdb:1) @b{step}
+./hanoi.rb:14 if i_args != 1 and i_args != 2:
+(rdb:1) 
+@end cartouche
+@end smallexample
+
+The first @kbd{step} command (@pxref{Step}) runs the script one
+executable unit. The second command we entered was just hitting the
+return key; @ttDBG{} remembers the last command you entered was
+@code{step}, so it runs that last command again.
+
+We can print the values of variables using @code{p}. 
+
+To be continued...
+
+@node Invocation
+@chapter Getting in and out
+
+@menu
+* Starting the debugger::    How to enter the debugger
+* Quitting the debugger::    How to leave the debugger
+* Calling from Program::     Calling the debugger from inside your program
+@end menu
+
+It is also possible to enter the debugger when you have an uncaught
+exception. See See also @ref{Post-Mortem Debugging}. 
+
+@node Starting the debugger
+@section Starting the debugger
+
+Although one can enter @DBG{} via Emacs (described in a later section)
+and possibly others interfaces, probably the most familiar thing to do
+is invoke the debugger from a command line.
+
+A wrapper shell script called @code{rdebug} basically @code{require}'s
+the gem package @code{ruby-debug} and then loads @code{rdebug}.
+
+@example
+rdebug [rdebug-options] [--] @var{ruby-script} @var{ruby-script-arguments...}
+@end example
+
+If you don't need to pass dash options to your program which might get
+confused with the debugger options, then you don't need to add the
+@code{--}.
+
+To get a brief list of options and descriptions, use the @code{--help}
+option.
+
+@example
+$ @b{rdebug --help}
+ruby-debug 0.9.4
+Usage: rdebug [options] <script.rb> -- <script.rb parameters>
+
+Options:
+    -s, --server                     Listen for remote connections
+    -w, --wait                       Wait for a client connection, implies -s option
+    -c, --client                     Connect to remote debugger
+    -h, --host HOST                  Host name used for remote debugging
+    -p, --port PORT                  Port used for remote debugging
+        --cport PORT                 Port used for contol commands
+        --no-control                 Do not automatically start control thread
+    -x, --trace                      turn on line tracing
+    -n, --nostop                     Do not stop when stript is loaded
+    -m, --post-mortem                Activate post-mortem mode
+    -I, --include PATH               Add PATH to $LOAD_PATH
+        --script FILE                Name of the script file to run
+    -r, --require SCRIPT             Require the library, before executing your script
+        --keep-frame-binding         Keep frame bindings
+        --emacs                      Activates emacs mode
+
+Common options:
+        --help                       Show this message
+    -v, --version                    Show version
+@end example
+
+Options for the @code{rdebug} are shown in the following list.  
+
+@menu
+* rdebug command-line options::   Options you can pass to rdebug
+@end menu
+
+@node rdebug command-line options
+@subsection Options you can pass to rdebug
+
+You can run @DBG{} in various alternative modes---for example, as a
+program that interacts directly with the program in the same process
+on the same computer or via a socket to another process possibly on a
+different computer. 
+
+Many options appear as a long option name, such as @code{--help}, and
+a short one letter option name, such as @code{-h}. A double dash
+(@code{--} is used to separate options which go to @code{rdebug} from
+options that are intended to go to your Ruby script. Options (if any)
+to @code{rdebug} should come first. If there is no possibility of the
+Ruby script to be debugged getting confused with @code{rdebug}'s
+option the double dash can be omitted.
+
+@table @code
+@item --help
+@cindex @code{-h}
+@cindex @code{--help}
+This option causes @ttDBG{} to print some basic help and exit.
+
+@item -v | --version
+@cindex @code{-v}
+This option causes @ttDBG{} to print its version number and exit.
+
+@item -c | --client
+@cindex @code{-c}
+@cindex @code{--client}
+Connect to remote debugger. The remote debugger should have been set
+up previously our you will get a connection error and @code{rdebug}
+will terminate. 
+
+@item -s | --server
+@cindex @code{-s}
+@cindex @code{--server}
+Debug the program but listen for remote connections on the default
+port or port set up via the @code{--port} option. See also @code{--wait}.
+
+@item -w | --wait
+@cindex @code{-w}
+@cindex @code{--wait}
+Debug the program but stop waiting for a client connection first. This
+option automatically sets @code{--server} option.
+
+@item -p | --port @var{port}
+@cindex @code{-p} @var{port}
+@cindex @code{--port} @var{port}
+Port used for remote debugging.
+
+@item --cport @var{port}
+@cindex @code{--cport} @var{port}
+Port used for control commands.
+
+@item -x | --trace
+@cindex @code{-x}
+@cindex @code{--trace}
+Turn on line tracing.
+
+@item -I --include @var{PATH}
+@cindex @code{-I} @var{PATH}
+@cindex @code{--include} @var{PATH}
+Add @var{PATH} to @code{$LOAD_PATH}
+
+@item -r | --require @var{library}
+@cindex @code{-r}
+@cindex @code{--require}
+Require the library, before executing your script
+
+@item --emacs
+Activates GNU Emacs mode. Debugger output is tagged in such a way to allow
+GNU Emacs to track where you are in the code.
+
+@item --no-control
+@cindex @code{--no-control}
+Do not automatically start control thread.
+
+@item --nostop
+@cindex @code{--nostop}
+Normally the @code{rdebug} stops before executing the first
+statement. If instead you want it to start running initially and will
+perhaps break it later in the running, use this options.
+
+@item -m | --post-mortem
+@cindex @code{-m}
+@cindex @code{--post-mortem}
+If your program raises an exception that isn't caught you can enter
+the debugger for inspection of what went wrong. You may also want to
+use this option in conjuctoin with @code{--no-stop}. See also 
+@ref{Post-Mortem Debugging}. 
+
+@item --keep-frame-binding
+@cindex @code{--keep-frame-binding}
+the debugger by default doesn't create Binding object for each
+frame. This is a very expensive operation and it's been a major source
+of performance problems. Instead, ruby-debug keeps references to the
+live Ruby's data structures that store information about the local
+context (ruby_scope). However it's still possible to restore the old
+behavior by using this option or by settign
+@code{Debugger.keep_frame_binding = true}.
+@end table
+
+@node Quitting the debugger
+@section Quitting the debugger
+
+@cindex interrupt
+An interrupt (often @kbd{C-c}) does not exit from @value{DBG}, but
+rather terminates the action of any @DBG command that is in
+progress and returns to @value{DBG} command level.  Inside a debugger
+command interpreter, use @code{quit} command (@pxref{Control, ,Quitting
+the debugger}).
+
+There way to terminate the debugger is to use the @code{kill}
+command. This does more forceful @code{kill -9}. It can be used in
+cases where @code{quit} doesn't work.
+
+@node Calling from Program
+@section Calling the debugger from inside your Ruby program
+
+Running a program from the debugger adds a bit of overhead and slows
+down your program a little.
+
+Furthermore, by necessity, debuggers change the operation of the
+program they are debugging. And this can lead to unexpected and
+unwanted differences. It has happened so often that the term
+``Heisenbugs'' (see @url{http://en.wikipedia.org/wiki/Heisenbug}) was
+coined to describe the situation where the addition of the use of a
+debugger (among other possibilities) changes behavior of the program
+so that the bug doesn't manifest itself anymore.
+
+There is another way to get into the debugger which adds no overhead
+or slowdown until you reach the point at which you want to start
+debugging. However here you must change the script and make an
+explicit call to the debugger. Because the debugger isn't involved
+before the first call, there is no overhead and the script will run
+atDo the same speed as if there were no debugger.
+
+There are three parts to calling the debugger from inside the script,
+``requiring'' the debugger code, telling the debugger to start
+tracking things and then making the call calling the debugger to
+stop. 
+
+To get the debugger class accessible from your Ruby program:
+
+@example
+require 'rubygems'
+require 'ruby-debug'
+@end example 
+(It is very likely that you've already require'd rubygems. If so, you
+don't have to do that again.) These commands need to be done only once.
+
+To tell the debugger to start tracking calls and returns:
+
+@example
+Debugger.start
+@end example 
+
+There is also a @code{Debugger.stop} to turn off debugger tracking. If
+speed is crucial, you may want to start and stop this around certain
+sections of code.
+
+And finally to tell the debugger to stop:
+
+@example
+debugger
+@end example 
+
+You may want to do this at several points in the program where there
+is a problem you want to investigate. And since debugger is just a
+method call it's possible enclose it in a conditional expression, for
+example:
+@example
+debugger if foo='bar' and iter_count = 20
+@end example 
+
+Although each step does a very specific thing which offers great
+flexibility, in order to make getting into the debugger easier the
+three steps have been rolled into one command:
+@example
+require "ruby-debug/debugger"
+@end example 
+
+@node Debugger Command Reference
+@chapter @code{ruby-debug} Command Reference
+
+@menu
+* Command Syntax::       How to give commands to the rdebug
+* Help::                 How to ask for help (help)
+* Control::              Controlling the debugger (quit, restart, interrupt)
+* DisplayCommands::      Executing expressions on stop (display, undisplay)
+* PrintCommands::        Evaluating and Printing Expressions (p, pp, irb)
+* PrintVars::            Printing Variables (var)
+* List::                 Examining Program Source Files (list)
+* FrameCommands::        Examining the stack frame (where, up, down, frame)
+* Stopping::             Stopping and continuing (break, watch, step, cont...)
+@end menu
+
+@node Command Syntax
+@section Command syntax
+
+@node Help
+@section Getting help (@samp{help})
+@cindex online documentation
+
+Once inside @code{ruby-debug} you can always ask it for information on its
+commands, using the command @code{help}.
+
+@table @code
+@kindex h @r{(@code{help})}
+@item help
+@itemx h
+You can use @code{help} (abbreviated @code{h}) with no arguments to
+display a short list of named classes of commands:
+
+@flushleft
+@example
+(rdb:1) @b{help}
+ruby-debug help v0.9.4
+Type 'help <command-name>' for help on a specific command
+
+Available commands:
+backtrace break catch cont delete display down eval exit finish frame
+help irb list method next p pp quit reload restart save script set
+step thread trace undisplay up var where
+@end example
+@end flushleft
+@c the above line break eliminates huge line overfull...
+
+@end table 
+
+@table @code
+@item help @var{command}
+With a command name as @code{help} argument, @DBG displays short
+information on how to use that command.
+
+@example
+(rdb:1) @b{help list}
+ruby-debug help v0.9.4
+l[ist]          list forward
+l[ist] -        list backward
+l[ist] =        list current line
+l[ist] nn-mm    list given lines
+* NOTE - to turn on autolist, use 'set autolist'
+(rdb:1)
+@end example
+
+@end table
+@node Control
+@section Controlling the debugger (@samp{quit}, @samp{restart}, @samp{interrupt})
+
+@table @code
+@kindex quit 
+@kindex q @r{(@code{quit})}
+@item quit 
+@item exit
+@itemx q
+
+To exit @value{DBG}, use the @code{quit} command (abbreviated
+@code{q}), or alias @code{exit}.
+
+A simple @code{quit} tries to terminate all threads in effect.
+
+@kindex restart @r{[}@var{program args}@r{]}
+@kindex R @r{[}@var{program args}@r{]}
+@item restart @r{(@code{quit})}
+@itemx R 
+
+Restart the program. This is is a re-exec - all debugger state is
+lost. If command arguments are passed those are used. Otherwise the
+last program arguments used in the last invocation are used.
+
+In not all cases will you be able to restart the program. First, the
+program should have been invoked at the outset rather than having been
+called from inside your program or invoked as a result of post-mortem
+handling. 
+
+Also, since this relies on the the OS @code{exec} call, this command
+is available only if your OS supports that @code{exec}; OSX for
+example does not (yet).
+
+@kindex interrupt
+@kindex i
+@item interrupt
+@itemx i
+Interrupt the program. Useful if there are multiple threads running.
+
+@end table
+
+@node DisplayCommands
+@section Executing expressions on stop (@samp{display}, @samp{undisplay})
+@cindex automatic display
+@cindex display of expressions
+
+If you find that you want to print the value of an expression
+frequently (to see how it changes), you might want to add it to the
+@dfn{automatic display list} so that @value{DBG} evaluates a
+statement each time your program stops.  Each expression added to the
+list is given a number to identify it; to remove an expression from
+the list, you specify that number.  The automatic display looks like
+this:
+
+@example
+(rdb:1) display n
+1: n = 3
+@end example
+
+@noindent
+This display shows item numbers, expressions and their current values.  
+
+@table @code
+@kindex display
+@item display @var{expr}
+Add the expression @var{expr} to the list of expressions to display
+each time your program stops. 
+
+@item display
+Display the current values of the expressions on the list, just as is
+done when your program stops. Note: this command uses @code{to_s} to
+in expressions; for example an array @code{[1, 2]} will appear as
+@code{12}.
+
+@kindex undisplay @ovar{num}
+@item undisplay @ovar{num}
+@itemx delete display @var{num}
+Remove item number @var{num} from the list of expressions to display.
+
+@ifset GDB_COMPLETED
+@code{undisplay} does not repeat if you press @key{RET} after using it.
+(Otherwise you would just get the error @samp{No display number @dots{}}.)
+
+@kindex disable display
+@item disable display @var{dnums}@dots{}
+Disable the display of item numbers @var{dnums}.  A disabled display
+item is not printed automatically, but is not forgotten.  It may be
+enabled again later.
+
+@kindex enable display
+@item enable display @var{dnums}@dots{}
+Enable display of item numbers @var{dnums}.  It becomes effective once
+again in auto display of its expression, until you specify otherwise.
+@end ifset
+
+@end table
+
+@node PrintCommands
+@section Evaluating and Printing Commands (@samp{p}, @samp{pp}, @samp{irb})
+
+One way to examine and change data in your script is with the
+@code{eval} command (abbreviated @code{p}). A similar command is
+@code{pp} which tries to prettyprint the result. Finally @code{irb} is
+useful when you anticipate examining or changing a number of things,
+and prefer not to have to preface each command, but rather work as one
+does in @code{irb}.
+
+@menu
+* eval::          eval or print an expression (eval, p)
+* pp::            pretty print an expression(pp)
+* irb::           running irb using the current context
+@end menu
+
+@node eval
+@subsection Printing an expression (@samp{eval}, @samp{p})
+@table @code
+@kindex eval
+@kindex p @r{(@code{eval})}
+@item eval @var{expr}
+@itemx p @var{expr}
+
+Use @code{eval} or @code{p} to evaluate a Ruby expresson, @var{expr},
+same as you would if you in @code{irb}. If there are many expressions
+you want to look at, you may want to go into irb from the debugger.
+@smallexample
+@group
+(rdb:p) p n
+3
+(rdb:1) p "the value of n is #@{n@}"
+"the value of n is 3"
+(rdb:1)
+@end group
+@end smallexample
+@end table
+
+@node pp
+@subsection Pretty Printing an expression (@samp{pp})
+@table @code
+@item pp
+@kindex pp @var{expr}
+Evaluates and pretty-prints @var{expr}
+@smallexample
+@group
+(rdb:1) p $LOAD_PATH
+["/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/bin", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/cli", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/bin", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/lib", "/home/rocky/lib/ruby", "/usr/lib/ruby/site_ruby/1.8", "/usr/lib/ruby/site_ruby/1.8/i586-linux", "/usr/lib/ruby
+(rdb:1) pp $LOAD_PATH
+["/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/bin",
+ "/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/cli",
+ "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/bin",
+ "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/lib",
+ "/home/rocky/lib/ruby",
+ "/usr/lib/ruby/site_ruby/1.8",
+ "/usr/lib/ruby/site_ruby/1.8/i586-linux",
+ "/usr/lib/ruby/site_ruby",
+ "/usr/lib/ruby/1.8",
+ "/usr/lib/ruby/1.8/i586-linux",
+ "."]
+@end group
+@end smallexample
+@end table
+
+@node irb
+@subsection Run irb (@samp{irb})
+@table @code
+@kindex irb 
+@item irb
+Run a Ruby @code{irb} session with the bindings environment set to the state
+you are in the program.
+@end table
+
+@node PrintVars
+@section Printing Variables (@samp{var})
+
+To be continued...
+
+@node List
+@section Examining Program Source Files (@samp{list})
+
+To be continued...
+
+@node FrameCommands
+@section Examining the Stack Frame (@samp{where}, @samp{up}, @samp{down}, @samp{frame})
+
+When your script has stopped, one thing you'll probably want to know
+is where it stopped and some idea of how it got there.
+
+@cindex call stack
+Each time your script performs a function call (either as part of a
+command substitution or not), or `source's a file, information about
+this action is saved.  The call stack then is this a history of the
+calls that got you to the point that you are currently stopped at.
+
+@cindex selected frame
+One of the stack frames is @dfn{selected} by @DBG{} and many
+@DBG commands refer implicitly to the selected frame.  In
+particular, whenever you ask @DBG to list lines without giving
+a line number or location the value is found in the selected frame.
+There are special @DBG commands to select whichever frame you
+are interested in. @xref{Selection, ,Selecting a frame}.
+
+When your program stops, @DBG{} automatically selects the
+currently executing frame and describes it briefly, similar to the
+@code{frame} command.
+
+
+@menu
+* Frames::                      Stack frames
+* Backtrace::                   Backtraces (where)
+* Selection::                   Selecting a frame (up, down, frame)
+
+@end menu
+
+@node Frames
+@subsection Stack frames
+
+@cindex frame, definition
+@cindex stack frame
+The call stack is divided up into contiguous pieces called @dfn{stack
+frames}, or @dfn{frames} for short; each frame is the data associated
+with one call to one function or method.  The frame contains the line
+number of the caller of the function, the source-file name that the
+line refers to a function name (which could be the built-in name
+``source'')..
+
+@cindex initial frame
+@cindex outermost frame
+@cindex innermost frame
+When your script is started, the stack has only one frame, that of the
+function @code{main}.  This is called the @dfn{initial} frame or the
+@dfn{outermost} frame.  Each time a function is called, a new frame is
+made.  Each time a function returns, the frame for that function invocation
+is eliminated.  If a function is recursive, there can be many frames for
+the same function.  The frame for the function in which execution is
+actually occurring is called the @dfn{innermost} frame.  This is the most
+recently created of all the stack frames that still exist.
+
+@cindex frame number
+@value{DBG} assigns numbers to all existing stack frames, starting with
+zero for the innermost frame, one for the frame that called it,
+and so on upward.  These numbers do not really exist in your script;
+they are assigned by @value{DBG} to give you a way of designating stack
+frames in @value{DBG} commands.
+
+@node Backtrace
+@subsection Backtraces (@samp{where})
+
+@cindex backtraces
+@cindex tracebacks
+@cindex stack traces
+A backtrace is essentially the same as the call stack: a summary of
+how your script got where it is.  It shows one line per frame, for
+many frames, starting with the place that you sare stopped at (frame
+zero), followed by its caller (frame one), and on up the stack.
+
+@table @code
+@kindex where
+@kindex w @r{(@code{where})}
+@itemx where
+Print a backtrace of the entire stack: one line per frame for all
+frames in the stack.
+
+@ifset FINISHED
+@item backtrace @var{n}
+@itemx bt @var{n}
+@itemx where @var{n}
+@itemx T @var{n}
+Similar, but print only the innermost @var{n} frames.
+
+@item backtrace -@var{n}
+@itemx bt -@var{n}
+@itemx where -@var{n}
+@itemx T -@var{n}
+Similar, but print only the outermost @var{n} frames.
+@end ifset
+@end table
+
+@node Selection
+@subsection Selecting a frame (@samp{up}, @samp{down}, @samp{frame})
+
+Commands for listing source code in your script work on whichever
+stack frame is selected at the moment.  Here are the commands for
+selecting a stack frame; all of them finish by printing a brief
+description of the stack frame just selected.
+
+@table @code
+@kindex up @ovar{n}
+@item up @ovar{n}
+Move @var{n} frames up the stack.  For positive numbers @var{n}, this
+advances toward the outermost frame, to higher frame numbers, to
+frames that have existed longer.  Using a negative @var{n} is the same
+as issuing a @code{down} command of the absolute value of the @var{n}.
+Using zero for @var{n} does no frame adjustment, but since the current
+position is redisplayed, it may trigger a resyncronization if there is
+a front end also watching over things. 
+
+@var{n} defaults to one. You may appreviate @code{up} as @code{u}.
+
+@kindex down @ovar{n}
+@item down @ovar{n}
+Move @var{n} frames down the stack.  For positive numbers @var{n}, this
+advances toward the innermost frame, to lower frame numbers, to frames
+that were created more recently.  Using a negative @var{n} is the same
+as issuing a @code{up} command of the absolute value of the @var{n}.
+Using zero for @var{n} does no frame adjustment, but since the current
+position is redisplayed, it may trigger a resyncronization if there is
+a front end also watching over things. 
+
+@var{n} defaults to one.
+@end table
+
+@table @code
+@kindex frame @ovar{n}
+@cindex current stack frame
+@item frame @ovar{n}
+The @code{frame} command allows you to move from one stack frame to
+another, and to print the stack frame you select.  @var{n} is the
+the stack frame number;  @code{frame 0} then will always show the
+current and most recent stack frame.
+
+If a negative number is given, counting is from the other end of the
+stack frame, so @code{frame -1} shows the least-recent, outermost or
+most ``main'' stack frame.
+
+Without an argument, @code{frame} prints the current stack
+frame. Since the current position is redisplayed, it may trigger a
+resyncronization if there is a front end also watching over
+things. 
+@end table
+
+@node Stopping
+@section Stopping and Resuming Execution
+
+One important use of a debugger is to stop your program @emph{before}
+it terminates, so that if your script runs into trouble you can
+investigate and find out why. However should your script accidently
+continue to termination, it can be arranged for @DBG to not to leave
+the debugger without your explicit instruction. That way, you can
+restart the program using the same command arguments.
+
+Inside @value{DBG}, your script may stop for any of several reasons,
+such as a signal, a breakpoint, or reaching a new line after a
+debugger command such as @code{step}.  You may then examine and
+change variables, set new breakpoints or remove old ones, and then
+continue execution.  
+
+@menu
+* Breakpoints::          Breakpoints, watchpoints (break, tbreak, watch, watche, clear)
+* Resuming Execution::   Resuming execution (continue, step, next, finish)
+@end menu
+
+@node Breakpoints
+@subsection Breakpoints (@samp{break}, @samp{catch}, @samp{delete})
+
+@cindex breakpoints
+A @dfn{breakpoint} makes your script stop whenever a certain point in
+the program is reached.  For each breakpoint, you can add conditions to
+control in finer detail whether your script stops.  
+
+You can specify the place where your script should stop with the
+@code{break} command and its variants.
+
+@cindex breakpoint numbers
+@cindex numbers for breakpoints
+@value{ttDBG} assigns a number to each breakpoint and watchpoint when
+you create it; these numbers are successive integers starting with
+one.  In many of the commands for controlling various features of
+breakpoints you use the breakpoint number to say which breakpoint you
+want to change.  
+
+@emph{To be continued...}
+
+@node Resuming Execution
+@subsection Resuming Execution (@samp{step}, @samp{next}, @samp{finish}, @samp{continue})
+
+A typical technique for using stepping is to set a breakpoint
+(@pxref{Breakpoints}) at the beginning of the function or the section
+of your script where a problem is believed to lie, run your script
+until it stops at that breakpoint, and then step through the suspect
+area, examining the variables that are interesting, until you see the
+problem happen.
+
+@cindex stepping
+@cindex continuing
+@cindex resuming execution
+@dfn{Continuing} means resuming program execution until your script
+completes normally.  In contrast, @dfn{stepping} means executing just
+one more ``step'' of your script, where ``step'' may mean either one
+line of source code.  Either when continuing or when stepping,
+your script may stop even sooner, due to a breakpoint or a signal.
+
+@menu
+* Step::          running the next statement (step)
+* Next::          running the next statement skipping over functions (next)
+* Finish::        running until the return of a function or ``source'' (finish)
+* Continue::      continuing execution (continue)
+@end menu
+
+@node Step
+@subsubsection Step (@samp{step})
+@table @code
+@kindex step @r{[}+@r{]} @ovar{count}
+@kindex s @r{(@code{step})}
+@item step @r{[}+@r{]} @ovar{count}
+Continue running your program until the next logical stopping point
+and return control to @value{DBG}. This command is abbreviated
+@code{s}.
+
+Occasionally inside an if expression or if there are multiple commands
+on a single line step will stop before each one. If you want to make
+sure that on a step you go to a @emph{different} position, add a plus
+sign (@samp{+}).
+
+With a count, @code{step} will continue running as normal, but do so
+@var{count} times.  If a breakpoint is reached, or a signal not
+related to stepping occurs before @var{count} steps, stepping stops
+right away.
+@end table
+
+@node Next
+@subsubsection Next (@samp{next})
+@table @code
+@kindex next @r{[}+@r{]} @ovar{count}
+@kindex n @r{(@code{next})}
+@item next @r{[}+@r{]} @ovar{count}
+This is similar to @code{step}, but function or method calls that
+appear within the line of code are executed without stopping. As with
+step, if you want to make sure that on a step you go to a
+@emph{different} position, add a plus sign (@samp{+}).  Similarly, an
+argument @var{count} is a repeat count, as for @code{step}.
+@end table
+
+@node Finish
+@subsubsection Finish (@samp{finish})
+@table @code
+@kindex finish
+@item finish
+Continue running until just after the method or function returns.
+
+If you want instead to terminate the program and debugger entirely,
+use @code{quit} (@pxref{Quitting the debugger, ,Quitting the debugger}).
+
+@end table
+
+@node Continue
+@subsubsection Continue (@samp{continue})
+@table @code
+@kindex continue @ovar{line-number}
+@kindex c @r{(@code{continue})}
+@item continue @ovar{line-number}
+@itemx c @ovar{line-number}
+Resume program execution, at the address where your script last
+stopped; any breakpoints set at that address are bypassed.  
+
+The optional argument @var{line-specification} allows you to specify a
+line number to set a one-time breakpoint which is deleted when that
+breakpoint is reached.
+
+Should the program stop before that breakpoint is reached, for
+example, perhaps another breakpoint or watchpoint is reached first, in
+a listing of the breakpoints you won't see this entry in the list of
+breakpoints.
+@end table
+
+@node Post-Mortem Debugging
+@chapter Post-Mortem Debugging
+@cindex post-mortem debugging
+
+It is also to possible enter the debugger when you have an uncaught
+exception. This is called post-mortem debugging. In this state many of
+the debugger commands for examining variables and moving around in the
+stack will still work. However some commands such as those which imply
+a continuation of running code will no longer work.
+
+To set up post-mortem debugging you need to call
+@code{Debugger.post_mortem} and it works in two ways. Called without a
+block, it installs a global @code{at_exit} hook that intercepts
+exceptions unhandled by your Ruby script.
+
+If however you know that a particular block of code raises an
+exception you can enable post-mortem mode by wrapping this block
+inside a @code{Debugger.post_mortem} block
+
+@example
+@cartouche
+def offender
+  1/0 
+end
+...
+require "ruby-gems"
+require "ruby-debug"
+Debugger.post_mortem do
+  ...
+  offender
+  ...
+end
+@end cartouche
+@end example 
+
+@node Debugger Module and Class
+@chapter The Debugger Module and Class
+
+@menu
+* Debugger Module::            ruby-debug's Debugger module
+* Debugger Class::             Overview of Debugger with a sample session
+* Kernel routines::            Routines added to Kernel
+@end menu
+
+@node Debugger Module
+@section The Debugger Module
+
+@ifset LATER
+@menu
+* Debugger.start::            
+* Debugger.stop::    
+* Debugger.post-mortem:: 
+@end menu
+@end ifset
+
+@node Debugger Class
+@section The Debugger Class
+
+@node Kernel routines
+@section Additions to Kernel 
+
+@node GNU Emacs
+@chapter Using @code{ruby-debug} from GNU Emacs
+
+@node Command Index
+@unnumbered Command Index
+@printindex ky
+
+@node General Index
+@unnumbered General Index
+@printindex cp
+
+@tex
+% I think something like @colophon should be in texinfo.  In the
+% meantime:
+\long\def\colophon{\hbox to0pt{}\vfill
+\centerline{The body of this manual is set in}
+\centerline{\fontname\tenrm,}
+\centerline{with headings in {\bf\fontname\tenbf}}
+\centerline{and examples in {\tt\fontname\tentt}.}
+\centerline{{\it\fontname\tenit\/},}
+\centerline{{\bf\fontname\tenbf}, and}
+\centerline{{\sl\fontname\tensl\/}}
+\centerline{are used for emphasis.}\vfill}
+\page\colophon
+% Blame: doc@cygnus.com, 1991.
+@end tex
+
+@bye
