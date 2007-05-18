@@ -4,6 +4,7 @@
 - Using pretty-print for all var commands. Patch from R. Bernstein.
 - Better error reporting for commands that require a numeric argument.
 - Fixed Kernel#binding_n method
+- Add option -d ($DEBUG = true) and --verbose. Make -v work like ruby.
 
 0.9.3
 - Fixed if..elsif..end stepping.
