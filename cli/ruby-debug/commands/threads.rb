@@ -17,20 +17,20 @@ module Debugger
     def parse_thread_num(subcmd, arg)
       if '' == arg
         print "'thread %s' needs a thread number\n" % subcmd
-        return nil
-      end
-      thread_num = get_int(arg, "thread #{subcmd}", 1)
-      return nil unless thread_num
-      c = get_context(thread_num)
-      case 
-      when nil == c
-        print "No such thread.\n"
-      when @state.context == c
-        print "It's the current thread.\n"
-      when c.ignored?
-        print "Can't #{subcmd} to the debugger thread.\n"
-      else # Everything is okay
-        return c
+      else
+        thread_num = get_int(arg, "thread #{subcmd}", 1)
+        return nil unless thread_num
+        c = get_context(thread_num)
+        case 
+        when nil == c
+          print "No such thread.\n"
+        when @state.context == c
+          print "It's the current thread.\n"
+        when c.ignored?
+          print "Can't #{subcmd} to the debugger thread.\n"
+        else # Everything is okay
+          return c
+        end
       end
       return nil
     end
@@ -134,7 +134,7 @@ module Debugger
     include ThreadFunctions
 
     def regexp
-      /^\s*th(?:read)?\s+(?:sw(?:itch)?)\s*?(\S*)\s*$/
+      /^\s*th(?:read)?\s*(?:sw(?:itch)?)?\s+(\S+)\s*$/
     end
 
     def execute

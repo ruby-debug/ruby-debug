@@ -60,7 +60,7 @@
 
 This file describes ruby-debug, the Ruby Debugger.
 
-@c This is the @value{EDITION} Edition, @value{UPDATED}
+This is the @value{EDITION} Edition, @value{UPDATED}
 @c Copyright (C) 2007 ...
 
 @menu
