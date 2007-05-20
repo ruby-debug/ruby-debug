@@ -19,35 +19,45 @@ module Debugger
 
     def execute
       if @match[1]
-        pos, _, _, expr = @match.captures
+        line, _, _, expr = @match.captures
       else
-        _, file, pos, expr = @match.captures
+        _, file, line, expr = @match.captures
       end
-      
+
+      full_file = nil
       if file.nil?
+        full_file = @state.file
         file = File.basename(@state.file)
       else
-        if pos !~ /^\d+$/
+        if line !~ /^\d+$/
           klass = debug_silent_eval(file)
           if klass && !klass.kind_of?(Module)
             print "Unknown class #{file}\n"
             throw :debug_error
           end
-          file = klass.name if klass
+          class_name = klass.name if klass
         else
           file = File.expand_path(file) if file.index(File::SEPARATOR) || \
             File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
+          full_file = file
         end
       end
       
-      if pos =~ /^\d+$/
-        pos = pos.to_i
+      if line =~ /^\d+$/
+        lines = Debugger.source_for(full_file)
+        if not lines 
+          print "No source file named %s\n", file
+        elsif lines.size < line
+          print "No line %d in file \"%s\"\n", line, file
+        else
+          b = Debugger.add_breakpoint file, line, expr
+          print "Breakpoint %d file %s, line %s\n", b.id, file, line.to_s
+        end
       else
-        pos = pos.intern.id2name
+        method = line.intern.id2name
+        b = Debugger.add_breakpoint class_name, method, expr
+        print "Breakpoint %d at %s::%s\n", b.id, class_name, method.to_s
       end
-      
-      b = Debugger.add_breakpoint file, pos, expr
-      print "Set breakpoint %d at %s:%s\n", b.id, file, pos.to_s
     end
 
     class << self
@@ -77,13 +87,13 @@ module Debugger
         print "Breakpoints:\n"
         Debugger.breakpoints.sort_by{|b| b.id }.each do |b|
           if b.expr.nil?
-            print "  %d %s:%s\n", b.id, b.source, b.pos
+            print "  %d at %s:%s\n", b.id, b.source, b.pos
           else
-            print "  %d %s:%s if %s\n", b.id, b.source, b.pos, b.expr
+            print "  %d at %s:%s if %s\n", b.id, b.source, b.pos, b.expr
           end
         end
       else
-        print "No breakpoints\n"
+        print "No breakpoints.\n"
       end
     end
 
@@ -109,16 +119,18 @@ module Debugger
     end
 
     def execute
-      pos = @match[1]
-      unless pos
-        if confirm("Clear all breakpoints? (y/n) ")
+      brkpts = @match[1]
+      unless brkpts
+        if confirm("Delete all breakpoints? (y or n) ")
           Debugger.breakpoints.clear
         end
       else
-        pos = get_int(pos, "Delete", 1)
-        return unless pos
-        unless Debugger.remove_breakpoint(pos)
-          print "Breakpoint %d is not defined\n", pos
+        brkpts.split(/[ \t]+/).each do |pos|
+          pos = get_int(pos, "Delete", 1)
+          return unless pos
+          unless Debugger.remove_breakpoint(pos)
+            print "No breakpoint number %d\n", pos
+          end
         end
       end
     end
@@ -130,7 +142,7 @@ module Debugger
 
       def help(cmd)
         %{
-          del[ete][ nnn]\tdelete some or all breakpoints
+          del[ete][ nnn...]\tdelete some or all breakpoints
         }
       end
     end

@@ -176,10 +176,10 @@ this time 10 lines are shown.
 ./hanoi.rb:13 i_args=ARGV.length
 (rdb:1) @b{@key{RET}}
 ./hanoi.rb:14 if i_args != 1 and i_args != 2:
-(rdb:1) @b{p i_args}
-0
 (rdb:1) @b{step}
 ./hanoi.rb:14 if i_args != 1 and i_args != 2:
+(rdb:1) @b{p i_args}
+0
 (rdb:1) 
 @end cartouche
 @end smallexample
@@ -188,6 +188,16 @@ The first @kbd{step} command (@pxref{Step}) runs the script one
 executable unit. The second command we entered was just hitting the
 return key; @ttDBG{} remembers the last command you entered was
 @code{step}, so it runs that last command again.
+
+Notice that the second step above remained on line 14. After the first
+step we were stopped before running the expression in the @code{if}
+statement (@code{i_args !=1 and i_args !=2}); after the second step we
+are about to perform the @code{if} test on the resulting
+expression. It is not uncommon in stepping to stay on the same line
+after a step. In fact, this always happens in conditional statements
+and loops as we saw above. If you want to go to a new line when you
+issue a step command, add a plus sign. That is issue @code{step +}
+rather than @code{step}).
 
 We can print the values of variables using @code{p}. 
 
@@ -875,7 +885,40 @@ one.  In many of the commands for controlling various features of
 breakpoints you use the breakpoint number to say which breakpoint you
 want to change.  
 
-@emph{To be continued...}
+@table @code
+@kindex break
+@kindex b @r{(@code{break})}
+@item break
+List all breakpoints.
+
+@item break @var{linenum}
+Set a breakpoint at line @var{linenum} in the current source file.
+The current source file is the last file whose source text was printed.
+The breakpoint will stop your script just before it executes any of the
+code on that line.
+
+@item break @var{filename}:@var{linenum}
+Set a breakpoint at line @var{linenum} in source file @var{filename}.
+
+@item break @var{class}:@var{method}
+Set a breakpoint in class @var{class} method @var{method}.
+
+@kindex catch @ovar{exception}
+@kindex cat @r{(@code{catch})}
+@item catch
+Set catchpoint to an exception. Without an exception name show catchpoints.
+
+
+@cindex delete breakpoints
+@kindex delete
+@kindex del @r{(@code{delete})}
+@item delete @ovar{breakpoints}
+Delete the breakpoints, watchpoints specified as arguments. 
+
+If no argument is specified, delete all breakpoints (@DBG asks
+confirmation, unless you have @code{set confirm off}).  You can
+abbreviate this command as @code{del}.
+@end table
 
 @node Resuming Execution
 @subsection Resuming Execution (@samp{step}, @samp{next}, @samp{finish}, @samp{continue})
