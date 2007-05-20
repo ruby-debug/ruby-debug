@@ -99,6 +99,7 @@ module Debugger
       if @match[1] && !@state.context.dead?
         file = File.expand_path(@state.file)
         line = get_int(@match[1], "Continue", 0, nil, 0)
+        return unless line
         @state.context.set_breakpoint(file, line)
       end
       @state.proceed
