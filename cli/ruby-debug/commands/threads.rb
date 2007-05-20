@@ -37,7 +37,6 @@ module Debugger
   end
 
   class ThreadListCommand < Command # :nodoc:
-    puts "foo"
     self.control = true
     include ThreadFunctions
 
