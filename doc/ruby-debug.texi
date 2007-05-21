@@ -140,7 +140,7 @@ $ @b{rdebug hanoi.rb}
    5         hanoi(n-1, a, c, b)
    6      end
    7      puts "Move disk %s to %s" % [a, b]
-(rdb:1) l
+(rdb:1) @b{l}
 [8, 17] in ./hanoi.rb
    8      if n-1 > 0
    9         hanoi(n-1, c, b, a)
@@ -162,6 +162,9 @@ There are lots of command options, but we don't need them for now. See
 
 Position information consists of a filename and line number,
 e.g. @code{/hanoi.rb:3}. 
+
+@DBG{}'s prompt is @code{(rdb:@emph{n})}. The @emph{n} is the thread
+number. Here it is 1 which is usually the case for the main thread.
 
 The first command, @code{list}, prints 10 lines centered around the
 current line. However since there aren't 5 lines before the current
@@ -339,8 +342,8 @@ Add @var{PATH} to @code{$LOAD_PATH}
 Require the library, before executing your script
 
 @item --emacs
-Activates GNU Emacs mode. Debugger output is tagged in such a way to allow
-GNU Emacs to track where you are in the code.
+Activates GNU Emacs mode (@pxref{GNU Emacs}). Debugger output is tagged in
+such a way to allow GNU Emacs to track where you are in the code.
 
 @item --no-control
 @cindex @code{--no-control}
@@ -659,9 +662,9 @@ you want to look at, you may want to go into irb from the debugger.
 Evaluates and pretty-prints @var{expr}
 @smallexample
 @group
-(rdb:1) p $LOAD_PATH
+(rdb:1) @b{p $LOAD_PATH}
 ["/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/bin", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/cli", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/bin", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/lib", "/home/rocky/lib/ruby", "/usr/lib/ruby/site_ruby/1.8", "/usr/lib/ruby/site_ruby/1.8/i586-linux", "/usr/lib/ruby
-(rdb:1) pp $LOAD_PATH
+(rdb:1) @b{pp $LOAD_PATH}
 ["/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/bin",
  "/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/cli",
  "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/bin",
