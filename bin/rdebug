@@ -18,7 +18,8 @@ options = OpenStruct.new(
   'post_mortem' => false,
   'script'      => nil,
   'tracing'     => false,
-  'frame_bind'  => false
+  'frame_bind'  => false,
+  'verbose_long'=> false
 )
 
 opts = OptionParser.new do |opts|
@@ -69,6 +70,7 @@ EOB
   end
   opts.on("--verbose", "turn on verbose mode") do
     $VERBOSE = true
+    options.verbose_long = true
   end
   opts.on_tail("-v", 
                "print version number, then turn on verbose mode") do
@@ -96,7 +98,7 @@ if options.client
   Debugger.start_client(options.host, options.port)
 else
   if ARGV.empty?
-    exit if $VERBOSE
+    exit if $VERBOSE and not options.verbose_long
     puts opts
     puts
     puts "Must specify a script to run"
