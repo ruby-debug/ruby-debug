@@ -44,6 +44,7 @@ module Debugger
       end
       
       if line =~ /^\d+$/
+        line = line.to_i
         lines = Debugger.source_for(full_file)
         if not lines 
           print "No source file named %s\n", file
