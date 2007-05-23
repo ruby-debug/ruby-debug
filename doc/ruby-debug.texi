@@ -164,7 +164,10 @@ Position information consists of a filename and line number,
 e.g. @code{/hanoi.rb:3}. 
 
 @DBG{}'s prompt is @code{(rdb:@emph{n})}. The @emph{n} is the thread
-number. Here it is 1 which is usually the case for the main thread.
+number. Here it is 1 which is usually the case for the main thread. If
+the program has died and you are in post-mortem debugging, there is no
+thread number. In this situation, the string @code{post-mortem} is
+used in place of a thread number.
 
 The first command, @code{list}, prints 10 lines centered around the
 current line. However since there aren't 5 lines before the current
@@ -202,9 +205,57 @@ and loops as we saw above. If you want to go to a new line when you
 issue a step command, add a plus sign. That is issue @code{step +}
 rather than @code{step}).
 
-We can print the values of variables using @code{p}. 
+We can print the values of variables using @code{p}. And when we do we
+see this value 0 means we are going to run into trouble by taking that
+@code{if} statement at line 14: we should have passed a parameter to
+the script. However we can rerun the program by using the
+@code{restart} command.
+
+
+@smallexample
+@cartouche
+(rdb:1) @b{restart 3}
+Re exec'ing:
+        /usr/bin/rdebug ./hanoi.rb 3
+./hanoi.rb:3 def hanoi(n,a,b,c)
+(rdb:1) @b{break 4}
+Breakpoint 1 file hanoi.rb, line 4
+(rdb:1) @b{continue}
+Breakpoint 1 at hanoi.rb:4
+./hanoi.rb:4 if n-1 > 0
+(rdb:1) @b{display n}
+1: n = 3
+(rdb:1) @b{display a}
+2: a = a
+(rdb:1) @b{display b}
+3: b = b
+(rdb:1) @b{continue}
+Breakpoint 1 at hanoi.rb:4
+./hanoi.rb:4 if n-1 > 0
+1: n = 2
+2: a = a
+3: b = c
+(rdb:1) @b{c}
+Breakpoint 1 at hanoi.rb:4
+./hanoi.rb:4 if n-1 > 0
+1: n = 1
+2: a = a
+3: b = b
+@end cartouche
+@end smallexample 
+
+Now show frame commands, e.g. frame -1. 
 
 To be continued...
+
+@itemize @bullet
+@item more complex example with objects, pretty printing and irb.
+@item line tracing and non-interactive tracing.
+@item post-mortem debugging and setting up for that
+@item setting a breakpoint by modifying the program.
+@item threading?
+@item references to videos
+@end itemize
 
 @node Invocation
 @chapter Getting in and out
