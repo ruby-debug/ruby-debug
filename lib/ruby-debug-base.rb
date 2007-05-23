@@ -145,9 +145,9 @@ module Debugger
         ensure
           self.post_mortem = false
         end
-      else
+      elsif $! && post_mortem?
         debug_at_exit do
-          handle_post_mortem($!) if $! && post_mortem?
+          handle_post_mortem($!)
         end
       end
     end
