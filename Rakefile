@@ -1,6 +1,9 @@
+#!/usr/bin/env rake
+# -*- Ruby -*-
 require 'rubygems'
 require 'rake/gempackagetask'
 require 'rake/rdoctask'
+require 'rake/testtask'
 
 SO_NAME = "ruby_debug.so"
 
@@ -26,6 +29,28 @@ CLI_FILES = FileList[
   "cli/**/*",
   'doc/*',
 ]
+
+desc "Test everything."
+Rake::TestTask.new(:test) do |t|
+  t.libs << ['./ext', './lib']
+  t.pattern = 'test/**/*test-*.rb'
+  t.verbose = true
+end
+
+# ---------  Clean derived files ------
+task :clean do
+  system("cd ext && rm Makefile *.o *.so")
+end
+
+# ---------  Make shared library ------
+task :lib do
+  system("cd ext && ruby extconf.rb && make")
+end
+
+# ---------  Make shared library ------
+task :ChangeLog do
+  system("svn2cl")
+end
 
 # Base GEM Specification
 base_spec = Gem::Specification.new do |spec|
@@ -156,3 +181,4 @@ Rake::RDocTask.new("rdoc") do |rdoc|
                           'README',
                           'LICENSE')
 end
+

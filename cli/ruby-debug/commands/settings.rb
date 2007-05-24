@@ -1,9 +1,10 @@
 module Debugger
   class SetCommand < Command # :nodoc:
+    include ParseFunctions
     self.control = true
 
     def regexp
-      /^set \s+ (.+) \s*/x
+      /^set \s+ (.+) \s*/xi
     end
 
     def execute
@@ -32,8 +33,15 @@ module Debugger
       when /^(no)?forcestep$/
         self.class.settings[:force_stepping] = $1.nil?
         print "force-stepping is #{$1.nil? ? 'on' : 'off'}.\n"
+      when /^width \s* (\S*) \s*$/ix
+        width = get_int($1, "Set width")
+        if width
+          self.class.settings[:width] = width
+          ENV['COLUMNS'] = width.to_s
+          print "width is #{width}.\n"
+        end
       else
-        print "Unknown setting.\n"
+        print "Unknown setting #{@match[1]}.\n"
       end
     end
 
@@ -53,6 +61,7 @@ module Debugger
            framefullpath  - frame will display full file names
            frameclassname - frame will display class names
            forcestep      - make sure 'next/step' commands always move to a new line
+           width          - Set number of characters ruby-debug thinks are in a line
            To disable setting, use 'no' prefix, like 'noautolist'
          }
       end

@@ -1,5 +1,12 @@
+# Display a list of strings as a compact set of columns.
+#
+#  Each column is only as wide as necessary.
+#  Columns are separated by two spaces (one was not legible enough).
+#  Adapted from the routine of the same name in cmd.py
+
 module Debugger
   class HelpCommand < Command # :nodoc:
+    include Columnize
     self.control = true
 
     def regexp
@@ -17,17 +24,7 @@ module Debugger
         print "Available commands:\n"
         cmds = @state.commands.map{ |cmd| cmd.help_command }
         cmds = cmds.flatten.uniq.sort
-
-        buf = ""
-        cmds.each do |cmd|
-          if buf.length + cmd.length > 70
-            print "%s\n", buf
-            buf = "#{cmd} "
-          else
-            buf << cmd << ' '
-          end
-        end
-        print "%s\n", buf if buf.length > 0
+        print columnize(cmds, self.class.settings[:width])
       end
       print "\n"
     end

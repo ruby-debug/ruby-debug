@@ -1,5 +1,6 @@
 module Debugger
   class MethodCommand < Command # :nodoc:
+    include Columnize
     def regexp
       /^\s*m(?:ethod)?\s+(?:(i(:?nstance)?)\s)?/
     end
@@ -7,32 +8,15 @@ module Debugger
     def execute
       if @match[1]
         obj = debug_eval(@match.post_match)
-
-        len = 0
-        for v in obj.methods.sort
-          len += v.size + 1
-          if len > 70
-            len = v.size + 1
-            print "\n"
-          end
-          print "%s ", v
-        end
-        print "\n"
+        print "%s\n", columnize(obj.methods.sort(), 
+                                self.class.settings[:width])
       else
         obj = debug_eval(@match.post_match)
         unless obj.kind_of? Module
           print "Should be Class/Module: %s\n", @match.post_match
         else
-          len = 0
-          for v in obj.instance_methods(false).sort
-            len += v.size + 1
-            if len > 70
-              len = v.size + 1
-              print "\n"
-            end
-            print "%s ", v
-          end
-          print "\n"
+          print "%s\n", columnize(obj.instance_methods(false).sort(), 
+                                  self.class.settings[:width])
         end
       end
     end

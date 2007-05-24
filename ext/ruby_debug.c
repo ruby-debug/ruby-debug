@@ -67,6 +67,7 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #define STACK_SIZE_INCREMENT 128
 
 typedef struct {
+    int argc;         /* Number of arguments a frame should have. */
     VALUE binding;
     ID id;
     ID orig_id;
@@ -81,6 +82,7 @@ typedef struct {
             struct RVarmap *dyna_vars;
         } runtime;
         struct {
+            VALUE args;
             VALUE locals;
         } copy;
     } info;
@@ -165,6 +167,7 @@ static unsigned long hook_count = 0;
 static VALUE create_binding(VALUE);
 static VALUE debug_stop(VALUE);
 static void save_current_position(debug_context_t *);
+static VALUE context_copy_args(debug_frame_t *);
 static VALUE context_copy_locals(debug_frame_t *);
 static void context_suspend_0(debug_context_t *);
 static void context_resume_0(debug_context_t *);
@@ -472,6 +475,7 @@ debug_context_dup(debug_context_t *debug_context)
         new_frame = &(new_debug_context->frames[i]);
         old_frame = &(debug_context->frames[i]);
         new_frame->dead = 1;
+        new_frame->info.copy.args = context_copy_args(old_frame);
         new_frame->info.copy.locals = context_copy_locals(old_frame);
     }
     return Data_Wrap_Struct(cContext, debug_context_mark, debug_context_free, new_debug_context);
@@ -546,6 +550,7 @@ save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debu
         debug_context->frames = REALLOC_N(debug_context->frames, debug_frame_t, debug_context->stack_len);
     }
     debug_frame = &debug_context->frames[frame_n];
+    debug_frame->argc = ruby_frame->argc;
     debug_frame->file = file;
     debug_frame->line = line;
     debug_frame->binding = binding;
@@ -1888,6 +1893,36 @@ context_frame_file(VALUE self, VALUE frame)
 }
 
 static VALUE
+context_copy_args(debug_frame_t *debug_frame)
+{
+    ID *tbl;
+    int n, i;
+    struct SCOPE *scope;
+    VALUE list = rb_ary_new2(0); /* [] */
+
+    scope = debug_frame->info.runtime.scope;
+    tbl = scope->local_tbl;
+
+    if (tbl && scope->local_vars) 
+    {
+        n = *tbl++;
+	if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
+	list = rb_ary_new2(n);
+        for (i=2; i<n; i++) 
+        {   
+	    VALUE pair; 
+            /* skip first 2 ($_ and $~) */
+            if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
+	    pair = rb_ary_new3(2, rb_str_new2(rb_id2name(tbl[i])), 
+			       scope->local_vars[i]);
+            rb_ary_push(list, pair);
+        }
+    }
+
+    return list;
+}
+
+static VALUE
 context_copy_locals(debug_frame_t *debug_frame)
 {
     ID *tbl;
@@ -1941,6 +1976,28 @@ context_frame_locals(VALUE self, VALUE frame)
         return debug_frame->info.copy.locals;
     else
         return context_copy_locals(debug_frame);
+}
+
+/*
+ *   call-seq:
+ *      context.frame_locals(frame) -> list
+ *
+ *   Returns frame's argument parameters
+ */
+static VALUE
+context_frame_args(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+    debug_frame_t *debug_frame;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    debug_frame = GET_FRAME;
+    if(debug_frame->dead)
+        return debug_frame->info.copy.args;
+    else
+        return context_copy_args(debug_frame);
 }
 
 /*
@@ -2522,6 +2579,7 @@ Init_context()
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
     rb_define_method(cContext, "ignored?", context_ignored, 0);
+    rb_define_method(cContext, "frame_args", context_frame_args, 1);
     rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
     rb_define_method(cContext, "frame_id", context_frame_id, 1);
     rb_define_method(cContext, "frame_method", context_frame_id, 1);

@@ -1,13 +1,4 @@
 module Debugger
-  module VarFunctions # :nodoc:
-    def var_list(ary, b = get_binding)
-      ary.sort!
-      for v in ary
-        print "  %s => %p\n", v, debug_eval(v, b)
-      end
-    end
-  end
-
   class VarConstantCommand < Command # :nodoc:
     include VarFunctions
 
