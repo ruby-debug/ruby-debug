@@ -123,7 +123,7 @@ module Debugger
             if method.size > self.class.settings[:width] - 10
               # Strip off trailing ', ' if any but add stuff for later trunc
               method[-2..-1] = "...XXX"
-              last
+              break
             end
           end
           method[-2..-1] = ") " # Strip off trailing ', ' if any 
