@@ -32,25 +32,46 @@ module Debugger
 
     def regexp
       / ^\s*
-      (restart|R)
+      (?:restart|R)
       (\s+ \S+ .*)?
       $
-      /x
+      /ix
     end
     
     def execute
-      if not defined? Debugger::RDEBUG_SCRIPT or not defined? Debugger::ARGV
-        print "We are not in a context we can restart from.\n"
-        return
+      if not defined? Debugger::RDEBUG_SCRIPT
+        # FIXME? Should ask for confirmation? 
+        print "Debugger was not called from the outset...\n"
+        if not File.exists?($0)
+          print "  and $0 #{$0} doesn't exist\n"
+          return
+        else
+          print "  we'll hope $0 hasn't been modified.\n"
+        end
+        if not File.executable?($0)
+          print "$0 doesn't seem to be executable; we'll add a call to Ruby.\n"
+          prog_script = "ruby #{$0}"
+        else
+          prog_script = $0
+        end
+      else
+        prog_script = Debugger:PROG_SCRIPT
       end
       if @match[2]
-        args = Debugger::PROG_SCRIPT + " " + @match[2]
+        args = prog_script + " " + @match[1]
       else
-        args = Debugger::ARGV.join(" ")
+        if not defined? Debugger::ARGV
+          # FIXME? Should ask for confirmation? 
+          print "We'll also hope ARGV hasn't been modified too badly\n"
+          argv = ARGV
+        else
+          argv = Debugger::ARGV
+        end
+        args = argv.join(" ")
       end
 
       # An execv would be preferable to the "exec" below.
-      cmd = Debugger::RDEBUG_SCRIPT + " " + args
+      cmd = prog_script + " " + args
       print "Re exec'ing:\n\t#{cmd}\n"
       exec cmd
     rescue Errno::EOPNOTSUPP
