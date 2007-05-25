@@ -42,20 +42,19 @@ module Debugger
       if not defined? Debugger::RDEBUG_SCRIPT
         # FIXME? Should ask for confirmation? 
         print "Debugger was not called from the outset...\n"
-        if not File.exists?($0)
-          print "  and $0 #{$0} doesn't exist\n"
-          return
-        else
-          print "  we'll hope $0 hasn't been modified.\n"
-        end
-        if not File.executable?($0)
-          print "$0 doesn't seem to be executable; we'll add a call to Ruby.\n"
-          prog_script = "ruby #{$0}"
-        else
-          prog_script = $0
-        end
+        prog_script = $0
       else
         prog_script = Debugger::PROG_SCRIPT
+      end
+      if not File.exists?(prog_script)
+        print "  and prog_script #{prog_script} doesn't exist\n"
+        return
+      else
+        print "  we'll hope #{prog_script} hasn't been modified.\n"
+      end
+      if not File.executable?(prog_script)
+        print "prog_script doesn't seem to be executable; we'll add a call to Ruby.\n"
+        prog_script = "ruby -I #{$:.join(' -I')} #{prog_script}"
       end
       if @match[1]
         args = prog_script + " " + @match[1]
