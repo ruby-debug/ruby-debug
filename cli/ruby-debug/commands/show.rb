@@ -1,6 +1,7 @@
 module Debugger
   class ShowCommand < Command # :nodoc:
     include ParseFunctions
+    include ShowFunctions
     
     SubcmdStruct=Struct.new(:name, :min, :short_help)
     Subcommands = 
@@ -38,36 +39,7 @@ module Debugger
         for try_subcmd in Subcommands do
           if (subcmd.size >= try_subcmd.min) and
               (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            case try_subcmd.name
-            when /^autolist$/
-              on_off = Command.settings[:autolist]
-              print "autolist is #{show_onoff(on_off)}.\n"
-            when /autoeval$/
-              on_off = Command.settings[:autoeval]
-              print "autoeval is #{show_onoff(on_off)}.\n"
-            when /trace$/
-              on_off = Command.settings[:stack_trace_on_error]
-              print "Displaying stack trace is #{show_onoff(on_off)}.\n"
-            when /framefullpath$/
-              on_off = Command.settings[:frame_full_path]
-              print "Displaying frame's full file names is #{show_onoff(on_off)}.\n"
-            when /frameclassname$/
-              on_off = Command.settings[:frame_class_names]
-              print "Displaying frame's original class name is #{show_onoff(on_off)}.\n"
-            when /autoreload$/
-              on_off = Command.settings[:reload_source_on_change]
-              print "autoreload is #{show_onoff(on_off)}.\n"
-            when /autoirb$/
-              on_off = Command.settings[:autoirb]
-              print "autoirb is #{show_onoff(on_off)}.\n"
-            when /forcestep$/
-              self.class.settings[:force_stepping] = on_off
-              print "force-stepping is #{show_onoff(on_off)}.\n"
-            when /^width$/
-              print "width is #{self.class.settings[:width]}.\n"
-            else
-              print "Unknown setting #{@match[1]}.\n"
-            end
+            print "%s\n" % show_setting(try_subcmd.name)
             return
           end
         end

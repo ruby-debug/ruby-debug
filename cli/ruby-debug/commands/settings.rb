@@ -1,6 +1,7 @@
 module Debugger
   class SetCommand < Command # :nodoc:
     include ParseFunctions
+    include ShowFunctions
     
     SubcmdStruct=Struct.new(:name, :min, :short_help)
     Subcommands = 
@@ -45,38 +46,33 @@ module Debugger
             case try_subcmd.name
             when /^autolist$/
               Command.settings[:autolist] = set_on
-              print "autolist is #{show_onoff(set_on)}.\n"
             when /autoeval$/
               Command.settings[:autoeval] = set_on
-              print "autoeval is #{show_onoff(set_on)}.\n"
             when /trace$/
               Command.settings[:stack_trace_on_error] = set_on
-              print "Displaying stack trace is #{show_onoff(set_on)}.\n"
             when /framefullpath$/
               Command.settings[:frame_full_path] = set_on
-              print "Displaying frame's full file names is #{show_onoff(set_on)}.\n"
             when /frameclassname$/
               Command.settings[:frame_class_names] = set_on
-              print "Displaying frame's original class name is #{show_onoff(set_on)}.\n"
             when /autoreload$/
               Command.settings[:reload_source_on_change] = set_on
-              print "autoreload is #{show_onoff(set_on)}.\n"
             when /autoirb$/
               Command.settings[:autoirb] = set_on
-              print "autoirb is #{show_onoff(set_on)}.\n"
             when /forcestep$/
               self.class.settings[:force_stepping] = set_on
-              print "force-stepping is #{show_onoff(set_on)}.\n"
             when /^width$/
-              width = get_int(arg, "Set width")
+              width = get_int(arg, "Set width", 10, nil, 80)
               if width
                 self.class.settings[:width] = width
                 ENV['COLUMNS'] = width.to_s
-                print "width is #{width}.\n"
+              else
+                return
               end
             else
               print "Unknown setting #{@match[1]}.\n"
+              return
             end
+            print "%s\n" % show_setting(try_subcmd.name)
             return
           end
         end

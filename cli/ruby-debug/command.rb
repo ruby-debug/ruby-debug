@@ -73,6 +73,42 @@ module Debugger
       return s
     end
   end
+  # Mix-in module to showing settings
+  module ShowFunctions # :nodoc:
+    def show_setting(setting_name)
+      case setting_name
+      when /^autolist$/
+        on_off = Command.settings[:autolist]
+        return "autolist is #{show_onoff(on_off)}."
+      when /autoeval$/
+        on_off = Command.settings[:autoeval]
+        return "autoeval is #{show_onoff(on_off)}."
+      when /trace$/
+        on_off = Command.settings[:stack_trace_on_error]
+        return "Displaying stack trace is #{show_onoff(on_off)}."
+      when /framefullpath$/
+        on_off = Command.settings[:frame_full_path]
+        return "Displaying frame's full file names is #{show_onoff(on_off)}."
+      when /frameclassname$/
+        on_off = Command.settings[:frame_class_names]
+        return "Displaying frame's original class name is #{show_onoff(on_off)}."
+      when /autoreload$/
+        on_off = Command.settings[:reload_source_on_change]
+        return "autoreload is #{show_onoff(on_off)}."
+      when /autoirb$/
+        on_off = Command.settings[:autoirb]
+        return "autoirb is #{show_onoff(on_off)}."
+      when /forcestep$/
+        self.class.settings[:force_stepping] = on_off
+        return "force-stepping is #{show_onoff(on_off)}."
+      when /^width$/
+        return "width is #{self.class.settings[:width]}."
+      else
+        return "Unknown setting #{@match[1]}."
+      end
+    end
+  end
+
   # Mix-in module to assist in command parsing.
   module FrameFunctions # :nodoc:
     def adjust_frame(frame_pos, absolute)
@@ -87,10 +123,10 @@ module Debugger
       end
 
       if abs_frame_pos >= @state.context.stack_size then
-        print "Adjusting would put us beyond the oldest (initial) frame.\n"
+        print "Adjusting would put us beyond the oldest (initial) frame."
         return
       elsif abs_frame_pos < 0 then
-        print "Adjusting would put us beyond the newest (innermost) frame.\n"
+        print "Adjusting would put us beyond the newest (innermost) frame."
         return
       end
       if @state.frame_pos != abs_frame_pos then
