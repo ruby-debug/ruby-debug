@@ -57,7 +57,7 @@ module Debugger
       else
         prog_script = Debugger:PROG_SCRIPT
       end
-      if @match[2]
+      if @match[1]
         args = prog_script + " " + @match[1]
       else
         if not defined? Debugger::ARGV
