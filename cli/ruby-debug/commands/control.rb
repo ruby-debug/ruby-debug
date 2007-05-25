@@ -55,7 +55,7 @@ module Debugger
           prog_script = $0
         end
       else
-        prog_script = Debugger:PROG_SCRIPT
+        prog_script = Debugger::PROG_SCRIPT
       end
       if @match[1]
         args = prog_script + " " + @match[1]
@@ -64,6 +64,8 @@ module Debugger
           # FIXME? Should ask for confirmation? 
           print "We'll also hope ARGV hasn't been modified too badly\n"
           argv = ARGV
+        elsif Debugger::ARGV[0] == Debugger::PROG_SCRIPT
+          argv = Debugger::ARGV[1..-1]
         else
           argv = Debugger::ARGV
         end
