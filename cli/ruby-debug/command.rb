@@ -103,33 +103,46 @@ module Debugger
       
       print_frame(@state.frame_pos, true)
     end
+    
+    def get_frame_call(pos)
+      id = @state.context.frame_method(pos)
+      call_str = ""
+      if id
+        args = @state.context.frame_args(pos)
+        call_str << "#{klass}." if Command.settings[:frame_class_names] && klass
+        call_str << id.id2name
+        if args.size > 0
+          call_str << "("
+          binding = @state.context.frame_binding(pos)
+          args.each do |name|
+            # How to I get the binding if keep_frame_binding? 
+            # We are getting the current one, not the saved frame one.
+            if Debugger.keep_frame_binding? 
+              sep = "= "
+              value = eval(name, binding)
+            else
+              sep = ":"
+              value = name.class
+            end
+            value = value.inspect[0..12]+"..." if value.inspect.size > 12+3
+            call_str += sprintf "%s#{sep}%s, " % [name, value]
+            if call_str.size > self.class.settings[:width] - 10
+              # Strip off trailing ', ' if any but add stuff for later trunc
+              call_str[-2..-1] = "...XX"
+              break
+            end
+          end
+          call_str[-2..-1] = ") " # Strip off trailing ', ' if any 
+        end
+      end
+      return call_str
+    end
 
     def print_frame(pos, adjust = false)
       file = @state.context.frame_file(pos)
       line = @state.context.frame_line(pos)
-      id = @state.context.frame_method(pos)
       klass = @state.context.frame_class(pos)
-      args = @state.context.frame_args(pos)
 
-      method = ""
-      if id
-        method << "#{klass}." if Command.settings[:frame_class_names] && klass
-        method << id.id2name
-        if args.size > 0
-          method << "("
-          args.each do |name, value|
-            value = value.inspect[0..12]+"..." if value.inspect.size > 12+3
-            method += sprintf '%s=%s, ' % [name, value.inspect]
-            if method.size > self.class.settings[:width] - 10
-              # Strip off trailing ', ' if any but add stuff for later trunc
-              method[-2..-1] = "...XXX"
-              break
-            end
-          end
-          method[-2..-1] = ") " # Strip off trailing ', ' if any 
-        end
-      end
-      
       unless Command.settings[:frame_full_path]
         path_components = file.split(/[\\\/]/)
         if path_components.size > 3
@@ -139,9 +152,10 @@ module Debugger
       end
 
       print "#%d  ", pos
-      if method.size > 0
-        print method
-        if method.size < self.class.settings[:width] - 20 
+      call_str = get_frame_call(pos)
+      if call_str.size > 0
+        print call_str
+        if call_str.size < self.class.settings[:width] - 20 
           print "\n        "
         end
       end

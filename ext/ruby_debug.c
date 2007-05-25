@@ -1910,12 +1910,9 @@ context_copy_args(debug_frame_t *debug_frame)
 	list = rb_ary_new2(n);
         for (i=2; i<n; i++) 
         {   
-	    VALUE pair; 
             /* skip first 2 ($_ and $~) */
             if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
-	    pair = rb_ary_new3(2, rb_str_new2(rb_id2name(tbl[i])), 
-			       scope->local_vars[i]);
-            rb_ary_push(list, pair);
+	    rb_ary_push(list, rb_str_new2(rb_id2name(tbl[i])));
         }
     }
 
