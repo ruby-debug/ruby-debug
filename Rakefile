@@ -31,23 +31,28 @@ CLI_FILES = FileList[
 ]
 
 desc "Test everything."
-Rake::TestTask.new(:test) do |t|
-  t.libs << ['./ext', './lib']
-  t.pattern = 'test/**/*test-*.rb'
-  t.verbose = true
+def test_task(name)
+  Rake::TestTask.new(name) do |t|
+    t.libs << ['./ext', './lib']
+    t.pattern = 'test/**/*test-*.rb'
+    t.verbose = true
+  end
 end
 
-# ---------  Clean derived files ------
+test_task(:test)
+test_task(:check)
+
+desc "Clean derived files."
 task :clean do
   system("cd ext && rm Makefile *.o *.so")
 end
 
-# ---------  Make shared library ------
+desc "Create the core ruby-debug shared library extension"
 task :lib do
   system("cd ext && ruby extconf.rb && make")
 end
 
-# ---------  Make shared library ------
+desc "Create a GNU-style ChangeLog via svn2cl"
 task :ChangeLog do
   system("svn2cl")
 end
