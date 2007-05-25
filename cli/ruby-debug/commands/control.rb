@@ -47,21 +47,20 @@ module Debugger
         prog_script = Debugger::PROG_SCRIPT
       end
       if not File.exists?(prog_script)
-        print "  and prog_script #{prog_script} doesn't exist\n"
+        print "Ruby program #{prog_script} doesn't exist\n"
         return
-      else
-        print "  we'll hope #{prog_script} hasn't been modified.\n"
       end
       if not File.executable?(prog_script)
-        print "prog_script doesn't seem to be executable; we'll add a call to Ruby.\n"
-        prog_script = "ruby -I #{$:.join(' -I')} #{prog_script}"
+        print "Ruby program #{prog_script} doesn't seem to be executable...\n"
+        print "We'll add a call to Ruby.\n"
+        prog_script = "ruby -I#{$:.join(' -I')} #{prog_script}"
       end
       if @match[1]
         args = prog_script + " " + @match[1]
       else
         if not defined? Debugger::ARGV
           # FIXME? Should ask for confirmation? 
-          print "We'll also hope ARGV hasn't been modified too badly\n"
+          print "I hope ARGV hasn't been modified too badly\n"
           argv = ARGV
         elsif Debugger::ARGV[0] == Debugger::PROG_SCRIPT
           argv = Debugger::ARGV[1..-1]
