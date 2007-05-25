@@ -185,6 +185,15 @@ module Debugger
         return nil
       end
     end
+
+    # Return 'on' or 'off' for supplied parameter. The parmeter should
+    # be true, false or nil.
+    def show_onoff(bool)
+      if not [TrueClass, FalseClass, NilClass].member?(bool.class)
+        return "??"
+      end
+      return bool ? 'on' : 'off'
+    end
   end
   
   module ThreadFunctions # :nodoc:
