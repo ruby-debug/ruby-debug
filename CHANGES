@@ -5,6 +5,17 @@
 - Better error reporting for commands that require a numeric argument.
 - Fixed Kernel#binding_n method
 - Add option -d ($DEBUG = true) and --verbose. Make -v work like ruby.
+- "info" and "show" commands added. "set" made more like gdb's
+  set. subcommands can be abbreviated and are case insensitive.
+- restart program if it terminates normally and we've got a tty and 
+  we stop on the first statement. 
+- help is in tidy column format. method lists are shown that way as well.
+  the "width" setting ("set/show width") is used  for the line width
+- stack traces now show parameter names and types. "info args" lists just
+  the parameters (with the most recent values, not the values at call time).
+- post-mortem "exit" bug fixed. 
+- INCOMPATIBLE CHANGE: "break" now sets a breakpoint on the current line
+  (same as gdb). Use "info break" for a list of breakpoints.
 
 0.9.3
 - Fixed if..elsif..end stepping.
