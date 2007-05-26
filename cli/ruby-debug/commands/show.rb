@@ -12,6 +12,9 @@ module Debugger
        ['autoreload', 4, "Show if source code is reloaded when changed"],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
        ['framefullpath', 1, "Show if full file names are displayed in frames"],
+       ['keep-frame-bindings', 1, "Save frame binding on each call"],
+       ['linetrace', 3, "Show line execution tracing"],
+       ['port', 1, "Show server port"],
        ['trace', 1, 
         "Show if a stack trace is displayed when 'eval' raises exception"],
        ['width', 1, 
@@ -23,7 +26,7 @@ module Debugger
     self.control = true
 
     def regexp
-      /^show \s+ (.+) \s*/xi
+      /^show (?: \s+ (.+) )?$/xi
     end
 
     def execute
@@ -43,7 +46,7 @@ module Debugger
             return
           end
         end
-        print "Unknown set command #{subcmd}\n"
+        print "Unknown show command #{subcmd}\n"
       end
     end
 

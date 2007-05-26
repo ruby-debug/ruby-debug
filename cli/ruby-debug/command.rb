@@ -83,28 +83,39 @@ module Debugger
       when /autoeval$/
         on_off = Command.settings[:autoeval]
         return "autoeval is #{show_onoff(on_off)}."
-      when /trace$/
-        on_off = Command.settings[:stack_trace_on_error]
-        return "Displaying stack trace is #{show_onoff(on_off)}."
-      when /framefullpath$/
-        on_off = Command.settings[:frame_full_path]
-        return "Displaying frame's full file names is #{show_onoff(on_off)}."
-      when /frameclassname$/
-        on_off = Command.settings[:frame_class_names]
-        return "Displaying frame's original class name is #{show_onoff(on_off)}."
       when /autoreload$/
         on_off = Command.settings[:reload_source_on_change]
         return "autoreload is #{show_onoff(on_off)}."
       when /autoirb$/
         on_off = Command.settings[:autoirb]
         return "autoirb is #{show_onoff(on_off)}."
-      when /forcestep$/
-        self.class.settings[:force_stepping] = on_off
+      when /^forcestep$/
+        on_off = self.class.settings[:force_stepping]
         return "force-stepping is #{show_onoff(on_off)}."
+      when /^framefullpath$/
+        on_off = Command.settings[:frame_full_path]
+        return "Displaying frame's full file names is #{show_onoff(on_off)}."
+      when /^frameclassname$/
+        on_off = Command.settings[:frame_class_names]
+        return "Displaying frame's original class name is #{show_onoff(on_off)}."
+      when /^keep-frame-bindings$/
+       on_off = Debugger.keep_frame_binding?
+        return "keep-frame-bindings is #{show_onoff(on_off)}."
+      when /^linetrace$/
+       on_off = Debugger.tracing
+        return "line tracing is #{show_onoff(on_off)}."
+      when /^port$/
+        return "server port is #{Debugger::PORT}."
+      when /post-mortem$/
+       on_off = Debugger.post_mortem
+        return "post-mortem handling is #{show_onoff(on_off)}."
+      when /^trace$/
+        on_off = Command.settings[:stack_trace_on_error]
+        return "Displaying stack trace is #{show_onoff(on_off)}."
       when /^width$/
         return "width is #{self.class.settings[:width]}."
       else
-        return "Unknown setting #{@match[1]}."
+        return "Unknown show subcommand #{setting_name}."
       end
     end
   end
@@ -219,6 +230,33 @@ module Debugger
       rescue
         print "%s argument '%s' needs to be a number.\n" % [cmd, str]
         return nil
+      end
+    end
+
+    # Return true if arg is 'on' or 1 and false arg is 'off' or 0.
+    # Any other value raises RuntimeError.
+    def get_onoff(arg, default=nil, print_error=true)
+      if arg.nil? or arg == ''
+        if default.nil?
+          if print_error
+            print "Expecting 'on', 1, 'off', or 0. Got nothing.\n"
+            raise RuntimeError
+          end
+          return default
+        end
+      end
+      case arg.downcase
+      when '1'
+      when 'on'
+        return true
+      when '0'
+      when 'off'
+        return false
+      else
+        if print_error
+          print "Expecting 'on', 1, 'off', or 0. Got: %s.\n" % arg.to_s
+          raise RuntimeError
+        end
       end
     end
 

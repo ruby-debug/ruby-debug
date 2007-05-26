@@ -3,31 +3,43 @@ module Debugger
     include ParseFunctions
     include ShowFunctions
     
-    SubcmdStruct=Struct.new(:name, :min, :short_help)
+    SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help)
     Subcommands = 
       [
-       ['autoeval', 4, "Evaluate every unrecognized command"],
-       ['autolist', 4, "Execute 'list' command on every breakpoint"],
-       ['autoirb', 4, "Invoke IRB on every stop"],
-       ['autoreload', 4, "Reload source code when changed"],
-       ['forcestep', 1, "Make sure 'next/step' commands always move to a new line"],
-       ['framefullpath', 1, "Display full file names in frames"],
-       ['trace', 1, "Display stack trace when 'eval' raises exception"],
-       ['width', 1, "Number of characters the debugger thinks are in a line"],
-      ].map do |name, min, short_help| 
-      SubcmdStruct.new(name, min, short_help)
+       ['autoeval', 4, true,
+        "Evaluate every unrecognized command"],
+       ['autolist', 4, true,
+        "Execute 'list' command on every breakpoint"],
+       ['autoirb', 4, true,
+        "Invoke IRB on every stop"],
+       ['autoreload', 4, true,
+        "Reload source code when changed"],
+       ['forcestep', 2, true,
+        "Make sure 'next/step' commands always move to a new line"],
+       ['framefullpath', 2, true,
+        "Display full file names in frames"],
+       ['keep-frame-bindings', 1, true,
+        "Save frame binding on each call"],
+       ['linetrace', 3, true,
+       "Set line execution tracing"],
+       ['trace', 1, true,
+        "Display stack trace when 'eval' raises exception"],
+       ['width', 1, false,
+        "Number of characters the debugger thinks are in a line"],
+      ].map do |name, min, is_bool, short_help| 
+      SubcmdStruct.new(name, min, is_bool, short_help)
     end
     
     self.control = true
 
     def regexp
-      /^set \s+ (.+) \s*/xi
+      /^set (?: \s+ (.*) )?$/ix
     end
 
     def execute
       if not @match[1]
         print "\"set\" must be followed by the name of an set command:\n"
-        print "List of info subcommands:\n\n"
+        print "List of set subcommands:\n\n"
         for subcmd in Subcommands do
           print "set #{subcmd.name} -- #{subcmd.short_help}\n"
         end
@@ -43,37 +55,46 @@ module Debugger
         for try_subcmd in Subcommands do
           if (subcmd.size >= try_subcmd.min) and
               (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            case try_subcmd.name
-            when /^autolist$/
-              Command.settings[:autolist] = set_on
-            when /autoeval$/
-              Command.settings[:autoeval] = set_on
-            when /trace$/
-              Command.settings[:stack_trace_on_error] = set_on
-            when /framefullpath$/
-              Command.settings[:frame_full_path] = set_on
-            when /frameclassname$/
-              Command.settings[:frame_class_names] = set_on
-            when /autoreload$/
-              Command.settings[:reload_source_on_change] = set_on
-            when /autoirb$/
-              Command.settings[:autoirb] = set_on
-            when /forcestep$/
-              self.class.settings[:force_stepping] = set_on
-            when /^width$/
-              width = get_int(arg, "Set width", 10, nil, 80)
-              if width
-                self.class.settings[:width] = width
-                ENV['COLUMNS'] = width.to_s
+            begin
+              set_on = get_onoff(arg) if try_subcmd.is_bool
+              case try_subcmd.name
+              when /^autolist$/
+                Command.settings[:autolist] = set_on
+              when /^autoeval$/
+                Command.settings[:autoeval] = set_on
+              when /^trace$/
+                Command.settings[:stack_trace_on_error] = set_on
+              when /^framefullpath$/
+                Command.settings[:frame_full_path] = set_on
+              when /^frameclassname$/
+                Command.settings[:frame_class_names] = set_on
+              when /^autoreload$/
+                Command.settings[:reload_source_on_change] = set_on
+              when /^autoirb$/
+                Command.settings[:autoirb] = set_on
+              when /^forcestep$/
+                self.class.settings[:force_stepping] = set_on
+              when /^keep-frame-bindings$/
+                Debugger.keep_frame_binding = set_on
+              when /^linetrace$/
+                Debugger.tracing = set_on
+              when /^width$/
+                width = get_int(arg, "Set width", 10, nil, 80)
+                if width
+                  self.class.settings[:width] = width
+                  ENV['COLUMNS'] = width.to_s
+                else
+                  return
+                end
               else
+                print "Unknown setting #{@match[1]}.\n"
                 return
               end
-            else
-              print "Unknown setting #{@match[1]}.\n"
+              print "%s\n" % show_setting(try_subcmd.name)
+              return
+            rescue RuntimeError
               return
             end
-            print "%s\n" % show_setting(try_subcmd.name)
-            return
           end
         end
         print "Unknown set command #{subcmd}\n"
@@ -87,7 +108,8 @@ module Debugger
 
       def help(cmd)
         s = "
-Modifies parts of the ruby-debug environment.
+Modifies parts of the ruby-debug environment. Boolean values take
+on, off, 1 or 0.
 You can see these environment settings with the \"show\" command.
 
 -- 
