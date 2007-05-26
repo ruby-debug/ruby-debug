@@ -5,11 +5,11 @@ module Debugger
     def regexp
       / ^\s*
         b(?:reak)?
-        \s+
+        (?: \s+
         (?:
           (\d+) |
           (.+?)[:.#]([^.:\s]+)
-        )
+        ))?
         (?:\s+
           if\s+(.+)
         )?
@@ -28,19 +28,22 @@ module Debugger
       if file.nil?
         full_file = @state.file
         file = File.basename(@state.file)
-      else
-        if line !~ /^\d+$/
-          klass = debug_silent_eval(file)
-          if klass && !klass.kind_of?(Module)
-            print "Unknown class #{file}\n"
-            throw :debug_error
-          end
-          class_name = klass.name if klass
-        else
-          file = File.expand_path(file) if file.index(File::SEPARATOR) || \
-            File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
-          full_file = file
+        if line.nil? 
+          # Set breakpoint at current line
+          line = @state.line.to_s
         end
+      elsif line !~ /^\d+$/
+        # See if "line" is a method/function name
+        klass = debug_silent_eval(file)
+        if klass && !klass.kind_of?(Module)
+          print "Unknown class #{file}\n"
+          throw :debug_error
+        end
+        class_name = klass.name if klass
+      else
+        file = File.expand_path(file) if file.index(File::SEPARATOR) || \
+        File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
+        full_file = file
       end
       
       if line =~ /^\d+$/
@@ -71,41 +74,6 @@ module Debugger
           b[reak] file:line [if expr]
           b[reak] class(.|#)method [if expr]
           \tset breakpoint to some position, (optionally) if expr == true
-        }
-      end
-    end
-  end
-
-  class BreakpointsCommand < Command # :nodoc:
-    self.control = true
-
-    def regexp
-      /^\s*b(?:reak)?$/
-    end
-
-    def execute
-      unless Debugger.breakpoints.empty?
-        print "Breakpoints:\n"
-        Debugger.breakpoints.sort_by{|b| b.id }.each do |b|
-          if b.expr.nil?
-            print "  %d at %s:%s\n", b.id, b.source, b.pos
-          else
-            print "  %d at %s:%s if %s\n", b.id, b.source, b.pos, b.expr
-          end
-        end
-      else
-        print "No breakpoints.\n"
-      end
-    end
-
-    class << self
-      def help_command
-        'break'
-      end
-
-      def help(cmd)
-        %{
-          b[reak]\tlist breakpoints
         }
       end
     end

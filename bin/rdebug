@@ -145,6 +145,13 @@ else
     Debugger.post_mortem if options.post_mortem
     Debugger.tracing = options.nostop = true if options.tracing
     # load script
-    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+    while true do
+      Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+      if STDIN.tty? and !options.nostop
+        print "The program finished and will be restarted\n"
+      else
+        break
+      end
+    end
   end
 end
