@@ -416,13 +416,22 @@ use this option in conjuctoin with @code{--no-stop}. See also
 
 @item --keep-frame-binding
 @cindex @code{--keep-frame-binding}
-the debugger by default doesn't create Binding object for each
-frame. This is a very expensive operation and it's been a major source
-of performance problems. Instead, ruby-debug keeps references to the
-live Ruby's data structures that store information about the local
-context (ruby_scope). However it's still possible to restore the old
-behavior by using this option or by settign
-@code{Debugger.keep_frame_binding = true}.
+Bindings are used to set the proper environment in evaluating
+expression inside the debugger.
+
+By default, the debugger doesn't create binding object for each frame
+when the frame is created, i.e. when a call is performed. Creating a
+binding is an expensive operation and has been a major source of
+performance problems.
+
+Instead, the debugger create a binding when there is a need to
+evaluate expressions. This artificial binding that is created can be
+quite different from the real one.  In particular, in performing
+constant and module name resolution.
+
+However it's still possible to restore the old, slower behavior by
+using this option or by setting @code{Debugger.keep_frame_binding =
+true}.
 @end table
 
 @node Quitting the debugger
