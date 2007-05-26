@@ -6,6 +6,8 @@ module Debugger
     SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help)
     Subcommands = 
       [
+       # ['args', 2, false,
+       # "Set argument list to give program being debugged when it is started."],
        ['autoeval', 4, true,
         "Evaluate every unrecognized command"],
        ['autolist', 4, true,
@@ -58,6 +60,8 @@ module Debugger
             begin
               set_on = get_onoff(arg) if try_subcmd.is_bool
               case try_subcmd.name
+              # when /^args$/
+              #  Debugger::ARGV = arg.split(/[ \t]+/)
               when /^autolist$/
                 Command.settings[:autolist] = set_on
               when /^autoeval$/

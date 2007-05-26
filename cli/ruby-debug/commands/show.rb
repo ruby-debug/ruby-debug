@@ -6,6 +6,8 @@ module Debugger
     SubcmdStruct=Struct.new(:name, :min, :short_help)
     Subcommands = 
       [
+       ['args', 2, 
+        "Show argument list to give program being debugged when it is started"],
        ['autoeval', 4, "Show if unrecognized command are evaluated"],
        ['autolist', 4, "Show if 'list' commands is run on breakpoints"],
        ['autoirb', 4, "Show if IRB is invoked on debugger stops"],

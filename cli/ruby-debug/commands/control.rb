@@ -59,9 +59,8 @@ module Debugger
         args = prog_script + " " + @match[1]
       else
         if not defined? Debugger::ARGV
-          # FIXME? Should ask for confirmation? 
-          print "I hope ARGV hasn't been modified too badly\n"
-          argv = ARGV
+          print "Arguments have not been set.\n"
+          return
         elsif Debugger::ARGV[0] == Debugger::PROG_SCRIPT
           argv = Debugger::ARGV[1..-1]
         else

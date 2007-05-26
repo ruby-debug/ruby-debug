@@ -77,6 +77,8 @@ module Debugger
   module ShowFunctions # :nodoc:
     def show_setting(setting_name)
       case setting_name
+      when /^args$/
+        return "Argument list to give program being debugged when it is started is \"#{Debugger.ARGV.join(' ')}\"."
       when /^autolist$/
         on_off = Command.settings[:autolist]
         return "autolist is #{show_onoff(on_off)}."
@@ -102,12 +104,12 @@ module Debugger
        on_off = Debugger.keep_frame_binding?
         return "keep-frame-bindings is #{show_onoff(on_off)}."
       when /^linetrace$/
-       on_off = Debugger.tracing
+        on_off = Debugger.tracing
         return "line tracing is #{show_onoff(on_off)}."
       when /^port$/
         return "server port is #{Debugger::PORT}."
       when /post-mortem$/
-       on_off = Debugger.post_mortem
+        on_off = Debugger.post_mortem
         return "post-mortem handling is #{show_onoff(on_off)}."
       when /^trace$/
         on_off = Command.settings[:stack_trace_on_error]
@@ -162,17 +164,10 @@ module Debugger
           call_str << "("
           binding = @state.context.frame_binding(pos)
           args.each do |name|
-            # How to I get the binding if keep_frame_binding? 
-            # We are getting the current one, not the saved frame one.
-            if Debugger.keep_frame_binding? 
-              sep = "= "
-              value = eval(name, binding)
-            else
-              sep = ":"
-              value = name.class
-            end
-            value = value.inspect[0..12]+"..." if value.inspect.size > 12+3
-            call_str += sprintf "%s#{sep}%s, " % [name, value]
+            sep = ":"
+            klass = eval("#{name}.class", binding)
+            klass = klass.inspect[0..20]+"..." if klass.inspect.size > 20+3
+            call_str += sprintf "%s#{sep}%s, " % [name, klass]
             if call_str.size > self.class.settings[:width] - 10
               # Strip off trailing ', ' if any but add stuff for later trunc
               call_str[-2..-1] = "...XX"
