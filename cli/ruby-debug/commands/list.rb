@@ -13,24 +13,27 @@ module Debugger
     end
 
     def execute
+      listsize = Command.settings[:listsize]
       if !@match || !(@match[1] || @match[2])
-        b = @state.previous_line ? @state.previous_line + 10 : @state.line - 5
-        e = b + 9
+        b = @state.previous_line ? 
+        @state.previous_line + listsize : @state.line - (listsize/2)
+        e = b + listsize - 1
       elsif @match[1] == '-'
-        b = @state.previous_line ? @state.previous_line - 10 : @state.line - 5
-        e = b + 9
+        b = @state.previous_line ? 
+        @state.previous_line - listsize : @state.line - (listsize/2)
+        e = b + listsize - 1
       elsif @match[1] == '='
         @state.previous_line = nil
-        b = @state.line - 5
-        e = b + 9
+        b = @state.line - (listsize/2)
+        e = b + listsize -1
       else
         b, e = @match[2].split(/[-,]/)
         if e
           b = b.to_i
           e = e.to_i
         else
-          b = b.to_i - 5
-          e = b + 9
+          b = b.to_i - (listsize/2)
+          e = b + listsize - 1
         end
       end
       @state.previous_line = b

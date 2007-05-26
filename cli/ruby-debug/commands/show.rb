@@ -16,6 +16,7 @@ module Debugger
        ['framefullpath', 1, "Show if full file names are displayed in frames"],
        ['keep-frame-bindings', 1, "Save frame binding on each call"],
        ['linetrace', 3, "Show line execution tracing"],
+       ['listsize', 3, "Show number of source lines to list by default"],
        ['port', 1, "Show server port"],
        ['trace', 1, 
         "Show if a stack trace is displayed when 'eval' raises exception"],

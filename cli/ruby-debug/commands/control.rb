@@ -44,7 +44,7 @@ module Debugger
         print "Debugger was not called from the outset...\n"
         prog_script = $0
       else
-        prog_script = Debugger::PROG_SCRIPT
+        prog_script = Debugger::RDEBUG_SCRIPT
       end
       if not File.exists?(prog_script)
         print "Ruby program #{prog_script} doesn't exist\n"
@@ -58,13 +58,11 @@ module Debugger
       if @match[1]
         args = prog_script + " " + @match[1]
       else
-        if not defined? Debugger::ARGV
-          print "Arguments have not been set.\n"
+        if not defined? Command.settings[:argv]
+          print "Arguments have not been set. Use 'set args' to set them.\n"
           return
-        elsif Debugger::ARGV[0] == Debugger::PROG_SCRIPT
-          argv = Debugger::ARGV[1..-1]
         else
-          argv = Debugger::ARGV
+          argv = Command.settings[:argv]
         end
         args = argv.join(" ")
       end
@@ -91,6 +89,42 @@ module Debugger
       end
     end
   end
+
+#  class RunCommand < Command # :nodoc:
+#    self.control = true
+#
+#    def regexp
+#      / ^\s*
+#      (?:run)
+#      (\s+ \S+ .*)?
+#      $
+#      /ix
+#    end
+#    
+#    def execute
+#      if Debugger.contexts.size != 1
+#        print "This kind of restart only works if there is one thread\n"
+#        return
+#      end
+#
+#      Debugger.suspend
+#      throw :restart
+#    end
+#
+#    class << self
+#      def help_command
+#        'run'
+#      end
+#
+#      def help(cmd)
+#        %{
+#          run [args] 
+#          Restart the program by This is is not re-exec - all debugger state
+#          saved. If command arguments are passed those are used.
+#        }
+#      end
+#    end
+#  end
 
   class InterruptCommand < Command # :nodoc:
     self.event = false

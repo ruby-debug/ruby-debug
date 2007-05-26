@@ -6,8 +6,8 @@ module Debugger
     SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help)
     Subcommands = 
       [
-       # ['args', 2, false,
-       # "Set argument list to give program being debugged when it is started."],
+       ['args', 2, false,
+       "Set argument list to give program being debugged when it is started."],
        ['autoeval', 4, true,
         "Evaluate every unrecognized command"],
        ['autolist', 4, true,
@@ -24,6 +24,8 @@ module Debugger
         "Save frame binding on each call"],
        ['linetrace', 3, true,
        "Set line execution tracing"],
+       ['listsize', 3, false,
+       "Set number of source lines to list by default"],
        ['trace', 1, true,
         "Display stack trace when 'eval' raises exception"],
        ['width', 1, false,
@@ -46,7 +48,8 @@ module Debugger
           print "set #{subcmd.name} -- #{subcmd.short_help}\n"
         end
       else
-        subcmd, arg = @match[1].split(/[ \t]+/)
+        args = @match[1].split(/[ \t]+/)
+        subcmd = args.shift
         subcmd.downcase!
         if subcmd =~ /^no/i
           set_on = false
@@ -60,8 +63,8 @@ module Debugger
             begin
               set_on = get_onoff(arg) if try_subcmd.is_bool
               case try_subcmd.name
-              # when /^args$/
-              #  Debugger::ARGV = arg.split(/[ \t]+/)
+              when /^args$/
+                Command.settings[:argv][1..-1] = args
               when /^autolist$/
                 Command.settings[:autolist] = set_on
               when /^autoeval$/
@@ -82,8 +85,15 @@ module Debugger
                 Debugger.keep_frame_binding = set_on
               when /^linetrace$/
                 Debugger.tracing = set_on
+              when /^listsize$/
+                listsize = get_int(args[0], "Set listsize", 1, nil, 10)
+                if listsize
+                  self.class.settings[:listsize] = listsize
+                else
+                  return
+                end
               when /^width$/
-                width = get_int(arg, "Set width", 10, nil, 80)
+                width = get_int(args[0], "Set width", 10, nil, 80)
                 if width
                   self.class.settings[:width] = width
                   ENV['COLUMNS'] = width.to_s

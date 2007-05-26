@@ -80,7 +80,9 @@ EOB
 end
 
 begin
-  Debugger::ARGV = ARGV.clone
+  if not defined? Debugger::ARGV
+    Debugger::ARGV = ARGV.clone
+  end
   rdebug_path = File.expand_path($0)
   if RUBY_PLATFORM =~ /mswin/
     rdebug_path += ".cmd" unless rdebug_path =~ /\.cmd$/i
@@ -146,7 +148,9 @@ else
     Debugger.tracing = options.nostop = true if options.tracing
     # load script
     while true do
-      Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+      catch(:restart) do
+        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+      end
       if STDIN.tty? and !options.nostop
         print "The program finished and will be restarted\n"
       else

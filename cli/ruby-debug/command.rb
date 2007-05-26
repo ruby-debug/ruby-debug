@@ -78,7 +78,8 @@ module Debugger
     def show_setting(setting_name)
       case setting_name
       when /^args$/
-        return "Argument list to give program being debugged when it is started is \"#{Debugger.ARGV.join(' ')}\"."
+        args = Command.settings[:argv][1..-1].join(' ')
+        return "Argument list to give program being debugged when it is started is \"#{args}\"."
       when /^autolist$/
         on_off = Command.settings[:autolist]
         return "autolist is #{show_onoff(on_off)}."
@@ -106,9 +107,12 @@ module Debugger
       when /^linetrace$/
         on_off = Debugger.tracing
         return "line tracing is #{show_onoff(on_off)}."
+      when /^listsize$/
+        listlines = Command.settings[:listsize]
+        return "Number of source lines to list by default is #{listlines}."
       when /^port$/
         return "server port is #{Debugger::PORT}."
-      when /post-mortem$/
+      when /^post-mortem$/
         on_off = Debugger.post_mortem
         return "post-mortem handling is #{show_onoff(on_off)}."
       when /^trace$/
@@ -398,7 +402,13 @@ module Debugger
     register_setting_var(:frame_full_path, true)
     register_setting_var(:frame_class_names, false)
     register_setting_var(:force_stepping, false)
+    register_setting_var(:listsize, 10)
     register_setting_var(:width, 80)
+
+    if not defined? Debugger::ARGV
+      Debugger::ARGV = ARGV.clone
+    end
+    register_setting_var(:argv, Debugger::ARGV)
     
     def initialize(state)
       @state = state
