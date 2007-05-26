@@ -45,9 +45,10 @@ module Debugger
     end
     
     def info_args(*args)
+      locals = @state.context.frame_locals(@state.frame_pos)
       args = @state.context.frame_args(@state.frame_pos)
-      args.each do |name, value|
-        s = "#{name} = #{value.inspect}"
+      args.each do |name|
+        s = "#{name} = #{locals[name]}"
         if s.size > self.class.settings[:width]
           s[self.class.settings[:width]-3 .. -1] = "..."
         end
@@ -83,7 +84,11 @@ module Debugger
     def info_locals(*args)
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|
-        print "%s = %p\n", name, locals[name]
+        s = "#{name} = #{locals[name]}"
+        if s.size > self.class.settings[:width]
+          s[self.class.settings[:width]-3 .. -1] = "..."
+        end
+        print "#{s}\n"
       end
     end
     
