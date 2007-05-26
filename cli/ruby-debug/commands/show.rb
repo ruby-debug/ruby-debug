@@ -20,6 +20,8 @@ module Debugger
        ['port', 1, "Show server port"],
        ['trace', 1, 
         "Show if a stack trace is displayed when 'eval' raises exception"],
+       ['version', 1, 
+        "Show what version of the debugger this is"],
        ['width', 1, 
         "Show the number of characters the debugger thinks are in a line"],
       ].map do |name, min, short_help| 

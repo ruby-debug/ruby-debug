@@ -118,6 +118,8 @@ module Debugger
       when /^trace$/
         on_off = Command.settings[:stack_trace_on_error]
         return "Displaying stack trace is #{show_onoff(on_off)}."
+      when /^version$/
+        return "ruby-debug #{Debugger::VERSION}"
       when /^width$/
         return "width is #{self.class.settings[:width]}."
       else
