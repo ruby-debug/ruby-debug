@@ -149,6 +149,13 @@ else
     Debugger.tracing = options.nostop = true if options.tracing
     # load script
     while true do
+      # Make sure Ruby script syntax checks okay.
+      # Otherwise we get a load message that looks like rdebug has 
+      # a problem.
+      output = `ruby -c #{Debugger::PROG_SCRIPT}`
+      if $?.exitstatus != 0
+        exit $?.exitstatus 
+      end
       catch(:restart) do
         Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
       end
