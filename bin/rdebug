@@ -50,10 +50,11 @@ EOB
     end
   end
   opts.on("-r", "--require SCRIPT", String,"Require the library, before executing your script") do |name|
-    if options.debug_module == 'debug'
+    if name == 'debug'
       puts "ruby-debug is not compatible with Ruby's 'debug' library. This option is ignored."
+    else
+      require name
     end
-    require name
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
   opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
@@ -106,7 +107,7 @@ else
     puts "Must specify a script to run"
     exit(-1)
   end
-
+  
   # save script name
   Debugger::PROG_SCRIPT = ARGV.shift
   

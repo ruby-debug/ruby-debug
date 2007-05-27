@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-ruby -Iext:lib:cli ./bin/rdebug $*
+ruby -Iext:lib:cli -- ./bin/rdebug $*
