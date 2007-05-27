@@ -156,8 +156,11 @@ else
       if $?.exitstatus != 0
         exit $?.exitstatus 
       end
-      catch(:restart) do
-        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+      begin
+        catch(:restart) do
+          Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+        end
+      rescue
       end
       if STDIN.tty? and !options.nostop
         print "The program finished and will be restarted\n"
