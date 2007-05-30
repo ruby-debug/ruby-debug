@@ -49,8 +49,6 @@ class TestRubyDebug < Test::Unit::TestCase
     Debugger.stop
   end
 
-# add when Columize added
-if false
   require "command.rb"
   include Columnize
   def test_columize
@@ -82,6 +80,5 @@ if false
                             "one", "two", "three"]))
 
   end
-end
 end
 
