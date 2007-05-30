@@ -61,7 +61,7 @@ module Debugger
           if (subcmd.size >= try_subcmd.min) and
               (try_subcmd.name[0..subcmd.size-1] == subcmd)
             begin
-              set_on = get_onoff(arg) if try_subcmd.is_bool
+              set_on = get_onoff(args) if try_subcmd.is_bool
               case try_subcmd.name
               when /^args$/
                 Command.settings[:argv][1..-1] = args
