@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
 
-ruby -Iext:lib:cli -- ./bin/rdebug $*
+dir=`dirname $0`
+ruby -I${dir}/ext:${dir}/lib:${dir}/cli -- ${dir}/bin/rdebug $*
 exit $?

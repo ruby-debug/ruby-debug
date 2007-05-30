@@ -159,7 +159,7 @@ module Debugger
       print_frame(@state.frame_pos, true)
     end
     
-    def get_frame_call(pos)
+    def get_frame_call(prefix, pos)
       id = @state.context.frame_method(pos)
       call_str = ""
       if id
@@ -172,15 +172,18 @@ module Debugger
           args.each do |name|
             sep = ":"
             klass = eval("#{name}.class", binding)
-            klass = klass.inspect[0..20]+"..." if klass.inspect.size > 20+3
+            if klass.inspect.size > 20+3
+              require "debug"
+              klass = klass.inspect[0..20]+"..." 
+            end
             call_str += sprintf "%s#{sep}%s, " % [name, klass]
-            if call_str.size > self.class.settings[:width] - 10
+            if call_str.size > self.class.settings[:width] - prefix.size
               # Strip off trailing ', ' if any but add stuff for later trunc
-              call_str[-2..-1] = "...XX"
+              call_str[-2..-1] = ",...XX"
               break
             end
           end
-          call_str[-2..-1] = ") " # Strip off trailing ', ' if any 
+          call_str[-2..-1] = ")" # Strip off trailing ', ' if any 
         end
       end
       return call_str
@@ -199,15 +202,17 @@ module Debugger
         end
       end
 
-      print "#%d  ", pos
-      call_str = get_frame_call(pos)
+      s = "#%d  " % pos
+      call_str = get_frame_call(s, pos)
+      file_line = " at line %s:%d\n" % [file, line]
+      print s
       if call_str.size > 0
         print call_str
-        if call_str.size < self.class.settings[:width] - 20 
-          print "\n        "
+        if call_str.size + s.size + file_line.size > self.class.settings[:width]
+          print "\n       "
         end
       end
-      print "at line %s:%d\n", file, line
+      print " at line %s:%d\n", file, line
       print "\032\032%s:%d\n", file, line if ENV['EMACS'] && adjust
     end
   end
