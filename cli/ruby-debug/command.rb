@@ -173,7 +173,6 @@ module Debugger
             sep = ":"
             klass = eval("#{name}.class", binding)
             if klass.inspect.size > 20+3
-              require "debug"
               klass = klass.inspect[0..20]+"..." 
             end
             call_str += sprintf "%s#{sep}%s, " % [name, klass]
