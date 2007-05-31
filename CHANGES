@@ -14,6 +14,8 @@
 - stack traces now show parameter names and types. "info args" lists just
   the parameters (with the most recent values, not the values at call time).
 - post-mortem "exit" bug fixed. 
+- More Emacs-friendly: rdebug-track.el will track location inside an Emacs
+  shell. Emacs position information shown breakpoint and catchpoints.
 - INCOMPATIBLE CHANGE: "break" now sets a breakpoint on the current line
   (same as gdb). Use "info break" for a list of breakpoints.
 

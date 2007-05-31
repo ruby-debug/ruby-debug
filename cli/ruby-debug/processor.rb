@@ -40,11 +40,15 @@ module Debugger
     
     def at_breakpoint(context, breakpoint)
       n = Debugger.breakpoints.index(breakpoint) + 1
+      print "#{"\032\032" if ENV['EMACS']}%s:%d\n" % 
+        [breakpoint.source, breakpoint.pos]
       print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
     end
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
+      print "#{"\032\032" if ENV['EMACS']}%s:%d\n" % 
+        [context.frame_file(1), context.frame_line(1)]
       print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(1), context.frame_line(1), excpt, excpt.class
       fs = context.stack_size
       tb = caller(0)[-fs..-1]
@@ -62,7 +66,8 @@ module Debugger
     protect :at_tracing
 
     def at_line(context, file, line)
-      print "#{"\032\032" if ENV['EMACS']}%s:%d %s", file, line, Debugger.line_at(file, line)
+      print "#{"\032\032" if ENV['EMACS']}%s:%d %s\n" % 
+        [file, line, Debugger.line_at(file, line)]
       process_commands(context, file, line)
     end
     protect :at_line
