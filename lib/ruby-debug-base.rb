@@ -11,7 +11,10 @@ module Debugger
     
     alias __c_frame_binding frame_binding
     def frame_binding(frame)
-      __c_frame_binding(frame) || hbinding(frame)
+      begin
+        __c_frame_binding(frame) || hbinding(frame)
+      rescue NameError
+      end
     end
 
     private
@@ -134,10 +137,13 @@ module Debugger
     #      ...
     #   end
     def post_mortem
-      raise "Post-mortem is already activated" if self.post_mortem?
-      self.post_mortem = true
       if block_given?
+        if self.post_mortem?
+          print "post-mortem already activated, block ignored\n"
+          return
+        end
         begin
+          self.post_mortem = true
           yield
         rescue Exception => exp
           handle_post_mortem(exp)
@@ -145,9 +151,12 @@ module Debugger
         ensure
           self.post_mortem = false
         end
-      elsif $! && post_mortem?
-        debug_at_exit do
-          handle_post_mortem($!)
+      else
+        self.post_mortem = true
+        if $!
+          debug_at_exit do
+            handle_post_mortem($!)
+          end
         end
       end
     end
