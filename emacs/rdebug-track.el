@@ -89,7 +89,7 @@ Currently-active file is at the head of the list.")
 ;; Constants
 
 (defconst rdebug-position-re 
-  "\\(\\|\n\\)\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)"
+  "\\(\\)\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)"
   "Regular expression for a rdebug position")
 
 (defconst rdebug-marker-regexp-file-group 2

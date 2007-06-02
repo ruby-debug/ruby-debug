@@ -3,6 +3,16 @@ require 'ruby_debug.so'
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
 
+class Exception # :nodoc:
+  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
+end
+
+class RestartException < Exception
+end
+
+class QuitException < Exception
+end
+
 module Debugger
   class Context
     def interrupt
@@ -179,10 +189,6 @@ module Debugger
   
   class ThreadsTable # :nodoc:
   end
-end
-
-class Exception # :nodoc:
-  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
 end
 
 module Kernel
