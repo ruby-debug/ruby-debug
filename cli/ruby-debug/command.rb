@@ -216,7 +216,7 @@ module Debugger
         end
       end
       print " at line %s:%d\n", CommandProcessor.canonic_file(file), line
-      print "\032\032%s:%d\n" % [ComamndProcessor.canonic_file(file), 
+      print "\032\032%s:%d\n" % [CommandProcessor.canonic_file(file), 
                                  line] if ENV['EMACS'] && adjust
     end
   end
