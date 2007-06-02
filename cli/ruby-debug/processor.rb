@@ -2,6 +2,7 @@ require 'ruby-debug/interface'
 require 'ruby-debug/command'
 
 module Debugger
+
   class CommandProcessor # :nodoc:
     attr_accessor :interface
     attr_reader   :display
@@ -21,6 +22,21 @@ module Debugger
       end
     end
     
+    require 'pathname'  # For cleanpath
+    # Regularize file name. 
+    # This is also used as a common funnel place if basename is 
+    # desired or if we are working remotely and want to change the 
+    # basename. Or we are eliding filenames.
+    def self.canonic_file(filename)
+      # For now we want resolved filenames 
+      if Command.settings[:basename]
+        return File.basename(filename)
+      else
+        # Cache this?
+        return Pathname.new(filename).cleanpath.to_s
+      end
+    end
+  
     def self.protect(mname)
       alias_method "__#{mname}", mname
       module_eval %{
@@ -43,15 +59,20 @@ module Debugger
     def at_breakpoint(context, breakpoint)
       n = Debugger.breakpoints.index(breakpoint) + 1
       print "\032\032%s:%d\n" % 
-        [breakpoint.source, breakpoint.pos] if ENV['EMACS']
+        [CommandProcessor.canonic_file(breakpoint.source), 
+         breakpoint.pos] if ENV['EMACS']
       print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
     end
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
       print "\032\032%s:%d\n" % 
-        [context.frame_file(1), context.frame_line(1)] if ENV['EMACS']
-      print "Catchpoint at %s:%d: `%s' (%s)\n", context.frame_file(1), context.frame_line(1), excpt, excpt.class
+        [CommandProcessor.canonic_file(context.frame_file(1)), 
+         context.frame_line(1)] if ENV['EMACS']
+      print "Catchpoint at %s:%d: `%s' (%s)\n" % 
+        [CommandProcessor.canonic_file(context.frame_file(1)), 
+         context.frame_line(1), 
+         excpt, excpt.class]
       fs = context.stack_size
       tb = caller(0)[-fs..-1]
       if tb
@@ -63,19 +84,22 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      print "Tracing(%d):%s:%s %s", context.thnum, file, line, Debugger.line_at(file, line)
+      print "Tracing(%d):%s:%s %s" % [context.thnum, 
+                                      CommandProcessor.canonic_file(file), 
+                                      line, 
+                                      Debugger.line_at(file, line)]
     end
     protect :at_tracing
 
     def at_line(context, file, line)
       print "#{"\032\032" if ENV['EMACS']}%s:%d\n%s" % 
-        [file, line, Debugger.line_at(file, line)]
+        [CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)]
         process_commands(context, file, line)
     end
     protect :at_line
     
     private
-    
+
     def print(*args)
       @interface.print(*args)
     end

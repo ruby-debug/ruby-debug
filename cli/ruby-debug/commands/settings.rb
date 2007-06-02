@@ -16,6 +16,8 @@ module Debugger
         "Invoke IRB on every stop"],
        ['autoreload', 4, true,
         "Reload source code when changed"],
+       ['basename', 1, true,
+        "Report basename of files"],
        ['forcestep', 2, true,
         "Make sure 'next/step' commands always move to a new line"],
        ['framefullpath', 2, true,
@@ -73,6 +75,8 @@ module Debugger
                 Command.settings[:autolist] = set_on
               when /^autoeval$/
                 Command.settings[:autoeval] = set_on
+              when /^basename$/
+                Command.settings[:basename] = set_on
               when /^trace$/
                 Command.settings[:stack_trace_on_error] = set_on
               when /^framefullpath$/

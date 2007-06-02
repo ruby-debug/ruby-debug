@@ -1,4 +1,5 @@
 module Debugger
+
   module Columnize
     # Display a list of strings as a compact set of columns.
     #
@@ -83,15 +84,18 @@ module Debugger
       when /^autolist$/
         on_off = Command.settings[:autolist]
         return "autolist is #{show_onoff(on_off)}."
-      when /autoeval$/
+      when /^autoeval$/
         on_off = Command.settings[:autoeval]
         return "autoeval is #{show_onoff(on_off)}."
-      when /autoreload$/
+      when /^autoreload$/
         on_off = Command.settings[:reload_source_on_change]
         return "autoreload is #{show_onoff(on_off)}."
-      when /autoirb$/
+      when /^autoirb$/
         on_off = Command.settings[:autoirb]
         return "autoirb is #{show_onoff(on_off)}."
+      when /^basename$/
+        on_off = Command.settings[:basename]
+        return "basename is #{show_onoff(on_off)}."
       when /^forcestep$/
         on_off = self.class.settings[:force_stepping]
         return "force-stepping is #{show_onoff(on_off)}."
@@ -211,8 +215,9 @@ module Debugger
           print "\n       "
         end
       end
-      print " at line %s:%d\n", file, line
-      print "\032\032%s:%d\n", file, line if ENV['EMACS'] && adjust
+      print " at line %s:%d\n", CommandProcessor.canonic_file(file), line
+      print "\032\032%s:%d\n" % [ComamndProcessor.canonic_file(file), 
+                                 line] if ENV['EMACS'] && adjust
     end
   end
 
@@ -404,12 +409,13 @@ module Debugger
       end
     end
 
-    register_setting_var(:stack_trace_on_error, false)
-    register_setting_var(:frame_full_path, true)
-    register_setting_var(:frame_class_names, false)
+    register_setting_var(:basename, false)  # use basename in showing files? 
     register_setting_var(:force_stepping, false)
-    register_setting_var(:listsize, 10)
-    register_setting_var(:width, 80)
+    register_setting_var(:frame_class_names, false)
+    register_setting_var(:frame_full_path, true)
+    register_setting_var(:listsize, 10)    # number of lines in list command
+    register_setting_var(:stack_trace_on_error, false)
+    register_setting_var(:width, 80)       # width of line output
 
     if not defined? Debugger::ARGV
       Debugger::ARGV = ARGV.clone

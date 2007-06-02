@@ -12,6 +12,7 @@ module Debugger
        ['autolist', 4, "Show if 'list' commands is run on breakpoints"],
        ['autoirb', 4, "Show if IRB is invoked on debugger stops"],
        ['autoreload', 4, "Show if source code is reloaded when changed"],
+       ['basename', 1, "Show if basename used in reporting files"],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
        ['framefullpath', 1, "Show if full file names are displayed in frames"],
        ['keep-frame-bindings', 1, "Save frame binding on each call"],
