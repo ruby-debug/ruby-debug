@@ -90,41 +90,41 @@ module Debugger
     end
   end
 
-#  class RunCommand < Command # :nodoc:
-#    self.control = true
-#
-#    def regexp
-#      / ^\s*
-#      (?:run)
-#      (\s+ \S+ .*)?
-#      $
-#      /ix
-#    end
-#    
-#    def execute
-#      if Debugger.contexts.size != 1
-#        print "This kind of restart only works if there is one thread\n"
-#        return
-#      end
-#
-#      Debugger.suspend
-#      throw :restart
-#    end
-#
-#    class << self
-#      def help_command
-#        'run'
-#      end
-#
-#      def help(cmd)
-#        %{
-#          run [args] 
-#          Restart the program by This is is not re-exec - all debugger state
-#          saved. If command arguments are passed those are used.
-#        }
-#      end
-#    end
-#  end
+  class RunCommand < Command # :nodoc:
+    self.control = true
+
+    def regexp
+      / ^\s*
+      (?:run)
+      (\s+ \S+ .*)?
+      $
+      /ix
+    end
+    
+    def execute
+      if Debugger.contexts.size > 1
+        print "This kind of restart only works if there is one thread\n"
+        return
+      end
+      # Debugger.tracing = true
+      # Thread.abort_on_exception = true
+      raise DebuggerRestart
+    end
+
+    class << self
+      def help_command
+        'run'
+      end
+
+      def help(cmd)
+        %{
+          run [args] 
+          Restart the program by This is is not re-exec - all debugger state
+         saved. If command arguments are passed those are used.
+        }
+      end
+    end
+  end
 
   class InterruptCommand < Command # :nodoc:
     self.event = false

@@ -47,8 +47,8 @@ module Debugger
           end
         rescue IOError, Errno::EPIPE
           self.interface = nil
-        rescue RestartException
-          raise RestartException
+        rescue DebuggerRestart
+          raise $!
         rescue Exception
           print "INTERNAL ERROR!!! #\{$!\}\n" rescue nil
           print $!.backtrace.map{|l| "\t#\{l\}"}.join("\n") rescue nil

@@ -147,6 +147,7 @@ else
     # activate post-mortem
     Debugger.post_mortem if options.post_mortem
     Debugger.tracing = options.nostop = true if options.tracing
+
     # load script
     while true do
       # Make sure Ruby script syntax checks okay.
@@ -160,15 +161,14 @@ else
         end
       end
       begin
-        catch(:restart) do
-          Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+        if STDIN.tty? and !options.nostop
+          print "The program finished and will be restarted\n"
+        else
+          break
         end
-      rescue
-      end
-      if STDIN.tty? and !options.nostop
-        print "The program finished and will be restarted\n"
-      else
-        break
+      rescue DebuggerRestart
+        print "Restarting...\n"
       end
     end
   end
