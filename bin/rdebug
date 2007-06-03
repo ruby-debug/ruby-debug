@@ -169,6 +169,8 @@ else
         end
       rescue DebuggerRestart
         print "Restarting...\n"
+        Thread.abort_on_exception = Debugger.abort_on_exception_save
+        ARGV[0..-1] = Debugger.settings[:argv]
       end
     end
   end

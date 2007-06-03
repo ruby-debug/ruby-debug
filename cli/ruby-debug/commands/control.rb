@@ -96,18 +96,21 @@ module Debugger
     def regexp
       / ^\s*
       (?:run)
-      (\s+ \S+ .*)?
+      (?:\s+ (\S?.*\S))? \s*
       $
       /ix
     end
     
     def execute
-      if Debugger.contexts.size > 1
-        print "This kind of restart only works if there is one thread\n"
+      if not defined? Debugger::RDEBUG_SCRIPT
+        print "This kind of restart works only if rdebug is called initially\n"
         return
       end
-      # Debugger.tracing = true
-      # Thread.abort_on_exception = true
+      if @match[1]
+        Command.settings[:argv] = @match[1].split(/[ \t]+/)
+      end
+      Debugger.abort_on_exception_save = Thread.abort_on_exception 
+      Thread.abort_on_exception = true
       raise DebuggerRestart
     end
 
@@ -119,8 +122,9 @@ module Debugger
       def help(cmd)
         %{
           run [args] 
-          Restart the program by This is is not re-exec - all debugger state
-         saved. If command arguments are passed those are used.
+         A "warm" restart of the program. In contrast to "restart",
+this is is not re-exec - debugger settings are preserved. 
+If command arguments are passed those are used.
         }
       end
     end
