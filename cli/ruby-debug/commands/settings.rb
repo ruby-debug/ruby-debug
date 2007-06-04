@@ -17,7 +17,7 @@ module Debugger
        ['autoreload', 4, true,
         "Reload source code when changed"],
        ['basename', 1, true,
-        "Report basename of files"],
+        "Report file basename only showing file names"],
        ['forcestep', 2, true,
         "Make sure 'next/step' commands always move to a new line"],
        ['framefullpath', 2, true,

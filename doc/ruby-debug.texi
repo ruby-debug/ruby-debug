@@ -148,7 +148,7 @@ $ @b{rdebug hanoi.rb}
    11  end
    12
    13  i_args=ARGV.length
-   14  if i_args != 1 and i_args != 2:
+   14  if i_args > 1
    15      puts "*** Need number of disks or no parameter"
    16      exit 1
    17  end
@@ -181,9 +181,9 @@ this time 10 lines are shown.
 (rdb:1) @b{step}
 ./hanoi.rb:13 i_args=ARGV.length
 (rdb:1) @b{@key{RET}}
-./hanoi.rb:14 if i_args != 1 and i_args != 2:
+./hanoi.rb:14 if i_args > 1
 (rdb:1) @b{step}
-./hanoi.rb:14 if i_args != 1 and i_args != 2:
+./hanoi.rb:14 if i_args > 1
 (rdb:1) @b{p i_args}
 0
 (rdb:1) 
@@ -251,6 +251,7 @@ To be continued...
 @itemize @bullet
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.
+@item mixing in Debugger.debug with rdebug
 @item post-mortem debugging and setting up for that
 @item setting a breakpoint by modifying the program.
 @item threading?
@@ -518,15 +519,16 @@ require "ruby-debug/debugger"
 @chapter @code{ruby-debug} Command Reference
 
 @menu
-* Command Syntax::       How to give commands to the rdebug
-* Help::                 How to ask for help (help)
-* Control::              Controlling the debugger (quit, restart, interrupt)
-* DisplayCommands::      Executing expressions on stop (display, undisplay)
-* PrintCommands::        Evaluating and Printing Expressions (p, pp, irb)
-* PrintVars::            Printing Variables (var)
-* List::                 Examining Program Source Files (list)
-* FrameCommands::        Examining the stack frame (where, up, down, frame)
-* Stopping::             Stopping and continuing (break, watch, step, cont...)
+* Command Syntax::           How to give commands to the rdebug
+* Help::                     How to ask for help (help)
+* Control::                  Controlling the debugger (quit, restart, interrupt)
+* DisplayCommands::          Executing expressions on stop (display, undisplay)
+* PrintCommands::            Evaluating and Printing Expressions (p, pp, irb)
+* PrintVars::                Printing Variables (var)
+* List::                     Examining Program Source Files (list)
+* FrameCommands::            Examining the stack frame (where, up, down, frame)
+* Stopping::                 Stopping and continuing (break, watch, step, cont...)
+* ruby-debug settings::      rdebug-settings (set args, set autoeval, ...)
 @end menu
 
 @node Command Syntax
@@ -1120,6 +1122,68 @@ example, perhaps another breakpoint or watchpoint is reached first, in
 a listing of the breakpoints you won't see this entry in the list of
 breakpoints.
 @end table
+
+@node ruby-debug settings
+@section ruby-debug settings (@samp{set args}, @samp{set autoeveal}..)
+
+You can alter the way ruby-debug interacts with you using @code{set}
+commands. 
+
+The various parameters to @code{set} are given below. Each parameter
+name needs to to be only enough to make it unique. For example
+@code{set force} is a suitable abbreviation for @code{set forcestep}.
+The letter case is not important, so @code{set FORCE} or @code{set
+Force} are also suitable abbreviations.
+
+Many @code{set} commands are either ``on'' or ``off'', and you can
+indicate which way you want set by supplying the corresponding
+word. The number 1 can be used for ``on'' and 0 for ``off''. If none
+of these is given, we will assume ``on''. A depricated way of turning
+something off is by prefacing it with ``no''.
+
+Each @code{set} command has a corresponding @code{show} command which
+allows you to see the current value.
+
+@menu
+* Args::                 Annotation Level
+* Autoeval::             Evaluate unrecognized commands
+* Autolist::             Execute ``list'' command on every breakpoint
+* Autoirb::              Invode IRB on every stop
+* Autoreload::           Reload source code when changed
+* Basename::             Report file basename only showing file names
+* Forcestep::            Make sure 'next/step' commands always move to a new line
+* Framefullpath::        Display full file names in frames
+* Keepframebindings::    Save frame binding on each call
+* Linetrace::            line execution tracing
+* Trace::                Display stack trace when 'eval' raises exception
+* Width::                Number of characters the debugger thinks are in a line
+@end menu
+
+@node Args
+@subsection Set/Show args
+@node Autoeval
+@subsection Set/Show auto-eval
+@node Autolist
+@subsection Execute ``list'' command on every breakpoint
+@node Autoirb
+@subsection Set/Show auto-irb
+@node Autoreload
+@subsection Set/Show auto-reload
+@node Basename
+@subsection Set/Show basename
+@node Forcestep
+@subsection Set/Show Forces Step
+@node Framefullpath
+@subsection Set/Show Frame full path
+@node Keepframebindings
+@subsection Save frame binding on each call
+@node Linetrace
+@subsection Set/Show Line tracing
+@node Trace
+@subsection Display stack trace when 'eval' raises exception
+@node Width
+@subsection Set/Show Line width
+
 
 @node Post-Mortem Debugging
 @chapter Post-Mortem Debugging
