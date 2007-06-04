@@ -167,21 +167,21 @@ else
         else
           break
         end
-      rescue 
-        print "Uncaught exception #{$!}\n"
-        print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n" rescue nil
-        if STDIN.tty? and !options.nostop
-          print "The program finished and will be restarted\n"
-        else
-          break
-        end
       rescue DebuggerQuit
         break
       rescue DebuggerRestart
         print "Restarting...\n"
         Thread.abort_on_exception = Debugger.abort_on_exception_save
-        ARGV[0..-1] = Debugger.settings[:argv]
+      rescue 
+        # print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n" rescue nil
+        print "Uncaught exception: #{$!}\n"
+        if STDIN.tty? and !options.nostop
+          print "The program finished and will be restarted\n"
+        else
+          break
+        end
       end
+      ARGV[0..-1] = Debugger.settings[:argv][1..-1]
     end
   end
 end

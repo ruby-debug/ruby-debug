@@ -107,7 +107,7 @@ module Debugger
         return
       end
       if @match[1]
-        Command.settings[:argv] = @match[1].split(/[ \t]+/)
+        Command.settings[:argv] = [Debugger::RDEBUG_SCRIPT] + @match[1].split(/[ \t]+/)
       end
       Debugger.abort_on_exception_save = Thread.abort_on_exception 
       Thread.abort_on_exception = true
