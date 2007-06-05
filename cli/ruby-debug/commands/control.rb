@@ -122,9 +122,9 @@ module Debugger
       def help(cmd)
         %{
           run [args] 
-         A "warm" restart of the program. In contrast to "restart",
-this is is not re-exec - debugger settings are preserved. 
-If command arguments are passed those are used.
+          A "warm" restart of the program. In contrast to "restart",
+          this is is not re-exec - debugger settings are preserved. 
+          If command arguments are passed those are used.
         }
       end
     end

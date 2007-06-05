@@ -416,6 +416,7 @@ debug_context_mark(void *data)
         if(frame->dead)
         {
             rb_gc_mark(frame->info.copy.locals);
+            rb_gc_mark(frame->info.copy.args);
         }
     }
     rb_gc_mark(debug_context->breakpoint);
@@ -1001,8 +1002,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = -1;
 
             raise_exception = call_at_line(context, debug_context, 
-					   rb_str_new2(file), 
-					   INT2FIX(line));
+                rb_str_new2(file), 
+                INT2FIX(line));
         }
         break;
     }
@@ -1032,7 +1033,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             else
                 debug_context->breakpoint = Qnil;
             raise_exception = call_at_line(context, debug_context, 
-					   rb_str_new2(file), INT2FIX(line));
+                rb_str_new2(file), INT2FIX(line));
         }
         break;
     }
@@ -1112,8 +1113,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                     binding = create_binding(self);
                 save_top_binding(debug_context, binding);
                 raise_exception = call_at_line(context, debug_context, 
-					       rb_str_new2(file), 
-					       INT2FIX(line));
+                    rb_str_new2(file), 
+                    INT2FIX(line));
                 break;
             }
         }
@@ -1143,9 +1144,9 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     if (Qtrue == raise_exception) {
       VALUE klass = CLASS_OF(rb_gv_get("!"));
       if (klass == rb_eDebuggerRestart)
-	rb_raise(rb_eDebuggerRestart, "Debugger restart requested.");
+          rb_raise(rb_eDebuggerRestart, "Debugger restart requested.");
       else if (klass == rb_eDebuggerQuit)
-	rb_raise(rb_eDebuggerQuit, "Debugger quit requested.");
+          rb_raise(rb_eDebuggerQuit, "Debugger quit requested.");
       /* We don't pass any other exceptions through. */
     }
 }
@@ -1931,13 +1932,13 @@ context_copy_args(debug_frame_t *debug_frame)
     if (tbl && scope->local_vars) 
     {
         n = *tbl++;
-	if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
-	list = rb_ary_new2(n);
+        if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
+        list = rb_ary_new2(n);
         for (i=2; i<n; i++) 
         {   
             /* skip first 2 ($_ and $~) */
             if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
-	    rb_ary_push(list, rb_str_new2(rb_id2name(tbl[i])));
+            rb_ary_push(list, rb_str_new2(rb_id2name(tbl[i])));
         }
     }
 

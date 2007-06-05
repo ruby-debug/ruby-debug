@@ -256,11 +256,9 @@ module Debugger
         end
       end
       case arg.downcase
-      when '1'
-      when 'on'
+      when '1', 'on'
         return true
-      when '0'
-      when 'off'
+      when '0', 'off'
         return false
       else
         if print_error
