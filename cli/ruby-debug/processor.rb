@@ -58,21 +58,20 @@ module Debugger
     
     def at_breakpoint(context, breakpoint)
       n = Debugger.breakpoints.index(breakpoint) + 1
-      print1 "\032\032%s:%d\n" % 
-        [CommandProcessor.canonic_file(breakpoint.source), 
-         breakpoint.pos] if ENV['EMACS']
-      print1 "Breakpoint %d at %s:%s\n" % [n, breakpoint.source, breakpoint.pos]
+      print "\032\032%s:%d\n", 
+      CommandProcessor.canonic_file(breakpoint.source), 
+      breakpoint.pos if ENV['EMACS']
+      print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
     end
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      print1 "\032\032%s:%d\n" % 
-        [CommandProcessor.canonic_file(context.frame_file(1)), 
-         context.frame_line(1)] if ENV['EMACS']
-      print1 "Catchpoint at %s:%d: `%s' (%s)\n" % 
-        [CommandProcessor.canonic_file(context.frame_file(1)), 
-         context.frame_line(1), 
-         excpt, excpt.class]
+      print "\032\032%s:%d\n", 
+      CommandProcessor.canonic_file(context.frame_file(1)), 
+      context.frame_line(1) if ENV['EMACS']
+      print "Catchpoint at %s:%d: `%s' (%s)\n", 
+      CommandProcessor.canonic_file(context.frame_file(1)), 
+      context.frame_line(1), excpt, excpt.class
       fs = context.stack_size
       tb = caller(0)[-fs..-1]
       if tb
@@ -84,27 +83,26 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      print1("Tracing(%d):%s:%s %s" % [context.thnum, 
-                                       CommandProcessor.canonic_file(file), 
-                                       line, 
-                                       Debugger.line_at(file, line)])
+      print "Tracing(%d):%s:%s %s",
+      context.thnum, CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)
            end
     protect :at_tracing
 
     def at_line(context, file, line)
-      print1("#{"\032\032" if ENV['EMACS']}%s:%d\n%s" % 
-             [CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)])
+      print "#{"\032\032" if ENV['EMACS']}%s:%d\n%s",
+             CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)
       process_commands(context, file, line)
     end
     protect :at_line
     
     private
 
-    def print1(args)
-      args.gsub!("%", "%%")
-      @interface.print(args)
-    end
-    
+    # Callers of this routine should make sure to use comma to
+    # separate format argments rather than %. Otherwise it seems that
+    # if the string you want to print has format specifier, which
+    # could happen if you are trying to show say a source-code line
+    # with "puts" or "print" in it, this print routine will give an
+    # error saying it is looking for more arguments.
     def print(*args)
       @interface.print(*args)
     end
