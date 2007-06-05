@@ -1,6 +1,5 @@
 module Debugger
   class NextCommand < Command # :nodoc:
-    include ParseFunctions
     self.need_context = true
     
     def regexp
@@ -30,7 +29,6 @@ module Debugger
   end
 
   class StepCommand < Command # :nodoc:
-    include ParseFunctions
     self.need_context = true
     
     def regexp
@@ -89,8 +87,6 @@ module Debugger
   end
 
   class ContinueCommand < Command # :nodoc:
-    include ParseFunctions
-    
     def regexp
       /^\s*c(?:ont)?(?:\s+(.*))?$/
     end

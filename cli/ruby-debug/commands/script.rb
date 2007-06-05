@@ -31,10 +31,14 @@ module Debugger
     self.control = true
     
     def regexp
-      /^\s*sa(?:ve)?\s+(.+)$/
+      /^\s*sa(?:ve)?(?:\s+(.+))?$/
     end
     
     def execute
+      unless @match[1]
+        print "No filename specified.\n"
+        return
+      end
       open(@match[1], 'w') do |file|
         Debugger.breakpoints.each do |b|
           file.puts "break #{b.source}:#{b.pos}#{" if #{b.expr}" if b.expr}"

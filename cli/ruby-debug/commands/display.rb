@@ -6,8 +6,6 @@ module Debugger
   end
 
   class AddDisplayCommand < Command # :nodoc:
-    include DisplayFunctions
-
     def regexp
       /^\s*disp(?:lay)?\s+(.+)$/
     end
@@ -34,7 +32,6 @@ module Debugger
 
   class DisplayCommand < Command # :nodoc:
     self.always_run = true
-    include DisplayFunctions
     
     def regexp
       /^\s*disp(?:lay)?$/
@@ -65,7 +62,6 @@ module Debugger
   end
 
   class DeleteDisplayCommand < Command # :nodoc:
-    include DisplayFunctions
 
     def regexp
       /^\s*undisp(?:lay)?(?:\s+(\d+))?$/

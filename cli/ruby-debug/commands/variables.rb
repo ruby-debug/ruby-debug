@@ -1,7 +1,14 @@
 module Debugger
-  class VarConstantCommand < Command # :nodoc:
-    include VarFunctions
+  module VarFunctions # :nodoc:
+    def var_list(ary, b = get_binding)
+      ary.sort!
+      for v in ary
+        print "  %s => %p\n", v, debug_eval(v, b)
+      end
+    end
+  end
 
+  class VarConstantCommand < Command # :nodoc:
     def regexp
       /^\s*v(?:ar)?\s+c(?:onst(?:ant)?)?\s+/
     end
@@ -35,8 +42,6 @@ module Debugger
   end
 
   class VarGlobalCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+g(?:lobal)?\s*$/
     end
@@ -59,8 +64,6 @@ module Debugger
   end
 
   class VarInstanceCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+i(?:nstance)?\s*/
     end
@@ -84,8 +87,6 @@ module Debugger
   end
 
   class VarLocalCommand < Command # :nodoc:
-    include VarFunctions
-
     def regexp
       /^\s*v(?:ar)?\s+l(?:ocal)?\s*$/
     end

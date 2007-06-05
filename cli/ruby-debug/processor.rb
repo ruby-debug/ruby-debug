@@ -23,6 +23,7 @@ module Debugger
     end
     
     require 'pathname'  # For cleanpath
+    
     # Regularize file name. 
     # This is also used as a common funnel place if basename is 
     # desired or if we are working remotely and want to change the 
@@ -30,10 +31,10 @@ module Debugger
     def self.canonic_file(filename)
       # For now we want resolved filenames 
       if Command.settings[:basename]
-        return File.basename(filename)
+        File.basename(filename)
       else
         # Cache this?
-        return Pathname.new(filename).cleanpath.to_s
+        Pathname.new(filename).cleanpath.to_s
       end
     end
   
@@ -47,8 +48,6 @@ module Debugger
           end
         rescue IOError, Errno::EPIPE
           self.interface = nil
-        rescue DebuggerRestart
-          raise $!
         rescue Exception
           print "INTERNAL ERROR!!! #\{$!\}\n" rescue nil
           print $!.backtrace.map{|l| "\t#\{l\}"}.join("\n") rescue nil
@@ -85,7 +84,7 @@ module Debugger
     def at_tracing(context, file, line)
       print "Tracing(%d):%s:%s %s",
       context.thnum, CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)
-           end
+    end
     protect :at_tracing
 
     def at_line(context, file, line)

@@ -148,40 +148,6 @@ else
     Debugger.post_mortem if options.post_mortem
     Debugger.tracing = options.nostop = true if options.tracing
 
-    # load script
-    while true do
-      # Make sure Ruby script syntax checks okay.
-      # Otherwise we get a load message that looks like rdebug has 
-      # a problem. For reasons that are unclear to me if autoirb is
-      # on, the backtick is run inside irb.
-      if not Debugger.settings[:autoirb]
-        output = `ruby -c #{Debugger::PROG_SCRIPT}`
-        if $?.exitstatus != 0
-          exit $?.exitstatus 
-        end
-      end
-      begin
-        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
-        if STDIN.tty? and !options.nostop
-          print "The program finished and will be restarted\n"
-        else
-          break
-        end
-      rescue DebuggerQuit
-        break
-      rescue DebuggerRestart
-        print "Restarting...\n"
-        Thread.abort_on_exception = Debugger.abort_on_exception_save
-      rescue 
-        # print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n" rescue nil
-        print "Uncaught exception: #{$!}\n"
-        if STDIN.tty? and !options.nostop
-          print "The program finished and will be restarted\n"
-        else
-          break
-        end
-      end
-      ARGV[0..-1] = Debugger.settings[:argv][1..-1]
-    end
+    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
   end
 end

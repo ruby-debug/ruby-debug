@@ -129,9 +129,6 @@ typedef struct {
     st_table *tbl;
 } threads_table_t;
 
-static VALUE rb_eDebuggerQuit   = Qnil;
-static VALUE rb_eDebuggerRestart= Qnil;
-
 static VALUE threads_tbl        = Qnil;
 static VALUE breakpoints        = Qnil;
 static VALUE catchpoint         = Qnil;
@@ -531,18 +528,12 @@ call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE li
 {
     VALUE args;
     VALUE retval;
-    int exception_raised = 0;
     
     last_debugged_thnum = debug_context->thnum;
     save_current_position(debug_context);
 
     args = rb_ary_new3(3, context, file, line);
-    retval = rb_protect(call_at_line_unprotected, args, &exception_raised);
-    if (exception_raised != 0) {
-      return Qtrue;
-    }
-	
-    return Qnil;
+    return rb_protect(call_at_line_unprotected, args, 0);
 }
 
 static void
@@ -867,7 +858,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     debug_context_t *debug_context;
     char *file = NULL;
     int line = 0, moved = 0;
-    VALUE raise_exception = Qnil;
 
     hook_count++;
 
@@ -1001,9 +991,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_line = -1;
             debug_context->stop_next = -1;
 
-            raise_exception = call_at_line(context, debug_context, 
-                rb_str_new2(file), 
-                INT2FIX(line));
+            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
         }
         break;
     }
@@ -1032,8 +1020,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             }
             else
                 debug_context->breakpoint = Qnil;
-            raise_exception = call_at_line(context, debug_context, 
-                rb_str_new2(file), INT2FIX(line));
+            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
         }
         break;
     }
@@ -1112,9 +1099,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 if(self && binding == Qnil)
                     binding = create_binding(self);
                 save_top_binding(debug_context, binding);
-                raise_exception = call_at_line(context, debug_context, 
-                    rb_str_new2(file), 
-                    INT2FIX(line));
+                call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
                 break;
             }
         }
@@ -1140,15 +1125,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     thread = remove_from_locked();
     if(thread != Qnil)
         rb_thread_run(thread);
-
-    if (Qtrue == raise_exception) {
-      VALUE klass = CLASS_OF(rb_gv_get("!"));
-      if (klass == rb_eDebuggerRestart)
-          rb_raise(rb_eDebuggerRestart, "Debugger restart requested.");
-      else if (klass == rb_eDebuggerQuit)
-          rb_raise(rb_eDebuggerQuit, "Debugger quit requested.");
-      /* We don't pass any other exceptions through. */
-    }
 }
 
 static VALUE
@@ -2658,8 +2634,6 @@ __declspec(dllexport)
 void
 Init_ruby_debug()
 {
-    rb_eDebuggerQuit    = rb_define_class("DebuggerQuit", rb_eException);
-    rb_eDebuggerRestart = rb_define_class("DebuggerRestart", rb_eException);
     mDebugger = rb_define_module("Debugger");
     rb_define_const(mDebugger, "VERSION", rb_str_new2(DEBUG_VERSION));
     rb_define_module_function(mDebugger, "start", debug_start, 0);

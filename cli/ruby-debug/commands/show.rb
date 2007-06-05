@@ -1,7 +1,63 @@
 module Debugger
+  # Mix-in module to showing settings
+  module ShowFunctions # :nodoc:
+    def show_setting(setting_name)
+      case setting_name
+      when /^args$/
+        args = Command.settings[:argv][1..-1].join(' ')
+        return "Argument list to give program being debugged when it is started is \"#{args}\"."
+      when /^autolist$/
+        on_off = Command.settings[:autolist]
+        return "autolist is #{show_onoff(on_off)}."
+      when /^autoeval$/
+        on_off = Command.settings[:autoeval]
+        return "autoeval is #{show_onoff(on_off)}."
+      when /^autoreload$/
+        on_off = Command.settings[:reload_source_on_change]
+        return "autoreload is #{show_onoff(on_off)}."
+      when /^autoirb$/
+        on_off = Command.settings[:autoirb]
+        return "autoirb is #{show_onoff(on_off)}."
+      when /^basename$/
+        on_off = Command.settings[:basename]
+        return "basename is #{show_onoff(on_off)}."
+      when /^forcestep$/
+        on_off = self.class.settings[:force_stepping]
+        return "force-stepping is #{show_onoff(on_off)}."
+      when /^framefullpath$/
+        on_off = Command.settings[:frame_full_path]
+        return "Displaying frame's full file names is #{show_onoff(on_off)}."
+      when /^frameclassname$/
+        on_off = Command.settings[:frame_class_names]
+        return "Displaying frame's original class name is #{show_onoff(on_off)}."
+      when /^keep-frame-bindings$/
+        on_off = Debugger.keep_frame_binding?
+        return "keep-frame-bindings is #{show_onoff(on_off)}."
+      when /^linetrace$/
+        on_off = Debugger.tracing
+        return "line tracing is #{show_onoff(on_off)}."
+      when /^listsize$/
+        listlines = Command.settings[:listsize]
+        return "Number of source lines to list by default is #{listlines}."
+      when /^port$/
+        return "server port is #{Debugger::PORT}."
+      when /^post-mortem$/
+        on_off = Debugger.post_mortem
+        return "post-mortem handling is #{show_onoff(on_off)}."
+      when /^trace$/
+        on_off = Command.settings[:stack_trace_on_error]
+        return "Displaying stack trace is #{show_onoff(on_off)}."
+      when /^version$/
+        return "ruby-debug #{Debugger::VERSION}"
+      when /^width$/
+        return "width is #{self.class.settings[:width]}."
+      else
+        return "Unknown show subcommand #{setting_name}."
+      end
+    end
+  end
+
   class ShowCommand < Command # :nodoc:
-    include ParseFunctions
-    include ShowFunctions
     
     SubcmdStruct=Struct.new(:name, :min, :short_help)
     Subcommands = 
@@ -63,12 +119,12 @@ module Debugger
 
       def help(cmd)
         s = "
-Generic command for showing things about the debugger.
+          Generic command for showing things about the debugger.
 
--- 
-List of show subcommands:
---  
-"
+          -- 
+          List of show subcommands:
+          --  
+        "
         for subcmd in Subcommands do
           s += "show #{subcmd.name} -- #{subcmd.short_help}\n"
         end

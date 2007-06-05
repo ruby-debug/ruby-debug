@@ -1,7 +1,5 @@
 module Debugger
   class SetCommand < Command # :nodoc:
-    include ParseFunctions
-    include ShowFunctions
     
     SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help)
     Subcommands = 
@@ -129,15 +127,15 @@ module Debugger
       end
 
       def help(cmd)
-        s = "
-Modifies parts of the ruby-debug environment. Boolean values take
-on, off, 1 or 0.
-You can see these environment settings with the \"show\" command.
+        s = %{
+          Modifies parts of the ruby-debug environment. Boolean values take
+          on, off, 1 or 0.
+          You can see these environment settings with the \"show\" command.
 
--- 
-List of set subcommands:
---  
-"
+          -- 
+          List of set subcommands:
+          --  
+        }
         for subcmd in Subcommands do
           s += "set #{subcmd.name} -- #{subcmd.short_help}\n"
         end

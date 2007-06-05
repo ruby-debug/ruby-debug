@@ -90,46 +90,6 @@ module Debugger
     end
   end
 
-  class RunCommand < Command # :nodoc:
-    self.control = true
-
-    def regexp
-      / ^\s*
-      (?:run)
-      (?:\s+ (\S?.*\S))? \s*
-      $
-      /ix
-    end
-    
-    def execute
-      if not defined? Debugger::RDEBUG_SCRIPT
-        print "This kind of restart works only if rdebug is called initially\n"
-        return
-      end
-      if @match[1]
-        Command.settings[:argv] = [Debugger::RDEBUG_SCRIPT] + @match[1].split(/[ \t]+/)
-      end
-      Debugger.abort_on_exception_save = Thread.abort_on_exception 
-      Thread.abort_on_exception = true
-      raise DebuggerRestart
-    end
-
-    class << self
-      def help_command
-        'run'
-      end
-
-      def help(cmd)
-        %{
-          run [args] 
-          A "warm" restart of the program. In contrast to "restart",
-          this is is not re-exec - debugger settings are preserved. 
-          If command arguments are passed those are used.
-        }
-      end
-    end
-  end
-
   class InterruptCommand < Command # :nodoc:
     self.event = false
     self.control = true

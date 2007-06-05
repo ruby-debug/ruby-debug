@@ -1,6 +1,5 @@
 module Debugger
   class MethodCommand < Command # :nodoc:
-    include Columnize
     def regexp
       /^\s*m(?:ethod)?\s+(?:(i(:?nstance)?)\s)?/
     end

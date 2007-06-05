@@ -11,10 +11,7 @@ module Debugger
     
     alias __c_frame_binding frame_binding
     def frame_binding(frame)
-      begin
-        __c_frame_binding(frame) || hbinding(frame)
-      rescue NameError
-      end
+      __c_frame_binding(frame) || hbinding(frame)
     end
 
     private

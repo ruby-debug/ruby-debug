@@ -1,10 +1,5 @@
 module Debugger
   class InfoCommand < Command # :nodoc:
-    include FrameFunctions
-    include ParseFunctions
-    include ThreadFunctions
-    include VarFunctions
-
     SubcmdStruct=Struct.new(:name, :min, :short_help)
     Subcommands = 
       [
@@ -23,6 +18,7 @@ module Debugger
     def regexp
       /^\s* i(?:nfo)? (?:\s+(.*))?$/ix
     end
+    
     def execute
       if not @match[1]
         print "\"info\" must be followed by the name of an info command:\n"
@@ -125,12 +121,12 @@ module Debugger
       end
 
       def help(cmd)
-        s = "
-Generic command for showing things about the program being debugged.
--- 
-List of info subcommands:
---  
-"
+        s = %{
+          Generic command for showing things about the program being debugged.
+          -- 
+          List of info subcommands:
+          --  
+        }
         for subcmd in Subcommands do
           s += "info #{subcmd.name} -- #{subcmd.short_help}\n"
         end

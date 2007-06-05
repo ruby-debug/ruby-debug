@@ -21,8 +21,6 @@ module Debugger
   class EvalCommand < Command # :nodoc:
     self.control = true
     
-    include EvalFunctions
-
     register_setting_get(:autoeval) do
       EvalCommand.unknown
     end
@@ -69,8 +67,6 @@ module Debugger
 
   class PPCommand < Command # :nodoc:
     self.control = true
-    
-    include EvalFunctions
     
     def regexp
       /^\s*pp\s+/

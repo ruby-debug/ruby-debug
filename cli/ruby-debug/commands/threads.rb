@@ -1,7 +1,42 @@
 module Debugger
+  module ThreadFunctions # :nodoc:
+    def display_context(c)
+      c_flag = c.thread == Thread.current ? '+' : ' '
+      c_flag = '$' if c.suspended?
+      d_flag = c.ignored? ? '!' : ' '
+      print "%s%s", c_flag, d_flag
+      print "%d ", c.thnum
+      print "%s\t", c.thread.inspect
+      if c.stack_size > 0
+        print "%s:%d", c.frame_file(0), c.frame_line(0)
+      end
+      print "\n"
+    end
+    
+    def parse_thread_num(subcmd, arg)
+      if '' == arg
+        print "'thread %s' needs a thread number\n" % subcmd
+      else
+        thread_num = get_int(arg, "thread #{subcmd}", 1)
+        return nil unless thread_num
+        c = get_context(thread_num)
+        case 
+        when nil == c
+          print "No such thread.\n"
+        when @state.context == c
+          print "It's the current thread.\n"
+        when c.ignored?
+          print "Can't #{subcmd} to the debugger thread.\n"
+        else # Everything is okay
+          return c
+        end
+      end
+      return nil
+    end
+  end
+
   class ThreadListCommand < Command # :nodoc:
     self.control = true
-    include ThreadFunctions
 
     def regexp
       /^\s*th(?:read)?\s+l(?:ist)?\s*$/
@@ -30,8 +65,6 @@ module Debugger
     self.control = true
     self.need_context = true
     
-    include ThreadFunctions
-
     def regexp
       /^\s*th(?:read)?\s+stop\s*(\S*)\s*$/
     end
@@ -60,8 +93,6 @@ module Debugger
     self.control = true
     self.need_context = true
     
-    include ThreadFunctions
-
     def regexp
       /^\s*th(?:read)?\s+resume\s*(\S*)\s*$/
     end
@@ -69,6 +100,10 @@ module Debugger
     def execute
       c = parse_thread_num("resume", @match[1])
       return unless c 
+      if !c.thread.stop?
+        print "Already running."
+        return
+      end
       c.resume
       display_context(c)
     end
@@ -93,8 +128,6 @@ module Debugger
     self.control = true
     self.need_context = true
     
-    include ThreadFunctions
-
     def regexp
       /^\s*th(?:read)?\s*(?:sw(?:itch)?)?\s+(\S+)\s*$/
     end
@@ -124,8 +157,6 @@ module Debugger
   class ThreadCurrentCommand < Command # :nodoc:
     self.need_context = true
     
-    include ThreadFunctions
-
     def regexp
       /^\s*th(?:read)?\s*(?:cur(?:rent)?)?\s*$/
     end

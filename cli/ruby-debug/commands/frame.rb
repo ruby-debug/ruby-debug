@@ -1,8 +1,94 @@
 module Debugger
-  class WhereCommand < Command # :nodoc:
-    include FrameFunctions
-    include ParseFunctions
+  # Mix-in module to assist in command parsing.
+  module FrameFunctions # :nodoc:
+    def adjust_frame(frame_pos, absolute)
+      if absolute
+        if frame_pos < 0
+          abs_frame_pos = @state.context.stack_size + frame_pos
+        else
+          abs_frame_pos = frame_pos
+        end
+      else
+        abs_frame_pos = @state.frame_pos + frame_pos
+      end
 
+      if abs_frame_pos >= @state.context.stack_size then
+        print "Adjusting would put us beyond the oldest (initial) frame."
+        return
+      elsif abs_frame_pos < 0 then
+        print "Adjusting would put us beyond the newest (innermost) frame."
+        return
+      end
+      if @state.frame_pos != abs_frame_pos then
+        @state.previous_line = nil
+        @state.frame_pos = abs_frame_pos
+      end
+      
+      @state.file = @state.context.frame_file(@state.frame_pos)
+      @state.line = @state.context.frame_line(@state.frame_pos)
+      
+      print_frame(@state.frame_pos, true)
+    end
+    
+    def get_frame_call(prefix, pos)
+      id = @state.context.frame_method(pos)
+      call_str = ""
+      if id
+        args = @state.context.frame_args(pos)
+        locals = @state.context.frame_locals(pos)
+        call_str << "#{klass}." if Command.settings[:frame_class_names] && klass
+        call_str << id.id2name
+        if args.any?
+          call_str << "("
+          args.each do |name|
+            klass = locals[name].class
+            if klass.inspect.size > 20+3
+              klass = klass.inspect[0..20]+"..." 
+            end
+            call_str += "%s:%s, " % [name, klass]
+            if call_str.size > self.class.settings[:width] - prefix.size
+              # Strip off trailing ', ' if any but add stuff for later trunc
+              call_str[-2..-1] = ",...XX"
+              break
+            end
+          end
+          call_str[-2..-1] = ")" # Strip off trailing ', ' if any 
+        end
+      end
+      return call_str
+    end
+
+    def print_frame(pos, adjust = false)
+      file = @state.context.frame_file(pos)
+      line = @state.context.frame_line(pos)
+      klass = @state.context.frame_class(pos)
+
+      unless Command.settings[:frame_full_path]
+        path_components = file.split(/[\\\/]/)
+        if path_components.size > 3
+          path_components[0...-3] = '...'
+          file = path_components.join(File::ALT_SEPARATOR || File::SEPARATOR)
+        end
+      end
+
+      frame_num = "#%d " % pos
+      call_str = get_frame_call(frame_num, pos)
+      file_line = "at line %s:%d\n" % [CommandProcessor.canonic_file(file), line]
+      print frame_num
+      unless call_str.empty?
+        print call_str
+        print ' '
+        if call_str.size + frame_num.size + file_line.size > self.class.settings[:width]
+          print "\n       "
+        end
+      end
+      print file_line
+      print "\032\032%s:%d\n" % [CommandProcessor.canonic_file(file), 
+                                 line] if ENV['EMACS'] && adjust
+    end
+  end
+
+  class WhereCommand < Command # :nodoc:
     def regexp
       /^\s*(?:w(?:here)?|bt|backtrace)$/
     end
@@ -38,9 +124,6 @@ module Debugger
   end
 
   class UpCommand < Command # :nodoc:
-    include FrameFunctions
-    include ParseFunctions
-
     def regexp
       /^\s* u(?:p)? (?:\s+(.*))?$/x
     end
@@ -65,9 +148,6 @@ module Debugger
   end
 
   class DownCommand < Command # :nodoc:
-    include FrameFunctions
-    include ParseFunctions
-
     def regexp
       /^\s* down (?:\s+(.*))? .*$/x
     end
@@ -92,8 +172,6 @@ module Debugger
   end
   
   class FrameCommand < Command # :nodoc:
-    include FrameFunctions
-    include ParseFunctions
     def regexp
       /^\s* f(?:rame)? (?:\s+ (.*))? \s*$/x
     end

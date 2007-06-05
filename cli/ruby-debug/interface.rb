@@ -20,7 +20,6 @@ module Debugger
     begin
       require 'readline'
       class << Debugger
-        attr_accessor :abort_on_exception_save
         FILE_HISTORY = ".rdebug_hist"
         save_file = File.join(ENV["HOME"]||ENV["HOMEPATH"], FILE_HISTORY)
         open(save_file, 'r') do |file|

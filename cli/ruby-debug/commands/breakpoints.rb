@@ -80,7 +80,6 @@ module Debugger
   end
 
   class DeleteBreakpointCommand < Command # :nodoc:
-    include ParseFunctions
     self.control = true
 
     def regexp

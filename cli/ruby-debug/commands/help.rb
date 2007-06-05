@@ -6,7 +6,6 @@
 
 module Debugger
   class HelpCommand < Command # :nodoc:
-    include Columnize
     self.control = true
 
     def regexp
@@ -18,7 +17,10 @@ module Debugger
       cmds = @state.commands.select{ |cmd| [cmd.help_command].flatten.include?(@match[1]) }
       unless cmds.empty?
         help = cmds.map{ |cmd| cmd.help(@match[1]) }.join
-        print help.split("\n").reject{|l| l =~ /^\s*$/ }.map{|l| l.gsub(/^ +/, '')}.join("\n")
+        help = help.split("\n").map{|l| l.gsub(/^ +/, '')}
+        help.shift if help.first && help.first.empty?
+        help.pop if help.last && help.last.empty?
+        print help.join("\n")
       else
         print "Type 'help <command-name>' for help on a specific command\n\n"
         print "Available commands:\n"
