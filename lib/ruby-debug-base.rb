@@ -3,16 +3,6 @@ require 'ruby_debug.so'
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
 
-class Exception # :nodoc:
-  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
-end
-
-class RestartException < Exception
-end
-
-class QuitException < Exception
-end
-
 module Debugger
   class Context
     def interrupt
@@ -148,10 +138,7 @@ module Debugger
     #   end
     def post_mortem
       if block_given?
-        if self.post_mortem?
-          print "post-mortem already activated, block ignored\n"
-          return
-        end
+        old_post_mortem = self.post_mortem?
         begin
           self.post_mortem = true
           yield
@@ -159,14 +146,13 @@ module Debugger
           handle_post_mortem(exp)
           raise
         ensure
-          self.post_mortem = false
+          self.post_mortem = old_post_mortem
         end
       else
+        return if post_mortem?
         self.post_mortem = true
-        if $!
-          debug_at_exit do
-            handle_post_mortem($!)
-          end
+        debug_at_exit do
+          handle_post_mortem($!) if $! && post_mortem?
         end
       end
     end
@@ -209,6 +195,10 @@ module Kernel
       Debugger.current_context.frame_binding(n+2)
     end
   end
+end
+
+class Exception # :nodoc:
+  attr_reader :__debug_file, :__debug_line, :__debug_binding, :__debug_context
 end
 
 class Module
