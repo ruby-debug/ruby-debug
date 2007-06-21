@@ -18,6 +18,8 @@
   shell. Emacs position information shown in breakpoints and catchpoints.
 - INCOMPATIBLE CHANGE: "break" now sets a breakpoint on the current line
   (same as gdb). Use "info break" for a list of breakpoints.
+- INCOMPATIBLE CHANGE: "script" command removed. Use "source" command instead
+  (same as gdb).
 
 0.9.3
 - Fixed if..elsif..end stepping.
