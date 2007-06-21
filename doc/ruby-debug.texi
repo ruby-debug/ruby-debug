@@ -263,7 +263,7 @@ To be continued...
 
 @menu
 * Starting the debugger::    How to enter the debugger
-* Command Files::            Command files (source)
+* Command Files::            Command files
 * Quitting the debugger::    How to leave the debugger (quit, kill)
 * Calling from Program::     Calling the debugger from inside your program
 @end menu
@@ -437,10 +437,10 @@ true}.
 @end table
 
 @node Command Files
-@section Command files (@samp{source}))
+@section Command files
 
 @cindex command files
-A command file for @DBG is a file of lines that are @DBG
+A command file for @DBG{} is a file of lines that are @DBG{}
 commands.  Comments (lines starting with @kbd{#}) may also be included.
 An empty line in a command file does nothing; it does not mean to repeat
 the last command, as it would from the terminal.
@@ -457,24 +457,14 @@ Processes command line options and operands.
 
 @item
 Reads the init file (if any) in your home directory, (the directory
-pointed to by the @code{HOME} or @code{HOMEPATH} environment variable.}.
+pointed to by the @code{HOME} or @code{HOMEPATH} environment variable.
 
 @item
 Reads command files specified by the @samp{--script} option.
 @end enumerate
 
 You can also request the execution of a command file with the
-@code{source} command:
-
-@table @code
-@kindex source
-@item source @var{filename}
-Execute the command file @var{filename}.
-@end table
-
-The lines in a command file are executed sequentially.  They are not
-printed as they are executed.  If there is an error, execution
-proceeds to the next command in the file.
+@code{source} command, @pxref{Source}.
 
 @node Quitting the debugger
 @section Quitting the debugger
@@ -584,6 +574,7 @@ commands, using the command @code{help}.
 
 @table @code
 @kindex h @r{(@code{help})}
+@kindex help @ovar{command-name}
 @item help
 @itemx h
 You can use @code{help} (abbreviated @code{h}) with no arguments to
@@ -623,8 +614,17 @@ l[ist] nn-mm    list given lines
 
 @end table
 @node Control
-@section Controlling the debugger (@samp{quit}, @samp{restart}, @samp{interrupt})
+@section Controlling the debugger (@samp{quit}, @samp{restart}, @samp{interrupt}, @samp{source})
 
+@menu
+* Quit::      Quitting the debugger (quit)
+* Restart::   Restarting Script execution (restart)
+* Interrupt:: Interrupting the debugger (interrupt)
+* Source::    Running Debugger commands (source)
+@end menu
+
+@node Quit
+@subsection Quit (@samp{quit})
 @table @code
 @kindex quit 
 @kindex q @r{(@code{quit})}
@@ -636,10 +636,14 @@ To exit @value{DBG}, use the @code{quit} command (abbreviated
 @code{q}), or alias @code{exit}.
 
 A simple @code{quit} tries to terminate all threads in effect.
+@end table
 
+@node Restart
+@subsection Restart (@samp{restart})
+@table @code
 @kindex restart @r{[}@var{program args}@r{]}
-@kindex R @r{[}@var{program args}@r{]}
-@item restart @r{(@code{quit})}
+@kindex R @r{(@code{restart})}
+@item restart
 @itemx R 
 
 Restart the program. This is is a re-exec - all debugger state is
@@ -654,13 +658,29 @@ handling.
 Also, since this relies on the the OS @code{exec} call, this command
 is available only if your OS supports that @code{exec}; OSX for
 example does not (yet).
+@end table
 
+@node Interrupt
+@subsection Interrupt (@samp{interrupt})
+@table @code
 @kindex interrupt
 @kindex i
 @item interrupt
 @itemx i
 Interrupt the program. Useful if there are multiple threads running.
+@end table
 
+@node Source
+@subsection Running Debugger Commands (@samp{source})
+@table @code
+@kindex source @var{filename}
+@item source @var{filename}
+Execute the command file @var{filename}.
+
+The lines in a command file are executed sequentially.  They are not
+printed as they are executed.  If there is an error, execution
+proceeds to the next command in the file. For information about
+command files that get run automaticaly on startup, @pxref{Command Files}.
 @end table
 
 @node DisplayCommands
@@ -685,7 +705,7 @@ this:
 This display shows item numbers, expressions and their current values.  
 
 @table @code
-@kindex display
+@kindex display @ovar{expr}
 @item display @var{expr}
 Add the expression @var{expr} to the list of expressions to display
 each time your program stops. 
@@ -738,7 +758,7 @@ does in @code{irb}.
 @node eval
 @subsection Printing an expression (@samp{eval}, @samp{p})
 @table @code
-@kindex eval
+@kindex eval @var{expr} 
 @kindex p @r{(@code{eval})}
 @item eval @var{expr}
 @itemx p @var{expr}
@@ -809,7 +829,7 @@ You can print other portions of source files by explicit command.
 If you use @value{DBG} through its Emacs interface, you may prefer to
 use Emacs facilities to view source; @pxref{GNU Emacs}.
 
-@kindex list
+@kindex list @ovar{line-number}
 @kindex l @r{(@code{list})}
 To print lines from a source file, use the @code{list} command
 (abbreviated @code{l}).  By default, ten lines are printed. Fewer may
@@ -1039,10 +1059,10 @@ breakpoints you use the breakpoint number to say which breakpoint you
 want to change.  
 
 @table @code
-@kindex break
+@kindex break @ovar{location}
 @kindex b @r{(@code{break})}
 @item break
-List all breakpoints.
+Set a breakpiont at the current line.
 
 @item break @var{linenum}
 Set a breakpoint at line @var{linenum} in the current source file.
@@ -1063,7 +1083,7 @@ Set catchpoint to an exception. Without an exception name show catchpoints.
 
 
 @cindex delete breakpoints
-@kindex delete
+@kindex delete @ovar{breakpoints}
 @kindex del @r{(@code{delete})}
 @item delete @ovar{breakpoints}
 Delete the breakpoints, watchpoints specified as arguments. 
@@ -1147,10 +1167,10 @@ use @code{quit} (@pxref{Quitting the debugger, ,Quitting the debugger}).
 @node Continue
 @subsubsection Continue (@samp{continue})
 @table @code
-@kindex continue @ovar{line-number}
+@kindex continue @ovar{line-specification}
 @kindex c @r{(@code{continue})}
-@item continue @ovar{line-number}
-@itemx c @ovar{line-number}
+@item continue @ovar{line-specification}
+@itemx c @ovar{line-specification}
 Resume program execution, at the address where your script last
 stopped; any breakpoints set at that address are bypassed.  
 
