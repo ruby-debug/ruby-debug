@@ -263,7 +263,8 @@ To be continued...
 
 @menu
 * Starting the debugger::    How to enter the debugger
-* Quitting the debugger::    How to leave the debugger
+* Command Files::            Command files (source)
+* Quitting the debugger::    How to leave the debugger (quit, kill)
 * Calling from Program::     Calling the debugger from inside your program
 @end menu
 
@@ -434,6 +435,46 @@ However it's still possible to restore the old, slower behavior by
 using this option or by setting @code{Debugger.keep_frame_binding =
 true}.
 @end table
+
+@node Command Files
+@section Command files (@samp{source}))
+
+@cindex command files
+A command file for @DBG is a file of lines that are @DBG
+commands.  Comments (lines starting with @kbd{#}) may also be included.
+An empty line in a command file does nothing; it does not mean to repeat
+the last command, as it would from the terminal.
+
+@cindex init file
+@cindex @file{.rdebugrc}
+When you start @value{DBG}, it automatically executes commands from its
+@dfn{init files}, normally called @file{.rdebugrc}
+During startup, @DBG does the following:
+
+@enumerate
+@item
+Processes command line options and operands.
+
+@item
+Reads the init file (if any) in your home directory, (the directory
+pointed to by the @code{HOME} or @code{HOMEPATH} environment variable.}.
+
+@item
+Reads command files specified by the @samp{--script} option.
+@end enumerate
+
+You can also request the execution of a command file with the
+@code{source} command:
+
+@table @code
+@kindex source
+@item source @var{filename}
+Execute the command file @var{filename}.
+@end table
+
+The lines in a command file are executed sequentially.  They are not
+printed as they are executed.  If there is an error, execution
+proceeds to the next command in the file.
 
 @node Quitting the debugger
 @section Quitting the debugger

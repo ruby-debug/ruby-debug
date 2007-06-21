@@ -3,15 +3,16 @@ module Debugger
     self.control = true
     
     def regexp
-      /^\s*sc(?:ript)?\s+(.+)$/
+      /^\s*so(?:urce)?\s+(.+)$/
     end
     
     def execute
-      unless File.exists?(@match[1])
-        print "Script file '#{@match[1]}' is not found\n"
+      file = File.expand_path(@match[1]).strip
+      unless File.exists?(file)
+        print "Command file '#{file}' is not found\n"
         return
       end
-      Debugger.run_script(@match[1], @state)
+      Debugger.run_script(file, @state)
     end
     
     class << self

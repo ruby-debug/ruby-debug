@@ -8,6 +8,7 @@ require "ruby_debug"
 # Test of C extension ruby_debug.so
 class TestRubyDebug < Test::Unit::TestCase
   include Debugger
+  include Debugger
 
   # Test initial variables and setting/getting state.
   def test_basic
@@ -50,7 +51,7 @@ class TestRubyDebug < Test::Unit::TestCase
   end
 
   require "command.rb"
-  include Columnize
+  include ColumnizeFunctions
   def test_columize
     assert_equal("one  two  three\n", columnize(["one", "two", "three"]))
     assert_equal("oneitem\n", columnize(["oneitem"]))

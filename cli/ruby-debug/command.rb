@@ -55,7 +55,7 @@ module Debugger
       private :settings_map
       
       def settings
-        unless @settings
+        unless defined? @settings and @settings
           @settings = Object.new
           map = settings_map
           class << @settings; self end.send(:define_method, :[]) do |name|

@@ -33,7 +33,7 @@ CLI_FILES = FileList[
 desc "Test everything."
 def test_task(name)
   Rake::TestTask.new(name) do |t|
-    t.libs << ['./ext', './lib']
+    t.libs << ['./ext', './lib', './cli']
     t.pattern = 'test/**/*test-*.rb'
     t.verbose = true
   end

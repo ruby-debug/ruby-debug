@@ -527,7 +527,6 @@ static VALUE
 call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE line)
 {
     VALUE args;
-    VALUE retval;
     
     last_debugged_thnum = debug_context->thnum;
     save_current_position(debug_context);
