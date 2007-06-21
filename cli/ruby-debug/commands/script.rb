@@ -1,5 +1,5 @@
 module Debugger
-  class ScriptCommand < Command # :nodoc:
+  class SourceCommand < Command # :nodoc:
     self.control = true
     
     def regexp
@@ -17,12 +17,12 @@ module Debugger
     
     class << self
       def help_command
-        'script'
+        'source'
       end
       
       def help(cmd)
         %{
-          script FILE\texecutes a script file
+          source FILE\texecutes a file containing debugger commands
         }
       end
     end
