@@ -528,7 +528,7 @@ sections of code.
 And finally to tell the debugger to stop:
 
 @example
-debugger
+Debugger.debugger
 @end example 
 
 You may want to do this at several points in the program where there
@@ -536,7 +536,7 @@ is a problem you want to investigate. And since debugger is just a
 method call it's possible enclose it in a conditional expression, for
 example:
 @example
-debugger if foo='bar' and iter_count = 20
+Debugger.debugger if foo='bar' and iter_count = 20
 @end example 
 
 Although each step does a very specific thing which offers great
@@ -764,7 +764,7 @@ does in @code{irb}.
 @itemx p @var{expr}
 
 Use @code{eval} or @code{p} to evaluate a Ruby expresson, @var{expr},
-same as you would if you in @code{irb}. If there are many expressions
+same as you would if you were in @code{irb}. If there are many expressions
 you want to look at, you may want to go into irb from the debugger.
 @smallexample
 @group
@@ -1128,10 +1128,24 @@ Continue running your program until the next logical stopping point
 and return control to @value{DBG}. This command is abbreviated
 @code{s}.
 
-Occasionally inside an if expression or if there are multiple commands
-on a single line step will stop before each one. If you want to make
-sure that on a step you go to a @emph{different} position, add a plus
-sign (@samp{+}).
+Like, the programming Lisp, Ruby tends implemented in a highly
+expression-oriented manner. Therefore things that in other languages
+that may appear to be a single statment are implemented in Ruby as
+several expressions. For example, in an ``if'' statement or looping
+statements a stop is made after the expression is evaluated but before
+the test on the expression is made. 
+
+So it is common that a lines in the program will have several stopping
+points where in other debuggers of other languages there would be only
+one. Or you may have several statements listed on a line.
+
+When stepping it is not uncommon to want to go to a different line on
+each step. If you want to make sure that on a step you go to a
+@emph{different} position, add a plus sign (@samp{+}). 
+
+If you find yourself generally wanting to use @code{step +} rather
+than @code{step}, you may want to considier using @code{set
+forcestep}, @ref{Forcestep}.
 
 With a count, @code{step} will continue running as normal, but do so
 @var{count} times.  If a breakpoint is reached, or a signal not
@@ -1222,29 +1236,124 @@ allows you to see the current value.
 
 @node Args
 @subsection Set/Show args
+
+@table @code
+@kindex set args @ovar{parameters}
+@item set args @ovar{parameters}
+Specify the arguments to be used if your program is rerun.  If
+@code{set args} has no arguments, @code{restart} executes your program
+with no arguments.  Once you have run your program with arguments,
+using @code{set args} before the next @code{restart} is the only way to run
+it again without arguments.
+
+@kindex show args
+@item show args
+Show the arguments to give your program when it is started.
+@end table
+
 @node Autoeval
 @subsection Set/Show auto-eval
+
+@table @code
+@kindex set autoeval @r{[} on | 1 | off | 0 @r{]}
+@item set autoeval @r{[} on | 1 | off | 0 @r{]}
+Specify that debugger input that isn't recognized as a command should
+be passed to Ruby for evaluation (using the current debugged program
+namespace). See also @ref{irb} and @ref{Autoirb}.
+
+@kindex show autoeval 
+@item show args
+Shows whether Ruby evaluation of debugger input should occur or not.
+@end table
+
 @node Autolist
 @subsection Execute ``list'' command on every breakpoint
+
 @node Autoirb
 @subsection Set/Show auto-irb
+
+@table @code
+@kindex set autoirb @r{[} on | 1 | off | 0 @r{]}
+@item set autoirb @r{[} on | 1 | off | 0 @r{]}
+
+When your program stops, normally you go into a debugger command loop
+looking for debugger commands. If instead you would like to directly
+go into an irb shell, set this on. See also @ref{Autoeval} or
+@ref{irb} if you tend to use debugger commands but still want Ruby
+evaluation occasionally.
+
+
+@kindex show autoirb
+@item show autoirb
+Shows whether the debugger will go into irb on stop or not.
+@end table
+
 @node Autoreload
 @subsection Set/Show auto-reload
+
 @node Basename
 @subsection Set/Show basename
+
+@table @code
+@kindex set basename @r{[} on | 1 | off | 0 @r{]}
+@item set basename @r{[} on | 1 | off | 0 @r{]}
+Source filenames are shown as the shorter ``basename''
+only. (Directory paths are omitted). This is useful in running the
+regression tests and may useful in showing debugger examples as in
+this text. You may also just want less verbose filename display.
+
+By default filenames are shown as with their full path.
+
+@kindex show basename
+@item show basename
+Shows the whether filename display shows just the file basename or not.
+@end table
+
 @node Forcestep
-@subsection Set/Show Forces Step
+@subsection Set/Show Forces Different Line Step/Next
+
+@table @code
+@kindex set forcestep @r{[} on | 1 | off | 0 @r{]}
+@item set forcestep @r{[} on | 1 | off | 0 @r{]}
+
+Due to the interpretive, expression-oriented nature of the Ruby
+Language and implementation, each line often contains many possible
+stopping points, while in a debugger it is often desired to treat each
+line as an individual stepping unit. 
+
+Setting forcestep on will cause each @code{step} or @code{next}
+command to stop at a different line number. See also @ref{Step} and
+@ref{Next}.
+
+@kindex show forcestep
+@item show forcestep
+Shows whether forcestep is in effect or not.
+@end table
+
 @node Framefullpath
 @subsection Set/Show Frame full path
+
 @node Keepframebindings
 @subsection Save frame binding on each call
+
 @node Linetrace
 @subsection Set/Show Line tracing
+
 @node Trace
 @subsection Display stack trace when 'eval' raises exception
+
 @node Width
 @subsection Set/Show Line width
 
+@table @code
+@kindex set width @var{column-width}
+@item set width @var{column-width}
+Set number of characters the debugger thinks are in a line.
+We also change OS environment variable @code{COLUMNS}. 
+@kindex show width
+@item show width
+Shows the current width setting.
+@end table
 
 @node Post-Mortem Debugging
 @chapter Post-Mortem Debugging
@@ -1309,6 +1418,8 @@ end
 
 @node GNU Emacs
 @chapter Using @code{ruby-debug} from GNU Emacs
+
+To be completed...
 
 @node Command Index
 @unnumbered Command Index
