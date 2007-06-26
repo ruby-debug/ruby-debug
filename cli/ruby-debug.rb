@@ -11,6 +11,9 @@ module Debugger
   # the port number used for remote debugging
   PORT = 8989
 
+  # File we look for debugger startup commands.
+  INITFILE = ".rdebugrc"  
+
   class << self
     # in remote mode, wait for the remote connection 
     attr_accessor :wait_connection
@@ -105,6 +108,24 @@ module Debugger
       socket.close
     end
     
+    # Runs normal debugger initialization scripts
+    # Reads and executes the commands from init file (if any) in the
+    # current working directory.  This is only done if the current
+    #  directory is different from your home directory.  Thus, you can
+    # have more than one init file, one generic in your home directory,
+    #  and another, specific to the program you are debugging, in the
+    # directory where you invoke ruby-debug.
+    def run_init_script(out = handler.interface)
+      script_file = "#{ENV["HOME"] || ENV["HOMEPATH"]}/#{INITFILE}"
+      home_script_file = File.expand_path(script_file)
+      cwd_script_file  = File.expand_path("./#{INITFILE}")
+      if File.exists?(cwd_script_file)
+        run_script(cwd_script_file, out)
+      elsif File.exists?(home_script_file)
+        run_script(home_script_file, out)
+      end
+    end
+
     #
     # Runs a script file
     #

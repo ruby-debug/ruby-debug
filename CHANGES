@@ -20,6 +20,9 @@
   (same as gdb). Use "info break" for a list of breakpoints.
 - INCOMPATIBLE CHANGE: "script" command removed. Use "source" command instead
   (same as gdb).
+- Run .rdebugrc on Debugger.start. Look for this in the current directory and
+  run that instead the one in $HOME if that exists. Again, inspired and compatible
+  with gdb.
 
 0.9.3
 - Fixed if..elsif..end stepping.

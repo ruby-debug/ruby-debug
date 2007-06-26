@@ -118,16 +118,11 @@ else
   Debugger.wait_connection = options.wait
   Debugger.keep_frame_binding = options.frame_bind
   
-  load_initrc = lambda do
-    script_file = "#{ENV["HOME"] || ENV["HOMEPATH" || "."]}/.rdebugrc"
-    Debugger.run_script script_file, StringIO.new  if File.exists?(script_file)
-  end
-  
   if options.server
     # start remote mode
     Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem) do
       # load initrc script
-      load_initrc.call
+      Debugger.run_init_script(StringIO.new)
     end
     # load script
     Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
@@ -138,7 +133,7 @@ else
     Debugger.start_control(options.host, options.cport) if options.control
 
     # load initrc script
-    load_initrc.call
+    Debugger.run_init_script(StringIO.new)
     
     # run startup script if specified
     if options.script
@@ -148,6 +143,14 @@ else
     Debugger.post_mortem if options.post_mortem
     Debugger.tracing = options.nostop = true if options.tracing
 
+    # Make sure Ruby script syntax checks okay.
+    # Otherwise we get a load message that looks like rdebug has 
+    # a problem. 
+    output = `ruby -c #{Debugger::PROG_SCRIPT} 2>&1`
+    if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
+      puts output
+      exit $?.exitstatus 
+    end
     Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
   end
 end

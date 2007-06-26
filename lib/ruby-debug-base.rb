@@ -180,6 +180,7 @@ module Kernel
   #
   def debugger(steps = 1)
     Debugger.start unless Debugger.started?
+    Debugger.run_init_script(StringIO.new)
     Debugger.current_context.stop_next = steps
   end
   alias breakpoint debugger unless respond_to?(:breakpoint)
