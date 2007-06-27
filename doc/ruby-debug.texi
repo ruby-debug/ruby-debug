@@ -4,6 +4,7 @@
 @set DBG ruby-debug
 @set ttrdebug @code{rdebug}
 @set ttDBG @code{@value{DBG}}
+@set Emacs @sc{gnu} Emacs
 
 @macro DBG {}
 @value{DBG}
@@ -1424,7 +1425,333 @@ end
 @node GNU Emacs
 @chapter Using @code{ruby-debug} from GNU Emacs
 
-To be completed...
+@cindex @value{Emacs}
+A special interface which comes with Ruby that allows you to use
+@value{Emacs} to view (and edit) the source files for the program you
+are debugging with @value{DBG}. However you must be using
+@value{Emacs} version 21 or greater. (@code{M-x show-emacs-version}
+inside @value{Emacs} will tell you what version you are running.)
+
+To use this interface, you to load @code{rubydb3x.el}. 
+
+@example
+  (autoload 'rubydb "rubydb3x.el"  "Debugger Ruby programs." t)
+  (setq rubydb-command-name "rdebug")
+@end example 
+
+Once this is done, use the command @kbd{M-x rubydb} in @sc{gnu} Emacs.
+Give the executable file you want to debug as an argument. Make sure
+to use the version that comes with this package as this is newer than
+that supplied with @value{Emacs}.
+
+The @kbd{rubydb} command starts @value{DBG} as a subprocess of Emacs,
+with input and output through a newly created Emacs buffer.
+
+Using @value{DBG} under Emacs is just like using @value{DBG}
+normally except for two things:
+
+@itemize @bullet
+@item
+All ``terminal'' input and output goes through the GNU Emacs buffer.
+@end itemize
+
+This applies both to @value{DBG} commands and their output, and to the input
+and output done by the program you are debugging.
+
+This is useful because it means that you can copy the text of previous
+commands and input them again; you can even use parts of the output
+in this way.
+
+All the facilities of GNU Emacs' Shell mode are available for interacting
+with your script.  In particular, you can send signals the usual
+way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
+stop.
+
+@menu
+* GUD::           Commands from the GUD buffer
+* Emacs Source::  Commands from the source script
+* Emacs Shell::   @value{DBG} from a @value{Emacs} Shell
+@end menu
+
+@node GUD
+@section Commands from the GUD buffer
+
+@itemize @bullet
+@item
+@value{DBG} displays source code through Emacs.
+@end itemize
+
+Each time @value{DBG} displays a stack frame, Emacs automatically finds the
+source file for that frame and puts an arrow (@samp{=>}) at the
+left margin of the current line.  Emacs uses a separate buffer for
+source display, and splits the screen to show both your @value{DBG} session
+and the source.
+
+Explicit @value{DBG} @code{list} or search commands still produce output as
+usual, but you probably have no reason to use them from GNU Emacs.
+
+@quotation
+@emph{Warning:} If the directory where your script resides is not your
+current directory, it can be easy to confuse Emacs about the location of
+the source files, in which case the auxiliary display buffer does not
+appear to show your source.  @value{DBG} can find programs by searching your
+environment's @code{PATH} variable, so the @value{DBG} input and output
+session proceeds normally; but Emacs does not get enough information
+back from @value{DBG} to locate the source files in this situation.  To
+avoid this problem, either start @value{DBG} mode from the directory where
+your script resides, or specify an absolute file name when prompted for the
+@kbd{M-x gdb} argument.
+
+A similar confusion can result if you use the @value{DBG} @code{file} command to
+switch to debugging a program in some other location, from an existing
+@value{DBG} buffer in Emacs.
+@end quotation
+
+By default, @kbd{M-x rubydb} run the @code{ruby -r debug} which is the
+other debugger.  However you can set this to @code{rdebug} by running this:
+
+@example
+ (setq rubydb-command-name "rdebug")
+@end example
+
+@noindent
+(preceded by @kbd{M-:} or @kbd{ESC :}, or typed in the @code{*scratch*} buffer, or
+in your @file{.emacs} file).
+
+In the @value{DBG} I/O buffer, you can use the Emacs commands listed
+below in addition to the standard Shell mode commands. The I/O buffer
+name name is usually @code{*gud-}@emph{script-name}@code{*}, where
+@emph{script-name} is the name of the script you are debugging.
+
+Many of the commands listed below are also bound to a second key
+sequence which also can be used in the also be used in the source
+script. These are listed in @ref{Emacs Source}.
+
+@table @kbd
+@item C-h m
+Describe the features of Emacs' @value{DBG} Mode.
+
+@item C-c C-f
+Execute until exit from the selected stack frame. The Same as @value{DBG}
+@code{finish} command. The @value{Emacs} command name is
+@code{gud-finish} and @code{C-x C-a f C-f} is an alternate binding
+which also can be used in the source script. @xref{Finish}.
+
+@item C-c C-l
+Resynchronize the current position with the source window. The
+@value{Emacs} command name is @code{gud-refresh} and @code{C-x C-a
+C-l} is an alternate binding which also can be used in the source script.
+
+@item C-c C-n
+Execute to next source line in this function, skipping all function
+calls. Same as @value{DBG} @code{next} command.  The @value{Emacs}
+command name is @code{gud-next} and @code{C-x C-a n} is an
+alternate binding which also can be used in the source script. @xref{Next}.
+
+With a numeric argument, run that many times.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+@item C-c C-r
+Continue execution of your script Same as @value{DBG} @code{continue}
+command. The @value{Emacs} command name is @code{gud-cont} and
+@code{C-x C-a C-r} is an alternate binding which also can be used in the
+source script. See @ref{Continue}.
+
+@item C-c C-s
+Step one source line. Same as @value{DBG} @code{step} command. The
+@value{Emacs} command name is @code{gud-step} and @code{C-x C-a C-s}
+is an alternate binding which can be used in the source
+script. @xref{Step}.
+
+With a numeric argument, run that many times.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+@item C-c >
+Go down a stack frame.  Same as @value{DBG} @code{down}.
+With a numeric argument, go down that many stack frames.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+The @value{Emacs} command name is
+@code{gud-down} and @code{C-x C-a >} is an alternate binding
+which can be used in the source script. 
+
+@item C-c <
+Go up a stack frame. With a numeric argument, go up that many
+stack frames. Same @value{DBG} @code{up} command.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+The @value{Emacs} command name is
+@code{gud-up} and @code{C-x C-a <} is an alternate binding
+which can be used in the source script. 
+
+@item C-c a
+Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
+stack frame. Same as @value{DBG} @code{info args} command. The
+@value{Emacs} command name is @code{gud-args} and @code{C-x C-a a} is
+an alternate binding which also can be used in the source script.
+
+@item C-c R
+Restart or run the script. Same as @value{DBG} @code{run} command. The
+@value{Emacs} command name is @code{gud-finish} and @code{C-x C-a R}
+is an alternate binding which also can be used in the source script.
+
+@item C-c T
+Show stack trace. Same as @value{DBG} @code{where} command. The
+@value{Emacs} command name is @code{gud-where} and @code{C-x C-a T} is
+an alternate binding which can be used in the source
+script. @xref{Backtrace}.
+
+@end table
+
+In any source file, the Emacs command @kbd{C-x SPC} (@code{gud-break})
+tells @value{DBG} to set a breakpoint on the source line point is on.
+
+If you accidentally delete the source-display buffer, an easy way to get
+it back is to type the command @code{frame} in the @value{DBG} buffer, to
+request a frame display; when you run under Emacs, this recreates
+the source buffer if necessary to show you the context of the current
+frame.
+
+The source files displayed in Emacs are in ordinary Emacs buffers
+which are visiting the source files in the usual way.  You can edit
+the files with these buffers if you wish; but keep in mind that @value{DBG}
+communicates with Emacs in terms of line numbers.  If you add or
+delete lines from the text, the line numbers that @value{DBG} knows cease
+to correspond properly with the code.
+
+@xref{Debugger Operation, , , Emacs, The @value{Emacs}
+Manual}.
+
+@node Emacs Source
+@section Commands from the source script
+
+@table @kbd
+@item C-x SPC
+
+tells @value{DBG} to set a breakpoint on the source
+line point is on. (@code{gud-break}) 
+
+@item C-x C-a t	
+
+@code{gud-linetrace}
+
+@item C-x C-a C-f
+Restart or run the script. Same as @value{DBG} @code{run} command. The
+@value{Emacs} command name is @code{gud-finish}. In the corresponding
+I/O buffer, @code{C-c R} is an alternate binding.
+
+@item C-x C-a T	
+Show stack trace. Same as @value{DBG} @code{where} command. In the
+corresponding I/O buffer, @code{C-c T} is an alternate
+binding. @xref{Backtrace}.
+
+@item C-x C-a <	
+
+Go up a stack frame. With a numeric argument, go up that many
+stack frames. Same @value{DBG} @code{up} command.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs} Manual}.
+
+The @value{Emacs} command name is @code{gud-up}. In the corresponding
+I/O buffer, @code{C-c <} is an alternate binding.
+
+@item C-x C-a >	
+
+Go down a stack frame.  Same as @value{DBG} @code{down}.
+With a numeric argument, go down that many stack frames.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+The @value{Emacs} command name is @code{gud-down}. In the
+corresponding I/O buffer, @code{C-c >} is an alternate binding.
+
+@item C-x C-a C-t
+
+@code{gud-tbreak}
+
+@item C-x C-a C-s
+
+Step one source line. Same as @value{DBG} @code{step}
+command. @xref{Step}.
+
+With a numeric argument, run that many times.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+The @value{Emacs} command name is @code{gud-step}. In the
+corresponding I/O buffer, @code{C-c C-s} is an alternate binding.
+
+@item C-x C-a C-e
+
+@code{gud-statement}
+
+@item C-x C-a R	
+Restart or run the script. Same as @value{DBG} @code{run} command. The
+@value{Emacs} command name is @code{gud-run}. In the corresponding I/O
+buffer, @code{C-c R} is an alternate binding.
+
+@item C-x C-a C-d
+Delete breakpoint. @code{gud-remove}
+
+@item C-x C-a C-p
+
+@code{gud-print}
+
+@item C-x C-a C-n
+
+Execute to next source line in this function, skipping all function
+calls. Same as @value{DBG} @code{next} command.  With a numeric
+argument, run that many times.  @xref{Arguments, , Numeric Arguments,
+Emacs, The @value{Emacs} Manual}.
+
+The @value{Emacs} command name is @code{gud-next}. In the
+corresponding I/O buffer, @code{C-c C-n} is an alternate binding.
+
+@item C-x C-a f	C-f
+
+@code{gud-finish}
+
+@item C-x C-a C-r
+Continue execution of your script Same as @value{DBG} @code{continue}
+command. The @value{Emacs} command name is @code{gud-cont}. In the
+corresponding I/O buffer, @code{C-c C-r} is an alternate binding. See
+@ref{Continue}.
+
+@item C-x C-a C-b
+
+@code{gud-break}
+
+@item C-x C-a a	
+
+@code{gud-args}
+Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
+stack frame. Same as @value{DBG} @code{info args} command.  The
+@value{Emacs} command name is @code{gud-args}. In the corresponding
+I/O buffer, @code{C-c a} is an alternate binding which also can be
+used in the source script.
+
+@item C-x C-a C-l
+Move to current position in this source window. The @value{Emacs}
+command name is @code{gud-refresh}. In the corresponding I/O buffer,
+@code{C-c C-l} is an alternate binding.
+
+@end table
+
+@node Emacs Shell
+@section @value{DBG} from a @value{Emacs} Shell
+
+It is also possible in GNU emacs to use a (``comint'') shell
+and set a mode to watch for @value{DBG} prompts. @xref{Interactive
+Shell, , Shell, Emacs, The @value{Emacs} Manual}.
+
+To run Ruby in a shell in Emacs but track source lines this, issue the
+command (from M-x) @code{turn-on-rdebugtrack}. There is some overhead
+involved in scanning output, so if you are not debugging Ruby programs
+you probably want to turn this off which can be done via the M-x
+@code{turn-off-rdebugtrack} command.
 
 @node Command Index
 @unnumbered Command Index
