@@ -449,15 +449,20 @@ the last command, as it would from the terminal.
 @cindex @file{.rdebugrc}
 When you start @value{DBG}, it automatically executes commands from its
 @dfn{init files}, normally called @file{.rdebugrc}
-During startup, @DBG does the following:
+During startup, @DBG{} does the following:
 
 @enumerate
 @item
 Processes command line options and operands.
 
 @item
-Reads the init file (if any) in your home directory, (the directory
-pointed to by the @code{HOME} or @code{HOMEPATH} environment variable.
+Reads the init file in your current directory, if any, and failing
+that the home directory. The home directory is the directory named in
+the @code{HOME} or @code{HOMEPATH} environment variable. 
+
+Thus, you can have more than one init file, one generic in your home
+directory, and another, specific to the program you are debugging, in
+the directory where you invoke @DBG{}.
 
 @item
 Reads command files specified by the @samp{--script} option.

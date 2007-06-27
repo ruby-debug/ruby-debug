@@ -111,7 +111,7 @@ module Debugger
     # Runs normal debugger initialization scripts
     # Reads and executes the commands from init file (if any) in the
     # current working directory.  This is only done if the current
-    #  directory is different from your home directory.  Thus, you can
+    # directory is different from your home directory.  Thus, you can
     # have more than one init file, one generic in your home directory,
     #  and another, specific to the program you are debugging, in the
     # directory where you invoke ruby-debug.
