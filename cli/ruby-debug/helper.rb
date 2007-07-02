@@ -18,7 +18,7 @@ module Debugger
         nonstrings << str unless str.is_a?(String)
       end
       if nonstrings.size > 0
-        return "Nonstrings: %s\n" % nonstrings.map {|non| non.to_s}.join(',')
+        return "Nonstrings: %s\n" % nonstrings.map {|non| non.to_s}.join(', ')
       end
       if 1 == list.size
         return "#{list[0]}\n"
