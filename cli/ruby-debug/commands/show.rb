@@ -4,7 +4,11 @@ module Debugger
     def show_setting(setting_name)
       case setting_name
       when /^args$/
-        args = Command.settings[:argv][1..-1].join(' ')
+        if Command.settings[:argv] and Command.settings[:argv].size > 0
+          args = Command.settings[:argv][1..-1].join(' ')
+        else
+          args = ''
+        end
         return "Argument list to give program being debugged when it is started is \"#{args}\"."
       when /^autolist$/
         on_off = Command.settings[:autolist]
