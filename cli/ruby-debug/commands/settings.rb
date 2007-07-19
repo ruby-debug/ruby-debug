@@ -16,9 +16,11 @@ module Debugger
         "Reload source code when changed"],
        ['basename', 1, true,
         "Report file basename only showing file names"],
+       ['callstyle', 2, false,
+        "Set how you want call parameters displayed"],
        ['forcestep', 2, true,
         "Make sure 'next/step' commands always move to a new line"],
-       ['framefullpath', 2, true,
+       ['fullpath', 2, true,
         "Display full file names in frames"],
        ['keep-frame-bindings', 1, true,
         "Save frame binding on each call"],
@@ -75,12 +77,20 @@ module Debugger
                 Command.settings[:autoeval] = set_on
               when /^basename$/
                 Command.settings[:basename] = set_on
+              when /^callstyle$/
+                arg = args[0].downcase.to_sym
+                case arg
+                when :short, :last, :tracked
+                  Command.settings[:callstyle] = arg
+                  Debugger.track_frame_args = arg == :tracked ? true : false
+                else
+                  print "Invalid call style #{arg}. Should be one of: " +
+                    "'short', 'last', or 'tracked'.\n"
+                end
               when /^trace$/
                 Command.settings[:stack_trace_on_error] = set_on
-              when /^framefullpath$/
-                Command.settings[:frame_full_path] = set_on
-              when /^frameclassname$/
-                Command.settings[:frame_class_names] = set_on
+              when /^fullpath$/
+                Command.settings[:full_path] = set_on
               when /^autoreload$/
                 Command.settings[:reload_source_on_change] = set_on
               when /^autoirb$/

@@ -32,20 +32,37 @@ module Debugger
     
     def get_frame_call(prefix, pos)
       id = @state.context.frame_method(pos)
+      klass = @state.context.frame_class(pos)
       call_str = ""
       if id
         args = @state.context.frame_args(pos)
         locals = @state.context.frame_locals(pos)
-        call_str << "#{klass}." if Command.settings[:frame_class_names] && klass
+        if Command.settings[:callstyle] != :short && klass
+          if Command.settings[:callstyle] == :tracked
+            arg_info = @state.context.frame_args_info(pos)
+          end
+          call_str << "#{klass}." 
+        end
         call_str << id.id2name
         if args.any?
           call_str << "("
-          args.each do |name|
-            klass = locals[name].class
-            if klass.inspect.size > 20+3
-              klass = klass.inspect[0..20]+"..." 
+          args.each_with_index do |name, i|
+            case Command.settings[:callstyle] 
+            when :short
+              call_str += "%s, " % [name]
+            when :last
+              klass = locals[name].class
+              if klass.inspect.size > 20+3
+                klass = klass.inspect[0..20]+"..." 
+              end
+              call_str += "%s#%s, " % [name, klass]
+            when :tracked
+              if arg_info && arg_info.size > i
+                call_str += "#{name}: #{arg_info[i].inspect}, "
+              else
+                call_str += "%s, " % name
+              end
             end
-            call_str += "%s:%s, " % [name, klass]
             if call_str.size > self.class.settings[:width] - prefix.size
               # Strip off trailing ', ' if any but add stuff for later trunc
               call_str[-2..-1] = ",...XX"
@@ -63,7 +80,7 @@ module Debugger
       line = @state.context.frame_line(pos)
       klass = @state.context.frame_class(pos)
 
-      unless Command.settings[:frame_full_path]
+      unless Command.settings[:full_path]
         path_components = file.split(/[\\\/]/)
         if path_components.size > 3
           path_components[0...-3] = '...'

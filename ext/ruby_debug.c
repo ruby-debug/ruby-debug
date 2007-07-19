@@ -75,6 +75,7 @@ typedef struct {
     const char * file;
     short dead;
     VALUE self;
+    VALUE arg_ary;
     union {
         struct {
             struct FRAME *frame;
@@ -84,6 +85,7 @@ typedef struct {
         struct {
             VALUE args;
             VALUE locals;
+	    VALUE arg_ary;
         } copy;
     } info;
 } debug_frame_t;
@@ -137,6 +139,7 @@ static VALUE locker             = Qnil;
 static VALUE post_mortem        = Qfalse;
 static VALUE keep_frame_binding = Qfalse;
 static VALUE debug              = Qfalse;
+static VALUE track_frame_args   = Qtrue;
 
 static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
@@ -171,6 +174,7 @@ static VALUE context_copy_args(debug_frame_t *);
 static VALUE context_copy_locals(debug_frame_t *);
 static void context_suspend_0(debug_context_t *);
 static void context_resume_0(debug_context_t *);
+static void copy_scalar_args(debug_frame_t *);
 
 typedef struct locked_thread_t {
     VALUE thread_id;
@@ -562,7 +566,10 @@ save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debu
     debug_frame->info.runtime.frame = ruby_frame;
     debug_frame->info.runtime.scope = ruby_scope;
     debug_frame->info.runtime.dyna_vars = event == RUBY_EVENT_LINE ? ruby_dyna_vars : NULL;
+    if (RTEST(track_frame_args))
+      copy_scalar_args(debug_frame);
 }
+
 
 #if defined DOSISH
 #define isdirsep(x) ((x) == '/' || (x) == '\\')
@@ -1577,6 +1584,31 @@ debug_set_post_mortem(VALUE self, VALUE value)
 
 /*
  *   call-seq:
+ *      Debugger.track_fame_args? -> bool
+ *
+ *   Returns +true+ if the debugger track frame argument values on calls.
+ */
+static VALUE
+debug_track_frame_args(VALUE self)
+{
+    return track_frame_args;
+}
+
+/*
+ *   call-seq:
+ *      Debugger.track_frame_args = bool
+ *
+ *   Setting to +true+ will make the debugger save argument info on calls.
+ */
+static VALUE
+debug_set_track_frame_args(VALUE self, VALUE value)
+{
+    track_frame_args = RTEST(value) ? Qtrue : Qfalse;
+    return value;
+}
+
+/*
+ *   call-seq:
  *      Debugger.keep_frame_binding? -> bool
  *
  *   Returns +true+ if the debugger will collect frame bindings.
@@ -1825,6 +1857,24 @@ check_frame_number(debug_context_t *debug_context, VALUE frame)
 
 /*
  *   call-seq:
+ *      context.frame_args(frame) -> list 
+        if track_frame_args or nil othersise
+ *
+ *   Returns info saved about call arguments (if any saved).
+ */
+static VALUE
+context_frame_args_info(VALUE self, VALUE frame)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+    Data_Get_Struct(self, debug_context_t, debug_context);
+
+    return RTEST(track_frame_args) ? GET_FRAME->arg_ary : Qnil;
+}
+
+/*
+ *   call-seq:
  *      context.frame_binding(frame) -> binding
  *
  *   Returns frame's binding.
@@ -1893,6 +1943,56 @@ context_frame_file(VALUE self, VALUE frame)
     return rb_str_new2(GET_FRAME->file);
 }
 
+static int
+arg_value_is_small(VALUE val) 
+{
+  switch (TYPE(val)) {
+  case T_FIXNUM: case T_FLOAT:  case T_CLASS:
+  case T_NIL:    case T_MODULE: case T_FILE:
+  case T_TRUE:   case T_FALSE:  case T_UNDEF:
+    return 1;
+  default:
+    return SYMBOL_P(val);
+  }
+}
+
+/*
+ *   Save scalar arguments or a class name.
+ */
+static void
+copy_scalar_args(debug_frame_t *debug_frame)
+{
+  unsigned int i;
+  ID *tbl = ruby_scope->local_tbl;;
+  if (tbl && ruby_scope->local_vars) 
+  {
+      int n = *tbl++;
+      if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
+      debug_frame->arg_ary = rb_ary_new2(n);
+      for (i=2; i<n; i++) 
+      {   
+	  /* skip flip states */
+	  if (rb_is_local_id(tbl[i])) 
+            {
+	      const char *name = rb_id2name(tbl[i]);
+              VALUE val = rb_eval_string (name);
+	      if (arg_value_is_small(val))
+		rb_ary_push(debug_frame->arg_ary, val);
+	      else
+		rb_ary_push(debug_frame->arg_ary, 
+			    rb_str_new2(rb_obj_classname(val)));
+	    }
+      }
+  }
+}
+
+
+/*
+ *   call-seq:
+ *      context.copy_args(frame) -> list of args
+ *
+ *   Returns a array of argument names.
+ */
 static VALUE
 context_copy_args(debug_frame_t *debug_frame)
 {
@@ -1909,6 +2009,7 @@ context_copy_args(debug_frame_t *debug_frame)
         n = *tbl++;
         if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
         list = rb_ary_new2(n);
+	/* skip first 2 ($_ and $~) */
         for (i=2; i<n; i++) 
         {   
             /* skip first 2 ($_ and $~) */
@@ -1919,7 +2020,6 @@ context_copy_args(debug_frame_t *debug_frame)
 
     return list;
 }
-
 static VALUE
 context_copy_locals(debug_frame_t *debug_frame)
 {
@@ -1978,7 +2078,7 @@ context_frame_locals(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_locals(frame) -> list
+ *      context.frame_args(frame) -> list
  *
  *   Returns frame's argument parameters
  */
@@ -2581,6 +2681,7 @@ Init_context()
     rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
     rb_define_method(cContext, "frame_id", context_frame_id, 1);
     rb_define_method(cContext, "frame_method", context_frame_id, 1);
+    rb_define_method(cContext, "frame_args_info", context_frame_args_info, 1);
     rb_define_method(cContext, "frame_line", context_frame_line, 1);
     rb_define_method(cContext, "frame_file", context_frame_file, 1);
     rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
@@ -2658,6 +2759,10 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "post_mortem=", debug_set_post_mortem, 1);
     rb_define_module_function(mDebugger, "keep_frame_binding?", debug_keep_frame_binding, 0);
     rb_define_module_function(mDebugger, "keep_frame_binding=", debug_set_keep_frame_binding, 1);
+    rb_define_module_function(mDebugger, "track_frame_args?", 
+			      debug_track_frame_args, 0);
+    rb_define_module_function(mDebugger, "track_frame_args=", 
+			      debug_set_track_frame_args, 1);
     rb_define_module_function(mDebugger, "debug", debug_debug, 0);
     rb_define_module_function(mDebugger, "debug=", debug_set_debug, 1);
 

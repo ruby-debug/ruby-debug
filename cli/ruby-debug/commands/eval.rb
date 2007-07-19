@@ -94,4 +94,79 @@ module Debugger
       end
     end
   end
+
+  class PCCommand < Command # :nodoc:
+    self.control = true
+    
+    def regexp
+      /^\s*pc\s+/
+    end
+
+    def execute
+      out = StringIO.new
+      run_with_binding do |b|
+        vals = debug_eval(@match.post_match, b)
+        if vals.is_a?(Array)
+          vals = vals.map{|item| item.to_s}
+          print "%s\n", columnize(vals, self.class.settings[:width])
+        else
+          PP.pp(vals, out)
+          print out.string
+        end
+      end
+    rescue 
+      out.puts $!.message
+    end
+
+    class << self
+      def help_command
+        'pc'
+      end
+
+      def help(cmd)
+        %{
+          pc expression\tevaluate expression and columnize its value
+        }
+      end
+    end
+  end
+  
+  class PSCommand < Command # :nodoc:
+    self.control = true
+    
+    include EvalFunctions
+    
+    def regexp
+      /^\s*ps\s+/
+    end
+
+    def execute
+      out = StringIO.new
+      run_with_binding do |b|
+        vals = debug_eval(@match.post_match, b)
+        if vals.is_a?(Array)
+          vals = vals.map{|item| item.to_s}
+          print "%s\n", columnize(vals.sort!, self.class.settings[:width])
+        else
+          PP.pp(vals, out)
+          print out.string
+        end
+      end
+    rescue 
+      out.puts $!.message
+    end
+
+    class << self
+      def help_command
+        'ps'
+      end
+
+      def help(cmd)
+        %{
+          ps expression\tevaluate expression sort, and columnize its value
+        }
+      end
+    end
+  end
+  
 end

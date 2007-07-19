@@ -25,15 +25,15 @@ module Debugger
       when /^basename$/
         on_off = Command.settings[:basename]
         return "basename is #{show_onoff(on_off)}."
+      when /^callstyle$/
+        style = Command.settings[:callstyle]
+        return "Frame call-display style is #{style}."
       when /^forcestep$/
         on_off = self.class.settings[:force_stepping]
         return "force-stepping is #{show_onoff(on_off)}."
-      when /^framefullpath$/
-        on_off = Command.settings[:frame_full_path]
+      when /^fullpath$/
+        on_off = Command.settings[:full_path]
         return "Displaying frame's full file names is #{show_onoff(on_off)}."
-      when /^frameclassname$/
-        on_off = Command.settings[:frame_class_names]
-        return "Displaying frame's original class name is #{show_onoff(on_off)}."
       when /^keep-frame-bindings$/
         on_off = Debugger.keep_frame_binding?
         return "keep-frame-bindings is #{show_onoff(on_off)}."
@@ -73,8 +73,9 @@ module Debugger
        ['autoirb', 4, "Show if IRB is invoked on debugger stops"],
        ['autoreload', 4, "Show if source code is reloaded when changed"],
        ['basename', 1, "Show if basename used in reporting files"],
+       ['callstyle', 2, "Show paramater style used showing call frames"],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
-       ['framefullpath', 1, "Show if full file names are displayed in frames"],
+       ['fullpath', 2, "Show if full file names are displayed in frames"],
        ['keep-frame-bindings', 1, "Save frame binding on each call"],
        ['linetrace', 3, "Show line execution tracing"],
        ['listsize', 3, "Show number of source lines to list by default"],
