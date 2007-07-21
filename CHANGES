@@ -23,6 +23,7 @@
 - Run .rdebugrc on Debugger.start. Look for this in the current directory and
   run that instead the one in $HOME if that exists. Again, inspired and compatible
   with gdb.
+- Ruby 1.9 compatible
 
 0.9.3
 - Fixed if..elsif..end stepping.
