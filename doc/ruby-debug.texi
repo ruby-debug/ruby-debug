@@ -153,6 +153,29 @@ $ @b{rdebug hanoi.rb}
    15      puts "*** Need number of disks or no parameter"
    16      exit 1
    17  end
+(rdb:1) @b{set listsize 18}
+Number of source lines to list by default is 18.
+(rdb:1) @b{list 27}
+[18, 35] in /home/rocky/ruby/hanoi.rb
+   18  
+   19  n=3
+   20  
+   21  if i_args > 0
+   22      begin
+   23        n = ARGV[0].to_i
+   24      rescue ValueError, msg:
+   25          print "** Expecting an integer, got: %s" % ARGV[0].to_s
+   26        exit 2
+   27      end
+   28  end
+   29  
+   30  if n < 1 or n > 100
+   31      puts "*** number of disks should be between 1 and 100" 
+   32      exit 2
+   33  end
+   34  
+   35  hanoi(n, :a, :b, :c)
+(rdb:1) 
 @end cartouche
 @end smallexample 
 
@@ -170,21 +193,27 @@ the program has died and you are in post-mortem debugging, there is no
 thread number. In this situation, the string @code{post-mortem} is
 used in place of a thread number.
 
-The first command, @code{list}, prints 10 lines centered around the
-current line. However since there aren't 5 lines before the current
-line those additional lines are dropped and we print 8 lines instead.
-This command can be abbreviated with @code{l} which is what we use
-next. Notice we continue listing from the place we last left off, and
-this time 10 lines are shown.
+The first command, @code{list} (@pxref{List}), prints 10 lines
+centered around the current line. However since there aren't 5 lines
+before the current line those additional lines are dropped and we
+print 8 lines instead.  This command can be abbreviated with @code{l}
+which is what we use next. Notice we continue listing from the place
+we last left off, and this time 10 lines are shown.
+
+If you use a front-end to the debugger such as the Emacs interface
+(@pxref{GNU Emacs}), you probably won't use @code{list} all that much.
 
 @smallexample
 @cartouche
 (rdb:1) @b{step}
-./hanoi.rb:13 i_args=ARGV.length
+./hanoi.rb:13 
+i_args=ARGV.length
 (rdb:1) @b{@key{RET}}
-./hanoi.rb:14 if i_args > 1
+./hanoi.rb:14 
+if i_args > 1
 (rdb:1) @b{step}
-./hanoi.rb:14 if i_args > 1
+./hanoi.rb:14 
+if i_args > 1
 (rdb:1) @b{p i_args}
 0
 (rdb:1) 
@@ -200,11 +229,11 @@ Notice that the second step above remained on line 14. After the first
 step we were stopped before running the expression in the @code{if}
 statement (@code{i_args !=1 and i_args !=2}); after the second step we
 are about to perform the @code{if} test on the resulting
-expression. It is not uncommon in stepping to stay on the same line
-after a step. In fact, this always happens in conditional statements
-and loops as we saw above. If you want to go to a new line when you
-issue a step command, add a plus sign. That is issue @code{step +}
-rather than @code{step}).
+expression. Given the expression-oriented nature of Ruby, it is not
+uncommon in stepping to stay on the same line after a step. In fact,
+this always happens in conditional statements and loops as we saw
+above. If you want to go to a new line when you issue a step command,
+add a plus sign. That is issue @code{step +} rather than @code{step}).
 
 We can print the values of variables using @code{p}. And when we do we
 see this value 0 means we are going to run into trouble by taking that
@@ -218,7 +247,8 @@ the script. However we can rerun the program by using the
 (rdb:1) @b{restart 3}
 Re exec'ing:
         /usr/bin/rdebug ./hanoi.rb 3
-./hanoi.rb:3 def hanoi(n,a,b,c)
+./hanoi.rb:3 
+def hanoi(n,a,b,c)
 (rdb:1) @b{break 4}
 Breakpoint 1 file hanoi.rb, line 4
 (rdb:1) @b{continue}
@@ -228,22 +258,45 @@ Breakpoint 1 at hanoi.rb:4
 1: n = 3
 (rdb:1) @b{display a}
 2: a = a
-(rdb:1) @b{display b}
-3: b = b
+(rdb:1) @b{display a.inspect}
+3: a.inspect = :a
+(rdb:1) @b{display b.inspect}
+4: b.inspect = :b
 (rdb:1) @b{continue}
 Breakpoint 1 at hanoi.rb:4
-./hanoi.rb:4 if n-1 > 0
+./hanoi.rb:4 
+if n-1 > 0
 1: n = 2
 2: a = a
-3: b = c
+3: a.inspect = :a
+4: b.inspect = :c
+(rdb:1) @b{undisplay 2}
 (rdb:1) @b{c}
 Breakpoint 1 at hanoi.rb:4
-./hanoi.rb:4 if n-1 > 0
+./hanoi.rb:4 
+if n-1 > 0
 1: n = 1
-2: a = a
-3: b = b
+3: a.inspect = :a
+4: b.inspect = :b
+(rdb:1) @b{where}
+--> #0 Object.hanoi(n: 1, a: :a, b: :b, c: :c) at line hanoi.rb:4
+    #1 Object.-(n: 2, a: :a, b: :c, c: :b) at line hanoi.rb:5
+    #2 Object.-(n: 3, a: :a, b: :b, c: :c) at line hanoi.rb:5
+    #3 at line hanoi.rb:35
+(rdb:1) 
 @end cartouche
 @end smallexample 
+
+In the above we added a new command, @code{display}
+(@pxref{DisplayCommands}) . Every time the program stops, the list of
+``display'' commands are run. Notice the difference in how parameters
+@code{a} and @code{b} are displayed. An implied string conversion is
+performed on the expression after it is evaluated. To remove a display
+expression we used @code{undisplay} giving the display number that was
+assigned to that expression.
+
+Above we also used a new comand @code{where} (@pxref{Backtrace} to
+show the stack frame.
 
 Now show frame commands, e.g. frame -1. 
 
@@ -560,7 +613,7 @@ require "ruby-debug/debugger"
 * Help::                     How to ask for help (help)
 * Control::                  Controlling the debugger (quit, restart, interrupt)
 * DisplayCommands::          Executing expressions on stop (display, undisplay)
-* PrintCommands::            Evaluating and Printing Expressions (p, pp, irb)
+* PrintCommands::            Evaluating and Printing Expressions (p, pp, ps, pp, irb)
 * PrintVars::                Printing Variables (var)
 * List::                     Examining Program Source Files (list)
 * FrameCommands::            Examining the stack frame (where, up, down, frame)
@@ -710,6 +763,11 @@ this:
 @noindent
 This display shows item numbers, expressions and their current values.  
 
+Note: this command uses @code{to_s} to in expressions; for example an
+array @code{[1, 2]} will appear as @code{12}. For some datatypes like
+an Array, you may want to call the @code{inspect} method, for example
+@code{display ARGV.inspect} rather than @code{display ARGV}.
+
 @table @code
 @kindex display @ovar{expr}
 @item display @var{expr}
@@ -718,9 +776,7 @@ each time your program stops.
 
 @item display
 Display the current values of the expressions on the list, just as is
-done when your program stops. Note: this command uses @code{to_s} to
-in expressions; for example an array @code{[1, 2]} will appear as
-@code{12}.
+done when your program stops. 
 
 @kindex undisplay @ovar{num}
 @item undisplay @ovar{num}
@@ -746,7 +802,7 @@ again in auto display of its expression, until you specify otherwise.
 @end table
 
 @node PrintCommands
-@section Evaluating and Printing Commands (@samp{p}, @samp{pp}, @samp{irb})
+@section Evaluating and Printing Expressions (@samp{p}, @samp{pp}, @samp{pc}, @samp{ps}, @samp{irb})
 
 One way to examine and change data in your script is with the
 @code{eval} command (abbreviated @code{p}). A similar command is
@@ -757,7 +813,7 @@ does in @code{irb}.
 
 @menu
 * eval::          eval or print an expression (eval, p)
-* pp::            pretty print an expression(pp)
+* pp::            pretty print an expression (pp, ps, pc)
 * irb::           running irb using the current context
 @end menu
 
@@ -784,7 +840,7 @@ you want to look at, you may want to go into irb from the debugger.
 @end table
 
 @node pp
-@subsection Pretty Printing an expression (@samp{pp})
+@subsection Pretty Printing an expression (@samp{pp}, @samp{pc}, @samp{ps}))
 @table @code
 @item pp
 @kindex pp @var{expr}
@@ -792,21 +848,49 @@ Evaluates and pretty-prints @var{expr}
 @smallexample
 @group
 (rdb:1) @b{p $LOAD_PATH}
-["/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/bin", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/cli", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/bin", "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/lib", "/home/rocky/lib/ruby", "/usr/lib/ruby/site_ruby/1.8", "/usr/lib/ruby/site_ruby/1.8/i586-linux", "/usr/lib/ruby
+["/home/rocky/lib/ruby", "/usr/lib/ruby/site_ruby/1.8", "/usr/lib/ruby/site_ruby/1.8/i586-linux", "/usr/lib/ruby/1.8"]
 (rdb:1) @b{pp $LOAD_PATH}
-["/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/bin",
- "/usr/lib/ruby/gems/1.8/gems/ruby-debug-0.9.4/cli",
- "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/bin",
- "/usr/lib/ruby/gems/1.8/gems/ruby-debug-base-0.9.4/lib",
- "/home/rocky/lib/ruby",
+["/home/rocky/lib/ruby",
  "/usr/lib/ruby/site_ruby/1.8",
  "/usr/lib/ruby/site_ruby/1.8/i586-linux",
- "/usr/lib/ruby/site_ruby",
- "/usr/lib/ruby/1.8",
- "/usr/lib/ruby/1.8/i586-linux",
- "."]
+ "/usr/lib/ruby/1.8"]
 @end group
 @end smallexample
+@kindex pc
+@item pc
+If the value you want to print is an array, sometimes a columnized
+list looks nicer:
+@smallexample
+@group
+(rdb:1) @b{pc $LOAD_PATH}
+/home/rocky/lib/ruby                    /usr/lib/ruby/site_ruby/1.8
+/usr/lib/ruby/site_ruby/1.8/i586-linux  /usr/lib/ruby/1.8
+@end group
+@end smallexample
+
+If the value is not an array @code{pc} will just call pretty-print.
+@kindex ps
+@item ps
+Sometimes you may want to print the array not only columnized, but
+sorted as well. The list of debugger help commands appears this way,
+and so does the output of the @code{method} commands.
+
+@smallexample
+@group
+(rdb:1) ps Kernel.private_methods
+Rational                 class_variable_get    included            private                   singleton_method_removed  
+active_gem_with_options  class_variable_set    initialize          protected                 singleton_method_undefined
+alias_method             define_method         initialize_copy     public                    timeout                   
+append_features          extend_object         location_of_caller  remove_class_variable     undef_method              
+attr                     extended              method_added        remove_const              y                         
+attr_accessor            gem_original_require  method_removed      remove_instance_variable
+attr_reader              hanoi                 method_undefined    remove_method           
+attr_writer              include               module_function     singleton_method_added  
+@end group
+@end smallexample
+
+If the value is not an array, @code{ps} will just call pretty-print.
+See also the @code{methods}.
 @end table
 
 @node irb
@@ -1232,10 +1316,12 @@ allows you to see the current value.
 * Autoirb::              Invode IRB on every stop
 * Autoreload::           Reload source code when changed
 * Basename::             Report file basename only showing file names
+* Callstyle::            SHow Report file basename only showing file names
 * Forcestep::            Make sure 'next/step' commands always move to a new line
-* Framefullpath::        Display full file names in frames
+* Fullpath::             Display full file names in frames
 * Keepframebindings::    Save frame binding on each call
 * Linetrace::            line execution tracing
+* Listsize::             Number of lines to try to show in a 'list' command
 * Trace::                Display stack trace when 'eval' raises exception
 * Width::                Number of characters the debugger thinks are in a line
 @end menu
@@ -1315,6 +1401,22 @@ By default filenames are shown as with their full path.
 Shows the whether filename display shows just the file basename or not.
 @end table
 
+@node Callstyle
+@subsection Set/Show call style
+
+@table @code
+@kindex set callstyle @r{[} short | last | tracked @r{]}
+@item set forcestep @r{[} short | last | tracked @r{]}
+
+Sets how you want call parameters displayed; @code{short} shows just
+the parameter names; @code{last} shows the parameter names and the
+class of these variables as they currently exist. Note the type could
+have changed between when the call and its current
+values. @code{tracked} is the most accurate but this adds
+overhead. On every call, scalar values of the parameters get
+saved. For non-scalar values the class is saved. 
+@end table
+
 @node Forcestep
 @subsection Set/Show Forces Different Line Step/Next
 
@@ -1336,7 +1438,7 @@ command to stop at a different line number. See also @ref{Step} and
 Shows whether forcestep is in effect or not.
 @end table
 
-@node Framefullpath
+@node Fullpath
 @subsection Set/Show Frame full path
 
 @node Keepframebindings
@@ -1344,6 +1446,29 @@ Shows whether forcestep is in effect or not.
 
 @node Linetrace
 @subsection Set/Show Line tracing
+
+@table @code
+@kindex set linetrace @r{[} on | 1 | off | 0 @r{]}
+@item set linetrace @r{[} on | 1 | off | 0 @r{]}
+
+Setting linetrace on will cause lines to be shown before run.
+
+@kindex show linetrace
+@item show linetrace
+Shows whether line tracing is in effect or not.
+@end table
+
+@node Listsize
+@subsection Set/Show lines in a List command
+
+@table @code
+@kindex set listsize @var{number-of-lines}
+@item set listsize @var{number-of-lines}
+Set number of lines to try to show in a @code{list} command.
+@kindex show listsize
+@item show listsize
+Shows the list-size setting.
+@end table
 
 @node Trace
 @subsection Display stack trace when 'eval' raises exception
