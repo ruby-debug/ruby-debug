@@ -3,6 +3,7 @@
 #include <node.h>
 #include <rubysig.h>
 #include <st.h>
+#include <version.h>
 
 #define DEBUG_VERSION "0.9.4"
 
@@ -139,7 +140,7 @@ static VALUE locker             = Qnil;
 static VALUE post_mortem        = Qfalse;
 static VALUE keep_frame_binding = Qfalse;
 static VALUE debug              = Qfalse;
-static VALUE track_frame_args   = Qtrue;
+static VALUE track_frame_args   = Qfalse;
 
 static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
@@ -2138,8 +2139,13 @@ context_frame_class(VALUE self, VALUE frame)
     
     if(CTX_FL_TEST(debug_context, CTX_FL_DEAD))
         return Qnil;
-    
+
+#if RUBY_VERSION_CODE >= 190
+    klass = debug_frame->info.runtime.frame->this_class;
+#else
     klass = debug_frame->info.runtime.frame->last_class;
+#endif
+
     klass = real_class(klass);
     if(TYPE(klass) == T_CLASS || TYPE(klass) == T_MODULE)
         return klass;

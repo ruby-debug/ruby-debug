@@ -55,16 +55,32 @@ module Debugger
       private :settings_map
       
       def settings
-        unless defined? @settings and @settings
+        unless true and defined? @settings and @settings
           @settings = Object.new
           map = settings_map
-          class << @settings; self end.send(:define_method, :[]) do |name|
-            raise "No such setting #{name}" unless map.has_key?(name)
-            map[name][:getter].call
+          c = class << @settings; self end
+          if c.respond_to?(:funcall)
+            c.funcall(:define_method, :[]) do |name|
+              raise "No such setting #{name}" unless map.has_key?(name)
+              map[name][:getter].call
+            end
+          else
+            c.send(:define_method, :[]) do |name|
+              raise "No such setting #{name}" unless map.has_key?(name)
+              map[name][:getter].call
+            end
           end
-          class << @settings; self end.send(:define_method, :[]=) do |name, value|
-            raise "No such setting #{name}" unless map.has_key?(name)
-            map[name][:setter].call(value)
+          c = class << @settings; self end
+          if c.respond_to?(:funcall)
+            c.funcall(:define_method, :[]=) do |name, value|
+              raise "No such setting #{name}" unless map.has_key?(name)
+              map[name][:setter].call(value)
+            end
+          else
+            c.send(:define_method, :[]=) do |name, value|
+              raise "No such setting #{name}" unless map.has_key?(name)
+              map[name][:setter].call(value)
+            end
           end
         end
         @settings
