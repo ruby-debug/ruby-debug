@@ -95,11 +95,11 @@ module Debugger
     end
   end
 
-  class PCCommand < Command # :nodoc:
+  class PutLCommand < Command # :nodoc:
     self.control = true
     
     def regexp
-      /^\s*pc\s+/
+      /^\s*putl\s+/
     end
 
     def execute
@@ -120,12 +120,12 @@ module Debugger
 
     class << self
       def help_command
-        'pc'
+        'putl'
       end
 
       def help(cmd)
         %{
-          pc expression\tevaluate expression and columnize its value
+          putl expression\t\tevaluate expression, an array, and columnize its value
         }
       end
     end
@@ -163,7 +163,7 @@ module Debugger
 
       def help(cmd)
         %{
-          ps expression\tevaluate expression sort, and columnize its value
+          ps expression\tevaluate expression, an array, sort, and columnize its value
         }
       end
     end

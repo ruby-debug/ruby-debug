@@ -11,7 +11,7 @@ module Debugger
         end
         return "Argument list to give program being debugged when it is started is \"#{args}\"."
       when /^autolist$/
-        on_off = Command.settings[:autolist]
+        on_off = Command.settings[:autolist] > 0
         return "autolist is #{show_onoff(on_off)}."
       when /^autoeval$/
         on_off = Command.settings[:autoeval]
@@ -20,7 +20,7 @@ module Debugger
         on_off = Command.settings[:reload_source_on_change]
         return "autoreload is #{show_onoff(on_off)}."
       when /^autoirb$/
-        on_off = Command.settings[:autoirb]
+        on_off = Command.settings[:autoirb] > 0
         return "autoirb is #{show_onoff(on_off)}."
       when /^basename$/
         on_off = Command.settings[:basename]

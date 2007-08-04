@@ -84,6 +84,7 @@ module Debugger
     def at_tracing(context, file, line)
       print "Tracing(%d):%s:%s %s",
       context.thnum, CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)
+      always_run(context, file, line, 2)
     end
     protect :at_tracing
 
@@ -113,8 +114,10 @@ module Debugger
         "(rdb:%d) " % context.thnum
       end
     end
-    
-    def process_commands(context, file, line)
+
+    # Run these commands, for example display commands or possibly
+    # the list or irb in an "autolist" or "autoirb".
+    def always_run(context, file, line, run_level)
       event_cmds = Command.commands.select{|cmd| cmd.event }
       state = State.new do |s|
         s.context = context
@@ -128,7 +131,13 @@ module Debugger
       @interface.state = state if @interface.respond_to?('state=')
       
       commands = event_cmds.map{|cmd| cmd.new(state) }
-      commands.select{|cmd| cmd.class.always_run }.each{|cmd| cmd.execute }
+      commands.select{|cmd| cmd.class.always_run >= run_level}.each{|cmd| cmd.execute }
+      return state, commands
+    end
+
+    # Handle debugger commands
+    def process_commands(context, file, line)
+      state, commands = always_run(context, file, line, 1)
       
       splitter = lambda do |str|
         str.split(/;/).inject([]) do |m, v|

@@ -11,7 +11,7 @@ module Debugger
       DEF_OPTIONS = {
         :event => true, 
         :control => false, 
-        :always_run => false,
+        :always_run => 0,
         :unknown => false,
         :need_context => false,
       }

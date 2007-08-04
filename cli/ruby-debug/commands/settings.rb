@@ -72,7 +72,7 @@ module Debugger
               when /^args$/
                 Command.settings[:argv][1..-1] = args
               when /^autolist$/
-                Command.settings[:autolist] = set_on
+                Command.settings[:autolist] = (set_on ? 1 : 0)
               when /^autoeval$/
                 Command.settings[:autoeval] = set_on
               when /^basename$/
@@ -94,7 +94,7 @@ module Debugger
               when /^autoreload$/
                 Command.settings[:reload_source_on_change] = set_on
               when /^autoirb$/
-                Command.settings[:autoirb] = set_on
+                Command.settings[:autoirb] = (set_on ? 1 : 0)
               when /^forcestep$/
                 self.class.settings[:force_stepping] = set_on
               when /^keep-frame-bindings$/

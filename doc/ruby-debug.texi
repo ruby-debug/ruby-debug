@@ -144,7 +144,7 @@ $ @b{rdebug hanoi.rb}
 (rdb:1) @b{l}
 [8, 17] in ./hanoi.rb
    8      if n-1 > 0
-   9         hanoi(n-1, c, b, a)
+   9         hanoi(n-1, :c, :b, :a)
    10      end
    11  end
    12
@@ -749,11 +749,11 @@ command files that get run automaticaly on startup, @pxref{Command Files}.
 
 If you find that you want to print the value of an expression
 frequently (to see how it changes), you might want to add it to the
-@dfn{automatic display list} so that @value{DBG} evaluates a
-statement each time your program stops.  Each expression added to the
-list is given a number to identify it; to remove an expression from
-the list, you specify that number.  The automatic display looks like
-this:
+@dfn{automatic display list} so that @value{DBG} evaluates a statement
+each time your program stops or the statement is shown in line tracing.
+Each expression added to the list is given a number to identify it; to
+remove an expression from the list, you specify that number.  The
+automatic display looks like this:
 
 @example
 (rdb:1) display n
@@ -762,6 +762,15 @@ this:
 
 @noindent
 This display shows item numbers, expressions and their current values.  
+If the expression is undefined or illegal the expression will be
+printed but no value will appear.
+
+@example
+(rdb:1) display undefined_variable
+2: undefined_variable =
+(rdb:1) display 1/0
+3: 1/0 = 
+@end example
 
 Note: this command uses @code{to_s} to in expressions; for example an
 array @code{[1, 2]} will appear as @code{12}. For some datatypes like
@@ -772,7 +781,8 @@ an Array, you may want to call the @code{inspect} method, for example
 @kindex display @ovar{expr}
 @item display @var{expr}
 Add the expression @var{expr} to the list of expressions to display
-each time your program stops. 
+each time your program stops or a line is printed when linetracing is
+on (@pxref{DisplayCommands}).
 
 @item display
 Display the current values of the expressions on the list, just as is
@@ -802,7 +812,7 @@ again in auto display of its expression, until you specify otherwise.
 @end table
 
 @node PrintCommands
-@section Evaluating and Printing Expressions (@samp{p}, @samp{pp}, @samp{pc}, @samp{ps}, @samp{irb})
+@section Evaluating and Printing Expressions (@samp{p}, @samp{pp}, @samp{putl}, @samp{ps}, @samp{irb})
 
 One way to examine and change data in your script is with the
 @code{eval} command (abbreviated @code{p}). A similar command is
@@ -813,7 +823,7 @@ does in @code{irb}.
 
 @menu
 * eval::          eval or print an expression (eval, p)
-* pp::            pretty print an expression (pp, ps, pc)
+* pp::            pretty print an expression (pp, ps, putl)
 * irb::           running irb using the current context
 @end menu
 
@@ -840,7 +850,7 @@ you want to look at, you may want to go into irb from the debugger.
 @end table
 
 @node pp
-@subsection Pretty Printing an expression (@samp{pp}, @samp{pc}, @samp{ps}))
+@subsection Pretty-Printing an expression (@samp{pp}, @samp{putl}, @samp{ps}))
 @table @code
 @item pp
 @kindex pp @var{expr}
@@ -856,19 +866,19 @@ Evaluates and pretty-prints @var{expr}
  "/usr/lib/ruby/1.8"]
 @end group
 @end smallexample
-@kindex pc
-@item pc
+@kindex putl
+@item putl
 If the value you want to print is an array, sometimes a columnized
 list looks nicer:
 @smallexample
 @group
-(rdb:1) @b{pc $LOAD_PATH}
+(rdb:1) @b{putl $LOAD_PATH}
 /home/rocky/lib/ruby                    /usr/lib/ruby/site_ruby/1.8
 /usr/lib/ruby/site_ruby/1.8/i586-linux  /usr/lib/ruby/1.8
 @end group
 @end smallexample
 
-If the value is not an array @code{pc} will just call pretty-print.
+If the value is not an array @code{putl} will just call pretty-print.
 @kindex ps
 @item ps
 Sometimes you may want to print the array not only columnized, but

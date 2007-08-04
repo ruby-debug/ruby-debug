@@ -1182,7 +1182,7 @@ debug_start(VALUE self)
  *   call-seq:
  *      Debugger.stop -> bool
  *
- *   This method disacivates the debugger. It returns +true+ if the debugger is disacivated,
+ *   This method diables the debugger. It returns +true+ if the debugger is disabled,
  *   otherwise it returns +false+.
  *
  *   <i>Note that if you want to stop debugger, you must call Debugger.stop as many time as you

@@ -88,7 +88,7 @@ module Debugger
 
   class ContinueCommand < Command # :nodoc:
     def regexp
-      /^\s*c(?:ont)?(?:\s+(.*))?$/
+      /^\s*c(?:ont(?:inue)?)?(?:\s+(.*))?$/
     end
 
     def execute
@@ -103,12 +103,12 @@ module Debugger
 
     class << self
       def help_command
-        'cont'
+        'continue'
       end
 
       def help(cmd)
         %{
-          c[ont][ nnn]\trun until program ends or hits breakpoint or reaches line nnn 
+          c[ont[inue]][ nnn]\trun until program ends or hits breakpoint or reaches line nnn 
         }
       end
     end

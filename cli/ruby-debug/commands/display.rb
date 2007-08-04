@@ -31,7 +31,7 @@ module Debugger
   end
 
   class DisplayCommand < Command # :nodoc:
-    self.always_run = true
+    self.always_run = 2
     
     def regexp
       /^\s*disp(?:lay)?$/
