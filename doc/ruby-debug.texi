@@ -110,71 +110,58 @@ a debugger at the outset, there are other ways to use and enter the
 debugger. 
 
 @menu
-* Sample Session::                    A Sample @code{rdebug} session
+* First Sample Session::   A Simple Sample @code{rdebug} session
+* Second Sample Session::  Second Session Delving a little deper @code{rdebug} session
 @end menu
 
-@node Sample Session
-@section A Sample @code{rdebug} Session
+@node First Sample Session
+@section The First Sample @code{rdebug} Session (@code{list}, @code{display}, @code{print}, and @code{quit})
 
 You can use this manual at your leisure to read all about @value{ttDBG}.
 However, a handful of commands are enough to get started using the
-debugger.  This chapter illustrates those commands.
+debugger.  The following sections illustrates these commands.
 
 @iftex
 In this sample session, we emphasize user input like this: @b{input},
 to make it easier to pick out from the surrounding output.
 @end iftex
 
-Below we will debug a simple Ruby program to solve the classic Towers
-of Hanoi puzzle.
+Below is Ruby code to compute a triangle number of a given length.
 
 @smallexample
 @cartouche
-$ @b{rdebug hanoi.rb}
-./hanoi.rb:3 def hanoi(n,a,b,c)
+$ @b{rdebug triangle.rb}
+triangle.rb:4 def hanoi(n,a,b,c)
 (rdb:1) @b{list}
-[-2, 7] in ./hanoi.rb
+[-1, 8] in ./triangle.rb
    1  #!/usr/bin/env ruby
-   2
-=> 3  def hanoi(n,a,b,c)
-   4      if n-1 > 0
-   5         hanoi(n-1, a, c, b)
-   6      end
-   7      puts "Move disk %s to %s" % [a, b]
+   2  # Compute the n'th triangle number - the hard way
+   3  # triangle(n) == (n * (n+1)) / 2
+=> 4  def triangle(n)
+   5    tri = 0
+   6    0.upto(n) do |i|
+   7      tri += i
+   8    end
 (rdb:1) @b{l}
-[8, 17] in ./hanoi.rb
-   8      if n-1 > 0
-   9         hanoi(n-1, :c, :b, :a)
-   10      end
-   11  end
-   12
-   13  i_args=ARGV.length
-   14  if i_args > 1
-   15      puts "*** Need number of disks or no parameter"
-   16      exit 1
-   17  end
-(rdb:1) @b{set listsize 18}
-Number of source lines to list by default is 18.
-(rdb:1) @b{list 27}
-[18, 35] in /home/rocky/ruby/hanoi.rb
-   18  
-   19  n=3
-   20  
-   21  if i_args > 0
-   22      begin
-   23        n = ARGV[0].to_i
-   24      rescue ValueError, msg:
-   25          print "** Expecting an integer, got: %s" % ARGV[0].to_s
-   26        exit 2
-   27      end
-   28  end
-   29  
-   30  if n < 1 or n > 100
-   31      puts "*** number of disks should be between 1 and 100" 
-   32      exit 2
-   33  end
-   34  
-   35  hanoi(n, :a, :b, :c)
+[9, 18] in ./triangle.rb
+   9    return tri
+   10  end
+   11  
+   12  puts triangle(3)
+(rdb:1) @b{list 1,100}
+[1, 100] in ./triangle.rb
+   1  #!/usr/bin/env ruby
+   2  # Compute the n'th triangle number - the hard way
+   3  # triangle(n) == (n * (n+1)) / 2
+=> 4  def triangle(n)
+   5    tri = 0
+   6    0.upto(n) do |i|
+   7      tri += i
+   8    end
+   9    return tri
+   10  end
+   11  
+   12  puts triangle(3)
 (rdb:1) 
 @end cartouche
 @end smallexample 
@@ -185,7 +172,14 @@ There are lots of command options, but we don't need them for now. See
 @ref{rdebug command-line options} for a full list of command options.
 
 Position information consists of a filename and line number,
-e.g. @code{/hanoi.rb:3}. 
+e.g. @code{triangle.rb:4}. We are currently stopped before the first
+executable line of the program; this is line 4 of
+@code{triangle.rb}. If you are used to less dynamic languages and have
+used debuggers for more statically compiled languages like C, C++, or
+Java, it may seem odd to be stopped before a function definition.  But
+in Ruby line 4 is executed, the name @code{triangle} (probably) does
+not exist so issuing a method call of @code{triangle} will raise a
+``method not found'' error.
 
 @DBG{}'s prompt is @code{(rdb:@emph{n})}. The @emph{n} is the thread
 number. Here it is 1 which is usually the case for the main thread. If
@@ -194,29 +188,41 @@ thread number. In this situation, the string @code{post-mortem} is
 used in place of a thread number.
 
 The first command, @code{list} (@pxref{List}), prints 10 lines
-centered around the current line. However since there aren't 5 lines
-before the current line those additional lines are dropped and we
-print 8 lines instead.  This command can be abbreviated with @code{l}
-which is what we use next. Notice we continue listing from the place
-we last left off, and this time 10 lines are shown.
+centered around the current line; the current line here is line 4 and
+is marked by @code{=>}, so the range the debugger would like to show
+is -1..8. However since there aren't 5 lines before the current line,
+those additional lines---``lines'' -1 and 0---are dropped and we print
+the remaining 8 lines.  The @code{list} command can be abbreviated
+with @code{l} which is what we use next. Notice that when we use this
+a second time, we continue listing from the place we last left
+off. The desired range of lines this time is lines 9 to 18; but since
+the program ends as line 12, only the remaining 4 lines are shown.
+
+If you want to set how many lines to print by default rather than use
+the initial number of lines, 10, use the @code{set listsize} command
+(@pxref{Listsize}). To see the entire program in one shot, we gave an
+explicit starting and ending line number.
 
 If you use a front-end to the debugger such as the Emacs interface
 (@pxref{GNU Emacs}), you probably won't use @code{list} all that much.
 
+Now let us step through the program.
+
 @smallexample
 @cartouche
 (rdb:1) @b{step}
-./hanoi.rb:13 
-i_args=ARGV.length
+triangle.rb:12
+puts triangle(3)
 (rdb:1) @b{@key{RET}}
-./hanoi.rb:14 
-if i_args > 1
-(rdb:1) @b{step}
-./hanoi.rb:14 
-if i_args > 1
-(rdb:1) @b{p i_args}
+triangle.rb:5
+tri = 0
+(rdb:1) @b{p tri}
+nil
+(rdb:1) step
+triangle.rb:6
+0.upto(n) do |i|
+(rdb:1) p tri
 0
-(rdb:1) 
 @end cartouche
 @end smallexample
 
@@ -225,29 +231,217 @@ executable unit. The second command we entered was just hitting the
 return key; @ttDBG{} remembers the last command you entered was
 @code{step}, so it runs that last command again.
 
-Notice that the second step above remained on line 14. After the first
-step we were stopped before running the expression in the @code{if}
-statement (@code{i_args !=1 and i_args !=2}); after the second step we
-are about to perform the @code{if} test on the resulting
-expression. Given the expression-oriented nature of Ruby, it is not
-uncommon in stepping to stay on the same line after a step. In fact,
-this always happens in conditional statements and loops as we saw
-above. If you want to go to a new line when you issue a step command,
-add a plus sign. That is issue @code{step +} rather than @code{step}).
+One way to print the values of variables uses @code{p}. (Of course,
+there are of course lots of other ways too.). When we look at the
+value of @code{tri} the first time, we see it is @code{nil}. Again we
+are stopped @emph{before} the assignment on line 5, and this variable
+hasn't been set previously. However after issuing another ``step''
+command we see that the value is 0 as expected.
 
-We can print the values of variables using @code{p}. And when we do we
-see this value 0 means we are going to run into trouble by taking that
-@code{if} statement at line 14: we should have passed a parameter to
-the script. However we can rerun the program by using the
-@code{restart} command.
+If we want to see the value of @code{tri} every time we stop to see
+how this is going to change we can give a display expression
+(@pxref{DisplayCommands}).
 
+@smallexample
+@cartouche
+(rdb:1) display tri
+1: tri = 0
+@end cartouche
+@end smallexample
+
+Now let us run the program until we return from the function. However
+we'll want to see which lines get run.
+
+@smallexample
+@cartouche
+(rdb:1) @b{display i}
+2: i =
+(rdb:1) @b{set linetrace on}
+line tracing is on.
+(rdb:1) @b{finish}
+Tracing(1):triangle.rb:7 tri += i
+1: tri = 0
+2: i = 0
+Tracing(1):triangle.rb:7 tri += i
+1: tri = 0
+2: i = 1
+Tracing(1):triangle.rb:7 tri += i
+1: tri = 1
+2: i = 2
+Tracing(1):triangle.rb:7 tri += i
+1: tri = 3
+2: i = 3
+Tracing(1):triangle.rb:9 return tri
+1: tri = 6
+2: i =
+(rdb:1) @b{quit}
+Really quit? (y/n) y
+@end cartouche
+@end smallexample
+
+So far, so good. A you can see from the above to get out of the
+debugger, one can issue a @code{quit} command.
+
+@node Second Sample Session
+@section Sample Session 2: Delving Deeper 
+
+In this section we'll introduce breakpoints, the call stack and
+restarting.  
+So far we've been doing pretty good in that we've not encountered a bug
+to fix. Let's try another simple example. Okay here's the program.
+
+Below we will debug a simple Ruby program to solve the classic Towers
+of Hanoi puzzle.
+
+@smallexample
+@cartouche
+$ @b{rdebug hanoi.rb}
+hanoi.rb:3 def hanoi(n,a,b,c)
+(rdb:1) @b{list 1,100}
+[1, 100] in ./hanoi.rb
+   1  #!/usr/bin/ruby
+   2
+=> 3  def hanoi(n,a,b,c)
+   4      if n-1 > 0
+   5         hanoi(n-1, a, c, b)
+   6      end
+   7      puts "Move disk %s to %s" % [a, b]
+   8      if n-1 > 0
+   9         hanoi(n-1, c, b, a)
+   10      end
+   11  end
+   12
+   13  i_args=ARGV.length
+   14  if i_args > 1
+   15      puts "*** Need number of disks or no parameter"
+   16      exit 1
+   17  end
+   18
+   19  n=3
+   20
+   21  if i_args > 0
+   22      begin
+   23        n = ARGV[0].to_i
+   24      rescue ValueError, msg:
+   25          print "** Expecting an integer, got: %s" % ARGV[0].to_s
+   26        exit 2
+   27      end
+   28  end
+   29
+   30  if n < 1 or n > 100
+   31      puts "*** number of disks should be between 1 and 100"
+   32      exit 2
+   33  end
+   34
+   35  hanoi(n, :a, :b, :c)
+(rdb:1)
+@end cartouche
+@end smallexample 
+
+Recall in the first section I said that before the @code{def} is run
+the method it names is undefined. Let's check that out. First let's
+see what private methods we can call before running @code{def hanoi}
+
+@smallexample
+@cartouche
+(rdb:1) @b{set autoeval on}
+autoeval is on.
+(rdb:1) @b{private_methods}
+["select", "URI", "local_variables", "lambda", "chomp", ... 
+@end cartouche
+@end smallexample 
+
+The @code{set autoeval} (@pxref{Autoeval}) command causes any commands
+that are not normally understood to be debugger commands to get
+evaluated as though they were Ruby commands. I use this a lot, so I
+set this by putting it the file @code{.rdebugrc} that gets read when
+@code{ruby-debug} starts.
+
+As showing the list output of @code{private_methods}, I find this kind
+of list unwieldy. What you are supposed to notice here is that
+method @code{hanoi} is not in this list. When you ask
+@code{ruby-debug} for a list of method names via @code{method
+instance}, it doesn't show output in this way; @code{ruby-debug} can
+sort and put into columns lists like this using the print command, @code{ps}.
+
+
+@smallexample
+@cartouche
+(rdb:1) @b{ps private_methods}
+Array                    exit!                 puts                        warn
+Float                    fail                  raise                       y
+Integer                  fork                  rand
+Rational                 format                readline
+String                   gem_original_require  readlines
+URI                      getc                  remove_instance_variable
+`                        gets                  scan
+abort                    global_variables      select
+active_gem_with_options  gsub                  set_trace_func
+at_exit                  gsub!                 singleton_method_added
+autoload                 initialize            singleton_method_removed
+autoload?                initialize_copy       singleton_method_undefined
+binding                  iterator?             sleep
+block_given?             lambda                split
+callcc                   load                  sprintf
+caller                   local_variables       srand
+catch                    location_of_caller    sub
+chomp                    loop                  sub!
+chomp!                   method_missing        syscall
+chop                     open                  system
+chop!                    p                     test
+dbg_print                pp                    throw
+dbg_puts                 print                 timeout
+eval                     printf                trace_var
+exec                     proc                  trap
+exit                     putc                  untrace_var
+@end cartouche
+@end smallexample 
+
+Now let's see what happens after stepping
+
+@smallexample
+@cartouche
+(rdb:1) @b{private.methods.member?("hanoi")}
+false
+(rdb:1) @b{step}
+hanoi.rb:13
+i_args=ARGV.length
+(rdb:1) @b{private_methods.member?("hanoi")}
+true
+(rdb:1)
+@end cartouche
+@end smallexample 
+
+Okay, now where were we?
+
+@smallexample
+@cartouche
+(rdb:1) @b{list}
+[8, 17] in ./hanoi.rb
+   8      if n-1 > 0
+   9         hanoi(n-1, c, b, a)
+   10      end
+   11  end
+   12
+=> 13  i_args=ARGV.length
+   14  if i_args > 1
+   15      puts "*** Need number of disks or no parameter"
+   16      exit 1
+   17  end
+(rdb:1) @b{ARGV}
+[]
+@end cartouche
+@end smallexample 
+
+Ooops. We forgot to specify any parameters to this program. Let's try
+again. We can use the @code{restart} command here.
 
 @smallexample
 @cartouche
 (rdb:1) @b{restart 3}
 Re exec'ing:
-        /usr/bin/rdebug ./hanoi.rb 3
-./hanoi.rb:3 
+        /usr/bin/rdebug hanoi.rb 3
+hanoi.rb:3
 def hanoi(n,a,b,c)
 (rdb:1) @b{break 4}
 Breakpoint 1 file hanoi.rb, line 4
@@ -258,6 +452,7 @@ Breakpoint 1 at hanoi.rb:4
 1: n = 3
 (rdb:1) @b{display a}
 2: a = a
+(rdb:1) @b{undisplay 2}
 (rdb:1) @b{display a.inspect}
 3: a.inspect = :a
 (rdb:1) @b{display b.inspect}
@@ -267,10 +462,8 @@ Breakpoint 1 at hanoi.rb:4
 ./hanoi.rb:4 
 if n-1 > 0
 1: n = 2
-2: a = a
 3: a.inspect = :a
 4: b.inspect = :c
-(rdb:1) @b{undisplay 2}
 (rdb:1) @b{c}
 Breakpoint 1 at hanoi.rb:4
 ./hanoi.rb:4 
@@ -279,30 +472,81 @@ if n-1 > 0
 3: a.inspect = :a
 4: b.inspect = :b
 (rdb:1) @b{where}
---> #0 Object.hanoi(n: 1, a: :a, b: :b, c: :c) at line hanoi.rb:4
-    #1 Object.-(n: 2, a: :a, b: :c, c: :b) at line hanoi.rb:5
-    #2 Object.-(n: 3, a: :a, b: :b, c: :c) at line hanoi.rb:5
+--> #0 Object.hanoi(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:4
+    #1 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
+    #2 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
     #3 at line hanoi.rb:35
 (rdb:1) 
 @end cartouche
 @end smallexample 
 
-In the above we added a new command, @code{display}
-(@pxref{DisplayCommands}) . Every time the program stops, the list of
-``display'' commands are run. Notice the difference in how parameters
-@code{a} and @code{b} are displayed. An implied string conversion is
-performed on the expression after it is evaluated. To remove a display
-expression we used @code{undisplay} giving the display number that was
-assigned to that expression.
+In the above we added a new command, @code{break}
+(@pxref{Breakpoints}) which indicates to go into the debugger just
+before that line of code is run. And @code{continue} resumes
+execution.  Notice the difference between @code{display a} and
+@code{display a.inspect}. An implied string conversion is performed on
+the expression after it is evaluated. To remove a display expression
+we used @code{undisplay} is used. If we give a display number, just
+that display expression is removed.
 
 Above we also used a new comand @code{where} (@pxref{Backtrace} to
-show the stack frame.
+show the call stack. In the above situation, starting from the bottom
+line we se we called the hanoi from line 35 of the file
+@code{hanoi.rb} and the hanoi method called itself two more times at
+line 5.
 
-Now show frame commands, e.g. frame -1. 
+In the call stack we show the file line position in the same format
+when we stop at a line. Also we see the names of the parameters and
+the types that those parameters @emph{currently} have. It's possible
+that when the program was called the parameter had a different type,
+since the types of variables can change dynamically. You alter the
+style of what to show in the trace.
+
+Let's explore a little more. Now were were we? 
+
+@smallexample
+@cartouche
+(rdb:1) @b{list}
+   1  #!/usr/bin/ruby
+   2
+   3  def hanoi(n,a,b,c)
+=> 4      if n-1 > 0
+   5         hanoi(n-1, a, c, b)
+   6      end
+   7      puts "Move disk %s to %s" % [a, b]
+   8      if n-1 > 0
+(rdb:1) @b{undisplay}
+Clear all expressions? (y/n) @b{y}
+(rdb:1) @b{i_args}
+NameError Exception: undefined local variable or method `i_args' for main:Object
+(rdb:1) @b{frame -1}
+#3 at line hanoi.rb:35
+(rdb:1) @b{i_args}
+1
+(rdb:1) @b{p n}
+3
+(rdb:1) @b{down 2}
+#2 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
+(rdb:1) @b{p n}
+2
+@end cartouche
+@end smallexample 
+
+Notice in the above to get the value of variable @code{n}, I have to
+use a print command like @code{p n}; If I entered just @code{n}, that
+would be taken to mean the debugger command ``next''. In the current
+scope, variable @code{i_args} is not defined. However I can change to
+the topmost frame by using the @code{frame} command. Just as with
+arrays, -1 means the last one. Alternatively using frame number 3
+would have been the same thing; so would issuing @code{up 3}.
+
+Note that in the outside frame 3, the value of @code{i_args} can be
+shown. Also note that the value of variable @code{n} is different.
 
 To be continued...
 
 @itemize @bullet
+@item next, step+, where nesting inside blocks
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.
 @item mixing in Debugger.debug with rdebug

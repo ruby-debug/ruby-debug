@@ -33,7 +33,7 @@ module Debugger
     def regexp
       / ^\s*
       (?:restart|R)
-      (\s+ \S+ .*)?
+      (?:\s+ (\S?.*\S))? \s*
       $
       /ix
     end
@@ -42,21 +42,22 @@ module Debugger
       if not defined? Debugger::RDEBUG_SCRIPT
         # FIXME? Should ask for confirmation? 
         print "Debugger was not called from the outset...\n"
-        prog_script = $0
-      else
-        prog_script = Debugger::RDEBUG_SCRIPT
+        rdebug_script = ''
+      else 
+        rdebug_script = Debugger::RDEBUG_SCRIPT + " "
       end
+      prog_script = Debugger::PROG_SCRIPT
       if not File.exists?(prog_script)
         print "Ruby program #{prog_script} doesn't exist\n"
         return
       end
-      if not File.executable?(prog_script)
+      if not File.executable?(prog_script) and rdebug_script == ''
         print "Ruby program #{prog_script} doesn't seem to be executable...\n"
         print "We'll add a call to Ruby.\n"
-        prog_script = "ruby -I#{$:.join(' -I')} #{prog_script}"
+        rdebug_script = "ruby -I#{$:.join(' -I')} #{prog_script}"
       end
       if @match[1]
-        args = prog_script + " " + @match[1]
+        argv = [prog_script] + @match[1].split(/[ \t]+/)
       else
         if not defined? Command.settings[:argv]
           print "Arguments have not been set. Use 'set args' to set them.\n"
@@ -64,11 +65,11 @@ module Debugger
         else
           argv = Command.settings[:argv]
         end
-        args = argv.join(" ")
       end
+      args = argv.join(" ")
 
       # An execv would be preferable to the "exec" below.
-      cmd = prog_script + " " + args
+      cmd = rdebug_script + args
       print "Re exec'ing:\n\t#{cmd}\n"
       exec cmd
     rescue Errno::EOPNOTSUPP
