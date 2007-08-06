@@ -6,6 +6,22 @@
 @set ttDBG @code{@value{DBG}}
 @set Emacs @sc{gnu} Emacs
 
+@set RDEBUG_VERSION 0.9.4
+
+@macro Example {}
+@iftex
+@cartouche
+@end iftex
+@smallexample
+@end macro
+
+@macro EndExample {}
+@iftex
+@end cartouche
+@end iftex
+@end smallexample
+@end macro
+
 @macro DBG {}
 @value{DBG}
 @end macro
@@ -37,7 +53,7 @@
 @end direntry
 
 @titlepage
-@title Debugging with @code{ruby-debug}
+@title Debugging with @code{ruby-debug} Version @value{RDEBUG_VERSION}
 @sp 1
 @subtitle @value{EDITION} Edition
 @subtitle @value{UPDATED-MONTH}
@@ -59,7 +75,8 @@
 @node Top, Summary, (dir), (dir)
 @top Debugging with ruby-debug
 
-This file describes ruby-debug, the Ruby Debugger.
+This file describes ruby-debug, the Ruby Debugger, 
+version @value{RDEBUG_VERSION}
 
 This is the @value{EDITION} Edition, @value{UPDATED}
 @c Copyright (C) 2007 ...
@@ -128,8 +145,7 @@ to make it easier to pick out from the surrounding output.
 
 Below is Ruby code to compute a triangle number of a given length.
 
-@smallexample
-@cartouche
+@Example
 $ @b{rdebug triangle.rb}
 triangle.rb:4 def hanoi(n,a,b,c)
 (rdb:1) @b{list}
@@ -163,8 +179,7 @@ triangle.rb:4 def hanoi(n,a,b,c)
    11  
    12  puts triangle(3)
 (rdb:1) 
-@end cartouche
-@end smallexample 
+@EndExample
 
 @noindent
 
@@ -208,8 +223,7 @@ If you use a front-end to the debugger such as the Emacs interface
 
 Now let us step through the program.
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{step}
 triangle.rb:12
 puts triangle(3)
@@ -223,8 +237,7 @@ triangle.rb:6
 0.upto(n) do |i|
 (rdb:1) p tri
 0
-@end cartouche
-@end smallexample
+@EndExample
 
 The first @kbd{step} command (@pxref{Step}) runs the script one
 executable unit. The second command we entered was just hitting the
@@ -242,18 +255,15 @@ If we want to see the value of @code{tri} every time we stop to see
 how this is going to change we can give a display expression
 (@pxref{DisplayCommands}).
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) display tri
 1: tri = 0
-@end cartouche
-@end smallexample
+@EndExample
 
 Now let us run the program until we return from the function. However
 we'll want to see which lines get run.
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{display i}
 2: i =
 (rdb:1) @b{set linetrace on}
@@ -276,8 +286,7 @@ Tracing(1):triangle.rb:9 return tri
 2: i =
 (rdb:1) @b{quit}
 Really quit? (y/n) y
-@end cartouche
-@end smallexample
+@EndExample
 
 So far, so good. A you can see from the above to get out of the
 debugger, one can issue a @code{quit} command.
@@ -293,8 +302,7 @@ to fix. Let's try another simple example. Okay here's the program.
 Below we will debug a simple Ruby program to solve the classic Towers
 of Hanoi puzzle.
 
-@smallexample
-@cartouche
+@Example
 $ @b{rdebug hanoi.rb}
 hanoi.rb:3 def hanoi(n,a,b,c)
 (rdb:1) @b{list 1,100}
@@ -335,21 +343,18 @@ hanoi.rb:3 def hanoi(n,a,b,c)
    34
    35  hanoi(n, :a, :b, :c)
 (rdb:1)
-@end cartouche
-@end smallexample 
+@EndExample
 
 Recall in the first section I said that before the @code{def} is run
 the method it names is undefined. Let's check that out. First let's
 see what private methods we can call before running @code{def hanoi}
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{set autoeval on}
 autoeval is on.
 (rdb:1) @b{private_methods}
 ["select", "URI", "local_variables", "lambda", "chomp", ... 
-@end cartouche
-@end smallexample 
+@EndExample
 
 The @code{set autoeval} (@pxref{Autoeval}) command causes any commands
 that are not normally understood to be debugger commands to get
@@ -365,8 +370,7 @@ instance}, it doesn't show output in this way; @code{ruby-debug} can
 sort and put into columns lists like this using the print command, @code{ps}.
 
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{ps private_methods}
 Array                    exit!                 puts                        warn
 Float                    fail                  raise                       y
@@ -394,13 +398,11 @@ dbg_puts                 print                 timeout
 eval                     printf                trace_var
 exec                     proc                  trap
 exit                     putc                  untrace_var
-@end cartouche
-@end smallexample 
+@EndExample
 
 Now let's see what happens after stepping
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{private.methods.member?("hanoi")}
 false
 (rdb:1) @b{step}
@@ -409,13 +411,11 @@ i_args=ARGV.length
 (rdb:1) @b{private_methods.member?("hanoi")}
 true
 (rdb:1)
-@end cartouche
-@end smallexample 
+@EndExample
 
 Okay, now where were we?
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{list}
 [8, 17] in ./hanoi.rb
    8      if n-1 > 0
@@ -430,14 +430,12 @@ Okay, now where were we?
    17  end
 (rdb:1) @b{ARGV}
 []
-@end cartouche
-@end smallexample 
+@EndExample
 
 Ooops. We forgot to specify any parameters to this program. Let's try
 again. We can use the @code{restart} command here.
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{restart 3}
 Re exec'ing:
         /usr/bin/rdebug hanoi.rb 3
@@ -477,8 +475,7 @@ if n-1 > 0
     #2 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
     #3 at line hanoi.rb:35
 (rdb:1) 
-@end cartouche
-@end smallexample 
+@EndExample
 
 In the above we added a new command, @code{break}
 (@pxref{Breakpoints}) which indicates to go into the debugger just
@@ -504,8 +501,7 @@ style of what to show in the trace.
 
 Let's explore a little more. Now were were we? 
 
-@smallexample
-@cartouche
+@Example
 (rdb:1) @b{list}
    1  #!/usr/bin/ruby
    2
@@ -529,8 +525,7 @@ NameError Exception: undefined local variable or method `i_args' for main:Object
 #2 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
 (rdb:1) @b{p n}
 2
-@end cartouche
-@end smallexample 
+@EndExample
 
 Notice in the above to get the value of variable @code{n}, I have to
 use a print command like @code{p n}; If I entered just @code{n}, that
@@ -590,7 +585,7 @@ confused with the debugger options, then you don't need to add the
 To get a brief list of options and descriptions, use the @code{--help}
 option.
 
-@example
+@Example
 $ @b{rdebug --help}
 ruby-debug 0.9.4
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
@@ -615,7 +610,7 @@ Options:
 Common options:
         --help                       Show this message
     -v, --version                    Show version
-@end example
+@EndExample
 
 Options for the @code{rdebug} are shown in the following list.  
 
