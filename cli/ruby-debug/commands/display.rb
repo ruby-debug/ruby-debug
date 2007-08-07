@@ -75,7 +75,8 @@ module Debugger
           end
         end
       else
-        pos = pos.to_i
+        pos = get_int(@match[1], "Undisplay")
+        return unless pos
         if @state.display[pos-1]
           @state.display[pos-1][0] = false
         else
