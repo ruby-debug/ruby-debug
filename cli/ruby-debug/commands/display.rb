@@ -64,7 +64,7 @@ module Debugger
   class DeleteDisplayCommand < Command # :nodoc:
 
     def regexp
-      /^\s*undisp(?:lay)?(?:\s+(\d+))?$/
+      /^\s* undisp(?:lay)? \s* (?:(\S+))?$/x
     end
 
     def execute
@@ -75,7 +75,7 @@ module Debugger
           end
         end
       else
-        pos = get_int(@match[1], "Undisplay")
+        pos = get_int(pos, "Undisplay")
         return unless pos
         if @state.display[pos-1]
           @state.display[pos-1][0] = false
