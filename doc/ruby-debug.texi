@@ -82,7 +82,7 @@ This is the @value{EDITION} Edition, @value{UPDATED}
 @c Copyright (C) 2007 ...
 
 @menu
-* Summary::                     Overview of Debugger with a sample session
+* Summary::                     Overview of Debugger with sample sessions
 * Invocation::                  Getting in and out
 * Debugger Command Reference::  rdebug command reference
 * Post-Mortem Debugging::       Debugging on an uncaught exception
@@ -129,6 +129,7 @@ debugger.
 @menu
 * First Sample Session::   A Simple Sample @code{rdebug} session
 * Second Sample Session::  Second Session Delving a little deper @code{rdebug} session
+* Unit Testing Session::   Using the debugger in unit testing
 @end menu
 
 @node First Sample Session
@@ -537,6 +538,127 @@ would have been the same thing; so would issuing @code{up 3}.
 
 Note that in the outside frame 3, the value of @code{i_args} can be
 shown. Also note that the value of variable @code{n} is different.
+
+@node Unit Testing Session
+@section Using the debugger in unit testing
+
+In the previous sessions we've been calling the debugger right at the
+outset. I confess that this mode of operation is usually not how I use
+the debugger.
+
+There are a number of situations where calling the debugger at the outset is
+impractical for a couple of reasons.
+
+@enumerate
+@item 
+The debugger just doesn't work when run at the outset.  By necessity
+any debugging maks slight changes to the behavior or the program, and
+sometimes this can hinder finding the bugs.
+@item 
+There's a lot of code which that needs to get run before the part you
+want to inspect. Running this code takes time and you don't the
+overhead of the debugger in this first part.
+@end enumerate
+
+In this section we'll delve show how to enter the code in the middle
+of your program, while delving more into the debugger operation.
+
+In this section we will also use unit testing. Using unit tests will
+greatly reduce the amount of debugging needed while at the same time
+increase the quality of your program.
+
+What we'll do is take the @code{triangle} code from the first session
+and write a unit test for that. In a sense we did write a mini-test
+for the program which was basically the last line where we printed the
+value of triangle(3). This test however wasn't automated: the
+implication is that someone would look at the output and verify that
+what was printed is what was expected.
+
+And before we can turn that into something that can be
+@code{required}, we probably want to remove that output. However I
+like to keep in that line so that when I look at the file, I have an
+example of how to run it.  Therefore we will conditionally run this
+line if that file is invoked directly, but skip it if it is
+not.@footnote{If you want to be able to run @code{rdebug} from the
+outset on this code in ``standalone'' operation, the condition needs to
+more complicated because @code{$0} will be @code{rdebug} rather than
+the program, @code{tri2.rb} here. And if you use @code{rcov} to test
+program coverage, it will show this code as being ``dead''. To get
+around thse problems here's the actual condition test I use:
+@Example
+if __FILE__ == $0 or
+    ($DEBUG and ['rdebug', 'rcov'].include?(File.basename($0)))
+@EndExample
+The test for @code{$DEBUG} is so that if I am debugging some
+@emph{other} piece of code and require this file, I don't run this
+section. And this also means that I have to save and restore
+@code{$DEBUG} before requiring this file. It's ugly, but it works.}
+@Example
+  if __FILE__ == $0 
+    puts triangle(3)
+  end
+@EndExample
+
+Let's call this file @code{tri2.rb}.
+
+Okay, we're now ready to write our unit test. We'll use
+@code{"test/unit"} which comes with the standard Ruby distribution.
+Here's the test code:
+
+@Example
+  #!/usr/bin/env ruby
+  require "test/unit"
+  require "tri2.rb"
+
+  class TestTri < Test::Unit::TestCase
+    def test_basic
+     solutions = []
+     0.upto(5) do |i|
+        solutions << triangle(i)
+      end
+      assert_equal([0, 1, 3, 6, 10, 15], solutions,
+                   "Testing the first 5 triangle numbers")
+    end
+  end
+@EndExample
+
+If you run it will work. However if you run @code{rdebug} initially,
+you wan't get into the test, because @code{test/unit} wants to be the
+main program. So here is a situation where one needs to modify the
+program to add an explicit call to the debugger.
+
+One way to do this is to add the following before the place you want
+to stop:
+@Example
+  require "rubygems"
+  require "ruby-debug/debugger"
+@EndExample
+The line @code{require "rubygems"} is needed if @code{ruby-debug} is
+installed as a Ruby gem.
+
+Let's add this code just after entering @code{test_basic}
+@Example
+  ... 
+  def test_basic
+    require "rubygems"
+    require "ruby-debug/debugger"
+    solutions = []
+   ...
+@EndExample
+
+Now we run the program..
+@Example
+  $ @b{ruby test-tri.rb}
+  Loaded suite test-tri
+  Started
+  test-tri.rb:9
+  solutions = []
+  (rdb:1)
+@EndExample
+and we see that we are stopped at line 9 just before the
+initialization to List @code{solutions}
+
+"where" doesn't show call stack. Debugger.start.
 
 To be continued...
 
@@ -1600,7 +1722,26 @@ Show the arguments to give your program when it is started.
 @item set autoeval @r{[} on | 1 | off | 0 @r{]}
 Specify that debugger input that isn't recognized as a command should
 be passed to Ruby for evaluation (using the current debugged program
-namespace). See also @ref{irb} and @ref{Autoirb}.
+namespace). Note however that we @emph{first} check input to see if it
+is a debugger command and @emph{only} if it is not do we consider it
+as Ruby code. This means for example that if you have variable called
+@code{n} and you want to see its value, you could use @code{p n},
+because just entering @code{n} will be interpreted as the debugger
+``next'' command.
+
+See also @ref{irb} and @ref{Autoirb}.
+
+When autoeval is set on, you'll get a different error message when you
+invalid commands are encountered. Here's a session fragment to show
+the difference
+@Example
+(rdb:1) @b{stepp}
+Unknown command
+(rdb:1) @b{set autoeval on}
+autoeval is on.
+(rdb:1) @b{stepp}
+NameError Exception: undefined local variable or method `stepp' for ...
+@EndExample
 
 @kindex show autoeval 
 @item show args
@@ -1622,7 +1763,6 @@ looking for debugger commands. If instead you would like to directly
 go into an irb shell, set this on. See also @ref{Autoeval} or
 @ref{irb} if you tend to use debugger commands but still want Ruby
 evaluation occasionally.
-
 
 @kindex show autoirb
 @item show autoirb
