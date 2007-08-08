@@ -8,7 +8,6 @@ require "ruby_debug"
 # Test of C extension ruby_debug.so
 class TestRubyDebug < Test::Unit::TestCase
   include Debugger
-  include Debugger
 
   # Test initial variables and setting/getting state.
   def test_basic
