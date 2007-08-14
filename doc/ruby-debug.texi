@@ -146,7 +146,7 @@ to make it easier to pick out from the surrounding output.
 
 Below is Ruby code to compute a triangle number of a given length.
 
-@Example
+@smallexample
 $ @b{rdebug triangle.rb}
 triangle.rb:4 def hanoi(n,a,b,c)
 (rdb:1) @b{list}
@@ -180,7 +180,7 @@ triangle.rb:4 def hanoi(n,a,b,c)
    11  
    12  puts triangle(3)
 (rdb:1) 
-@EndExample
+@end smallexample
 
 @noindent
 
@@ -224,11 +224,11 @@ If you use a front-end to the debugger such as the Emacs interface
 
 Now let us step through the program.
 
-@Example
+@smallexample
 (rdb:1) @b{step}
 triangle.rb:12
 puts triangle(3)
-(rdb:1) @b{@key{RET}}
+(rdb:1) @b{@key{<RET>}}
 triangle.rb:5
 tri = 0
 (rdb:1) @b{p tri}
@@ -238,7 +238,7 @@ triangle.rb:6
 0.upto(n) do |i|
 (rdb:1) p tri
 0
-@EndExample
+@end smallexample
 
 The first @kbd{step} command (@pxref{Step}) runs the script one
 executable unit. The second command we entered was just hitting the
@@ -256,15 +256,15 @@ If we want to see the value of @code{tri} every time we stop to see
 how this is going to change we can give a display expression
 (@pxref{DisplayCommands}).
 
-@Example
+@smallexample
 (rdb:1) display tri
 1: tri = 0
-@EndExample
+@end smallexample
 
 Now let us run the program until we return from the function. However
 we'll want to see which lines get run.
 
-@Example
+@smallexample
 (rdb:1) @b{display i}
 2: i =
 (rdb:1) @b{set linetrace on}
@@ -287,7 +287,7 @@ Tracing(1):triangle.rb:9 return tri
 2: i =
 (rdb:1) @b{quit}
 Really quit? (y/n) y
-@EndExample
+@end smallexample
 
 So far, so good. A you can see from the above to get out of the
 debugger, one can issue a @code{quit} command.
@@ -303,7 +303,7 @@ to fix. Let's try another simple example. Okay here's the program.
 Below we will debug a simple Ruby program to solve the classic Towers
 of Hanoi puzzle.
 
-@Example
+@smallexample
 $ @b{rdebug hanoi.rb}
 hanoi.rb:3 def hanoi(n,a,b,c)
 (rdb:1) @b{list 1,100}
@@ -344,18 +344,18 @@ hanoi.rb:3 def hanoi(n,a,b,c)
    34
    35  hanoi(n, :a, :b, :c)
 (rdb:1)
-@EndExample
+@end smallexample
 
 Recall in the first section I said that before the @code{def} is run
 the method it names is undefined. Let's check that out. First let's
 see what private methods we can call before running @code{def hanoi}
 
-@Example
+@smallexample
 (rdb:1) @b{set autoeval on}
 autoeval is on.
 (rdb:1) @b{private_methods}
 ["select", "URI", "local_variables", "lambda", "chomp", ... 
-@EndExample
+@end smallexample
 
 The @code{set autoeval} (@pxref{Autoeval}) command causes any commands
 that are not normally understood to be debugger commands to get
@@ -371,7 +371,7 @@ instance}, it doesn't show output in this way; @code{ruby-debug} can
 sort and put into columns lists like this using the print command, @code{ps}.
 
 
-@Example
+@smallexample
 (rdb:1) @b{ps private_methods}
 Array                    exit!                 puts                        warn
 Float                    fail                  raise                       y
@@ -399,11 +399,11 @@ dbg_puts                 print                 timeout
 eval                     printf                trace_var
 exec                     proc                  trap
 exit                     putc                  untrace_var
-@EndExample
+@end smallexample
 
 Now let's see what happens after stepping
 
-@Example
+@smallexample
 (rdb:1) @b{private.methods.member?("hanoi")}
 false
 (rdb:1) @b{step}
@@ -412,11 +412,11 @@ i_args=ARGV.length
 (rdb:1) @b{private_methods.member?("hanoi")}
 true
 (rdb:1)
-@EndExample
+@end smallexample
 
 Okay, now where were we?
 
-@Example
+@smallexample
 (rdb:1) @b{list}
 [8, 17] in ./hanoi.rb
    8      if n-1 > 0
@@ -431,12 +431,12 @@ Okay, now where were we?
    17  end
 (rdb:1) @b{ARGV}
 []
-@EndExample
+@end smallexample
 
 Ooops. We forgot to specify any parameters to this program. Let's try
 again. We can use the @code{restart} command here.
 
-@Example
+@smallexample
 (rdb:1) @b{restart 3}
 Re exec'ing:
         /usr/bin/rdebug hanoi.rb 3
@@ -476,7 +476,7 @@ if n-1 > 0
     #2 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
     #3 at line hanoi.rb:35
 (rdb:1) 
-@EndExample
+@end smallexample
 
 In the above we added a new command, @code{break}
 (@pxref{Breakpoints}) which indicates to go into the debugger just
@@ -502,7 +502,7 @@ style of what to show in the trace.
 
 Let's explore a little more. Now were were we? 
 
-@Example
+@smallexample
 (rdb:1) @b{list}
    1  #!/usr/bin/ruby
    2
@@ -526,7 +526,7 @@ NameError Exception: undefined local variable or method `i_args' for main:Object
 #2 Object.-(n#Fixnum, a#Symbol, b#Symbol, c#Symbol) at line hanoi.rb:5
 (rdb:1) @b{p n}
 2
-@EndExample
+@end smallexample
 
 Notice in the above to get the value of variable @code{n}, I have to
 use a print command like @code{p n}; If I entered just @code{n}, that
@@ -585,19 +585,19 @@ more complicated because @code{$0} will be @code{rdebug} rather than
 the program, @code{tri2.rb} here. And if you use @code{rcov} to test
 program coverage, it will show this code as being ``dead''. To get
 around thse problems here's the actual condition test I use:
-@Example
+@smallexample
 if __FILE__ == $0 or
     ($DEBUG and ['rdebug', 'rcov'].include?(File.basename($0)))
-@EndExample
+@end smallexample
 The test for @code{$DEBUG} is so that if I am debugging some
 @emph{other} piece of code and require this file, I don't run this
 section. And this also means that I have to save and restore
 @code{$DEBUG} before requiring this file. It's ugly, but it works.}
-@Example
+@smallexample
   if __FILE__ == $0 
     puts triangle(3)
   end
-@EndExample
+@end smallexample
 
 Let's call this file @code{tri2.rb}.
 
@@ -605,7 +605,7 @@ Okay, we're now ready to write our unit test. We'll use
 @code{"test/unit"} which comes with the standard Ruby distribution.
 Here's the test code:
 
-@Example
+@smallexample
   #!/usr/bin/env ruby
   require "test/unit"
   require "tri2.rb"
@@ -620,7 +620,7 @@ Here's the test code:
                    "Testing the first 5 triangle numbers")
     end
   end
-@EndExample
+@end smallexample
 
 If you run it will work. However if you run @code{rdebug} initially,
 you wan't get into the test, because @code{test/unit} wants to be the
@@ -629,32 +629,32 @@ program to add an explicit call to the debugger.
 
 One way to do this is to add the following before the place you want
 to stop:
-@Example
+@smallexample
   require "rubygems"
   require "ruby-debug/debugger"
-@EndExample
+@end smallexample
 The line @code{require "rubygems"} is needed if @code{ruby-debug} is
 installed as a Ruby gem.
 
 Let's add this code just after entering @code{test_basic}
-@Example
+@smallexample
   ... 
   def test_basic
     require "rubygems"
     require "ruby-debug/debugger"
     solutions = []
    ...
-@EndExample
+@end smallexample
 
 Now we run the program..
-@Example
+@smallexample
   $ @b{ruby test-tri.rb}
   Loaded suite test-tri
   Started
   test-tri.rb:9
   solutions = []
   (rdb:1)
-@EndExample
+@end smallexample
 and we see that we are stopped at line 9 just before the
 initialization to List @code{solutions}
 
@@ -696,9 +696,9 @@ is invoke the debugger from a command line.
 A wrapper shell script called @code{rdebug} basically @code{require}'s
 the gem package @code{ruby-debug} and then loads @code{rdebug}.
 
-@example
+@smallexample
 rdebug [rdebug-options] [--] @var{ruby-script} @var{ruby-script-arguments...}
-@end example
+@end smallexample
 
 If you don't need to pass dash options to your program which might get
 confused with the debugger options, then you don't need to add the
@@ -707,7 +707,7 @@ confused with the debugger options, then you don't need to add the
 To get a brief list of options and descriptions, use the @code{--help}
 option.
 
-@Example
+@smallexample
 $ @b{rdebug --help}
 ruby-debug 0.9.4
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
@@ -732,7 +732,7 @@ Options:
 Common options:
         --help                       Show this message
     -v, --version                    Show version
-@EndExample
+@end smallexample
 
 Options for the @code{rdebug} are shown in the following list.  
 
@@ -928,18 +928,18 @@ stop.
 
 To get the debugger class accessible from your Ruby program:
 
-@example
+@smallexample
 require 'rubygems'
 require 'ruby-debug'
-@end example 
+@end smallexample 
 (It is very likely that you've already require'd rubygems. If so, you
 don't have to do that again.) These commands need to be done only once.
 
 To tell the debugger to start tracking calls and returns:
 
-@example
+@smallexample
 Debugger.start
-@end example 
+@end smallexample 
 
 There is also a @code{Debugger.stop} to turn off debugger tracking. If
 speed is crucial, you may want to start and stop this around certain
@@ -947,24 +947,24 @@ sections of code.
 
 And finally to tell the debugger to stop:
 
-@example
+@smallexample
 Debugger.debugger
-@end example 
+@end smallexample 
 
 You may want to do this at several points in the program where there
 is a problem you want to investigate. And since debugger is just a
 method call it's possible enclose it in a conditional expression, for
 example:
-@example
+@smallexample
 Debugger.debugger if foo='bar' and iter_count = 20
-@end example 
+@end smallexample 
 
 Although each step does a very specific thing which offers great
 flexibility, in order to make getting into the debugger easier the
 three steps have been rolled into one command:
-@example
+@smallexample
 require "ruby-debug/debugger"
-@end example 
+@end smallexample 
 
 @node Debugger Command Reference
 @chapter @code{ruby-debug} Command Reference
@@ -1001,7 +1001,7 @@ You can use @code{help} (abbreviated @code{h}) with no arguments to
 display a short list of named classes of commands:
 
 @flushleft
-@example
+@smallexample
 (rdb:1) @b{help}
 ruby-debug help v0.9.4
 Type 'help <command-name>' for help on a specific command
@@ -1010,7 +1010,7 @@ Available commands:
 backtrace break catch cont delete display down eval exit finish frame
 help irb list method next p pp quit reload restart save script set
 step thread trace undisplay up var where
-@end example
+@end smallexample
 @end flushleft
 @c the above line break eliminates huge line overfull...
 
@@ -1021,7 +1021,7 @@ step thread trace undisplay up var where
 With a command name as @code{help} argument, @DBG displays short
 information on how to use that command.
 
-@example
+@smallexample
 (rdb:1) @b{help list}
 ruby-debug help v0.9.4
 l[ist]          list forward
@@ -1030,7 +1030,7 @@ l[ist] =        list current line
 l[ist] nn-mm    list given lines
 * NOTE - to turn on autolist, use 'set autolist'
 (rdb:1)
-@end example
+@end smallexample
 
 @end table
 @node Control
@@ -1116,22 +1116,22 @@ Each expression added to the list is given a number to identify it; to
 remove an expression from the list, you specify that number.  The
 automatic display looks like this:
 
-@example
+@smallexample
 (rdb:1) display n
 1: n = 3
-@end example
+@end smallexample
 
 @noindent
 This display shows item numbers, expressions and their current values.  
 If the expression is undefined or illegal the expression will be
 printed but no value will appear.
 
-@example
+@smallexample
 (rdb:1) display undefined_variable
 2: undefined_variable =
 (rdb:1) display 1/0
 3: 1/0 = 
-@end example
+@end smallexample
 
 Note: this command uses @code{to_s} to in expressions; for example an
 array @code{[1, 2]} will appear as @code{12}. For some datatypes like
@@ -1274,9 +1274,35 @@ you are in the program.
 @end table
 
 @node PrintVars
-@section Printing Variables (@samp{var})
+@section Printing Variables (@samp{var}, @samp{method})
 
-To be continued...
+@table @code
+@item var const @var{object}
+@kindex var const @var{expr}
+Show the constants of @var{object}. This is basically iterating over
+values in @var{object}@code{.constant}.
+@item var instance @var{object}
+@kindex var instance @var{expr}
+Show the instance variables of @var{object}. This is basically listing
+@var{object}@code{.instance_variables}.
+@item var global
+@kindex var global
+Show global variables
+@item var global
+@kindex var global
+Show global variables
+@item var local
+@kindex var local
+Show local variables
+@item method instance @var{object}
+@kindex method instance @var{object}
+Show methods of @var{object}. Basically this is the same as running
+@code{ps object.instance_methods(false)} on @var{object}.
+@item method @var{class-or-module}
+@kindex method @var{class-or-module}
+Show methods of the class or module, @var{class-or-module}. Basically
+this is the same as running @code{ps object.methods} on @var{class-or-module}.
+@end table
 
 @node List
 @section Examining Program Source Files (@samp{list})
@@ -1734,14 +1760,14 @@ See also @ref{irb} and @ref{Autoirb}.
 When autoeval is set on, you'll get a different error message when you
 invalid commands are encountered. Here's a session fragment to show
 the difference
-@Example
+@smallexample
 (rdb:1) @b{stepp}
 Unknown command
 (rdb:1) @b{set autoeval on}
 autoeval is on.
 (rdb:1) @b{stepp}
 NameError Exception: undefined local variable or method `stepp' for ...
-@EndExample
+@end smallexample
 
 @kindex show autoeval 
 @item show args
@@ -1894,7 +1920,7 @@ If however you know that a particular block of code raises an
 exception you can enable post-mortem mode by wrapping this block
 inside a @code{Debugger.post_mortem} block
 
-@example
+@smallexample
 @cartouche
 def offender
   1/0 
@@ -1908,7 +1934,7 @@ Debugger.post_mortem do
   ...
 end
 @end cartouche
-@end example 
+@end smallexample 
 
 @node Debugger Module and Class
 @chapter The Debugger Module and Class
@@ -1948,10 +1974,10 @@ inside @value{Emacs} will tell you what version you are running.)
 
 To use this interface, you to load @code{rubydb3x.el}. 
 
-@example
+@smallexample
   (autoload 'rubydb "rubydb3x.el"  "Debugger Ruby programs." t)
   (setq rubydb-command-name "rdebug")
-@end example 
+@end smallexample 
 
 Once this is done, use the command @kbd{M-x rubydb} in @sc{gnu} Emacs.
 Give the executable file you want to debug as an argument. Make sure
@@ -2024,9 +2050,9 @@ switch to debugging a program in some other location, from an existing
 By default, @kbd{M-x rubydb} run the @code{ruby -r debug} which is the
 other debugger.  However you can set this to @code{rdebug} by running this:
 
-@example
+@smallexample
  (setq rubydb-command-name "rdebug")
-@end example
+@end smallexample
 
 @noindent
 (preceded by @kbd{M-:} or @kbd{ESC :}, or typed in the @code{*scratch*} buffer, or
