@@ -360,8 +360,8 @@ autoeval is on.
 The @code{set autoeval} (@pxref{Autoeval}) command causes any commands
 that are not normally understood to be debugger commands to get
 evaluated as though they were Ruby commands. I use this a lot, so I
-set this by putting it the file @code{.rdebugrc} that gets read when
-@code{ruby-debug} starts.
+set this by putting it the command file @code{.rdebugrc},
+@pxref{Command Files}, that gets read when @code{ruby-debug} starts.
 
 As showing the list output of @code{private_methods}, I find this kind
 of list unwieldy. What you are supposed to notice here is that
@@ -945,10 +945,10 @@ There is also a @code{Debugger.stop} to turn off debugger tracking. If
 speed is crucial, you may want to start and stop this around certain
 sections of code.
 
-And finally to tell the debugger to stop:
+And finally to enter the debugger:
 
 @smallexample
-Debugger.debugger
+debugger
 @end smallexample 
 
 You may want to do this at several points in the program where there
@@ -956,7 +956,7 @@ is a problem you want to investigate. And since debugger is just a
 method call it's possible enclose it in a conditional expression, for
 example:
 @smallexample
-Debugger.debugger if foo='bar' and iter_count = 20
+debugger if foo='bar' and iter_count = 20
 @end smallexample 
 
 Although each step does a very specific thing which offers great
@@ -1007,9 +1007,10 @@ ruby-debug help v0.9.4
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-backtrace break catch cont delete display down eval exit finish frame
-help irb list method next p pp quit reload restart save script set
-step thread trace undisplay up var where
+backtrace  delete   exit    info    next  putl     save    step       up   
+break      display  finish  irb     p     quit     set     thread     var  
+catch      down     frame   list    pp    reload   show    trace      where
+continue   eval     help    method  ps    restart  source  undisplay
 @end smallexample
 @end flushleft
 @c the above line break eliminates huge line overfull...
@@ -1285,9 +1286,6 @@ values in @var{object}@code{.constant}.
 @kindex var instance @var{expr}
 Show the instance variables of @var{object}. This is basically listing
 @var{object}@code{.instance_variables}.
-@item var global
-@kindex var global
-Show global variables
 @item var global
 @kindex var global
 Show global variables
@@ -1710,7 +1708,7 @@ allows you to see the current value.
 * Args::                 Annotation Level
 * Autoeval::             Evaluate unrecognized commands
 * Autolist::             Execute ``list'' command on every breakpoint
-* Autoirb::              Invode IRB on every stop
+* Autoirb::              Invoke IRB on every stop
 * Autoreload::           Reload source code when changed
 * Basename::             Report file basename only showing file names
 * Callstyle::            SHow Report file basename only showing file names
