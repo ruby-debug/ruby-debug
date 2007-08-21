@@ -144,7 +144,20 @@ In this sample session, we emphasize user input like this: @b{input},
 to make it easier to pick out from the surrounding output.
 @end iftex
 
-Below is Ruby code to compute a triangle number of a given length.
+Below is Ruby code to compute a triangle number of a given
+length.@footnote{There are of course shorter ways to define @code{triangle}
+such as:
+@smallexample
+def triangle(n) (0..n).inject@{|sum, i| sum +=i@} end
+@end smallexample
+or even:
+@smallexample
+  def triangle(n) (n * (n+1)) / 2 end
+@end smallexample
+The code we use in this example and the next is more for pedagogical
+purposes than how to write short Ruby code. Stepping through the
+@code{inject} version given above leads to some interesting behavior.}
+
 
 @smallexample
 $ @b{rdebug triangle.rb}
@@ -301,7 +314,8 @@ So far we've been doing pretty good in that we've not encountered a bug
 to fix. Let's try another simple example. Okay here's the program.
 
 Below we will debug a simple Ruby program to solve the classic Towers
-of Hanoi puzzle.
+of Hanoi puzzle. It is augmented by the bane of programming: some
+command-parameter processing with error checking.
 
 @smallexample
 $ @b{rdebug hanoi.rb}
