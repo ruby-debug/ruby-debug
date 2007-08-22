@@ -1254,6 +1254,11 @@ list looks nicer:
 @end group
 @end smallexample
 
+Note however that enteries are sorted to run down first rather than
+across. So in the example above the second entry in the list is 
+@code{/usr/lib/ruby/site_ruby/1.8/i586-linux} and the @emph{third} entry is 
+@code{/usr/lib/ruby/site_ruby/1.8}.
+
 If the value is not an array @code{putl} will just call pretty-print.
 @kindex ps
 @item ps
@@ -1284,8 +1289,8 @@ See also the @code{methods}.
 @table @code
 @kindex irb 
 @item irb
-Run a Ruby @code{irb} session with the bindings environment set to the state
-you are in the program. 
+Run an interactive ruby session (@code{irb}) with the bindings
+environment set to the state you are in the program.
 
 When you leave irb and go back to the debugger command prompt we show
 again the file, line and text position of the program in the same way
