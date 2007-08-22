@@ -58,7 +58,15 @@ module Debugger
 
       $debug_in_irb = true
       cont = IRB.start_session(get_binding)
-      @state.proceed if cont == :cont
+      if cont == :cont
+        @state.proceed 
+      else
+        file = @state.context.frame_file(0)
+        line = @state.context.frame_line(0)
+        CommandProcessor.print_location_and_text(file, line)
+        @state.previous_line = nil
+      end
+
     ensure
       $debug_in_irb = false
       trap("SIGINT", save_trap) if save_trap

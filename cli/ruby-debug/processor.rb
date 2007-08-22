@@ -37,6 +37,11 @@ module Debugger
         Pathname.new(filename).cleanpath.to_s
       end
     end
+
+    def self.print_location_and_text(file, line)
+      print "#{"\032\032" if ENV['EMACS']}#{canonic_file(file)}:#{line}\n" +
+        "#{Debugger.line_at(file, line)}"
+    end
   
     def self.protect(mname)
       alias_method "__#{mname}", mname
@@ -89,8 +94,7 @@ module Debugger
     protect :at_tracing
 
     def at_line(context, file, line)
-      print "#{"\032\032" if ENV['EMACS']}%s:%d\n%s",
-             CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)
+      CommandProcessor.print_location_and_text(file, line)
       process_commands(context, file, line)
     end
     protect :at_line
