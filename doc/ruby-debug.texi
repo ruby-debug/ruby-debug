@@ -130,6 +130,7 @@ debugger.
 * First Sample Session::   A Simple Sample @code{rdebug} session
 * Second Sample Session::  Second Session Delving a little deper @code{rdebug} session
 * Unit Testing Session::   Using the debugger in unit testing
+* Debugging Oddities::     How debugging Ruby may be different...
 @end menu
 
 @node First Sample Session
@@ -512,7 +513,7 @@ when we stop at a line. Also we see the names of the parameters and
 the types that those parameters @emph{currently} have. It's possible
 that when the program was called the parameter had a different type,
 since the types of variables can change dynamically. You alter the
-style of what to show in the trace.
+style of what to show in the trace (@pxref{Callstyle}).
 
 Let's explore a little more. Now were were we? 
 
@@ -566,8 +567,8 @@ impractical for a couple of reasons.
 @enumerate
 @item 
 The debugger just doesn't work when run at the outset.  By necessity
-any debugging maks slight changes to the behavior or the program, and
-sometimes this can hinder finding the bugs.
+any debugging changes to the behavior or the program in slight and
+subtle ways, and sometimes this can hinder finding the bugs.
 @item 
 There's a lot of code which that needs to get run before the part you
 want to inspect. Running this code takes time and you don't the
@@ -650,12 +651,12 @@ to stop:
 The line @code{require "rubygems"} is needed if @code{ruby-debug} is
 installed as a Ruby gem.
 
-Let's add this code just after entering @code{test_basic}
+Let's add this code just after entering @code{test_basic}:
 @smallexample
   ... 
   def test_basic
-    require "rubygems"
-    require "ruby-debug/debugger"
+    @b{require "rubygems"}
+    @b{require "ruby-debug/debugger"}
     solutions = []
    ...
 @end smallexample
@@ -670,14 +671,234 @@ Now we run the program..
   (rdb:1)
 @end smallexample
 and we see that we are stopped at line 9 just before the
-initialization to List @code{solutions}
+initialization of the list @code{solutions}.
 
-"where" doesn't show call stack. Debugger.start.
+Now let's see where we are...
+
+@smallexample
+(rdb:1) @b{where}
+--> #0 TestTri.test_basic at line /home/rocky/ruby/test-tri.rb:9
+(rdb:1) 
+@end smallexample
+
+Something seems wrong here; @code{TestTri.test_basic} indicates that
+we are in class @code{TestTri} in method @code{test_basic}. However we
+don't see the call to this like we did in the last example when we
+used the @code{where} command. This is because the debugger really
+didn't spring into existence until after we already entered that
+method, and Ruby doesn't keep call stack information around in a
+way that will give the information we show when running @code{where}.
+
+If we want call stack information, we have to turn call-stack tracking
+on @emph{beforehand}. This is done by adding @code{Debugger.start}.
+
+Here's what our test program looks like so after we modify it to start
+tracking calls from the outset
+
+@smallexample
+#!/usr/bin/env ruby
+require "test/unit"
+require "tri2.rb"
+require "rubygems"
+@b{require "ruby-debug"}
+@b{Debugger.start}
+
+class TestTri < Test::Unit::TestCase
+  def test_basic
+    @b{debugger}
+    solutions = []
+    0.upto(5) do |i|
+      solutions << triangle(i)
+    end
+    assert_equal([0, 1, 3, 6, 10, 15], solutions,
+                 "Testing the first 5 triangle numbers")
+  end
+end
+@end smallexample
+
+Now when we run this:
+@smallexample
+$ @b{ruby test-tri2.rb}
+Loaded suite test-tri2
+Started
+test-tri2.rb:11
+solutions = []
+(rdb:1) @b{where}
+--> #0 TestTri.test_basic at line test-tri2.rb:11
+    #1 Kernel.__send__(result#Test::Unit::TestResult) 
+       at line /usr/lib/ruby/1.8/test/unit/testcase.rb:70
+    #2 Test::Unit::TestCase.run(result#Test::Unit::TestResult) 
+       at line /usr/lib/ruby/1.8/test/unit/testcase.rb:70
+...
+    #11 Test::Unit::AutoRunner.run 
+       at line /usr/lib/ruby/1.8/test/unit/autorunner.rb:200
+    #12 Test::Unit::AutoRunner.run(force_standalone#FalseClass, default_dir#NilClass,...) 
+       at line /usr/lib/ruby/1.8/test/unit/autorunner.rb:13
+    #13 at line /usr/lib/ruby/1.8/test/unit.rb:285
+(rdb:1) 
+@end smallexample
+
+Much better. But again let me emphasize that the parameter types are
+those of the corresponding variables that @emph{currently} exist, and
+this might have changed since the time when the call was made. Even so
+and even though we only have @emph{types} listed, it's a pretty good
+bet that when @code{Test::Unit} was first called, shown above as frame
+12, that the values of its two parameters were @code{false} and
+@code{nil}.
+
+@node Debugging Oddities
+@section How debugging Ruby may be different than debugging other Languages
+
+If you are used to debugging in other langauges like C, C++, Perl,
+Java or even Bash@footnote{this is just an excuse to put in a
+shameless plug for my bash debugger @url{http://bashdb.sf.net}}, there
+may be a number of things that seem or feel a little bit different and
+may confuse you. A number of these things aren't oddities of the
+debugger per se, so much as a difference in how Ruby works compared to
+those other languages. Because Ruby works a little differently from
+those other languages, writing a debugger has to also be a little
+different as well if it is to be useful.
+
+In this respect, using the debugger may help you understand Ruby
+better.
+
+We've already seen two examples of such differences. One difference is
+the fact that we stop on method definitions or @code{def}'s and that's
+because these are in fact executable statements. In other compiled
+languages this would not happen because that's already been done when
+you compile the program (or in Perl when it scans in the program). The
+other difference we saw was in our inability to show call stack parameter
+types without having made arrangements for the debugger to track
+this. In other languages call stack information is usually available
+without asking assistance of the debugger.@footnote{However in C, and
+C++ generally you have to ask the compiler to add such information.}
+
+In this section we'll consider some other things that might throw
+off new users to Ruby who are familiar with other languages and
+debugging in them.
+
+@subsection Multiple Evaluations per line
+Consider this simple program to compute the Greatest Common Divisor of
+two numbers:
+@smallexample
+#!/usr/bin/env ruby
+
+# GCD. We assume positive numbers
+def gcd(a, b)
+  # Make: a <= b
+  if a > b
+    a, b = [b, a]
+  end
+
+  return nil if a <= 0
+
+  if a == 1 or b-a == 0
+    return a
+  end
+  return gcd(b-a, a)
+end
+
+a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
+@end smallexample
+
+Now let's try stepping through the program to see what we get.
+@smallexample
+$ rdebug gcd.rb 3 5
+def gcd(a, b)
+(rdb:1) @b{set linetrace on}
+line tracing is on.
+(rdb:1) @b{step 20}
+Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+Tracing(1):gcd.rb:19 puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
+Tracing(1):gcd.rb:6 if a > b
+Tracing(1):gcd.rb:6 if a > b
+Tracing(1):gcd.rb:10 return nil if a <= 0
+Tracing(1):gcd.rb:10 return nil if a <= 0
+Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
+Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
+Tracing(1):gcd.rb:15 return gcd(b-a, a)
+Tracing(1):gcd.rb:6 if a > b
+Tracing(1):gcd.rb:6 if a > b
+Tracing(1):gcd.rb:10 return nil if a <= 0
+Tracing(1):gcd.rb:10 return nil if a <= 0
+Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
+Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
+Tracing(1):gcd.rb:15 return gcd(b-a, a)
+Tracing(1):gcd.rb:6 if a > b
+Tracing(1):gcd.rb:6 if a > b
+gcd.rb:6
+if a > b
+(rdb:1) @b{where}
+--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
+    #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
+    #2 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
+    #3 at line gcd.rb:19
+(rdb:1) 
+@end smallexample
+
+The thing to note here is that we see lots of lines duplicated. For
+example, the first line:
+@smallexample
+Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+@end smallexample
+appears three times. If we were to break this line into the equivalent
+multi-line expression:
+@smallexample
+a, b = ARGV[0..1].map do |arg| 
+  arg.to_i
+end
+@end smallexample
+we would find one stop at the first line before running @code{map} and
+two listings of @code{arg.to_i}, once for each value of arg which here
+is 0 and then 1. 
+
+But what about those @code{if} statements? Each one is listed twice
+whether or not we put the @code{if} at the beginning or the end.
+
+Each @code{if} statement appears twice because we stop once before the expression
+is evaluated and once after the expression is evaluated but before the
+if statement takes hold.
+
+If you are issuing a @code{step} command one at a time, the repetitive
+nature can be little cumbersome if not annoying. So @value{DBG} offers
+a variant called @code{step+} which forces a new line on every
+step. Let's try that.
+@smallexample
+(rdb:1) @b{R}
+Re exec'ing:
+	/usr/bin/rdebug gcd.rb 3 5
+gcd.rb:4
+def gcd(a, b)
+(rdb:1) @b{step+}
+gcd.rb:18
+a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+(rdb:1) @b{step+}
+gcd.rb:19
+puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
+(rdb:1) @b{step+}
+gcd.rb:6
+if a > b
+(rdb:1) @b{step+}
+gcd.rb:10
+return nil if a <= 0
+(rdb:1) @b{step+}
+gcd.rb:12
+if a == 1 or b-a == 0
+(rdb:1) 
+@end smallexample
+
+If you want @code{step+} to be the default behavior when in
+stepping. You can issue the command @code{set forcestep on}, (@pxref{Forcestep}). I
+generally put this in my startup file @code{.rdebugrc}.
+
 
 To be continued...
 
 @itemize @bullet
-@item next, step+, where nesting inside blocks
+@item next, where nesting inside blocks, iterators
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.
 @item mixing in Debugger.debug with rdebug
@@ -1698,7 +1919,7 @@ each step. If you want to make sure that on a step you go to a
 
 If you find yourself generally wanting to use @code{step +} rather
 than @code{step}, you may want to considier using @code{set
-forcestep}, @ref{Forcestep}.
+forcestep}, (@pxref{Forcestep}).
 
 With a count, @code{step} will continue running as normal, but do so
 @var{count} times.  If a breakpoint is reached, or a signal not
