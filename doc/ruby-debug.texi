@@ -307,7 +307,7 @@ So far, so good. A you can see from the above to get out of the
 debugger, one can issue a @code{quit} command.
 
 @node Second Sample Session
-@section Sample Session 2: Delving Deeper 
+@section Sample Session 2: Delving Deeper (@code{where}, @code{frame}, @code{restart}, @code{autoeval}, @code{break}, @code{ps})
 
 In this section we'll introduce breakpoints, the call stack and
 restarting.  
@@ -555,7 +555,7 @@ Note that in the outside frame 3, the value of @code{i_args} can be
 shown. Also note that the value of variable @code{n} is different.
 
 @node Unit Testing Session
-@section Using the debugger in unit testing
+@section Using the debugger in unit testing (@code{ruby-debug/debugger}, @code{Debugger.start})
 
 In the previous sessions we've been calling the debugger right at the
 outset. I confess that this mode of operation is usually not how I use
