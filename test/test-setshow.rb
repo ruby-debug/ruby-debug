@@ -27,10 +27,10 @@ class TestCmd < Test::Unit::TestCase
   # Test initial variables and setting/getting state.
   def test_basic
     op = StringIO.new("", "w")
-    script = SRC_DIR + "/cmdparse.cmd"
+    script = SRC_DIR + "/setshow.cmd"
     Debugger.run_script(script, op)
     got_lines = op.string.split("\n")
-    right_file = SRC_DIR + "/cmdparse.right"
+    right_file = SRC_DIR + "/setshow.right"
     correct_lines = File.readlines(right_file)
     assert cheap_diff(got_lines, correct_lines)
   end

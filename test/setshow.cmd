@@ -1,6 +1,5 @@
 # $Id$
-# This tests the functioning of some debugger command a
-# parsing and set/show processing
+# This tests the functioning of some set/show debugger commands
 set basename on
 ### *******************************
 ### ***   Set/show commands     ***
