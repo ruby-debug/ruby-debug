@@ -31,25 +31,22 @@ CLI_FILES = FileList[
 ]
 
 desc "Test everything."
-def test_task(name)
-  Rake::TestTask.new(name) do |t|
+test_task = task :test => :lib do 
+  Rake::TestTask.new(:test) do |t|
     t.libs << ['./ext', './lib', './cli']
     t.pattern = 'test/**/*test-*.rb'
     t.verbose = true
   end
 end
 
-test_task(:test)
-test_task(:check)
-
-desc "Clean derived files."
-task :clean do
-  system("cd ext && rm Makefile *.o *.so")
-end
+desc "Test everything - same as test."
+task :check => :test
 
 desc "Create the core ruby-debug shared library extension"
 task :lib do
-  system("cd ext && ruby extconf.rb && make")
+  Dir.chdir("ext") do
+    system("#{Gem.ruby} extconf.rb && make")
+  end
 end
 
 desc "Create a GNU-style ChangeLog via svn2cl"
@@ -65,7 +62,7 @@ base_spec = Gem::Specification.new do |spec|
   spec.summary = "Fast Ruby debugger"
   spec.description = <<-EOF
 ruby-debug is a fast implementation of the standard Ruby debugger debug.rb.
-It's implemented by utilizing a new hook Ruby C API.
+It is implemented by utilizing a new Ruby C API hook.
 EOF
 
   spec.version = RUBY_DEBUG_VERSION
@@ -161,13 +158,15 @@ task :publish do
         "/var/www/gforge-projects/ruby-debug", ruby_debug_path)
 end
 
-desc "Clear temp files"
+desc "Remove built files"
 task :clean do
   cd "ext" do
     if File.exists?("Makefile")
       sh "make clean"
-      rm "Makefile"
+      rm  "Makefile"
     end
+    derived_files = Dir.glob(".o") + Dir.glob("*.so")
+    rm derived_files unless derived_files.empty?
   end
 end
 
