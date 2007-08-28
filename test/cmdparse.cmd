@@ -1,4 +1,4 @@
-# $Id: cmdparse.cmd,v 1.20 2007/01/25 10:19:15 rockyb Exp $
+# $Id$
 # This tests the functioning of some debugger command a
 # parsing and set/show processing
 set basename on
