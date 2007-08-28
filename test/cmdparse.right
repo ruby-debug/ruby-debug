@@ -1,0 +1,20 @@
+basename is on.
+Argument list to give program being debugged when it is started is "this is a test".
+Argument list to give program being debugged when it is started is "this is a test".
+basename is on.
+Expecting 'on', 1, 'off', or 0. Got: foo.
+basename is on.
+basename is off.
+basename is off.
+basename is off.
+basename is off.
+basename is on.
+basename is on.
+Number of source lines to list by default is 10.
+Number of source lines to list by default is 10.
+Set listsize argument 'abc' needs to be a number.
+Set listsize argument '-20' needs to at least 1.
+line tracing is on.
+line tracing is on.
+line tracing is off.
+line tracing is off.
