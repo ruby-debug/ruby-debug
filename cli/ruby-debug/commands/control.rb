@@ -54,7 +54,8 @@ module Debugger
       if not File.executable?(prog_script) and rdebug_script == ''
         print "Ruby program #{prog_script} doesn't seem to be executable...\n"
         print "We'll add a call to Ruby.\n"
-        rdebug_script = "ruby -I#{$:.join(' -I')} #{prog_script}"
+        ruby = begin defined?(Gem) ? Gem.ruby : "ruby" rescue "ruby" end
+        rdebug_script = "#{ruby} -I#{$:.join(' -I')} #{prog_script}"
       end
       if @match[1]
         argv = [prog_script] + @match[1].split(/[ \t]+/)
