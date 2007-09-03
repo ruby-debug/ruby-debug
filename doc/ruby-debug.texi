@@ -1940,9 +1940,10 @@ When stepping it is not uncommon to want to go to a different line on
 each step. If you want to make sure that on a step you go to a
 @emph{different} position, add a plus sign (@samp{+}). 
 
-@emph{Note: step+ with a number count may not give you the same stopping
-line as issuing the step+ command that many times. underneath counting
-is done of the individual steps, not units of individual step+'s.}
+@emph{Note: step+ with a number count is not the same as issuing 
+count step+ commands. Instead it uses count-1 step commands followed
+by a step+ command. For example, @code{step+ 3} is the
+same as @code{step; step; step+}, not @code{step+; step+; step+}}
 
 If you find yourself generally wanting to use @code{step +} rather
 than @code{step}, you may want to considier using @code{set
