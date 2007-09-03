@@ -18,12 +18,16 @@ module Debugger
         "Report file basename only showing file names"],
        ['callstyle', 2, false,
         "Set how you want call parameters displayed"],
+       ['debuggertesting', 8, false,
+        "Used when testing the debugger"],
        ['forcestep', 2, true,
         "Make sure 'next/step' commands always move to a new line"],
        ['fullpath', 2, true,
         "Display full file names in frames"],
        ['keep-frame-bindings', 1, true,
         "Save frame binding on each call"],
+       ['linetrace+', 10, true,
+       "Set line execution tracing to show different lines"],
        ['linetrace', 3, true,
        "Set line execution tracing"],
        ['listsize', 3, false,
@@ -95,10 +99,17 @@ module Debugger
                 Command.settings[:reload_source_on_change] = set_on
               when /^autoirb$/
                 Command.settings[:autoirb] = (set_on ? 1 : 0)
+              when /^debuggertesting$/
+                Command.settings[:debuggertesting] = set_on
+                if set_on
+                  Command.settings[:basename] = true
+                end
               when /^forcestep$/
                 self.class.settings[:force_stepping] = set_on
               when /^keep-frame-bindings$/
                 Debugger.keep_frame_binding = set_on
+              when /^linetrace\+$/
+                self.class.settings[:tracing_plus] = set_on
               when /^linetrace$/
                 Debugger.tracing = set_on
               when /^listsize$/

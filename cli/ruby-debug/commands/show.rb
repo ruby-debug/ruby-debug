@@ -28,6 +28,9 @@ module Debugger
       when /^callstyle$/
         style = Command.settings[:callstyle]
         return "Frame call-display style is #{style}."
+      when /^debuggertesting$/
+        on_off = Command.settings[:debuggertesting]
+        return "Currently testing the debugger is #{show_onoff(on_off)}."
       when /^forcestep$/
         on_off = self.class.settings[:force_stepping]
         return "force-stepping is #{show_onoff(on_off)}."
@@ -40,6 +43,13 @@ module Debugger
       when /^linetrace$/
         on_off = Debugger.tracing
         return "line tracing is #{show_onoff(on_off)}."
+      when /^linetrace\+$/
+        on_off = Command.settings[:tracing_plus]
+        if on_off
+          return "line tracing style is different consecutive lines."
+        else
+          return "line tracing style is every line."
+        end
       when /^listsize$/
         listlines = Command.settings[:listsize]
         return "Number of source lines to list by default is #{listlines}."
@@ -78,6 +88,8 @@ module Debugger
        ['fullpath', 2, "Show if full file names are displayed in frames"],
        ['keep-frame-bindings', 1, "Save frame binding on each call"],
        ['linetrace', 3, "Show line execution tracing"],
+       ['linetrace+', 10, 
+        "Show if consecutive lines should be different are shown in tracing"],
        ['listsize', 3, "Show number of source lines to list by default"],
        ['port', 1, "Show server port"],
        ['trace', 1, 

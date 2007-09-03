@@ -13,7 +13,8 @@ module Debugger
     end
 
     def execute
-      print "ruby-debug help v#{Debugger::VERSION}\n"
+      print "ruby-debug help v#{Debugger::VERSION}\n" unless
+        self.class.settings[:debuggertesting]
       cmds = @state.commands.select{ |cmd| [cmd.help_command].flatten.include?(@match[1]) }
       unless cmds.empty?
         help = cmds.map{ |cmd| cmd.help(@match[1]) }.join
@@ -22,11 +23,15 @@ module Debugger
         help.pop if help.last && help.last.empty?
         print help.join("\n")
       else
-        print "Type 'help <command-name>' for help on a specific command\n\n"
-        print "Available commands:\n"
-        cmds = @state.commands.map{ |cmd| cmd.help_command }
-        cmds = cmds.flatten.uniq.sort
-        print columnize(cmds, self.class.settings[:width])
+        if @match[1]
+          print "Undefined command: \"#{@match[1]}\".  Try \"help\"."
+        else
+          print "Type 'help <command-name>' for help on a specific command\n\n"
+          print "Available commands:\n"
+          cmds = @state.commands.map{ |cmd| cmd.help_command }
+          cmds = cmds.flatten.uniq.sort
+          print columnize(cmds, self.class.settings[:width])
+        end
       end
       print "\n"
     end

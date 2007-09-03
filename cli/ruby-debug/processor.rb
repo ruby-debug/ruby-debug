@@ -13,6 +13,8 @@ module Debugger
       @mutex = Mutex.new
       @last_cmd = nil
       @actions = []
+      @last_file = nil   # Filename the last time we stopped
+      @last_line = nil   # line number the last time we stopped
     end
     
     def interface=(interface)
@@ -87,8 +89,15 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      print "Tracing(%d):%s:%s %s",
-      context.thnum, CommandProcessor.canonic_file(file), line, Debugger.line_at(file, line)
+      @last_file = CommandProcessor.canonic_file(file)
+      file = CommandProcessor.canonic_file(file)
+      unless file == @last_file and @last_line == line and 
+          Command.settings[:tracing_plus]
+        print "Tracing(%d):%s:%s %s",
+        context.thnum, file, line, Debugger.line_at(file, line)
+        @last_file = file
+        @last_line = line
+      end
       always_run(context, file, line, 2)
     end
     protect :at_tracing

@@ -106,11 +106,13 @@ module Debugger
 
     register_setting_var(:basename, false)  # use basename in showing files? 
     register_setting_var(:callstyle, :last)
+    register_setting_var(:debuggertesting, false)
     register_setting_var(:force_stepping, false)
     register_setting_var(:full_path, true)
     register_setting_var(:listsize, 10)    # number of lines in list command
     register_setting_var(:stack_trace_on_error, false)
-    register_setting_var(:width, 80)       # width of line output
+    register_setting_var(:tracing_plus, false) # different linetrace lines?
+    register_setting_var(:width, 80)           # width of line output
 
     if not defined? Debugger::ARGV
       Debugger::ARGV = ARGV.clone

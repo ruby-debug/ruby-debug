@@ -26,6 +26,10 @@
 - Ruby 1.9 compatible
 - leaving irb shows position same as entering debugger; "list" position
   is also cleared when leaving irb
+- help "foo" gives message "Undefined command "foo" rather than a list
+  of help commands. (Message test is gdb's)
+- Add set linetrace+ - similar step+ for linetrace
+- Start unit tests.
 
 0.9.3
 - Fixed if..elsif..end stepping.
