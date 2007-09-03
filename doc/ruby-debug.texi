@@ -777,7 +777,7 @@ In this section we'll consider some other things that might throw
 off new users to Ruby who are familiar with other languages and
 debugging in them.
 
-@subsection Multiple Evaluations per line
+@subsection More Frequent Evaluations per line
 Consider this simple program to compute the Greatest Common Divisor of
 two numbers:
 @smallexample
@@ -805,13 +805,20 @@ puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
 Now let's try stepping through the program to see what we get.
 @smallexample
 $ rdebug gcd.rb 3 5
+gcd.rb:4
 def gcd(a, b)
+(rdb:1) step
+gcd.rb:18
+a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+(rdb:1) step
+gcd.rb:18
+a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+(rdb:1) step
+gcd.rb:18
+a, b = ARGV[0..1].map @{|arg| arg.to_i@}
 (rdb:1) @b{set linetrace on}
 line tracing is on.
-(rdb:1) @b{step 20}
-Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
-Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
-Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+(rdb:1) @b{step 17}
 Tracing(1):gcd.rb:19 puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
 Tracing(1):gcd.rb:6 if a > b
 Tracing(1):gcd.rb:6 if a > b
@@ -853,14 +860,17 @@ end
 @end smallexample
 we would find one stop at the first line before running @code{map} and
 two listings of @code{arg.to_i}, once for each value of arg which here
-is 0 and then 1. 
+is 0 and then 1. Perhaps this is is not surprising because we have a
+loop here which gets run in this situation 3 times. There is another
+command described later, @code{next}, which can also be used to skip
+over loops.
 
 But what about those @code{if} statements? Each one is listed twice
 whether or not we put the @code{if} at the beginning or the end.
 
-Each @code{if} statement appears twice because we stop once before the expression
-is evaluated and once after the expression is evaluated but before the
-if statement takes hold.
+Each @code{if} statement appears twice because we stop once before the
+expression is evaluated and once after the expression is evaluated but
+before the if statement takes hold.
 
 If you are issuing a @code{step} command one at a time, the repetitive
 nature can be little cumbersome if not annoying. So @value{DBG} offers
@@ -887,13 +897,26 @@ return nil if a <= 0
 (rdb:1) @b{step+}
 gcd.rb:12
 if a == 1 or b-a == 0
-(rdb:1) 
+(rdb:1) @b{set linetrace+}
+line tracing style is different consecutive lines.
+(rdb:1) @b{set linetrace on}
+line tracing is on.
+(rdb:1) @b{step 10}
+Tracing(1):gcd.rb:10 return nil if a <= 0
+Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
+Tracing(1):gcd.rb:15 return gcd(b-a, a)
+Tracing(1):gcd.rb:6 if a > b
+Tracing(1):gcd.rb:10 return nil if a <= 0
+Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
+gcd.rb:12
 @end smallexample
 
-If you want @code{step+} to be the default behavior when in
-stepping. You can issue the command @code{set forcestep on}, (@pxref{Forcestep}). I
+If you want @code{step+} to be the default behavior when stepping,
+issue the command @code{set forcestep on}, (@pxref{Forcestep}). I
 generally put this in my startup file @code{.rdebugrc}.
 
+Similar to the difference between @code{step+} and @code{step} is
+@b{set linetrace+}. This removes duplicate consecutive line tracing.
 
 To be continued...
 
@@ -1917,6 +1940,10 @@ When stepping it is not uncommon to want to go to a different line on
 each step. If you want to make sure that on a step you go to a
 @emph{different} position, add a plus sign (@samp{+}). 
 
+@emph{Note: step+ with a number count may not give you the same stopping
+line as issuing the step+ command that many times. underneath counting
+is done of the individual steps, not units of individual step+'s.}
+
 If you find yourself generally wanting to use @code{step +} rather
 than @code{step}, you may want to considier using @code{set
 forcestep}, (@pxref{Forcestep}).
@@ -2005,6 +2032,7 @@ allows you to see the current value.
 * Fullpath::             Display full file names in frames
 * Keepframebindings::    Save frame binding on each call
 * Linetrace::            line execution tracing
+* Linetrace+::           line tracing style
 * Listsize::             Number of lines to try to show in a 'list' command
 * Trace::                Display stack trace when 'eval' raises exception
 * Width::                Number of characters the debugger thinks are in a line
@@ -2158,6 +2186,23 @@ Setting linetrace on will cause lines to be shown before run.
 @kindex show linetrace
 @item show linetrace
 Shows whether line tracing is in effect or not.
+@end table
+
+@node Linetrace+
+@subsection Set/Show Line tracing style
+
+@table @code
+@kindex set linetrace+ @r{[} on | 1 | off | 0 @r{]}
+@item set linetrace+ @r{[} on | 1 | off | 0 @r{]}
+
+Setting linetrace+ on will cause consecutive trace lines not to be a
+duplicate of the preceding line-trace line. Note however that this
+setting doesn't by itself turn on or off line tracing. 
+
+@kindex show linetrace+
+@item show linetrace
+Shows whether the line tracing style is to show all lines or remove 
+duplicates linetrace lines when it is a repeat of the previous line.
 @end table
 
 @node Listsize
