@@ -1191,9 +1191,18 @@ require 'rubygems'
 require 'ruby-debug'
 @end smallexample 
 (It is very likely that you've already require'd rubygems. If so, you
-don't have to do that again.) These commands need to be done only once.
+don't have to do that again.) These commands need to be done only
+once.
 
-To tell the debugger to start tracking calls and returns:
+After @code{require 'ruby-debug'}, it's possible to set some of the
+debugger variables influence preferences. For example if you want to
+have @ttDBG run a @code{list} command every time it stops you set the
+variable @code{Debugger.settings[:autolist]}. @pxref{Debugger.settings} has a
+list of variable settings and the default values. Debugger settings
+can also be set in @code{.rdebugrc} as debugger
+commands. @pxref{Command Files}
+
+To tell the debugger to start tracking things:
 
 @smallexample
 Debugger.start
@@ -1209,10 +1218,13 @@ And finally to enter the debugger:
 debugger
 @end smallexample 
 
-You may want to do this at several points in the program where there
-is a problem you want to investigate. And since debugger is just a
-method call it's possible enclose it in a conditional expression, for
-example:
+As indicated above, when @code{debugger} is run a @code{.rdebugrc}
+profile is read if that file exists.
+
+You may want to do enter the debugger at several points in the program
+where there is a problem you want to investigate. And since
+@code{debugger} is just a method call it's possible enclose it in a
+conditional expression, for example:
 @smallexample
 debugger if foo='bar' and iter_count = 20
 @end smallexample 
@@ -2001,7 +2013,7 @@ breakpoints.
 @end table
 
 @node ruby-debug settings
-@section ruby-debug settings (@samp{set args}, @samp{set autoeveal}..)
+@section ruby-debug settings (@samp{set args}, @samp{set autoeval}..)
 
 You can alter the way ruby-debug interacts with you using @code{set}
 commands. 
@@ -2113,6 +2125,11 @@ Shows whether the debugger will go into irb on stop or not.
 
 @node Autoreload
 @subsection Set/Show auto-reload
+@table @code
+@kindex set autoreload @r{[} on | 1 | off | 0 @r{]}
+Set this on if the debugger should check to see if the source has
+changed since the last time it reread in the file if it has.
+@end table
 
 @node Basename
 @subsection Set/Show basename
@@ -2281,17 +2298,71 @@ end
 @node Debugger Module
 @section The Debugger Module
 
-@ifset LATER
 @menu
-* Debugger.start::            
-* Debugger.stop::    
+* Debugger.run::      
+@ifset LATER
 * Debugger.post-mortem:: 
-@end menu
 @end ifset
+* Debugger.settings::
+@end menu
+
+@node Debugger.run
+@subsection @code{Debugger.start}, @code{Debugger.stop}, etc.
+
+@table @code
+@item Debugger.start
+Turn on add additional instrumentation code to facilitate debugging.
+@item Debugger.stop
+Turn off instrumentation to allow debugging.
+@item Debugger.started?
+Boolean. Return @code{true} if debugger has been started.
+@item Debugger.run_script(@var{debugger-command-file}, out = handler.interface)
+Reads/runs the given file contaiing debugger commands. @code{.rdebugrc} is run this way.
+@end table
+
+@node Debugger.settings
+@subsection Debugger.settings
+Symbols listed here are keys into the Array @code{Debugger.settings}.
+These can be set any time after the @code{ruby-debug} is loaded. For example:
+@smallexample
+  require "ruby-debug/debugger"
+  Debugger.settings[:autoeval] = true  # try eval on unknown debugger commands
+  Debugger.listsize = 20  # Show 20 lines in a list command
+@end smallexample
+
+@table @code
+@item :argv
+Array of String. @code{argv[0]} is the debugged program name and
+@code{argv[1..-1]} are the command arguments to it.
+@item :autoeval
+Boolean. True if auto autoeval on. @xref{Autoeval}.
+@item :autoirb
+Fixnum: 1 if on or 0 if off. @xref{Autoirb}.
+@item :autolist
+Fixnum: 1 if on or 0 if off.
+@item :basename
+Boolean. True if basename on. @xref{Basename}.
+@item :callstyle
+Symbol: @code{:short} or @code{:last}. @xref{Callstyle}.
+@item :debuggertesting
+Boolean. True if currently testing the debugger.
+@item :force_stepping
+Boolean. True if stepping should go to a line different from the last
+step. @xref{Forcestep}.
+@item :full_path
+Boolean. @xref{Fullpath}.
+@item :listsize
+Fixnum. Number of lines to show in a @code{list} command. @xref{Listsize}.
+@item :reload_source_on_change
+Boolean. True if we should reread the source every time it changes. @xref{Autoreload}.
+@item :stack_trace_on_error
+Boolean. True if we should produce a stack trace on error. @xref{Trace}.
+@item :width
+Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
+@end table
 
 @node Debugger Class
 @section The Debugger Class
-
 @node Kernel routines
 @section Additions to Kernel 
 
