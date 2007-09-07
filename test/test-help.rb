@@ -28,11 +28,11 @@ class TestCmd < Test::Unit::TestCase
   def test_basic
     testbase = 'help'
     op = StringIO.new("", "w")
-    script = SRC_DIR + "/#{testbase}.cmd"
+    script = File.join(SRC_DIR, "/#{testbase}.cmd")
     Debugger.const_set('Version', "unit testing")
     Debugger.run_script(script, op)
     got_lines = op.string.split("\n")
-    right_file = SRC_DIR + "/#{testbase}.right"
+    right_file = File.join(SRC_DIR, "/#{testbase}.right")
     correct_lines = File.readlines(right_file)
     assert cheap_diff(got_lines, correct_lines)
   end

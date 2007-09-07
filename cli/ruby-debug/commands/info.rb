@@ -1,6 +1,7 @@
 module Debugger
   class InfoCommand < Command # :nodoc:
-    SubcmdStruct=Struct.new(:name, :min, :short_help)
+    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
+      defined?(SubcmdStruct)
     Subcommands = 
       [
        ['args', 1, "Argument variables of current stack frame"],
@@ -13,7 +14,7 @@ module Debugger
        ['variables', 1, "global variables"]
       ].map do |name, min, short_help| 
       SubcmdStruct.new(name, min, short_help)
-    end
+    end unless defined?(Subcommands)
 
     def regexp
       /^\s* i(?:nfo)? (?:\s+(.*))?$/ix

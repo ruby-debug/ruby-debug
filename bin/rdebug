@@ -89,6 +89,7 @@ begin
     rdebug_path += ".cmd" unless rdebug_path =~ /\.cmd$/i
   end
   Debugger::RDEBUG_SCRIPT = rdebug_path
+  Debugger::INITIAL_DIR = Dir.pwd
   opts.parse! ARGV
 rescue StandardError => e
   puts opts

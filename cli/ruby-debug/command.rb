@@ -14,7 +14,7 @@ module Debugger
         :always_run => 0,
         :unknown => false,
         :need_context => false,
-      }
+      } unless defined?(DEF_OPTIONS)
       
       def inherited(klass)
         DEF_OPTIONS.each do |o, v|

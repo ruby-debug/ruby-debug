@@ -1,7 +1,8 @@
 module Debugger
   class SetCommand < Command # :nodoc:
     
-    SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help)
+    SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help) unless
+      defined?(SubcmdStruct)
     Subcommands = 
       [
        ['args', 2, false,
@@ -38,7 +39,7 @@ module Debugger
         "Number of characters the debugger thinks are in a line"],
       ].map do |name, min, is_bool, short_help| 
       SubcmdStruct.new(name, min, is_bool, short_help)
-    end
+    end unless defined?(Subcommands)
     
     self.control = true
 

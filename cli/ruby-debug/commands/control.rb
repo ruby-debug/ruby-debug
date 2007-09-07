@@ -47,6 +47,11 @@ module Debugger
         rdebug_script = Debugger::RDEBUG_SCRIPT + " "
       end
       prog_script = Debugger::PROG_SCRIPT
+      begin
+        Dir.chdir(Debugger::INITIAL_DIR)
+      rescue
+        print "Failed to change initial directory #{Debugger::INITIAL_DIR}"
+      end
       if not File.exists?(prog_script)
         print "Ruby program #{prog_script} doesn't exist\n"
         return

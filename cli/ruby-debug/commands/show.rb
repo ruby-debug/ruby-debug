@@ -73,7 +73,8 @@ module Debugger
 
   class ShowCommand < Command # :nodoc:
     
-    SubcmdStruct=Struct.new(:name, :min, :short_help)
+    SubcmdStruct=Struct.new(:name, :min, :short_help) unless 
+      defined?(SubcmdStruct)
     Subcommands = 
       [
        ['args', 2, 
@@ -100,7 +101,7 @@ module Debugger
         "Show the number of characters the debugger thinks are in a line"],
       ].map do |name, min, short_help| 
       SubcmdStruct.new(name, min, short_help)
-    end
+    end unless defined?(Subcommands)
     
     self.control = true
 
