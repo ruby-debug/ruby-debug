@@ -3,6 +3,7 @@ package org.jruby.debug;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
@@ -38,7 +39,7 @@ public class Context extends RubyObject {
 
         DebugContext debug_context = debugContext();
         debug_context.setStopNext(Util.toInt(steps));
-        debug_context.setForceMove(Util.toBoolean(force));
+        debug_context.setForceMove(!force.isNil() && Util.toBoolean(force));
         return steps;
     }
 
@@ -116,8 +117,14 @@ public class Context extends RubyObject {
     }
 
     public IRubyObject frame_args(IRubyObject frameNo, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
-    }
+        checkStarted();
+        DebugFrame frame = getFrame(frameNo);
+        if (frame.isDead()) {
+            return frame.getInfo().getCopyArgs();
+        } else {
+            return context_copy_args(frame);
+        }
+     }
 
     public IRubyObject frame_binding(IRubyObject frameNo, Block block) {
         checkStarted();
@@ -126,7 +133,8 @@ public class Context extends RubyObject {
     
     public IRubyObject frame_method(IRubyObject frameNo, Block block) {
         debugger.checkStarted(getRuntime());
-        return getRuntime().newString(getFrame(frameNo).getId());
+        String id = getFrame(frameNo).getId();
+        return id == null ? getRuntime().getNil() : getRuntime().newSymbol(id);
     }
 
     public IRubyObject frame_line(IRubyObject frameNo, Block block) {
@@ -140,7 +148,11 @@ public class Context extends RubyObject {
     public IRubyObject frame_locals(IRubyObject frameNo, Block block) {
         checkStarted();
         DebugFrame frame = getFrame(frameNo);
-        throw new UnsupportedOperationException("not implemented yet");
+        if (frame.isDead()) {
+            return frame.getInfo().getCopyLocals();
+        } else {
+            return context_copy_locals(frame);
+        }
     }
 
     public IRubyObject frame_self(IRubyObject self, Block block) {
@@ -189,4 +201,74 @@ public class Context extends RubyObject {
     private void checkStarted() {
         debugger.checkStarted(getRuntime());
     }
+
+    /*
+     *   call-seq:
+     *      context.copy_args(frame) -> list of args
+     *
+     *   Returns a array of argument names.
+     */
+    private IRubyObject context_copy_args(DebugFrame debug_frame) {
+//        ID *tbl;
+//        int n, i;
+//        Scope scope;
+//        IRubyObject list = rb_ary_new2(0); /* [] */
+//
+//        scope = debug_frame->info.runtime.scope;
+//        tbl = scope->local_tbl;
+//
+//        if (tbl && scope->local_vars) {
+//            n = *tbl++;
+//            if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
+//            list = rb_ary_new2(n);
+//            /* skip first 2 ($_ and $~) */
+//            for (i=2; i<n; i++) {   
+//                /* skip first 2 ($_ and $~) */
+//                if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
+//                rb_ary_push(list, rb_str_new2(rb_id2name(tbl[i])));
+//            }
+//        }
+//
+//        return list;
+        System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
+        System.err.println("MK>   IMPLEMENT ME");
+        return getRuntime().newArray();
+    }
+
+    private IRubyObject context_copy_locals(DebugFrame debug_frame) {
+        //            ID *tbl;
+        //            int n, i;
+        //            struct SCOPE *scope;
+        //            struct RVarmap *vars;
+        //            IRubyObject hash = rb_hash_new();
+        //
+        //            scope = debug_frame->info.runtime.scope;
+        //            tbl = scope->local_tbl;
+        //
+        //            if (tbl && scope->local_vars) 
+        //            {
+        //                n = *tbl++;
+        //                for (i=2; i<n; i++) 
+        //                {   /* skip first 2 ($_ and $~) */
+        //                    if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
+        //                    rb_hash_aset(hash, rb_str_new2(rb_id2name(tbl[i])), scope->local_vars[i]);
+        //                }
+        //            }
+        //
+        //            vars = debug_frame->info.runtime.dyna_vars;
+        //            while (vars) 
+        //            {
+        //                if (vars->id && rb_is_local_id(vars->id)) 
+        //                { /* skip $_, $~ and flip states */
+        //                    rb_hash_aset(hash, rb_str_new2(rb_id2name(vars->id)), vars->val);
+        //                }
+        //                vars = vars->next;
+        //            }
+        // return hash;
+        System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
+        System.err.println("MK>   IMPLEMENT ME");
+        return RubyHash.newHash(getRuntime());
+    }
+
+
 }

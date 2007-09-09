@@ -90,7 +90,7 @@ final class Debugger {
         }
 
         start(rt);
-        IRubyObject context = debugCurrentContext(recv);
+        IRubyObject context = getCurrentContext(recv);
         DebugContext debugContext = (DebugContext) context.dataGetStruct();
         debugContext.setStackSize(0);
         if (Util.toBoolean(stop)) {
@@ -100,7 +100,7 @@ final class Debugger {
         stop(rt);
     }
     
-    private IRubyObject debugCurrentContext(IRubyObject recv) {
+    IRubyObject getCurrentContext(IRubyObject recv) {
         checkStarted(recv.getRuntime());
         RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
         return threadContextLookup(thread, false).context;
@@ -146,7 +146,8 @@ final class Debugger {
 
     private IRubyObject debugContextCreate(RubyThread thread) {
         DebugContext debugContext = new DebugContext(thread);
-        if (thread.getType() == thread.getRuntime().getClass(DebuggerDef.DEBUG_THREAD_NAME)) {
+        // if (thread.getType() == thread.getRuntime().getClass(DebuggerDef.DEBUG_THREAD_NAME)) {
+        if (thread.getType().getName().equals("Debugger::" + DebuggerDef.DEBUG_THREAD_NAME)) {
             debugContext.setIgnored(true);
         }
         RubyClass cContext = thread.getRuntime().getModule("Debugger").getClass("Context");

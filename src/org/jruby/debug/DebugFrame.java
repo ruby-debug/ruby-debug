@@ -99,31 +99,31 @@ final class DebugFrame {
         private Object scope;
         private DynamicScope dynaVars;
 
-        private Object copyArgs;
-        private Object copyLocals;
-        private Object copyArgAry;
+        private IRubyObject copyArgs;
+        private IRubyObject copyLocals;
+        private IRubyObject copyArgAry;
 
-        Object getCopyArgAry() {
+        IRubyObject getCopyArgAry() {
             return copyArgAry;
         }
 
-        void setCopyArgAry(Object copyArgAry) {
+        void setCopyArgAry(IRubyObject copyArgAry) {
             this.copyArgAry = copyArgAry;
         }
 
-        Object getCopyArgs() {
+        IRubyObject getCopyArgs() {
             return copyArgs;
         }
 
-        void setCopyArgs(Object copyArgs) {
+        void setCopyArgs(IRubyObject copyArgs) {
             this.copyArgs = copyArgs;
         }
 
-        Object getCopyLocals() {
+        IRubyObject getCopyLocals() {
             return copyLocals;
         }
 
-        void setCopyLocals(Object copyLocals) {
+        void setCopyLocals(IRubyObject copyLocals) {
             this.copyLocals = copyLocals;
         }
 

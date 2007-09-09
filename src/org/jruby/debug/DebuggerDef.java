@@ -18,10 +18,10 @@ public final class DebuggerDef {
     private static Debugger debugger;
     
     public static RubyModule createDebuggerModule(Ruby runtime) {
+        
+        /* Debugger module. */
         RubyModule debuggerMod = runtime.defineModule("Debugger");
-
         CallbackFactory callbackFactory = runtime.callbackFactory(DebuggerDef.class);
-
         debuggerMod.defineConstant("VERSION", runtime.newString(VERSION));
         debuggerMod.defineModuleFunction("start", callbackFactory.getSingletonMethod("start"));
         debuggerMod.defineModuleFunction("stop", callbackFactory.getSingletonMethod("stop"));
@@ -33,6 +33,7 @@ public final class DebuggerDef {
         debuggerMod.defineModuleFunction("catchpoint=", callbackFactory.getSingletonMethod("catchpoint_set", IRubyObject.class));
         debuggerMod.defineModuleFunction("last_context", callbackFactory.getSingletonMethod("last_context"));
         debuggerMod.defineModuleFunction("contexts", callbackFactory.getSingletonMethod("contexts"));
+        debuggerMod.defineModuleFunction("current_context", callbackFactory.getSingletonMethod("current_context"));
         debuggerMod.defineModuleFunction("thread_context", callbackFactory.getSingletonMethod("thread_context", IRubyObject.class));
         debuggerMod.defineModuleFunction("suspend", callbackFactory.getSingletonMethod("suspend"));
         debuggerMod.defineModuleFunction("resume", callbackFactory.getSingletonMethod("resume"));
@@ -48,18 +49,20 @@ public final class DebuggerDef {
         debuggerMod.defineModuleFunction("debug", callbackFactory.getSingletonMethod("debug"));
         debuggerMod.defineModuleFunction("debug=", callbackFactory.getSingletonMethod("debug_set", IRubyObject.class));
 
+
+        /* Debugger::ThreadsTable */
         RubyClass threadsTable = debuggerMod.defineClassUnder("ThreadsTable", runtime.getObject(), runtime.getObject().getAllocator());
-
         CallbackFactory dtCallbackFactory = runtime.callbackFactory(DebugThread.class);
-
+        
+        
+        /* Debugger::DebugThread */
         RubyClass debugThread = debuggerMod.defineClassUnder(DEBUG_THREAD_NAME, runtime.getClass("Thread"), runtime.getClass("Thread").getAllocator());
-
         debugThread.getSingletonClass().defineMethod("inherited", dtCallbackFactory.getSingletonMethod("inherited", IRubyObject.class));
 
+        
+        /* Debugger::Breakpoint */
         CallbackFactory bCallbackFactory = runtime.callbackFactory(Breakpoint.class);
-
         RubyClass breakpoint = debuggerMod.defineClassUnder("Breakpoint", runtime.getObject(), BREAKPOINT_ALLOCATOR);
-
         breakpoint.defineMethod("id", bCallbackFactory.getMethod("id"));
         breakpoint.defineMethod("source", bCallbackFactory.getMethod("source"));
         breakpoint.defineMethod("source=", bCallbackFactory.getMethod("source_set", IRubyObject.class));
@@ -72,16 +75,15 @@ public final class DebuggerDef {
         breakpoint.defineMethod("hit_value=", bCallbackFactory.getMethod("hit_value_set", IRubyObject.class));
         breakpoint.defineMethod("hit_condition", bCallbackFactory.getMethod("hit_condition"));
         breakpoint.defineMethod("hit_condition=", bCallbackFactory.getMethod("hit_condition_set", IRubyObject.class));
-
+        
+        
+        /* Debugger::Context */
         CallbackFactory cCallbackFactory = runtime.callbackFactory(Context.class);
-
         RubyClass context = debuggerMod.defineClassUnder(CONTEXT_NAME, runtime.getObject(), CONTEXT_ALLOCATOR);
-
         context.defineMethod("stop_next=", cCallbackFactory.getOptMethod("stop_next_set"));
         context.defineMethod("step", cCallbackFactory.getOptMethod("stop_next_set"));
         context.defineMethod("step_over", cCallbackFactory.getOptMethod("step_over"));
         context.defineMethod("stop_frame=", cCallbackFactory.getMethod("stop_frame_set", IRubyObject.class));
-        
         context.defineMethod("thread", cCallbackFactory.getMethod("thread"));
         context.defineMethod("thnum", cCallbackFactory.getMethod("thnum"));
         context.defineMethod("stop_reason", cCallbackFactory.getMethod("stop_reason"));
@@ -178,6 +180,10 @@ public final class DebuggerDef {
 
     public static IRubyObject contexts(IRubyObject recv, Block block) {
         return debugger().getDebugContexts(recv);
+    }
+
+    public static IRubyObject current_context(IRubyObject recv, Block block) {
+        return debugger().getCurrentContext(recv);
     }
 
     public static IRubyObject thread_context(IRubyObject recv, IRubyObject context, Block block) {

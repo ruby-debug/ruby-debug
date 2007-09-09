@@ -327,7 +327,7 @@ final class DebugEventHook implements EventHook {
         debugFrame.setId(methodName);
         debugFrame.setOrigId(methodName);
         debugFrame.setDead(false);
-        debugFrame.setSelf(tCtx);
+        debugFrame.setSelf(tCtx.getFrameSelf());
         Info info = debugFrame.getInfo();
         info.setFrame(tCtx.getCurrentFrame());
         info.setScope(tCtx.getCurrentScope().getStaticScope());
@@ -369,7 +369,7 @@ final class DebugEventHook implements EventHook {
             String file, int line, String methodName) {
         DebugFrame topFrame = getTopFrame(debug_context);
         if (topFrame != null) {
-            topFrame.setSelf(tCtx);
+            topFrame.setSelf(tCtx.getFrameSelf());
             topFrame.setFile(file);
             topFrame.setLine(line);
             topFrame.setId(methodName);
@@ -553,7 +553,7 @@ final class DebugEventHook implements EventHook {
     private void resetFrameMid(DebugContext debugContext) {
         DebugFrame topFrame = getTopFrame(debugContext);
         if (topFrame != null) {
-            topFrame.setId(null);
+            topFrame.setId("");
         }
     }
 }
