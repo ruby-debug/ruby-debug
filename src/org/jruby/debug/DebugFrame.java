@@ -93,6 +93,10 @@ final class DebugFrame {
         this.self = self;
     }
 
+    public @Override String toString() {
+        return "DebugFrame[" + file + ':' + line + "]";
+    }
+
     static final class Info {
 
         private Frame frame;
