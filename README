@@ -9,3 +9,12 @@ the 'initiating' thread on the jruby@dev mailing list.
 
 http://archive.jruby.codehaus.org/dev/ef98118a0708171132u2bb08358q179a6d29235faadd%40mail.gmail.com
 
+Note that the current content is a 'patch' against current JRuby's
+trunk. So just copy 'src' dir to the JRuby's sources. To compile you
+also need to apply jruby-patch.diff to JRuby's trunk.
+
+Other links
+-----------
+- Trying to get started with jruby-debug
+  http://archive.jruby.codehaus.org/dev/ef98118a0709221034o42703713r60acfdcc9538ae93%40mail.gmail.com 
+
