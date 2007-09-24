@@ -320,7 +320,7 @@ final class DebugEventHook implements EventHook {
         debugContext.increaseStackSize();
 
         DebugFrame debugFrame = new DebugFrame();
-        debugFrame.setArgc(tCtx.getFrameArgs().length);
+//        debugFrame.setArgc(tCtx.getFrameArgs().length);
         debugFrame.setFile(file);
         debugFrame.setLine(line);
         debugFrame.setBinding(binding);

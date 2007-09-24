@@ -22,7 +22,8 @@ final class DebugFrame {
     }
 
     Object getArgc() {
-        return argc;
+        throw new UnsupportedOperationException("not implemented yet");
+//        return argc;
     }
 
     void setArgc(Object argc) {
