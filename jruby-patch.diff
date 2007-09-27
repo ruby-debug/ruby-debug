@@ -8,7 +8,7 @@ Index: src/org/jruby/RubyThread.java
      }
  
 -    private RubyThread(Ruby runtime, RubyClass type) {
-+    public RubyThread(Ruby runtime, RubyClass type) {
++    protected RubyThread(Ruby runtime, RubyClass type) {
          super(runtime, type);
          this.threadService = runtime.getThreadService();
          // set to default thread group
