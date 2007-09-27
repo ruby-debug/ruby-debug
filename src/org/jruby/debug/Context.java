@@ -5,8 +5,10 @@ import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
+import org.jruby.RubyString;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
+import org.jruby.runtime.DynamicScope;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public class Context extends RubyObject {
@@ -236,39 +238,16 @@ public class Context extends RubyObject {
     }
 
     private IRubyObject context_copy_locals(DebugFrame debug_frame) {
-        //            ID *tbl;
-        //            int n, i;
-        //            struct SCOPE *scope;
-        //            struct RVarmap *vars;
-        //            IRubyObject hash = rb_hash_new();
-        //
-        //            scope = debug_frame->info.runtime.scope;
-        //            tbl = scope->local_tbl;
-        //
-        //            if (tbl && scope->local_vars) 
-        //            {
-        //                n = *tbl++;
-        //                for (i=2; i<n; i++) 
-        //                {   /* skip first 2 ($_ and $~) */
-        //                    if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
-        //                    rb_hash_aset(hash, rb_str_new2(rb_id2name(tbl[i])), scope->local_vars[i]);
-        //                }
-        //            }
-        //
-        //            vars = debug_frame->info.runtime.dyna_vars;
-        //            while (vars) 
-        //            {
-        //                if (vars->id && rb_is_local_id(vars->id)) 
-        //                { /* skip $_, $~ and flip states */
-        //                    rb_hash_aset(hash, rb_str_new2(rb_id2name(vars->id)), vars->val);
-        //                }
-        //                vars = vars->next;
-        //            }
-        // return hash;
-        System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-        System.err.println("MK>   IMPLEMENT ME");
-        return RubyHash.newHash(getRuntime());
+    	RubyHash locals = RubyHash.newHash(getRuntime());
+        DynamicScope scope = debug_frame.getInfo().getDynaVars();
+        if (scope != null) {
+            String[] variableNames = scope.getAllNamesInScope();
+            for (int i = 0; i < variableNames.length; i++) {
+                locals.aset(RubyString.newString(getRuntime(), variableNames[i]),
+                        scope.getValues()[i]);
+            }
+        }
+        return locals;
     }
-
 
 }

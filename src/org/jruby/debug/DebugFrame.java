@@ -132,7 +132,7 @@ final class DebugFrame {
             this.copyLocals = copyLocals;
         }
 
-        Object getDynaVars() {
+        DynamicScope getDynaVars() {
             return dynaVars;
         }
 
