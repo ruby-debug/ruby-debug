@@ -157,8 +157,9 @@ public class Context extends RubyObject {
         }
     }
 
-    public IRubyObject frame_self(IRubyObject self, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+    public IRubyObject frame_self(IRubyObject frameNo, Block block) {
+        checkStarted();
+        return getFrame(frameNo).getSelf();
     }
 
     public IRubyObject frame_class(IRubyObject frameNo, Block block) {
