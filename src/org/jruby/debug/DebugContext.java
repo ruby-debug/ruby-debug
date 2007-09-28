@@ -1,6 +1,6 @@
 package org.jruby.debug;
 
-import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import org.jruby.RubyThread;
 import org.jruby.debug.DebugContext.StopReason;
@@ -24,7 +24,6 @@ final class DebugContext {
     private final List<DebugFrame> frames;
     private int lastLine;
     private String lastFile;
-    private int stackSize;
     private int destFrame;
     private int stopFrame;
     private int stopNext;
@@ -53,12 +52,10 @@ final class DebugContext {
         stopLine = -1;
         stopFrame = -1;
         stopReason = StopReason.NONE;
-        frames = new ArrayList<DebugFrame>();
-        stackSize = 0;
+        frames = new LinkedList<DebugFrame>();
         breakpoint = thread.getRuntime().getNil();
         this.thread = thread;
     }
-
     
     void addFrame(final DebugFrame debugFrame) {
         frames.add(debugFrame);
@@ -68,16 +65,16 @@ final class DebugContext {
         return thread;
     }
 
+    DebugFrame getTopFrame() {
+        return frames.get(getStackSize() - 1);
+    }
+    
     DebugFrame getFrame(int index) {
-        return frames.get(index);
+        return frames.get(getStackSize() - index - 1);
     }
 
-    void increaseStackSize() {
-        this.stackSize++;
-    }
-
-    void decreaseStackSize() {
-        this.stackSize--;
+    DebugFrame popFrame() {
+        return frames.remove(getStackSize() - 1);
     }
 
     IRubyObject getBreakpoint() {
@@ -153,11 +150,7 @@ final class DebugContext {
     }
 
     int getStackSize() {
-        return stackSize;
-    }
-
-    void setStackSize(int stackSize) {
-        this.stackSize = stackSize;
+        return frames.size();
     }
 
     boolean isStepped() {

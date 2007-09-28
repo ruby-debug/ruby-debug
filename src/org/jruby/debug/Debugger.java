@@ -92,7 +92,6 @@ final class Debugger {
         start(rt);
         IRubyObject context = getCurrentContext(recv);
         DebugContext debugContext = (DebugContext) context.dataGetStruct();
-        debugContext.setStackSize(0);
         if (Util.toBoolean(stop)) {
             debugContext.setStopNext(1);
         }

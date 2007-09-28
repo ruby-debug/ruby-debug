@@ -209,8 +209,8 @@ final class DebugEventHook implements EventHook {
                     debugContext.setStopFrame(0);
                 }
                 while (debugContext.getStackSize() > 0) {
-                    debugContext.decreaseStackSize();
-                    String origMethodName = debugContext.getFrame(debugContext.getStackSize()).getOrigMethodName();
+                    DebugFrame topFrame = debugContext.popFrame();
+                    String origMethodName = topFrame.getOrigMethodName();
                     if (origMethodName != null && origMethodName.equals(methodName)) {
                         break;
                     }
@@ -318,8 +318,6 @@ final class DebugEventHook implements EventHook {
 
         IRubyObject binding = (debugger.isKeepFrameBinding()) ? RubyBinding.newBinding(tCtx.getRuntime()) : tCtx.getRuntime().getNil();
 
-        debugContext.increaseStackSize();
-
         DebugFrame debugFrame = new DebugFrame();
         debugFrame.setArgc(tCtx.getCurrentScope().getArgValues());
         debugFrame.setFile(file);
@@ -382,7 +380,7 @@ final class DebugEventHook implements EventHook {
         if (debugContext.getStackSize() == 0) {
             return null;
         } else {
-            return debugContext.getFrame(debugContext.getStackSize() - 1);
+            return debugContext.getTopFrame();
         }
     }
 
