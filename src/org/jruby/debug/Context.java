@@ -124,7 +124,7 @@ public class Context extends RubyObject {
         if (frame.isDead()) {
             return frame.getInfo().getCopyArgs();
         } else {
-            return context_copy_args(frame);
+            return contextCopyArgs(frame);
         }
      }
 
@@ -153,7 +153,7 @@ public class Context extends RubyObject {
         if (frame.isDead()) {
             return frame.getInfo().getCopyLocals();
         } else {
-            return context_copy_locals(frame);
+            return contextCopyLocals(frame);
         }
     }
 
@@ -192,11 +192,11 @@ public class Context extends RubyObject {
 
     private DebugFrame getFrame(final IRubyObject frameNo) {
         DebugContext debugContext = debugContext();
-        int frameNoInt = check_frame_number(debugContext, frameNo);
+        int frameNoInt = checkFrameNumber(debugContext, frameNo);
         return debugContext.getFrame(frameNoInt);
     }
 
-    private int check_frame_number(DebugContext context, IRubyObject frameNo) {
+    private int checkFrameNumber(DebugContext context, IRubyObject frameNo) {
         // TODO: implement correctly
         return RubyFixnum.fix2int(frameNo);
     }
@@ -211,7 +211,7 @@ public class Context extends RubyObject {
      *
      *   Returns a array of argument names.
      */
-    private IRubyObject context_copy_args(DebugFrame debug_frame) {
+    private IRubyObject contextCopyArgs(DebugFrame debug_frame) {
 //        ID *tbl;
 //        int n, i;
 //        Scope scope;
@@ -238,7 +238,7 @@ public class Context extends RubyObject {
         return getRuntime().newArray();
     }
 
-    private IRubyObject context_copy_locals(DebugFrame debug_frame) {
+    private IRubyObject contextCopyLocals(DebugFrame debug_frame) {
     	RubyHash locals = RubyHash.newHash(getRuntime());
         DynamicScope scope = debug_frame.getInfo().getDynaVars();
         if (scope != null) {

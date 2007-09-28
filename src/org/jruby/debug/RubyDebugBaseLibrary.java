@@ -34,9 +34,6 @@ public final class RubyDebugBaseLibrary implements Library {
     public static final int HIT_COND_MOD = 3;
 
     public void load(Ruby runtime) throws IOException {
-//        System.out.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-//        java.util.logging.Logger.getLogger("MK>").info(" " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-//        java.util.logging.Logger.getLogger("MK>").info("   HIT_COND_NONE: \"" + HIT_COND_NONE + "\"");
         DebuggerDef.createDebuggerModule(runtime);
     }
     
