@@ -135,8 +135,8 @@ public class Context extends RubyObject {
     
     public IRubyObject frame_method(IRubyObject frameNo, Block block) {
         debugger.checkStarted(getRuntime());
-        String id = getFrame(frameNo).getId();
-        return id == null ? getRuntime().getNil() : getRuntime().newSymbol(id);
+        String methodName = getFrame(frameNo).getMethodName();
+        return methodName == null ? getRuntime().getNil() : getRuntime().newSymbol(methodName);
     }
 
     public IRubyObject frame_line(IRubyObject frameNo, Block block) {

@@ -210,7 +210,8 @@ final class DebugEventHook implements EventHook {
                 }
                 while (debugContext.getStackSize() > 0) {
                     debugContext.decreaseStackSize();
-                    if (debugContext.getFrame(debugContext.getStackSize()).getOrigId() == methodName) {
+                    String origMethodName = debugContext.getFrame(debugContext.getStackSize()).getOrigMethodName();
+                    if (origMethodName != null && origMethodName.equals(methodName)) {
                         break;
                     }
                 }
@@ -324,8 +325,8 @@ final class DebugEventHook implements EventHook {
         debugFrame.setFile(file);
         debugFrame.setLine(line);
         debugFrame.setBinding(binding);
-        debugFrame.setId(methodName);
-        debugFrame.setOrigId(methodName);
+        debugFrame.setMethodName(methodName);
+        debugFrame.setOrigMethodName(methodName);
         debugFrame.setDead(false);
         debugFrame.setSelf(tCtx.getFrameSelf());
         Info info = debugFrame.getInfo();
@@ -372,7 +373,7 @@ final class DebugEventHook implements EventHook {
             topFrame.setSelf(tCtx.getFrameSelf());
             topFrame.setFile(file);
             topFrame.setLine(line);
-            topFrame.setId(methodName);
+            topFrame.setMethodName(methodName);
             topFrame.getInfo().setDynaVars(event == RUBY_EVENT_C_CALL ? null : tCtx.getCurrentScope());
         }
     }
@@ -553,7 +554,7 @@ final class DebugEventHook implements EventHook {
     private void resetFrameMid(DebugContext debugContext) {
         DebugFrame topFrame = getTopFrame(debugContext);
         if (topFrame != null) {
-            topFrame.setId("");
+            topFrame.setMethodName("");
         }
     }
 }

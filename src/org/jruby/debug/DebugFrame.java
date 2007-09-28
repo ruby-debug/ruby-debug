@@ -8,8 +8,8 @@ final class DebugFrame {
 
     private Object argc;
     private IRubyObject binding;
-    private String id;
-    private String origId;
+    private String methodName;
+    private String origMethodName;
     private String file;
     private int line;
     private boolean dead;
@@ -54,12 +54,12 @@ final class DebugFrame {
         this.file = file;
     }
 
-    String getId() {
-        return id;
+    String getMethodName() {
+        return methodName;
     }
 
-    void setId(String id) {
-        this.id = id;
+    void setMethodName(String methodName) {
+        this.methodName = methodName;
     }
 
     Info getInfo() {
@@ -78,12 +78,12 @@ final class DebugFrame {
         this.line = line;
     }
 
-    String getOrigId() {
-        return origId;
+    String getOrigMethodName() {
+        return origMethodName;
     }
 
-    void setOrigId(String origId) {
-        this.origId = origId;
+    void setOrigMethodName(String origMethodName) {
+        this.origMethodName = origMethodName;
     }
 
     IRubyObject getSelf() {
