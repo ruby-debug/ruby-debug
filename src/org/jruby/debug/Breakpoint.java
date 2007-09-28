@@ -38,7 +38,8 @@ public class Breakpoint extends RubyObject {
     }
 
     public IRubyObject expr(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        // FIXME: implement
+        return getRuntime().getNil();
     }
 
     public IRubyObject expr_set(IRubyObject expr, Block block) {
