@@ -11,11 +11,6 @@ require "rubygems"
 SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless 
   defined?(SRC_DIR)
 
-%w(ext lib cli).each do |dir|
-  $: <<  SRC_DIR + "../#{dir}"
-end
-require SRC_DIR + "../cli/ruby-debug.rb"
-
 def run_debugger(testname, args='', outfile=nil)
   rightfile = "#{SRC_DIR}#{testname}.right"
 
