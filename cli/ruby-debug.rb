@@ -9,10 +9,10 @@ module Debugger
   self.handler = CommandProcessor.new
   
   # the port number used for remote debugging
-  PORT = 8989
+  PORT = 8989 unless defined?(PORT)
 
   # File we look for debugger startup commands.
-  INITFILE = ".rdebugrc"  
+  INITFILE = ".rdebugrc"  unless defined?(INITFILE)
 
   class << self
     # in remote mode, wait for the remote connection 
