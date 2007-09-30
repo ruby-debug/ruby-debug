@@ -1,11 +1,12 @@
 #!/usr/bin/env ruby
 require "test/unit"
-SRC_DIR = File.expand_path(File.dirname(__FILE__))
+SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless
+  defined?(SRC_DIR)
 %w(ext lib cli).each do |dir|
-  $: <<  SRC_DIR + "/../#{dir}"
+  $: <<  SRC_DIR + "../#{dir}"
 end
 require "ruby_debug"
-require SRC_DIR + "/../cli/ruby-debug.rb"
+require SRC_DIR + "../cli/ruby-debug.rb"
 
 def cheap_diff(got_lines, correct_lines)
   correct_lines.each_with_index do |line, i|

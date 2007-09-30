@@ -88,13 +88,15 @@ module Debugger
   end
   
   class ScriptInterface # :nodoc:
-    def initialize(file, out)
+    def initialize(file, out, verbose=false)
       @file = file.respond_to?(:gets) ? file : open(file)
       @out = out
+      @verbose = verbose
     end
     
     def read_command(prompt)
       while result = @file.gets
+        puts "# #{result}" if @verbose
         next if result =~ /^\s*#/
         next if result.strip.empty?
         break
