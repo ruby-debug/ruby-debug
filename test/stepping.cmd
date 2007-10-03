@@ -3,15 +3,15 @@
 # ***************************************************
 set debuggertesting on
 set callstyle last
-next 1
+next
 where
 step a
 step 2
 where
 n 2
-step 1
+step
 where
 step 3
 where
-finish
+# finish
 quit

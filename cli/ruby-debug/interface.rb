@@ -102,7 +102,7 @@ module Debugger
         break
       end
       raise IOError unless result
-      result
+      result.chomp!
     end
     
     def confirm(prompt)

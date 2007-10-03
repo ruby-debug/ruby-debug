@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require "test/unit"
 require "fileutils"
-require "rubygems"
+# require "rubygems"
 # require "diff/lcs"
 # require "diff/lcs/hunk"
 
@@ -42,8 +42,13 @@ def cheap_diff(got_lines, correct_lines)
       puts "need: #{correct_lines[i]}"
       return false
     end
-    return correct_lines.size == got_lines.size
   end
+  if correct_lines.size != got_lines.size
+    puts ("difference in number of lines: " + 
+          "#{correct_lines.size} vs. #{got_lines.size}")
+    return false
+  end
+  return true
 end
 
 # Adapted from the Ruby Cookbook, Section 6.10: Comparing two files.

@@ -7,7 +7,7 @@ def gcd(a, b)
 Currently testing the debugger is on.
 # set callstyle last
 Frame call-display style is last.
-# next 1
+# next
 gcd.rb:18
 gcd(3,5)
 # where
@@ -23,7 +23,7 @@ if a > b
 # n 2
 gcd.rb:10
 return nil if a <= 0
-# step 1
+# step
 gcd.rb:12
 if a == 1 or b-a == 0
 # where
@@ -36,4 +36,5 @@ if a > b
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
     #2 at line gcd.rb:18
-# finish
+# # finish
+# quit
