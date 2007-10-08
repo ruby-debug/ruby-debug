@@ -211,18 +211,18 @@ public class Context extends RubyObject {
      *
      *   Returns a array of argument names.
      */
-    private IRubyObject contextCopyArgs(DebugFrame debug_frame) {
+    private IRubyObject contextCopyArgs(DebugFrame debugFrame) {
 //        ID *tbl;
 //        int n, i;
 //        Scope scope;
 //        IRubyObject list = rb_ary_new2(0); /* [] */
 //
-//        scope = debug_frame->info.runtime.scope;
+//        scope = debugFrame->info.runtime.scope;
 //        tbl = scope->local_tbl;
 //
 //        if (tbl && scope->local_vars) {
 //            n = *tbl++;
-//            if (debug_frame->argc+2 < n) n = debug_frame->argc+2;
+//            if (debugFrame->argc+2 < n) n = debugFrame->argc+2;
 //            list = rb_ary_new2(n);
 //            /* skip first 2 ($_ and $~) */
 //            for (i=2; i<n; i++) {   
@@ -238,13 +238,13 @@ public class Context extends RubyObject {
         return getRuntime().newArray();
     }
 
-    private IRubyObject contextCopyLocals(DebugFrame debug_frame) {
+    private IRubyObject contextCopyLocals(final DebugFrame debugFrame) {
     	RubyHash locals = RubyHash.newHash(getRuntime());
-        DynamicScope scope = debug_frame.getInfo().getDynaVars();
+        DynamicScope scope = debugFrame.getInfo().getDynaVars();
         if (scope != null) {
             String[] variableNames = scope.getAllNamesInScope();
             for (int i = 0; i < variableNames.length; i++) {
-                locals.aset(RubyString.newString(getRuntime(), variableNames[i]),
+                locals.op_aset(RubyString.newString(getRuntime(), variableNames[i]),
                         scope.getValues()[i]);
             }
         }
