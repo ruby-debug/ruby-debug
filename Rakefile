@@ -51,9 +51,8 @@ spec = Gem::Specification.new do |s|
   s.files    = FileList['Rakefile', 'README', 'lib/ruby_debug_base.jar', 'lib/ruby-debug-base.rb']
   s.description = "Java extension to make fast ruby debugger run on JRuby"
   #s.add_dependency 'rcov', '>= 0.8.0.2'
-  s.author   = 'Chris Nelson'
-  s.email    = 'superchrisnelson@gmail.com'
-  s.homepage = 'http://rubyforge.org/projects/commons-debugger'
+  s.author   = 'debug-commons team'
+  s.homepage = 'http://rubyforge.org/projects/debug-commons/'
   s.has_rdoc = true
 end
 
