@@ -18,3 +18,9 @@ Other links
 - Trying to get started with jruby-debug
   http://archive.jruby.codehaus.org/dev/ef98118a0709221034o42703713r60acfdcc9538ae93%40mail.gmail.com 
 
+Newest info
+-----------
+
+This code should now be capable of installing as a gem which can replace ruby-debug-base.  
+Run rake install_gem to compile, build jar, build gem, and install it into a jruby gem install 
+directory.  Running gem package will build a gem.
