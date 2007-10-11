@@ -1,7 +1,3 @@
-# rcovrt4j: This builds a JRuby extension for Rcov. 
-# 
-# Compiles java and makes rcov service jar. It will
-# also package it as a gem for release into the wild.
 require 'rake'
 require 'rubygems'
 require 'rake/gempackagetask'
@@ -10,6 +6,8 @@ require 'rake/rdoctask'
 
 GEM_NAME='ruby-debug-base'
 GEM_VERSION='0.9.3'
+
+task :default => :package
 
 def java_classpath_arg
   begin
@@ -26,18 +24,18 @@ def java_classpath_arg
 end
 
 def compile_java
-  mkdir_p "java/classes"
-  sh "javac -g -target 1.5 -source 1.5 -d java/classes #{java_classpath_arg} #{FileList['src/**/*.java'].join(' ')}"
+  mkdir_p "pkg/classes"
+  sh "javac -g -target 1.5 -source 1.5 -d pkg/classes #{java_classpath_arg} #{FileList['src/**/*.java'].join(' ')}"
 end
 
 def make_jar
   require 'fileutils'
   lib = File.join(File.dirname(__FILE__), 'lib')
   FileUtils.mkdir(lib) unless File.exists? lib
-  sh "jar cf lib/ruby_debug_base.jar -C java/classes/ ."
+  sh "jar cf pkg/ruby_debug_base.jar -C pkg/classes/ ."
 end
 
-file 'lib/ruby_debug_base.jar' => FileList["java/src/*.java"] do
+file 'pkg/ruby_debug_base.jar' => FileList["java/src/*.java"] do
   compile_java
   make_jar
 end
@@ -48,9 +46,8 @@ spec = Gem::Specification.new do |s|
   s.name     = GEM_NAME
   s.version  = GEM_VERSION
   s.require_path = 'lib'
-  s.files    = FileList['Rakefile', 'README', 'lib/ruby_debug_base.jar', 'lib/ruby-debug-base.rb']
+  s.files    = FileList['Rakefile', 'README', 'pkg/ruby_debug_base.jar', 'lib/ruby-debug-base.rb']
   s.description = "Java extension to make fast ruby debugger run on JRuby"
-  #s.add_dependency 'rcov', '>= 0.8.0.2'
   s.author   = 'debug-commons team'
   s.homepage = 'http://rubyforge.org/projects/debug-commons/'
   s.has_rdoc = true
@@ -75,6 +72,6 @@ task :uninstall_gem do
 end
 
 desc "Create the Java extension."
-task :compile => ['lib/ruby_debug_base.jar']
+task :compile => ['pkg/ruby_debug_base.jar']
 task :gem => [:compile]
 task :install_gem => [:gem]
