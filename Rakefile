@@ -1,5 +1,6 @@
 require 'rake'
 require 'rubygems'
+require 'rake/clean'
 require 'rake/gempackagetask'
 require 'rake/testtask'
 require 'rake/rdoctask'
@@ -8,11 +9,6 @@ GEM_NAME='ruby-debug-base'
 GEM_VERSION='0.9.3'
 
 task :default => :package
-
-desc "Clean built files ('pkg' directory)"
-task :clean do
-  rm_rf 'pkg'
-end
 
 def java_classpath_arg
   begin
