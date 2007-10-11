@@ -9,6 +9,11 @@ GEM_VERSION='0.9.3'
 
 task :default => :package
 
+desc "Clean built files ('pkg' directory)"
+task :clean do
+  rm_rf 'pkg'
+end
+
 def java_classpath_arg
   begin
     require 'java'
