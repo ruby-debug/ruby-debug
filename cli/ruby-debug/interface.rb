@@ -110,7 +110,7 @@ module Debugger
     end
     
     def print(*args)
-      @out.print(*args)
+      @out.printf(*args)
     end
     
     def close
