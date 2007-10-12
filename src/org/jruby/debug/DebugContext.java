@@ -2,8 +2,8 @@ package org.jruby.debug;
 
 import java.util.LinkedList;
 import java.util.List;
+
 import org.jruby.RubyThread;
-import org.jruby.debug.DebugContext.StopReason;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class DebugContext {

@@ -196,11 +196,18 @@ public class Context extends RubyObject {
         return debugContext.getFrame(frameNoInt);
     }
 
-    private int checkFrameNumber(DebugContext context, IRubyObject frameNo) {
-        // TODO: implement correctly
-        return RubyFixnum.fix2int(frameNo);
+    private int checkFrameNumber(DebugContext context, IRubyObject rFrameNo) {
+        int frameNo = RubyFixnum.fix2int(rFrameNo);
+        
+        if (frameNo < 0 || frameNo >= debugContext().getStackSize()) {
+            throw rFrameNo.getRuntime().newArgumentError(
+                    String.format("Invalid frame number %d, stack (0...%d)", 
+                            frameNo, debugContext().getStackSize()));
+        }
+        
+        return frameNo;
     }
-
+    
     private void checkStarted() {
         debugger.checkStarted(getRuntime());
     }
@@ -242,10 +249,16 @@ public class Context extends RubyObject {
     	RubyHash locals = RubyHash.newHash(getRuntime());
         DynamicScope scope = debugFrame.getInfo().getDynaVars();
         if (scope != null) {
-            String[] variableNames = scope.getAllNamesInScope();
-            for (int i = 0; i < variableNames.length; i++) {
-                locals.op_aset(RubyString.newString(getRuntime(), variableNames[i]),
-                        scope.getValues()[i]);
+            scope = scope.getBindingScope();
+            while (scope != null) {
+                String[] variableNames = scope.getStaticScope().getVariables();
+                if (variableNames != null) {
+                    for (int i = 0; i < variableNames.length; i++) {
+                        locals.op_aset(RubyString.newString(getRuntime(), variableNames[i]),
+                                scope.getValues()[i]);
+                    }
+                }
+                scope = scope.getNextCapturedScope();
             }
         }
         return locals;

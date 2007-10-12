@@ -133,8 +133,7 @@ public final class DebuggerDef {
     public static IRubyObject start(IRubyObject recv, Block block) {
         System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
         System.err.println("MK>  Debugger.def starting");
-        boolean started = debugger().start(recv.getRuntime());
-        return Util.toRBoolean(recv, started);
+        return debugger().start(recv, block);
     }
 
     /**

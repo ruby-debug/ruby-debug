@@ -2,6 +2,7 @@ package org.jruby.debug;
 
 import java.util.IdentityHashMap;
 import java.util.Map;
+
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -11,6 +12,7 @@ import org.jruby.RubyString;
 import org.jruby.RubyThread;
 import org.jruby.debug.DebugBreakpoint.Type;
 import org.jruby.runtime.Arity;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.EventHook;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -36,14 +38,16 @@ final class Debugger {
 
     private DebugContext lastDebugContext;
 
-    boolean start(final Ruby runtime) {
+    IRubyObject start(IRubyObject recv, Block block) {
         System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
         System.err.println("MK>   Debugger.starting");
 
+        Ruby runtime = recv.getRuntime();
+        
         startCount++;
-        boolean result;
+        IRubyObject result;
         if (started) {
-            result = false;
+            result = runtime.getFalse();
         } else {
             IRubyObject nil = runtime.getNil();
             lastThread  = nil;
@@ -60,8 +64,17 @@ final class Debugger {
             threadsTbl = RubyHash.newHash(runtime);
             threadsTbl.dataWrapStruct(new IdentityHashMap<RubyThread, IRubyObject>());
             runtime.addEventHook(debugEventHook);
-            result = true;
+            result = runtime.getTrue();
         }
+        
+        if (block.isGiven()) {
+            try {
+                return block.yield(runtime.getCurrentContext(), recv);
+            } finally {
+                stop(runtime);
+            }
+        }
+        
         return result;
     }
 
@@ -89,7 +102,7 @@ final class Debugger {
             stop = args[1];
         }
 
-        start(rt);
+        start(recv, Block.NULL_BLOCK);
         IRubyObject context = getCurrentContext(recv);
         DebugContext debugContext = (DebugContext) context.dataGetStruct();
         if (Util.toBoolean(stop)) {
