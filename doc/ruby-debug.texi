@@ -247,10 +247,10 @@ triangle.rb:5
 tri = 0
 (rdb:1) @b{p tri}
 nil
-(rdb:1) step
+(rdb:1) @b{step}
 triangle.rb:6
 0.upto(n) do |i|
-(rdb:1) p tri
+(rdb:1) @b{p tri}
 0
 @end smallexample
 
@@ -804,16 +804,16 @@ puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
 
 Now let's try stepping through the program to see what we get.
 @smallexample
-$ rdebug gcd.rb 3 5
+$ @b{rdebug gcd.rb 3 5}
 gcd.rb:4
 def gcd(a, b)
-(rdb:1) step
+(rdb:1) @b{step}
 gcd.rb:18
 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
-(rdb:1) step
+(rdb:1) @b{step}
 gcd.rb:18
 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
-(rdb:1) step
+(rdb:1) @b{step}
 gcd.rb:18
 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
 (rdb:1) @b{set linetrace on}
@@ -916,12 +916,13 @@ issue the command @code{set forcestep on}, (@pxref{Forcestep}). I
 generally put this in my startup file @code{.rdebugrc}.
 
 Similar to the difference between @code{step+} and @code{step} is
-@b{set linetrace+}. This removes duplicate consecutive line tracing.
+@code{set linetrace+}. This removes duplicate consecutive line tracing.
 
 To be continued...
 
 @itemize @bullet
 @item next, where nesting inside blocks, iterators
+@item show breakpoints including use of main.fn
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.
 @item mixing in Debugger.debug with rdebug
@@ -1883,7 +1884,11 @@ code on that line.
 Set a breakpoint at line @var{linenum} in source file @var{filename}.
 
 @item break @var{class}:@var{method}
-Set a breakpoint in class @var{class} method @var{method}.
+Set a breakpoint in class @var{class} method @var{method}. You can
+also use a period @code{.} instead of a colon @code{:}. Note however
+that a class must be specified here. If the method you want to stop in
+is in the main class (i.e. the class that @code{self} belongs to at
+the start of the program), then use the name @code{main}. 
 
 @kindex catch @ovar{exception}
 @kindex cat @r{(@code{catch})}
