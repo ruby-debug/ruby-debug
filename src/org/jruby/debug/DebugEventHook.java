@@ -5,14 +5,19 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.jruby.MetaClass;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBinding;
+import org.jruby.RubyKernel;
 import org.jruby.RubyString;
 import org.jruby.RubyThread;
-import org.jruby.debug.Debugger.DebugContextPair;
 import org.jruby.debug.DebugContext.StopReason;
 import org.jruby.debug.DebugFrame.Info;
+import org.jruby.debug.Debugger.DebugContextPair;
+import org.jruby.exceptions.RaiseException;
+import org.jruby.runtime.Block;
 import org.jruby.runtime.EventHook;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -177,14 +182,13 @@ final class DebugEventHook implements EventHook {
                     }
                     saveTopBinding(debugContext, binding);
 
-                    // TODO: complete
-//                    if(!checkBreakpointExpression(breakpoint, binding))
-//                        break;
-//                    if(!checkBreakpointHitCondition(breakpoint))
-//                        break;
+                    if(!checkBreakpointExpression(breakpoint, binding))
+                        break;
+                    if(!checkBreakpointHitCondition(breakpoint))
+                        break;
                     if (breakpoint != debugContext.getBreakpoint()) {
                         debugContext.setStopReason(DebugContext.StopReason.BREAKPOINT);
-                        context.callMethod(tCtx, DebugContext.AT_TRACING, breakpoint);
+                        context.callMethod(tCtx, DebugContext.AT_BREAKPOINT, breakpoint);
                     } else {
                         debugContext.setBreakpoint(getNil());
                     }
@@ -192,10 +196,11 @@ final class DebugEventHook implements EventHook {
                 }
                 break;
             case RUBY_EVENT_C_CALL:
-                if(cCallNewFrameP(klass, methodName))
+                if(cCallNewFrameP(klass, methodName)) {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
-                else
+                } else {
                     setFrameSource(event, debugContext, tCtx, file, line, methodName);
+                }
                 break;
             case RUBY_EVENT_C_RETURN:
                 /* note if a block is given we fall through! */
@@ -456,24 +461,39 @@ final class DebugEventHook implements EventHook {
         if (debugBreakpoint.getType() != DebugBreakpoint.Type.METHOD) {
             return false;
         }
-        if (debugBreakpoint.getPos().getMethodName().equals(methodName)) {
+        if (! debugBreakpoint.getPos().getMethodName().equals(methodName)) {
             return false;
         }
-        if (debugBreakpoint.getSource().eql(klass)) {
+        if (debugBreakpoint.getSource().asString().eql(klass.asString())) {
             return true;
         }
         return false;
     }
 
     private boolean checkBreakpointExpression(IRubyObject breakpoint, IRubyObject binding) {
-        System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-        System.err.println("MK>   IMPLEMENT ME");
-        return true;
+        DebugBreakpoint debugBreakpoint = (DebugBreakpoint) breakpoint.dataGetStruct();
+        if (debugBreakpoint.getExpr().isNil()) {
+            return true;
+        }
+        
+        try {
+            IRubyObject result = RubyKernel.eval(
+                    breakpoint, 
+                    new IRubyObject[] { debugBreakpoint.getExpr(), binding },
+                    Block.NULL_BLOCK);
+            return result.isTrue();
+        } catch (RaiseException e) {
+            // XXX Seems like we should tell the user about this, but this how
+            // ruby-debug behaves
+            return false;
+        }
     }
 
     private boolean checkBreakpointHitCondition(IRubyObject breakpoint) {
+        /*
         System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
         System.err.println("MK>   IMPLEMENT ME");
+        */
         return true;
     }
 
@@ -514,8 +534,8 @@ final class DebugEventHook implements EventHook {
         debugContext.setForceMove(false);
     }
 
+    @SuppressWarnings("unchecked")
     private void checkThreadContexts() {
-        @SuppressWarnings("unchecked")
         Map<RubyThread, IRubyObject> threadsTable = (Map<RubyThread, IRubyObject>) debugger.getThreadsTbl().dataGetStruct();
         threadsTable.remove(locker);
         for (Iterator<Map.Entry<RubyThread, IRubyObject>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
@@ -536,16 +556,10 @@ final class DebugEventHook implements EventHook {
     }
 
     private IRubyObject realClass(IRubyObject klass) {
-        // TODO: implement me
-//        System.err.println("MK> IMPLEMENT ME: DebugEventHook.realClass()");
-//        if (klass) {
-//            if (TYPE(klass) == T_ICLASS) {
-//                return RBASIC(klass)->klass;
-//            }
-//            else if (FL_TEST(klass, FL_SINGLETON)) {
-//                return rb_iv_get(klass, "__attached__");
-//            }
-//        }
+        if (klass instanceof MetaClass) {
+            return ((MetaClass)klass).getRealClass();
+        }
+        
         return klass;
     }
 

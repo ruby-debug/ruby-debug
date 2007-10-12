@@ -39,8 +39,10 @@ final class Debugger {
     private DebugContext lastDebugContext;
 
     IRubyObject start(IRubyObject recv, Block block) {
+        /*
         System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
         System.err.println("MK>   Debugger.starting");
+        */
 
         Ruby runtime = recv.getRuntime();
         
@@ -326,6 +328,5 @@ final class Debugger {
 
     private void setLastContext(Ruby runtime, IRubyObject value) {
         lastContext = value;
-        runtime.getGlobalVariables().set("last_context", value);
     }
 }

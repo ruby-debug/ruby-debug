@@ -49,7 +49,7 @@ public class Context extends RubyObject {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
-    public IRubyObject step_over(IRubyObject[] args, Block block) {
+    public IRubyObject step_over(IRubyObject[] rawArgs, Block block) {
         Ruby rt = getRuntime();
         checkStarted();
         DebugContext debugContext = debugContext();
@@ -57,23 +57,21 @@ public class Context extends RubyObject {
             rt.newRuntimeError("No frames collected.");
         }
 
-        // TODO check args like in C Ruby
-        // rb_scan_args(argc, argv, "12", &lines, &frame, &force);
+        IRubyObject[] args = Arity.scanArgs(rt, rawArgs, 1, 2);
+        
         IRubyObject lines = args[0];
         IRubyObject frame = args[1];
         IRubyObject force = args[2];
+        
         debugContext.setStopLine(RubyFixnum.fix2int(lines));
         debugContext.setStepped(false);
         if (frame.isNil()) {
             debugContext.setDestFrame(debugContext.getStackSize());
         } else {
-            int frameInt = Util.toInt(frame);
-            if (frameInt < 0 && frameInt >= debugContext.getStackSize()) {
-                rt.newRuntimeError("Destination frame is out of range.");
-            }
+            int frameInt = checkFrameNumber(debugContext, frame);
             debugContext.setDestFrame(debugContext.getStackSize() - frameInt);
         }
-        debugContext.setForceMove(Util.toBoolean(force));
+        debugContext.setForceMove(force.isTrue());
         return rt.getNil();
     }
 
