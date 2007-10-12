@@ -608,7 +608,9 @@ filename_cmp(VALUE source, char *file)
 inline static int
 classname_cmp(VALUE name, VALUE klass)
 {
-    return (klass != Qnil && rb_str_cmp(name, rb_mod_name(klass)) == 0);
+    VALUE class_name = (Qnil == name) ? rb_str_new2("main") : name;
+    return (klass != Qnil 
+	    && rb_str_cmp(class_name, rb_mod_name(klass)) == 0);
 }
 
 static int
