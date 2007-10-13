@@ -33,10 +33,10 @@ def make_jar
   require 'fileutils'
   lib = File.join(File.dirname(__FILE__), 'lib')
   FileUtils.mkdir(lib) unless File.exists? lib
-  sh "jar cf pkg/ruby_debug_base.jar -C pkg/classes/ ."
+  sh "jar cf lib/ruby_debug_base.jar -C pkg/classes/ ."
 end
 
-file 'pkg/ruby_debug_base.jar' => FileList["java/src/*.java"] do
+file 'lib/ruby_debug_base.jar' => FileList["java/src/*.java"] do
   compile_java
   make_jar
 end
@@ -47,7 +47,7 @@ spec = Gem::Specification.new do |s|
   s.name     = GEM_NAME
   s.version  = GEM_VERSION
   s.require_path = 'lib'
-  s.files    = FileList['Rakefile', 'README', 'pkg/ruby_debug_base.jar', 'lib/ruby-debug-base.rb']
+  s.files    = FileList['Rakefile', 'README', 'lib/ruby_debug_base.jar', 'lib/ruby-debug-base.rb']
   s.description = "Java extension to make fast ruby debugger run on JRuby"
   s.author   = 'debug-commons team'
   s.homepage = 'http://rubyforge.org/projects/debug-commons/'
