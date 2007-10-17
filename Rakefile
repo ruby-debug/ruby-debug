@@ -73,6 +73,6 @@ task :uninstall_gem do
 end
 
 desc "Create the Java extension."
-task :compile => ['pkg/ruby_debug_base.jar']
+task :compile => ['lib/ruby_debug_base.jar']
 task :gem => [:compile]
 task :install_gem => [:gem]
