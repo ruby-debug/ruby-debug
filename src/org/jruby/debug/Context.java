@@ -89,7 +89,30 @@ public class Context extends RubyObject {
     }
 
     public IRubyObject stop_reason(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        Ruby rt = getRuntime();
+        checkStarted();
+        DebugContext debugContext = debugContext();
+
+        String symName;
+        switch(debugContext.getStopReason()) {
+            case STEP:
+                symName = "step";
+                break;
+            case BREAKPOINT:
+                symName = "breakpoint";
+                break;
+            case CATCHPOINT:
+                symName = "catchpoint";
+                break;
+            case NONE:
+            default:
+                symName = "none";
+        }
+        // FIXME
+//        if(CTX_FL_TEST(debug_context, CTX_FL_DEAD))
+//            sym_name = "post-mortem";
+        
+        return rt.newSymbol(symName);
     }
 
     public IRubyObject suspend(Block block) {
