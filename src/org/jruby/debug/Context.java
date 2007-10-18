@@ -120,7 +120,8 @@ public class Context extends RubyObject {
     }
 
     public IRubyObject suspended_p(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        checkStarted();
+        return getRuntime().newBoolean(debugContext().isSuspended());
     }
 
     public IRubyObject resume(Block block) {
