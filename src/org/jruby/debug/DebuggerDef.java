@@ -131,8 +131,6 @@ public final class DebuggerDef {
      * </p>
      */
     public static IRubyObject start(IRubyObject recv, Block block) {
-        System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-        System.err.println("MK>  Debugger.def starting");
         return debugger().start(recv, block);
     }
 
@@ -216,7 +214,7 @@ public final class DebuggerDef {
     }
 
     public static IRubyObject debug_at_exit(IRubyObject recv, Block block) {
-        System.err.println("MK> IMPLEMENT ME: DebuggerDef.debug_at_exit()");
+        System.err.println("FIXME> IMPLEMENT ME: DebuggerDef.debug_at_exit()");
         return Util.nil(recv);
     }
 

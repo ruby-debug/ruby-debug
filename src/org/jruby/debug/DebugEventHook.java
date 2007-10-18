@@ -232,7 +232,7 @@ final class DebugEventHook implements EventHook {
 //                setFrameSource(event, debugContext, tCtx, file, line, methodName);
 //
 //                if (debugger.isPostMortem() && tCtx != null) {
-//                    System.err.println("MK> IMPLEMENT ME: postMorten in DebugEventHook");
+//                    System.err.println("FIXME> IMPLEMENT ME: postMorten in DebugEventHook");
 ////                    binding = createBinding(tCtx);
 ////                    rbIvarSet(rubyErrinfo, rbIntern("@_DebugFile"), rbStrNew2(file));
 ////                    rbIvarSet(rubyErrinfo, rbIntern("@_DebugLine"), INT2FIX(line));
@@ -302,7 +302,6 @@ final class DebugEventHook implements EventHook {
 
 
     public boolean isInterestedInEvent(int event) {
-        //        java.util.logging.Logger.getLogger("MK>").info(" " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
         return true;
     }
 
@@ -311,11 +310,11 @@ final class DebugEventHook implements EventHook {
     }
 
     private void dumpEvent(int event, String file, int line, String name, IRubyObject klass) {
-        System.out.println("MK> event: \"" + EVENT_NAMES[event] + '\"');
-        System.out.println("MK>   file: \"" + file + '\"');
-        System.out.println("MK>   line: \"" + line + '\"');
-        System.out.println("MK>   name: \"" + name + '\"');
-        System.out.println("MK>   klass: \"" + klass + '\"');
+        System.out.println("DEBUG> event: \"" + EVENT_NAMES[event] + '\"');
+        System.out.println("DEBUG>   file: \"" + file + '\"');
+        System.out.println("DEBUG>   line: \"" + line + '\"');
+        System.out.println("DEBUG>   name: \"" + name + '\"');
+        System.out.println("DEBUG>   klass: \"" + klass + '\"');
     }
 
     private void saveCallFrame(final int event, final ThreadContext tCtx, final String file,
@@ -490,10 +489,7 @@ final class DebugEventHook implements EventHook {
     }
 
     private boolean checkBreakpointHitCondition(IRubyObject breakpoint) {
-        /*
-        System.err.println("MK> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-        System.err.println("MK>   IMPLEMENT ME");
-        */
+        // FIXME: implement
         return true;
     }
 
