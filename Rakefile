@@ -8,6 +8,8 @@ require 'rake/rdoctask'
 GEM_NAME='ruby-debug-base'
 GEM_VERSION='0.9.3'
 
+CLEAN.include('lib/ruby_debug_base.jar')
+
 task :default => :package
 
 def java_classpath_arg
