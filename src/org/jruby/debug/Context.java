@@ -136,7 +136,8 @@ public class Context extends RubyObject {
     }
 
     public IRubyObject ignored_p(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        checkStarted();
+        return getRuntime().newBoolean(debugContext().isIgnored());
     }
 
     public IRubyObject frame_args(IRubyObject frameNo, Block block) {
