@@ -533,7 +533,6 @@ final class DebugEventHook implements EventHook {
     @SuppressWarnings("unchecked")
     private void checkThreadContexts() {
         Map<RubyThread, IRubyObject> threadsTable = (Map<RubyThread, IRubyObject>) debugger.getThreadsTbl().dataGetStruct();
-        threadsTable.remove(locker);
         for (Iterator<Map.Entry<RubyThread, IRubyObject>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
             Map.Entry<RubyThread, IRubyObject> entry = it.next();
             if (runtime.getFalse().eql(entry.getKey().alive_p())) {
