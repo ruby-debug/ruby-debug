@@ -116,28 +116,70 @@ public class Context extends RubyObject {
     }
 
     public IRubyObject suspend(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        checkStarted();
+    
+        DebugContext debugContext = debugContext();
+        
+        if (debugContext.isSuspended()) {
+            throw getRuntime().newRuntimeError("Already suspended.");
+        }
+        
+        String status = debugContext.getThread().status().toString();
+        if (status.equals("run") || status.equals("sleeping")) {
+            debugContext.setWasRunning(true);
+        } else {
+            return getRuntime().getNil();
+        }
+        
+        debugContext.setSuspended(true);
+        
+        return getRuntime().getNil();
     }
 
     public IRubyObject suspended_p(Block block) {
         checkStarted();
+        
         return getRuntime().newBoolean(debugContext().isSuspended());
     }
 
     public IRubyObject resume(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        checkStarted();
+        
+        DebugContext debugContext = debugContext();
+        
+        if (! debugContext.isSuspended()) {
+            throw getRuntime().newRuntimeError("Thread is not suspended.");
+        }
+        
+        debugContext.setSuspended(false);
+        if (debugContext.isWasRunning()) {
+            debugContext.getThread().wakeup();
+        }
+        
+        return getRuntime().getNil();
     }
 
     public IRubyObject tracing(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        checkStarted();
+        
+        DebugContext debugContext = debugContext();
+
+        return getRuntime().newBoolean(debugContext.isTracing());
     }
 
     public IRubyObject tracing_set(IRubyObject tracing, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        checkStarted();
+        
+        DebugContext debugContext = debugContext();
+        
+        debugContext.setTracing(tracing.isTrue());
+        
+        return tracing;
     }
 
     public IRubyObject ignored_p(Block block) {
         checkStarted();
+        
         return getRuntime().newBoolean(debugContext().isIgnored());
     }
 
@@ -269,7 +311,7 @@ public class Context extends RubyObject {
     }
 
     private IRubyObject contextCopyLocals(final DebugFrame debugFrame) {
-    	RubyHash locals = RubyHash.newHash(getRuntime());
+        RubyHash locals = RubyHash.newHash(getRuntime());
         DynamicScope scope = debugFrame.getInfo().getDynaVars();
         if (scope != null) {
             scope = scope.getBindingScope();

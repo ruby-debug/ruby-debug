@@ -14,7 +14,7 @@ public class Breakpoint extends RubyObject {
     }
 
     DebugBreakpoint debuggerBreakpoint() {
-        return (DebugBreakpoint) dataGetStruct();
+        return (DebugBreakpoint)dataGetStruct();
     }
 
     public RubyFixnum id(Block block) {
@@ -38,8 +38,7 @@ public class Breakpoint extends RubyObject {
     }
 
     public IRubyObject expr(Block block) {
-        // FIXME: implement
-        return getRuntime().getNil();
+        return debuggerBreakpoint().getExpr();
     }
 
     public IRubyObject expr_set(IRubyObject expr, Block block) {
@@ -47,7 +46,7 @@ public class Breakpoint extends RubyObject {
     }
 
     public IRubyObject hit_count(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return getRuntime().newFixnum(debuggerBreakpoint().getHitCount());
     }
 
     public IRubyObject hit_value(Block block) {

@@ -13,12 +13,11 @@ import org.jruby.RubyThread;
 import org.jruby.debug.DebugBreakpoint.Type;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
-import org.jruby.runtime.EventHook;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class Debugger {
 
-    private EventHook debugEventHook;
+    private DebugEventHook debugEventHook;
     
     private IRubyObject threadsTbl; // RubyThread.id() -> DebugContext
     private IRubyObject breakpoints;
@@ -30,7 +29,7 @@ final class Debugger {
     private boolean trackFrameArgs;
 
     private IRubyObject lastContext;
-    private IRubyObject lastThread ;
+    private IRubyObject lastThread;
 
     private boolean started;
     private int startCount;
@@ -280,7 +279,7 @@ final class Debugger {
         for (Map.Entry<RubyThread, IRubyObject> entry : threadsTable.entrySet()) {
             IRubyObject context = entry.getValue();
             DebugContext debugContext = (DebugContext) context.dataGetStruct();
-            if (debugContext.getThread() == lastThread) {
+            if (debugContext.getThnum() == debugEventHook.getLastDebuggedThnum()) {
                 result = context;
                 break;
             }

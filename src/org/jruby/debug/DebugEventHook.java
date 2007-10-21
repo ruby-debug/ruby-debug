@@ -1,9 +1,7 @@
 package org.jruby.debug;
 
 import java.io.File;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 
 import org.jruby.MetaClass;
@@ -28,68 +26,68 @@ final class DebugEventHook implements EventHook {
     private final Ruby runtime;
     
     private int hookCount;
-    private List<RubyThread> lockedThreads;
-    private IRubyObject locker;
     private int lastDebuggedThnum;
     private int lastCheck;
+    
+    private boolean inDebugger;
 
     public DebugEventHook(final Debugger debugger, final Ruby runtime) {
         this.debugger = debugger;
-        this.lockedThreads = new ArrayList<RubyThread>();
         lastDebuggedThnum = -1;
         this.runtime = runtime;
-        locker = getNil();
     }
 
     @SuppressWarnings("fallthrough")
     public void event(final ThreadContext tCtx, final int event, final String file, final int line0,
             final String methodName, final IRubyObject klass) {
+        boolean needsSuspend = false;
+        
+        RubyThread currThread;
+        DebugContextPair contexts;
+        
+        currThread = tCtx.getThread();
+        contexts = debugger.threadContextLookup(currThread, true);
+        
+        // return if thread is marked as 'ignored'. debugger's threads are marked this way
+        if (contexts.debugContext.isIgnored()) {
+            return;
+        }
+
+        /* ignore a skipped section of code */
+        if (contexts.debugContext.isSkipped()) {
+            cleanUp(contexts.debugContext);
+            return;
+        }
+        
+        needsSuspend = contexts.debugContext.isSuspended();
+        
+        if (needsSuspend) {
+            RubyThread.stop(currThread);
+        }
+        
+        synchronized (this) {
+            if (isInDebugger()) {
+                return;
+            }
+            setInDebugger(true);
+            try {
+                processEvent(tCtx, event, file, line0, methodName, klass, contexts);
+            } finally {
+                setInDebugger(false);
+            }
+        }
+    }
+
+    private void processEvent(final ThreadContext tCtx, final int event, final String file, final int line0, 
+            final String methodName, final IRubyObject klass, DebugContextPair contexts) { 
         // one-based; jruby by default passes zero-based
         int line = line0 + 1;
         hookCount++;
-        RubyThread currThread = tCtx.getThread();
         Ruby runtime = tCtx.getRuntime();
         IRubyObject breakpoint = getNil();
         IRubyObject binding = getNil();
-        DebugContextPair contexts = debugger.threadContextLookup(currThread, true);
         IRubyObject context = contexts.context;
         DebugContext debugContext = contexts.debugContext;
-
-        // return if thread is marked as 'ignored'. debugger's threads are marked this way
-        if (debugContext.isIgnored()) {
-            return;
-        }
-        while (true) {
-            // halt execution of the current thread if the debugger is activated
-            // in another
-            // TODO: the below used in the C
-//            while (!locker.isNil() && locker != currThread) {
-//                lockedThreads.add(currThread);
-//                RubyThread.stop(klass);
-//            }
-
-            /* stop the current thread if it's marked as suspended */
-            if (debugContext.isSuspended() && locker != currThread) {
-                debugContext.setWasRunning(true);
-                RubyThread.stop(klass);
-            } else {
-                break;
-            }
-        }
-
-        /* return if the current thread is the locker */
-        if (!locker.isNil()) {
-            return;
-        }
-
-        /* only the current thread can proceed */
-        locker = currThread;
-
-        /* ignore a skipped section of code */
-        if (debugContext.isSkipped()) {
-            cleanUp(debugContext);
-            return;
-        }
 
 //        debug("jrubydebug> %s:%d [%s] %s\n", file, line, EVENT_NAMES[event], methodName);
 
@@ -288,23 +286,13 @@ final class DebugEventHook implements EventHook {
             checkThreadContexts();
             lastCheck = hookCount;
         }
-
-        /* release a lock */
-        locker = getNil();
-        /* let the next thread to run */
-        if (!lockedThreads.isEmpty()) {
-            RubyThread currThread = lockedThreads.remove(0);
-            if (!currThread.isNil()) {
-                currThread.run();
-            }
-        }
     }
-
 
     public boolean isInterestedInEvent(int event) {
         return true;
     }
 
+    /*
     private void debug(final String format, final Object... args) {
         System.err.printf(format, args);
     }
@@ -316,6 +304,7 @@ final class DebugEventHook implements EventHook {
         System.out.println("DEBUG>   name: \"" + name + '\"');
         System.out.println("DEBUG>   klass: \"" + klass + '\"');
     }
+    */
 
     private void saveCallFrame(final int event, final ThreadContext tCtx, final String file,
             final int line, final String methodName, final DebugContext debugContext) {
@@ -419,8 +408,6 @@ final class DebugEventHook implements EventHook {
         if (debugBreakpoint.getPos().getLine() != line) {
             return false;
         }
-        Ruby rt = breakpoint.getRuntime();
-//        String source = new File(debugBreakpoint.getSource()).getName();
         String source = ((RubyString) debugBreakpoint.getSource()).toString();
         String sourceName = new File(source).getName();
         String fileName = new File(file).getName();
@@ -563,5 +550,17 @@ final class DebugEventHook implements EventHook {
         if (topFrame != null) {
             topFrame.setMethodName("");
         }
+    }
+
+    private boolean isInDebugger() {
+        return inDebugger;
+    }
+
+    private void setInDebugger(boolean inDebugger) {
+        this.inDebugger = inDebugger;
+    }
+    
+    int getLastDebuggedThnum() {
+    	return lastDebuggedThnum;
     }
 }

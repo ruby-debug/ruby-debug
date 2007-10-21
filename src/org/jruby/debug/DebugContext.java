@@ -209,14 +209,6 @@ final class DebugContext {
         this.thnum = thnum;
     }
 
-    static int getThnumMax() {
-        return thnumMax;
-    }
-
-    static void setThnumMax(int thnumMax) {
-        DebugContext.thnumMax = thnumMax;
-    }
-
     boolean isTracing() {
         return tracing;
     }
