@@ -25,7 +25,7 @@ public class Context extends RubyObject {
         return (DebugContext) dataGetStruct();
     }
 
-    @JRubyMethod(name="stop_next=", name2="step", required=1, optional=1)
+    @JRubyMethod(name={"stop_next=","step"}, required=1, optional=1)
     public IRubyObject stop_next_set(IRubyObject[] args, Block block) {
         Ruby rt = getRuntime();
         checkStarted();
@@ -209,7 +209,7 @@ public class Context extends RubyObject {
         return getFrame(frameNo).getBinding();
     }
     
-    @JRubyMethod(name="frame_id", name2="frame_method", required=1)
+    @JRubyMethod(name={"frame_id", "frame_method"}, required=1)
     public IRubyObject frame_method(IRubyObject frameNo, Block block) {
         debugger.checkStarted(getRuntime());
         String methodName = getFrame(frameNo).getMethodName();
@@ -335,7 +335,10 @@ public class Context extends RubyObject {
         RubyHash locals = RubyHash.newHash(getRuntime());
         DynamicScope scope = debugFrame.getInfo().getDynaVars();
         if (scope != null) {
-            scope = scope.getBindingScope();
+            DynamicScope bindingScope = scope.getBindingScope();
+            if (bindingScope != null) {
+                scope = bindingScope;
+            }
             while (scope != null) {
                 String[] variableNames = scope.getStaticScope().getVariables();
                 if (variableNames != null) {
