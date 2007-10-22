@@ -6,6 +6,7 @@ import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
+import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.DynamicScope;
@@ -24,6 +25,7 @@ public class Context extends RubyObject {
         return (DebugContext) dataGetStruct();
     }
 
+    @JRubyMethod(name={"stop_next=", "step"}, required=1, optional=1)
     public IRubyObject stop_next_set(IRubyObject[] args, Block block) {
         Ruby rt = getRuntime();
         checkStarted();
@@ -45,10 +47,7 @@ public class Context extends RubyObject {
         return steps;
     }
 
-    public IRubyObject step(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
-    }
-
+    @JRubyMethod(name="step_over", required=1, optional=2)
     public IRubyObject step_over(IRubyObject[] rawArgs, Block block) {
         Ruby rt = getRuntime();
         checkStarted();
@@ -75,19 +74,23 @@ public class Context extends RubyObject {
         return rt.getNil();
     }
 
+    @JRubyMethod(name="stop_frame=", required=1)
     public IRubyObject stop_frame_set(IRubyObject frame, Block block) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
+    @JRubyMethod(name="thread")
     public IRubyObject thread(Block block) {
         checkStarted();
         return debugContext().getThread();
     }
 
+    @JRubyMethod(name="thnum")
     public IRubyObject thnum(Block block) {
         return RubyFixnum.newFixnum(getRuntime(), debugContext().getThnum());
     }
 
+    @JRubyMethod(name="stop_reason")
     public IRubyObject stop_reason(Block block) {
         Ruby rt = getRuntime();
         checkStarted();
@@ -115,6 +118,7 @@ public class Context extends RubyObject {
         return rt.newSymbol(symName);
     }
 
+    @JRubyMethod(name="suspend")
     public IRubyObject suspend(Block block) {
         checkStarted();
     
@@ -136,12 +140,14 @@ public class Context extends RubyObject {
         return getRuntime().getNil();
     }
 
+    @JRubyMethod(name="suspended?")
     public IRubyObject suspended_p(Block block) {
         checkStarted();
         
         return getRuntime().newBoolean(debugContext().isSuspended());
     }
 
+    @JRubyMethod(name="resume")
     public IRubyObject resume(Block block) {
         checkStarted();
         
@@ -159,6 +165,7 @@ public class Context extends RubyObject {
         return getRuntime().getNil();
     }
 
+    @JRubyMethod(name="tracing")
     public IRubyObject tracing(Block block) {
         checkStarted();
         
@@ -167,6 +174,7 @@ public class Context extends RubyObject {
         return getRuntime().newBoolean(debugContext.isTracing());
     }
 
+    @JRubyMethod(name="tracing=", required=1)
     public IRubyObject tracing_set(IRubyObject tracing, Block block) {
         checkStarted();
         
@@ -177,12 +185,14 @@ public class Context extends RubyObject {
         return tracing;
     }
 
+    @JRubyMethod(name="ignored?")
     public IRubyObject ignored_p(Block block) {
         checkStarted();
         
         return getRuntime().newBoolean(debugContext().isIgnored());
     }
 
+    @JRubyMethod(name="frame_args", required=1)
     public IRubyObject frame_args(IRubyObject frameNo, Block block) {
         checkStarted();
         DebugFrame frame = getFrame(frameNo);
@@ -193,25 +203,30 @@ public class Context extends RubyObject {
         }
      }
 
+    @JRubyMethod(name="frame_binding", required=1)
     public IRubyObject frame_binding(IRubyObject frameNo, Block block) {
         checkStarted();
         return getFrame(frameNo).getBinding();
     }
     
+    @JRubyMethod(name={"frame_id", "frame_method"}, required=1)
     public IRubyObject frame_method(IRubyObject frameNo, Block block) {
         debugger.checkStarted(getRuntime());
         String methodName = getFrame(frameNo).getMethodName();
         return methodName == null ? getRuntime().getNil() : getRuntime().newSymbol(methodName);
     }
 
+    @JRubyMethod(name="frame_line", required=1)
     public IRubyObject frame_line(IRubyObject frameNo, Block block) {
         return getRuntime().newFixnum(getFrame(frameNo).getLine());
     }
 
+    @JRubyMethod(name="frame_file", required=1)
     public IRubyObject frame_file(IRubyObject frameNo, Block block) {
         return getRuntime().newString(getFrame(frameNo).getFile());
     }
 
+    @JRubyMethod(name="frame_locals", required=1)
     public IRubyObject frame_locals(IRubyObject frameNo, Block block) {
         checkStarted();
         DebugFrame frame = getFrame(frameNo);
@@ -222,11 +237,13 @@ public class Context extends RubyObject {
         }
     }
 
+    @JRubyMethod(name="frame_self", required=1)
     public IRubyObject frame_self(IRubyObject frameNo, Block block) {
         checkStarted();
         return getFrame(frameNo).getSelf();
     }
 
+    @JRubyMethod(name="frame_class", required=1)
     public IRubyObject frame_class(IRubyObject frameNo, Block block) {
         debugger.checkStarted(getRuntime());
         DebugFrame frame = getFrame(frameNo);
@@ -237,20 +254,24 @@ public class Context extends RubyObject {
         return frame.getInfo().getFrame().getKlazz();
     }
 
+    @JRubyMethod(name="stack_size")
     public IRubyObject stack_size(Block block) {
         debugger.checkStarted(getRuntime());
         return getRuntime().newFixnum(debugContext().getStackSize());
     }
 
+    @JRubyMethod(name="dead?")
     public IRubyObject dead_p(Block block) {
         debugger.checkStarted(getRuntime());
         return Util.toRBoolean(this, debugContext().isDead());
     }
 
+    @JRubyMethod(name="breakpoint")
     public IRubyObject breakpoint(Block block) {
         throw new UnsupportedOperationException("not implemented yet");
     }
 
+    @JRubyMethod(name="set_breakpoint", required=2, optional=1)
     public IRubyObject set_breakpoint(IRubyObject[] args, Block block) {
         throw new UnsupportedOperationException("not implemented yet");
     }

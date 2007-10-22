@@ -4,6 +4,7 @@ import java.io.IOException;
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyThread;
+import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.Library;
@@ -42,8 +43,9 @@ public final class RubyDebugBaseLibrary implements Library {
             super(runtime, type);
         }
         
+        @JRubyMethod(name="inherited", required=1, meta=true)
         public static IRubyObject inherited(IRubyObject recv, IRubyObject clazz, Block block) {
-            throw new UnsupportedOperationException("not implemented yet");
+            throw recv.getRuntime().newRuntimeError("Can't inherite Debugger::DebugThread class");
         }
     }
     
