@@ -154,7 +154,7 @@ final class Debugger {
     private IRubyObject debugContextCreate(RubyThread thread) {
         DebugContext debugContext = new DebugContext(thread);
         // if (thread.getType() == thread.getRuntime().getClass(DebuggerDef.DEBUG_THREAD_NAME)) {
-        if (thread.getType().getName().equals("Debugger::" + DebuggerDef.DEBUG_THREAD_NAME)) {
+        if (thread.getType().getName().equals("Debugger::" + RubyDebugger.DEBUG_THREAD_NAME)) {
             debugContext.setIgnored(true);
         }
         RubyClass cContext = thread.getRuntime().getModule("Debugger").getClass("Context");

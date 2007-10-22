@@ -35,7 +35,7 @@ public final class RubyDebugBaseLibrary implements Library {
     public static final int HIT_COND_MOD = 3;
 
     public void load(Ruby runtime) throws IOException {
-        DebuggerDef.createDebuggerModule(runtime);
+        RubyDebugger.createDebuggerModule(runtime);
     }
     
     public static class DebugThread extends RubyThread {

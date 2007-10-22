@@ -9,7 +9,7 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.builtin.IRubyObject;
 
-public final class DebuggerDef {
+public final class RubyDebugger {
 
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
@@ -23,7 +23,7 @@ public final class DebuggerDef {
         RubyModule debuggerMod = runtime.defineModule("Debugger");
         
         debuggerMod.defineConstant("VERSION", runtime.newString(VERSION));
-        debuggerMod.defineAnnotatedMethods(DebuggerDef.class);
+        debuggerMod.defineAnnotatedMethods(RubyDebugger.class);
 
         /* Debugger::ThreadsTable */
         /* RubyClass threadsTable = */ debuggerMod.defineClassUnder("ThreadsTable", runtime.getObject(), runtime.getObject().getAllocator());
@@ -44,7 +44,7 @@ public final class DebuggerDef {
     }
     
     private static Debugger debugger() {
-        synchronized (DebuggerDef.class) {
+        synchronized (RubyDebugger.class) {
             if (debugger == null) {
                 debugger = new Debugger();
             }
