@@ -79,7 +79,7 @@ final class DebugEventHook implements EventHook {
     }
 
     private void processEvent(final ThreadContext tCtx, final int event, final String file, final int line0, 
-            final String methodName, final IRubyObject klass, DebugContextPair contexts) { 
+            final String methodName, final IRubyObject klass, DebugContextPair contexts) {
         // one-based; jruby by default passes zero-based
         int line = line0 + 1;
         hookCount++;
@@ -214,7 +214,8 @@ final class DebugEventHook implements EventHook {
                 while (debugContext.getStackSize() > 0) {
                     DebugFrame topFrame = debugContext.popFrame();
                     String origMethodName = topFrame.getOrigMethodName();
-                    if (origMethodName != null && origMethodName.equals(methodName)) {
+                    if ((origMethodName == null && methodName == null) ||
+                            (origMethodName != null && origMethodName.equals(methodName))) {
                         break;
                     }
                 }
@@ -225,7 +226,7 @@ final class DebugEventHook implements EventHook {
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 break;
             case RUBY_EVENT_RAISE:
-                throw new UnsupportedOperationException("not implemented yet");
+//                throw new UnsupportedOperationException("not implemented yet");
 
 //                setFrameSource(event, debugContext, tCtx, file, line, methodName);
 //
@@ -302,7 +303,7 @@ final class DebugEventHook implements EventHook {
         System.out.println("DEBUG>   file: \"" + file + '\"');
         System.out.println("DEBUG>   line: \"" + line + '\"');
         System.out.println("DEBUG>   name: \"" + name + '\"');
-        System.out.println("DEBUG>   klass: \"" + klass + '\"');
+//        System.out.println("DEBUG>   klass: \"" + klass + '\"');
     }
     */
 
