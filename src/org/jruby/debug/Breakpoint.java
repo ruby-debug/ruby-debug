@@ -49,10 +49,12 @@ public class Breakpoint extends RubyObject {
     public IRubyObject pos_set(IRubyObject pos, Block block) {
         DebugBreakpoint debugBreakpoint = debuggerBreakpoint();
         if (debugBreakpoint.getType() == DebugBreakpoint.Type.METHOD) {
-            return getRuntime().newString(debuggerBreakpoint().getPos().getMethodName());
+            debugBreakpoint.getPos().setMethodName(pos.convertToString().toString());
         } else {
-            return getRuntime().newFixnum(debuggerBreakpoint().getPos().getLine());    
+            debugBreakpoint.getPos().setLine(RubyNumeric.fix2int(pos));
         }
+        
+        return pos;
     }
 
     @JRubyMethod(name="expr")
