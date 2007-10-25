@@ -10,10 +10,6 @@ final class Util {
         return RubyBoolean.newBoolean(recv.getRuntime(), value);
     }
 
-    static boolean toBoolean(final IRubyObject bValue) {
-        return ((RubyBoolean) bValue).isTrue();
-    }
-    
     static int toInt(final IRubyObject iValue) {
         return RubyFixnum.fix2int(iValue);
     }

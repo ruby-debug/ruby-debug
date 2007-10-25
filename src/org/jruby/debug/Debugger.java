@@ -101,7 +101,7 @@ final class Debugger {
         start(recv, Block.NULL_BLOCK);
         IRubyObject context = getCurrentContext(recv);
         DebugContext debugContext = (DebugContext) context.dataGetStruct();
-        if (Util.toBoolean(stop)) {
+        if (stop.isTrue()) {
             debugContext.setStopNext(1);
         }
         rt.getLoadService().load(((RubyString) file).toString());

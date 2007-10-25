@@ -43,7 +43,7 @@ public class Context extends RubyObject {
 
         DebugContext debug_context = debugContext();
         debug_context.setStopNext(Util.toInt(steps));
-        debug_context.setForceMove(!force.isNil() && Util.toBoolean(force));
+        debug_context.setForceMove(!force.isNil() && force.isTrue());
         return steps;
     }
 
