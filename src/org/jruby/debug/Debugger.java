@@ -113,6 +113,12 @@ final class Debugger {
         RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
         return threadContextLookup(thread, false).context;
     }
+    
+    DebugContext getCurrentDebugContext(IRubyObject recv) {
+        checkStarted(recv.getRuntime());
+        RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
+        return threadContextLookup(thread, true).debugContext;
+    }
 
     DebugContextPair threadContextLookup(final RubyThread thread, final boolean wantDebugContext) {
         Ruby rt = thread.getRuntime();
@@ -286,6 +292,20 @@ final class Debugger {
         }
         return result;
     }
+    
+    IRubyObject skip(IRubyObject recv, Block block) {
+        if (! block.isGiven()) {
+            throw recv.getRuntime().newArgumentError("called without a block");
+        }
+        
+        DebugContext context = getCurrentDebugContext(recv);
+        try {
+            context.setSkipped(true);
+            return block.yield(recv.getRuntime().getCurrentContext(), recv.getRuntime().getNil());
+        } finally {
+            context.setSkipped(false);
+        }
+    }
 
     IRubyObject getThreadsTbl() {
         return threadsTbl;
@@ -321,5 +341,25 @@ final class Debugger {
 
     private void setLastContext(Ruby runtime, IRubyObject value) {
         lastContext = value;
+    }
+
+    void setTrackFrameArgs(boolean trackFrameArgs) {
+        this.trackFrameArgs = trackFrameArgs;
+    }
+    
+    IRubyObject getCatchpoint() {
+        return catchpoint;
+    }
+    
+    void setCatchpoint(IRubyObject recv, IRubyObject catchpoint) {
+        if (catchpoint.isNil()) {
+            this.catchpoint = catchpoint;
+        } else {
+            if (! catchpoint.isKindOf(recv.getRuntime().getString())) {
+                throw recv.getRuntime().newTypeError("value of checkpoint must be String");
+            }
+            
+            this.catchpoint = catchpoint.dup();
+        }
     }
 }

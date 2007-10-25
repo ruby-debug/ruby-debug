@@ -111,9 +111,10 @@ public class Context extends RubyObject {
             default:
                 symName = "none";
         }
-        // FIXME
-//        if(CTX_FL_TEST(debug_context, CTX_FL_DEAD))
-//            sym_name = "post-mortem";
+        
+        if (debugContext.isDead()) {
+            symName = "post-mortem";
+        }
         
         return rt.newSymbol(symName);
     }

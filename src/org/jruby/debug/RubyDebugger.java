@@ -103,12 +103,14 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="catchpoint", module=true)
     public static IRubyObject catchpoint(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return debugger().getCatchpoint();
     }
 
     @JRubyMethod(name="catchpoint=", module=true, required=1)
     public static IRubyObject catchpoint_set(IRubyObject recv, IRubyObject catchpoint, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        debugger().setCatchpoint(recv, catchpoint);
+        
+        return catchpoint;
     }
 
     @JRubyMethod(name="last_context", module=true)
@@ -128,7 +130,7 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="thread_context", module=true, required=1)
     public static IRubyObject thread_context(IRubyObject recv, IRubyObject context, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return debugger().getCurrentContext(recv);
     }
 
     @JRubyMethod(name="suspend", module=true)
@@ -143,24 +145,26 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="tracing", module=true)
     public static IRubyObject tracing(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return recv.getRuntime().newBoolean(debugger().isTracing());
     }
 
     @JRubyMethod(name="tracing=", module=true, required=1)
     public static IRubyObject tracing_set(IRubyObject recv, IRubyObject tracing, Block block) {
-        debugger().setTracing(Util.toBoolean(tracing));
-        return Util.nil(recv);
+        debugger().setTracing(tracing.isTrue());
+        
+        return tracing;
     }
     
     @JRubyMethod(name="debug_load", module=true, required=1, optional=1)
     public static IRubyObject debug_load(IRubyObject recv, IRubyObject[] args, Block block) {
         debugger().load(recv, args);
+        
         return Util.nil(recv);
     }
 
     @JRubyMethod(name="skip", module=true)
     public static IRubyObject skip(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return debugger().skip(recv, block);
     }
 
     @JRubyMethod(name="debug_at_exit", module=true)
@@ -176,30 +180,33 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="post_mortem=", module=true, required=1)
     public static IRubyObject post_mortem_set(IRubyObject recv, IRubyObject postMortem, Block block) {
-        debugger().setPostMortem(Util.toBoolean(postMortem));
-        return Util.nil(recv);
+        debugger().setPostMortem(postMortem.isTrue());
+        
+        return postMortem;
     }
 
     @JRubyMethod(name="keep_frame_binding?", module=true)
     public static IRubyObject keep_frame_binding_p(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return recv.getRuntime().newBoolean(debugger().isKeepFrameBinding());
     }
 
     @JRubyMethod(name="keep_frame_binding=", module=true, required=1)
     public static IRubyObject keep_frame_binding_set(IRubyObject recv, IRubyObject keepFrameBinding, Block block) {
-        debugger().setKeepFrameBinding(Util.toBoolean(keepFrameBinding));
-        return Util.nil(recv);
+        debugger().setKeepFrameBinding(keepFrameBinding.isTrue());
+        
+        return keepFrameBinding;
     }
     
     @JRubyMethod(name="track_frame_args?", module=true)
     public static IRubyObject track_frame_args_p(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        return recv.getRuntime().newBoolean(debugger().isTrackFrameArgs());
     }
 
     @JRubyMethod(name="track_frame_args=", module=true, required=1)
-    public static IRubyObject track_frame_args_set(IRubyObject recv, IRubyObject keepFrameBinding, Block block) {
-        debugger().setKeepFrameBinding(Util.toBoolean(keepFrameBinding));
-        return Util.nil(recv);
+    public static IRubyObject track_frame_args_set(IRubyObject recv, IRubyObject traceFrameArgs, Block block) {
+        debugger().setTrackFrameArgs(traceFrameArgs.isTrue());
+        
+        return traceFrameArgs;
     }    
 
     @JRubyMethod(name="debug", module=true)
@@ -209,8 +216,9 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="debug=", module=true, required=1)
     public static IRubyObject debug_set(IRubyObject recv, IRubyObject debug, Block block) {
-        debugger().setDebug(Util.toBoolean(debug));
-        return Util.nil(recv);
+        debugger().setDebug(debug.isTrue());
+        
+        return debug;
     }
 
     private static ObjectAllocator BREAKPOINT_ALLOCATOR = new ObjectAllocator() {
