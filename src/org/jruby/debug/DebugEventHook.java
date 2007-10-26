@@ -93,6 +93,7 @@ final class DebugEventHook implements EventHook {
             if (isInDebugger()) {
                 return;
             }
+            //dumpEvent(event, file, line0, methodName, klass);
             setInDebugger(true);
             try {
                 processEvent(tCtx, event, file, line0, methodName, klass, contexts);
@@ -501,8 +502,35 @@ final class DebugEventHook implements EventHook {
     }
 
     private boolean checkBreakpointHitCondition(IRubyObject breakpoint) {
-        // FIXME: implement
-        return true;
+        DebugBreakpoint debugBreakpoint = (DebugBreakpoint) breakpoint.dataGetStruct();
+        
+        debugBreakpoint.setHitCount(debugBreakpoint.getHitCount()+1);
+        
+        if (debugBreakpoint.getHitCondition() == null) {
+            return true;
+        }
+        
+        switch (debugBreakpoint.getHitCondition()) {
+        case NONE:
+            return true;
+        case GE:
+            if (debugBreakpoint.getHitCount() >= debugBreakpoint.getHitValue()) {
+                return true;
+            }
+            break;
+        case EQ:
+            if (debugBreakpoint.getHitCount() == debugBreakpoint.getHitValue()) {
+                return true;
+            }
+            break;
+        case MOD:
+            if (debugBreakpoint.getHitCount() % debugBreakpoint.getHitValue() == 0) {
+                return true;
+            }
+            break;
+        }
+        
+        return false;
     }
 
     private void saveTopBinding(DebugContext context, IRubyObject binding) {
