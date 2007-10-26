@@ -1,7 +1,6 @@
 /*
  * header & license
  * Copyright (c) 2007 Martin Krauskopf
- * Copyright (c) 2007 Peter Brant
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
