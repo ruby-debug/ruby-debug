@@ -25,8 +25,6 @@
 package org.jruby.debug;
 
 import java.io.File;
-import java.util.Iterator;
-import java.util.Map;
 
 import org.jruby.MetaClass;
 import org.jruby.Ruby;
@@ -309,7 +307,7 @@ final class DebugEventHook implements EventHook {
 
         /* check that all contexts point to alive threads */
         if(hookCount - lastCheck > 3000) {
-            checkThreadContexts();
+            debugger.checkThreadContexts(runtime);
             lastCheck = hookCount;
         }
     }
@@ -568,18 +566,6 @@ final class DebugEventHook implements EventHook {
         debugContext.setEnableBreakpoint(false);
         debugContext.setStepped(false);
         debugContext.setForceMove(false);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void checkThreadContexts() {
-        Map<RubyThread, IRubyObject> threadsTable = (Map<RubyThread, IRubyObject>) debugger.getThreadsTbl().dataGetStruct();
-        for (Iterator<Map.Entry<RubyThread, IRubyObject>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
-            Map.Entry<RubyThread, IRubyObject> entry = it.next();
-            if (runtime.getFalse().eql(entry.getKey().alive_p())) {
-                it.remove();
-            }
-        }
-
     }
 
     private boolean cCallNewFrameP(IRubyObject klass, String methodName) {
