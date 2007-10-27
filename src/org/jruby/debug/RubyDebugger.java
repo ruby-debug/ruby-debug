@@ -26,7 +26,9 @@ package org.jruby.debug;
 
 import org.jruby.Ruby;
 import org.jruby.RubyClass;
+import org.jruby.RubyKernel;
 import org.jruby.RubyModule;
+import org.jruby.RubyProc;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.debug.RubyDebugBaseLibrary.DebugThread;
 import org.jruby.runtime.Block;
@@ -197,8 +199,10 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="debug_at_exit", module=true)
     public static IRubyObject debug_at_exit(IRubyObject recv, Block block) {
-        System.err.println("FIXME> IMPLEMENT ME: DebuggerDef.debug_at_exit()");
-        return Util.nil(recv);
+        RubyProc proc = RubyKernel.proc(recv, block);
+        recv.getRuntime().pushExitBlock(proc);
+        
+        return proc;
     }
 
     @JRubyMethod(name="post_mortem?", module=true)
