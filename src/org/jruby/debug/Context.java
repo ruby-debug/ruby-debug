@@ -294,12 +294,19 @@ public class Context extends RubyObject {
 
     @JRubyMethod(name="breakpoint")
     public IRubyObject breakpoint(Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        debugger.checkStarted(getRuntime());
+        
+        return debugContext().getBreakpoint();
     }
 
     @JRubyMethod(name="set_breakpoint", required=2, optional=1)
     public IRubyObject set_breakpoint(IRubyObject[] args, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        debugger.checkStarted(getRuntime());
+        
+        IRubyObject breakpoint = debugger.createBreakpointFromArgs(this, args);
+        debugContext().setBreakpoint(breakpoint);
+        
+        return breakpoint;
     }
 
     private DebugFrame getFrame(final IRubyObject frameNo) {

@@ -268,6 +268,10 @@ final class Debugger {
         }
         return Util.nil(recv);
     }
+    
+    IRubyObject createBreakpointFromArgs(IRubyObject recv, IRubyObject[] args) {
+        return createBreakpointFromArgs(recv, args, ++bkp_count);
+    }
 
     private IRubyObject createBreakpointFromArgs(IRubyObject recv, IRubyObject[] args, int id) {
         Ruby rt = recv.getRuntime();
