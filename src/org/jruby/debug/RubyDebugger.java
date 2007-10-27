@@ -159,12 +159,16 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="suspend", module=true)
     public static IRubyObject suspend(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        debugger().suspend(recv);
+        
+        return recv;
     }
 
     @JRubyMethod(name="resume", module=true)
     public static IRubyObject resume(IRubyObject recv, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+        debugger().resume(recv);
+        
+        return recv;
     }
 
     @JRubyMethod(name="tracing", module=true)

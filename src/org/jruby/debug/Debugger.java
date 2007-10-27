@@ -206,13 +206,14 @@ final class Debugger {
         RubyArray newList = rt.newArray();
         RubyArray list = RubyThread.list(self);
 
-        for (int i = 0; i < list.size(); i++) {
-            RubyThread thread = (RubyThread) list.entry(i);
-            IRubyObject context = threadContextLookup(thread, false).context;
-            newList.add(context);
-        }
-        Map<RubyThread, IRubyObject> threadsTable = this.threadsTable;
+        
         synchronized (threadsTable) {
+            for (int i = 0; i < list.size(); i++) {
+                RubyThread thread = (RubyThread) list.entry(i);
+                IRubyObject context = threadContextLookup(thread, false).context;
+                newList.add(context);
+            }
+            Map<RubyThread, IRubyObject> threadsTable = this.threadsTable;
             for (int i = 0; i < newList.size(); i++) {
                 IRubyObject context = newList.entry(i);
                 DebugContext debugContext = (DebugContext) context.dataGetStruct();
@@ -222,6 +223,50 @@ final class Debugger {
 
         return newList;
     }
+    
+    void suspend(IRubyObject recv) {
+        RubyArray contexts; 
+        Context current;   
+        
+        synchronized (threadsTable) {
+            contexts = (RubyArray)getDebugContexts(recv);
+            current = (Context)threadContextLookup(
+                    recv.getRuntime().getCurrentContext().getThread(),
+                    false).context;
+        }
+        
+        int len = contexts.getLength();
+        for (int i = 0; i < len; i++) {
+            Context context = (Context)contexts.get(i);
+            if (context == current) {
+                continue;
+            }
+            
+            context.suspend0();
+        }
+    }
+    
+    void resume(IRubyObject recv) {
+        RubyArray contexts; 
+        Context current;   
+        
+        synchronized (threadsTable) {
+            contexts = (RubyArray)getDebugContexts(recv);
+            current = (Context)threadContextLookup(
+                    recv.getRuntime().getCurrentContext().getThread(),
+                    false).context;
+        }
+        
+        int len = contexts.getLength();
+        for (int i = 0; i < len; i++) {
+            Context context = (Context)contexts.get(i);
+            if (context == current) {
+                continue;
+            }
+            
+            context.resume0();
+        }
+    }    
 
     boolean isStarted() {
         return started;

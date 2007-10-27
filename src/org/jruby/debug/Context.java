@@ -157,23 +157,27 @@ public class Context extends RubyObject {
     @JRubyMethod(name="suspend")
     public IRubyObject suspend(Block block) {
         checkStarted();
-    
-        DebugContext debugContext = debugContext();
         
+        DebugContext debugContext = debugContext();
         if (debugContext.isSuspended()) {
             throw getRuntime().newRuntimeError("Already suspended.");
         }
-        
-        String status = debugContext.getThread().status().toString();
-        if (status.equals("run") || status.equals("sleeping")) {
-            debugContext.setWasRunning(true);
-        } else {
-            return getRuntime().getNil();
-        }
-        
-        debugContext.setSuspended(true);
+    
+        suspend0(); 
         
         return getRuntime().getNil();
+    }
+
+    protected void suspend0() {
+        DebugContext debugContext = debugContext();
+        
+        String status = debugContext.getThread().status().toString();
+        if (status.equals("run") || status.equals("sleep")) {
+            synchronized (this) {
+                debugContext.setWasRunning(true);
+                debugContext.setSuspended(true);
+            }
+        }
     }
 
     @JRubyMethod(name="suspended?")
@@ -193,12 +197,21 @@ public class Context extends RubyObject {
             throw getRuntime().newRuntimeError("Thread is not suspended.");
         }
         
-        debugContext.setSuspended(false);
+        resume0();
+        
+        return getRuntime().getNil();
+    }
+
+    void resume0() {
+        DebugContext debugContext = debugContext();
+
+        synchronized (this) {
+            debugContext.setSuspended(false);
+        }
+        
         if (debugContext.isWasRunning()) {
             debugContext.getThread().wakeup();
         }
-        
-        return getRuntime().getNil();
     }
 
     @JRubyMethod(name="tracing")
