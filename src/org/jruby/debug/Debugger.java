@@ -47,6 +47,7 @@ final class Debugger {
     
     private IRubyObject breakpoints;
     private IRubyObject catchpoint;
+    private String catchpointAsString;
     private boolean tracing;
     private boolean postMortem;
     private boolean keepFrameBinding;
@@ -80,6 +81,7 @@ final class Debugger {
             debug = false;
             trackFrameArgs = false;
             catchpoint = nil;
+            catchpointAsString = null;
             debugEventHook = new DebugEventHook(this, runtime);
             breakpoints = runtime.newArray();
             threadsTable = new IdentityHashMap<RubyThread, IRubyObject>();
@@ -109,6 +111,8 @@ final class Debugger {
         debugEventHook = null;
         started = false;
         threadsTable = null;
+        catchpoint = null;
+        catchpointAsString = null;
         return true;
     }
 
@@ -388,6 +392,10 @@ final class Debugger {
         return catchpoint;
     }
     
+    String getCatchpointAsString() {
+        return catchpointAsString;
+    }
+    
     void setCatchpoint(IRubyObject recv, IRubyObject catchpoint) {
         if (catchpoint.isNil()) {
             this.catchpoint = catchpoint;
@@ -397,6 +405,7 @@ final class Debugger {
             }
             
             this.catchpoint = catchpoint.dup();
+            this.catchpointAsString = catchpoint.toString();
         }
     }
 }

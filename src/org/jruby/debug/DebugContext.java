@@ -32,6 +32,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 final class DebugContext {
 
     static final String AT_BREAKPOINT = "at_breakpoint";
+    static final String AT_CATCHPOINT = "at_catchpoint";
     static final String AT_LINE = "at_line";
     static final String AT_TRACING = "at_tracing";
     static final String LIST = "list";

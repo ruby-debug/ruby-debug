@@ -30,7 +30,9 @@ import org.jruby.MetaClass;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBinding;
+import org.jruby.RubyException;
 import org.jruby.RubyKernel;
+import org.jruby.RubyModule;
 import org.jruby.RubyString;
 import org.jruby.RubyThread;
 import org.jruby.debug.DebugContext.StopReason;
@@ -249,47 +251,48 @@ final class DebugEventHook implements EventHook {
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 break;
             case RUBY_EVENT_RAISE:
-//                throw new UnsupportedOperationException("not implemented yet");
-
-//                setFrameSource(event, debugContext, tCtx, file, line, methodName);
-//
-//                if (debugger.isPostMortem() && tCtx != null) {
-//                    System.err.println("FIXME> IMPLEMENT ME: postMorten in DebugEventHook");
-////                    binding = createBinding(tCtx);
-////                    rbIvarSet(rubyErrinfo, rbIntern("@_DebugFile"), rbStrNew2(file));
-////                    rbIvarSet(rubyErrinfo, rbIntern("@_DebugLine"), INT2FIX(line));
-////                    rbIvarSet(rubyErrinfo, rbIntern("@_DebugBinding"), binding);
-////                    rbIvarSet(rubyErrinfo, rbIntern("@_DebugContext"), debugContextDup(debugContext));
-//                }
-//
-//                IRubyObject expnClass = rbObjClass(rubyErrinfo);
-//                if( !NIL_P(rbClassInheritedP(expnClass, rbESystemExit)) )
-//                {
-//                    debugStop(mDebugger);
-//                    break;
-//                }
-//
-//                if(catchpoint == Qnil)
-//                    break;
-//
-//                IRubyObject ancestors = rbModAncestors(expnClass);
-//                IRubyObject aclass;
-//                for(int i = 0; i < RARRAY(ancestors).getLen(); i++)
-//                {
-//                    aclass = rbAryEntry(ancestors, i);
-//                    if(rbStrCmp(rbModName(aclass), catchpoint) == 0)
-//                    {
-//                        debugContext.getStopReason() = CTX_STOP_CATCHPOINT;
-//                        rbFuncall(context, idAtCatchpoint, 1, rubyErrinfo);
-//                        if(tCtx && binding == Qnil)
-//                            binding = createBinding(tCtx);
-//                        saveTopBinding(debugContext, binding);
-//                        callAtLine(context, debugContext, rbStrNew2(file), INT2FIX(line));
-//                        break;
-//                    }
-//                }
-//
-//                break;
+                setFrameSource(event, debugContext, tCtx, file, line, methodName);
+                
+                // XXX Implement post mortem debugging
+                
+                RubyException exception = (RubyException)runtime.getGlobalVariables().get("$!");
+                if (exception.isKindOf(runtime.getClass("SystemExit"))) {
+                    // Can't do this because this unhooks the event hook causing
+                    // a ConcurrentModificationException because the runtime
+                    // is still iterating over event hooks.  Shouldn't really
+                    // matter.  We're on our way out regardless.
+                    
+                    // debugger.stop(runtime);
+                    break;
+                }
+                
+                if (debugger.getCatchpoint().isNil()) {
+                    break;
+                }
+                
+                RubyArray ancestors = exception.getType().ancestors();
+                int l = ancestors.getLength();
+                for (int i = 0; i < l; i++) {
+                    RubyModule m = (RubyModule)ancestors.get(i);
+                    if (m.getName().equals(debugger.getCatchpointAsString())) {
+                        debugContext.setStopReason(DebugContext.StopReason.CATCHPOINT);
+                        context.callMethod(tCtx, DebugContext.AT_CATCHPOINT, breakpoint);
+                        
+                        DebugFrame debugFrame = getTopFrame(debugContext);
+                        if (debugFrame != null) {
+                            binding = debugFrame.getBinding();
+                        }
+                        if (!binding.isNil() && tCtx != null) {
+                            binding = (tCtx != null ? RubyBinding.newBinding(runtime) : getNil());
+                        }
+                        saveTopBinding(debugContext, binding);
+                        callAtLine(tCtx, context, debugContext, runtime, file, line);
+                        
+                        break;
+                    }
+                }
+                
+                break;
         }
         cleanUp(debugContext);
     }
