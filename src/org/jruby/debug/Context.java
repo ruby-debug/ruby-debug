@@ -29,6 +29,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
+import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
@@ -100,8 +101,17 @@ public class Context extends RubyObject {
     }
 
     @JRubyMethod(name="stop_frame=", required=1)
-    public IRubyObject stop_frame_set(IRubyObject frame, Block block) {
-        throw new UnsupportedOperationException("not implemented yet");
+    public IRubyObject stop_frame_set(IRubyObject rFrameNo, Block block) {
+        debugger.checkStarted(getRuntime());
+        
+        DebugContext debugContext = debugContext();
+        int frameNo = RubyNumeric.fix2int(rFrameNo);
+        if (frameNo < 0 || frameNo >= debugContext.getStackSize()) {
+            getRuntime().newRuntimeError("Stop frame is out of range.");
+        }
+        debugContext.setStopFrame(frameNo);
+        
+        return rFrameNo;
     }
 
     @JRubyMethod(name="thread")
