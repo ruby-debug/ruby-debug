@@ -61,7 +61,6 @@ final class DebugEventHook implements EventHook {
         this.runtime = runtime;
     }
 
-    @SuppressWarnings("fallthrough")
     public void event(final ThreadContext tCtx, final int event, final String file, final int line0,
             final String methodName, final IRubyObject klass) {
         boolean needsSuspend = false;
@@ -103,6 +102,7 @@ final class DebugEventHook implements EventHook {
         }
     }
 
+    @SuppressWarnings("fallthrough")
     private void processEvent(final ThreadContext tCtx, final int event, final String file, final int line0, 
             final String methodName, final IRubyObject klass, DebugContextPair contexts) {
         // one-based; jruby by default passes zero-based
