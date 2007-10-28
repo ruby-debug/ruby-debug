@@ -237,7 +237,7 @@ final class Debugger {
         
         int len = contexts.getLength();
         for (int i = 0; i < len; i++) {
-            Context context = (Context)contexts.get(i);
+            Context context = (Context)contexts.entry(i);
             if (context == current) {
                 continue;
             }
@@ -259,7 +259,7 @@ final class Debugger {
         
         int len = contexts.getLength();
         for (int i = 0; i < len; i++) {
-            Context context = (Context)contexts.get(i);
+            Context context = (Context)contexts.entry(i);
             if (context == current) {
                 continue;
             }
