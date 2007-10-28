@@ -212,9 +212,12 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="post_mortem=", module=true, required=1)
     public static IRubyObject post_mortem_set(IRubyObject recv, IRubyObject postMortem, Block block) {
+        throw recv.getRuntime().newRuntimeError("Post mortem debugging is not (yet) supported");
+        /*
         debugger().setPostMortem(postMortem.isTrue());
         
         return postMortem;
+        */
     }
 
     @JRubyMethod(name="keep_frame_binding?", module=true)
