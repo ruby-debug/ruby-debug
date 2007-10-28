@@ -30,7 +30,6 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 final class DebugFrame {
 
-    private IRubyObject argc;
     private IRubyObject binding;
     private String methodName;
     private String origMethodName;
@@ -38,19 +37,11 @@ final class DebugFrame {
     private int line;
     private boolean dead;
     private IRubyObject self;
-    private IRubyObject arg_ary;
+    private IRubyObject argValues;
     private Info info;
 
     DebugFrame() {
         info = new Info();
-    }
-
-    IRubyObject getArgc() {
-        return argc;
-    }
-
-    void setArgc(IRubyObject argc) {
-        this.argc = argc;
     }
 
     IRubyObject getBinding() {
@@ -178,5 +169,13 @@ final class DebugFrame {
         void setScope(StaticScope scope) {
             this.scope = scope;
         }
+    }
+
+    public IRubyObject getArgValues() {
+        return argValues;
+    }
+
+    public void setArgValues(IRubyObject argValues) {
+        this.argValues = argValues;
     }
 }

@@ -30,11 +30,18 @@ import org.jruby.MetaClass;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBinding;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyException;
+import org.jruby.RubyFile;
+import org.jruby.RubyFixnum;
+import org.jruby.RubyFloat;
 import org.jruby.RubyKernel;
 import org.jruby.RubyModule;
+import org.jruby.RubyNil;
 import org.jruby.RubyString;
+import org.jruby.RubySymbol;
 import org.jruby.RubyThread;
+import org.jruby.RubyUndef;
 import org.jruby.debug.DebugContext.StopReason;
 import org.jruby.debug.DebugFrame.Info;
 import org.jruby.debug.Debugger.DebugContextPair;
@@ -339,7 +346,6 @@ final class DebugEventHook implements EventHook {
         IRubyObject binding = (debugger.isKeepFrameBinding()) ? RubyBinding.newBinding(tCtx.getRuntime()) : tCtx.getRuntime().getNil();
 
         DebugFrame debugFrame = new DebugFrame();
-        debugFrame.setArgc(runtime.newArray(tCtx.getCurrentScope().getArgValues()));
         debugFrame.setFile(file);
         debugFrame.setLine(line);
         debugFrame.setBinding(binding);
@@ -353,35 +359,36 @@ final class DebugEventHook implements EventHook {
         info.setDynaVars(event == RUBY_EVENT_LINE ? tCtx.getCurrentScope() : null);
         debugContext.addFrame(debugFrame);
         if (debugger.isTrackFrameArgs()) {
-            copyScalarArgs(debugFrame);
+            copyScalarArgs(tCtx, debugFrame);
+        } else {
+            debugFrame.setArgValues(runtime.getNil());
         }
+    }
+    
+    private boolean isArgValueSmall(IRubyObject value) {
+        return value instanceof RubyFixnum ||
+                value instanceof RubyFloat ||
+                value instanceof RubyNil ||
+                value instanceof RubyModule ||
+                value instanceof RubyFile ||
+                value instanceof RubyBoolean ||
+                value instanceof RubyUndef ||
+                value instanceof RubySymbol;
     }
 
     /** Save scalar arguments or a class name. */
-    private void copyScalarArgs(final DebugFrame debugFrame) {
-        throw new UnsupportedOperationException("not implemented yet");
-//            int i;
-//            StaticScope ruby_scope = null;
-//            Object tbl = null;
-//            if (tbl != null && ruby_scope.getVariables().length > 0) {
-//                int n = *tbl++;
-//                if (debug_frame.argc+2 < n) n = debug_frame.argc+2;
-//                debug_frame.arg_ary = rb_ary_new2(n);
-//                for (i=2; i<n; i++)
-//                {
-//                    /* skip flip states */
-//                    if (rb_is_local_id(tbl[i]))
-//                    {
-//                        final char *name = rb_id2name(tbl[i]);
-//                        VALUE val = rb_eval_string (name);
-//                        if (arg_value_is_small(val))
-//                            rb_ary_push(debug_frame.arg_ary, val);
-//                        else
-//                            rb_ary_push(debug_frame.arg_ary,
-//                                    rb_str_new2(rb_obj_classname(val)));
-//                    }
-//                }
-//            }
+    private void copyScalarArgs(ThreadContext tCtx, DebugFrame debugFrame) {
+        RubyArray args = (RubyArray)runtime.newArray(tCtx.getCurrentScope().getArgValues());
+        
+        int len = args.getLength();
+        for (int i = 0; i < len; i++) {
+            IRubyObject obj = (IRubyObject)args.entry(i);
+            if (! isArgValueSmall(obj)) {
+                args.store(i, runtime.newString(obj.getType().getName()));
+            }
+        }
+        
+        debugFrame.setArgValues(args);
     }
 
     private void setFrameSource(int event, DebugContext debug_context, ThreadContext tCtx,

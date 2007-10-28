@@ -266,6 +266,13 @@ public class Context extends RubyObject {
         String methodName = getFrame(frameNo).getMethodName();
         return methodName == null ? getRuntime().getNil() : getRuntime().newSymbol(methodName);
     }
+    
+    @JRubyMethod(name="frame_args_info", required=1)
+    public IRubyObject frame_args_info(IRubyObject frameNo, Block block) {
+        debugger.checkStarted(getRuntime());
+        
+        return getFrame(frameNo).getArgValues();
+    }
 
     @JRubyMethod(name="frame_line", required=1)
     public IRubyObject frame_line(IRubyObject frameNo, Block block) {
