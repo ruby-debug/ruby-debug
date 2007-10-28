@@ -26,6 +26,7 @@
 package org.jruby.debug;
 
 import org.jruby.Ruby;
+import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyHash;
@@ -33,6 +34,7 @@ import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.anno.JRubyMethod;
+import org.jruby.parser.StaticScope;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.DynamicScope;
@@ -361,30 +363,20 @@ public class Context extends RubyObject {
      *   Returns a array of argument names.
      */
     private IRubyObject contextCopyArgs(DebugFrame debugFrame) {
-//        ID *tbl;
-//        int n, i;
-//        Scope scope;
-//        IRubyObject list = rb_ary_new2(0); /* [] */
-//
-//        scope = debugFrame->info.runtime.scope;
-//        tbl = scope->local_tbl;
-//
-//        if (tbl && scope->local_vars) {
-//            n = *tbl++;
-//            if (debugFrame->argc+2 < n) n = debugFrame->argc+2;
-//            list = rb_ary_new2(n);
-//            /* skip first 2 ($_ and $~) */
-//            for (i=2; i<n; i++) {   
-//                /* skip first 2 ($_ and $~) */
-//                if (!rb_is_local_id(tbl[i])) continue; /* skip flip states */
-//                rb_ary_push(list, rb_str_new2(rb_id2name(tbl[i])));
-//            }
-//        }
-//
-//        return list;
-        System.err.println("FIXME> " + new Exception().getStackTrace()[0] + " called...." + ", " + System.currentTimeMillis());
-        System.err.println("FIXME>   IMPLEMENT ME");
-        return getRuntime().newArray();
+        RubyArray result = getRuntime().newArray();
+        StaticScope scope = debugFrame.getInfo().getScope();
+        
+        int count = scope.getRequiredArgs() + scope.getOptionalArgs();
+        if (scope.getRestArg() >= 0) {
+            count++;
+        }
+        
+        String[] names = scope.getVariables();
+        for (int i = 0; i < count; i++) {
+            result.append(getRuntime().newString(names[i]));
+        }
+        
+        return result;
     }
 
     private IRubyObject contextCopyLocals(final DebugFrame debugFrame) {

@@ -339,7 +339,7 @@ final class DebugEventHook implements EventHook {
         IRubyObject binding = (debugger.isKeepFrameBinding()) ? RubyBinding.newBinding(tCtx.getRuntime()) : tCtx.getRuntime().getNil();
 
         DebugFrame debugFrame = new DebugFrame();
-        debugFrame.setArgc(tCtx.getCurrentScope().getArgValues());
+        debugFrame.setArgc(runtime.newArray(tCtx.getCurrentScope().getArgValues()));
         debugFrame.setFile(file);
         debugFrame.setLine(line);
         debugFrame.setBinding(binding);

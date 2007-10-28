@@ -23,13 +23,14 @@
  */
 package org.jruby.debug;
 
+import org.jruby.parser.StaticScope;
 import org.jruby.runtime.DynamicScope;
 import org.jruby.runtime.Frame;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class DebugFrame {
 
-    private Object argc;
+    private IRubyObject argc;
     private IRubyObject binding;
     private String methodName;
     private String origMethodName;
@@ -44,12 +45,11 @@ final class DebugFrame {
         info = new Info();
     }
 
-    Object getArgc() {
-        throw new UnsupportedOperationException("not implemented yet");
-//        return argc;
+    IRubyObject getArgc() {
+        return argc;
     }
 
-    void setArgc(Object argc) {
+    void setArgc(IRubyObject argc) {
         this.argc = argc;
     }
 
@@ -124,7 +124,7 @@ final class DebugFrame {
     static final class Info {
 
         private Frame frame;
-        private Object scope;
+        private StaticScope scope;
         private DynamicScope dynaVars;
 
         private IRubyObject copyArgs;
@@ -171,11 +171,11 @@ final class DebugFrame {
             this.frame = frame;
         }
 
-        Object getScope() {
+        StaticScope getScope() {
             return scope;
         }
 
-        void setScope(Object scope) {
+        void setScope(StaticScope scope) {
             this.scope = scope;
         }
     }
