@@ -1,4 +1,4 @@
-;; Copyright (C) 2006 Free Software Foundation, Inc.
+;; Copyright (C) 2006, 2007 Free Software Foundation, Inc.
 ;; This file is (not yet) part of GNU Emacs.
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
@@ -114,14 +114,6 @@ Currently-active file is at the head of the list.")
   "Max number of characters from end of buffer to search for stack entry.")
 
 
-;; Utilities
-(defmacro rdebug-safe (&rest body)
-  "Safely execute BODY, return nil if an error occurred."
-  (` (condition-case nil
-	 (progn (,@ body))
-       (error nil))))
-
-
 ;;;###autoload
 
 (defun rdebug-rdebugtrack-overlay-arrow (activation)
@@ -204,7 +196,7 @@ problem as best as we can determine."
       "line number cue not found"
 
     (let* ((filename (match-string rdebug-marker-regexp-file-group block))
-           (lineno (string-to-int 
+           (lineno (string-to-number
 		    (match-string rdebug-marker-regexp-line-group block)))
            funcbuffer)
 
