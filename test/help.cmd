@@ -7,7 +7,6 @@ set width 80
 ### ***   help commands         ***
 ### *******************************
 help foo
-help info
 # FIXME - the below should work
 # help 
 # help step
