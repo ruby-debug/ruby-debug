@@ -16,6 +16,7 @@ FILES = FileList[
   'CHANGES',
   'AUTHORS',
   'lib/**/*',
+  'emacs/**/*.el',
   'ext/*',
   'doc/*',
 ]
