@@ -8,7 +8,7 @@ require 'rake/rdoctask'
 GEM_NAME='ruby-debug-base'
 GEM_VERSION='0.9.3'
 
-CLEAN.include('lib/ruby_debug_base.jar', 'pkg')
+CLEAN.include('lib/ruby_debug_base.jar')
 
 task :default => :package
 
@@ -35,7 +35,8 @@ def make_jar
   require 'fileutils'
   lib = File.join(File.dirname(__FILE__), 'lib')
   FileUtils.mkdir(lib) unless File.exists? lib
-  sh "jar cf lib#{File::SEPARATOR}ruby_debug_base.jar -C pkg#{File::SEPARATOR}classes ."
+  separator = File::ALT_SEPARATOR or File::SEPARATOR
+  sh "jar cf lib#{separator}ruby_debug_base.jar -C pkg#{separator}classes ."
 end
 
 file 'lib/ruby_debug_base.jar' => FileList["java/src/*.java"] do
