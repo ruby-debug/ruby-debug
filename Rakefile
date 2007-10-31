@@ -35,11 +35,7 @@ def make_jar
   require 'fileutils'
   lib = File.join(File.dirname(__FILE__), 'lib')
   FileUtils.mkdir(lib) unless File.exists? lib
-  if java.lang.System.getProperty('os.name').downcase.include? 'windows'
-    sh "jar cf lib\\ruby_debug_base.jar -C pkg\\classes ."
-  else
-    sh "jar cf lib/ruby_debug_base.jar -C pkg/classes ."
-  end
+  sh "jar cf lib#{File::SEPARATOR}ruby_debug_base.jar -C pkg#{File::SEPARATOR}classes ."
 end
 
 file 'lib/ruby_debug_base.jar' => FileList["java/src/*.java"] do
