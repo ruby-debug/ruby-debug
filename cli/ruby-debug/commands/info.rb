@@ -90,9 +90,6 @@ module Debugger
     end
     
     def info_stack(*args)
-      if help
-        return "Backtrace of the stack\n"
-      end
       (0...@state.context.stack_size).each do |idx|
         if idx == @state.frame_pos
           print "--> "
@@ -104,9 +101,6 @@ module Debugger
     end
     
     def info_threads(*args)
-      if help
-        return "IDs of currently known threads\n"
-      end
       threads = Debugger.contexts.sort_by{|c| c.thnum}.each do |c|
         display_context(c)
       end
