@@ -231,9 +231,37 @@ annotate should be set to nil."
 
 ;;;###autoload
 (defun rdebug (command-line)
-  "Run rdebug on program FILE in buffer `*gud-FILE*'.
+  "Run rdebug on program FILE in buffer *rdebug-cmd-FILE*.
 The directory containing FILE becomes the initial working directory
-and source-file directory for your debugger."
+and source-file directory for your debugger.
+
+The custom variable `gud-rdebug-command-name' sets the pattern used
+to invoke pydb.
+
+If `rdebug-many-windows' is nil (the default value) then pydb just
+starts with two windows: one displaying the GUD buffer and the
+other with the source file with the main routine of the inferior.
+
+If `rdebug-many-windows' is t, regardless of the value of the layout
+below will appear.
+
++----------------------------------------------------------------------+
+|                               GDB Toolbar                            |
++-----------------------------------+----------------------------------+
+| GUD buffer (I/O of rdebug)        | Locals buffer                    |
+|                                   |                                  |
+|                                   |                                  |
+|                                   |                                  |
++-----------------------------------+----------------------------------+
+| Source buffer                                                        |
+|                                                                      |
++-----------------------------------+----------------------------------+
+| Stack buffer                      | Breakpoints buffer               |
+| RET rdebug-goto-stack-frame       | SPC  rdebug-toggle-breakpoint    |
+|                                   | RET  rdebug-goto-breakpoint      |
+|                                   | D    rdebug-delete-breakpoint    |
++-----------------------------------+----------------------------------+
+"
   (interactive
    (list (gud-query-cmdline 'rdebug)))
 
