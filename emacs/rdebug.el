@@ -711,16 +711,16 @@ from `gdb-setup-windows', but simplified."
               (beginning-of-line)
               (delete-char 2)
               (insert "  "))
+	    (add-text-properties b e
+				 (list 'mouse-face 'highlight
+				       'keymap rdebug--stack-frame-map))
 	    (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
 		  (fn-start (+ b (match-beginning 3))))
 	      (if (string-match "\\([^(]+\\)(" fn-str)
 		  (add-text-properties
 		   (+ fn-start (match-beginning 1)) (+ fn-start (match-end 1))
 		   (list 'face font-lock-function-name-face
-			 'font-lock-face font-lock-function-name-face)))
-	      (add-text-properties b e
-				   (list 'mouse-face 'highlight
-					 'keymap rdebug--stack-frame-map)))))
+			 'font-lock-face font-lock-function-name-face))))))
         (forward-line)
         (beginning-of-line)))))
 
