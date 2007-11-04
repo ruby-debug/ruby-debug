@@ -29,6 +29,7 @@ CLI_FILES = FileList[
   'bin/*',
   "cli/**/*",
   'doc/*',
+  'emacs/**/*.el',
 ]
 
 desc "Test everything."

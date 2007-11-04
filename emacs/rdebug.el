@@ -101,9 +101,12 @@ Program-location lines look like this:
  "Group position in rdebug-position-re that matches the line number.")
 
 (defconst rdebug-annotation-start-regexp
-  "^\\([a-z]+\\)\n")
+  "^\\([a-z]+\\)\n"
+  "Start of an annotation. Note that in contrast to
+gud-rdebug-marker-regexp, we don't allow a colon. That's what
+distinguishes the two."  )
 (defconst rdebug-annotation-end-regexp
-  "\n")
+  "\n")
 
 ;; rdebugtrack constants
 (defconst rdebug-rdebugtrack-stack-entry-regexp
@@ -548,21 +551,21 @@ from `gdb-setup-windows', but simplified."
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 
-;; ALB fontification and keymaps for secondary buffers (breakpoints, stack)
+;; Fontification and keymaps for secondary buffers (breakpoints, stack)
 
 ;; -- breakpoints
 
 (defvar rdebug--breakpoints-map
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
-    (define-key map [? ] 'rdebug-toggle-breakpoint)
+    ; (define-key map [? ] 'rdebug-toggle-breakpoint)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     map)
   "Keymap to navigate/set/enable rdebug breakpoints.")
 
 (defconst rdebug--breakpoint-regexp
-  "^\\([0-9]+\\) +breakpoint +\\([a-z]+\\) +\\([a-z]+\\) +at +\\(.+\\):\\([0-9]+\\)$"
+  "^\\ +\\([0-9]+\\) +at +\\(.+\\):\\([0-9]+\\)$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
 
 (defun rdebug--setup-breakpoints-buffer (buf)
@@ -578,22 +581,35 @@ from `gdb-setup-windows', but simplified."
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
                                        'keymap rdebug--breakpoints-map))
-            ;; fontify "keep/del"
-            (let ((face (if (string= "keep" (buffer-substring
-                                             (+ b (match-beginning 2))
-                                             (+ b (match-end 2))))
-                            compilation-info-face
-                          compilation-warning-face)))
-              (add-text-properties
-               (+ b (match-beginning 2)) (+ b (match-end 2))
-               (list 'face face 'font-lock-face face)))
-            ;; fontify "enabled"
-            (when (string= "y" (buffer-substring (+ b (match-beginning 3))
-                                                 (+ b (match-end 3))))
-              (add-text-properties
-               (+ b (match-beginning 3)) (+ b (match-end 3))
-               (list 'face compilation-error-face
-                     'font-lock-face compilation-error-face))))
+            (add-text-properties
+             (+ b (match-beginning 1)) (+ b (match-end 1))
+             (list 'face font-lock-constant-face
+                   'font-lock-face font-lock-constant-face))
+            (add-text-properties
+             (+ b (match-beginning 2)) (+ b (match-end 2))
+             (list 'face font-lock-comment-face
+                   'font-lock-face font-lock-comment-face))
+            (add-text-properties
+             (+ b (match-beginning 3)) (+ b (match-end 3))
+             (list 'face font-lock-constant-face
+                   'font-lock-face font-lock-constant-face))
+;;;             ;; fontify "keep/del"
+;;;             (let ((face (if (string= "keep" (buffer-substring
+;;;                                              (+ b (match-beginning 2))
+;;;                                              (+ b (match-end 2))))
+;;;                             compilation-info-face
+;;;                           compilation-warning-face)))
+;;;               (add-text-properties
+;;;                (+ b (match-beginning 2)) (+ b (match-end 2))
+;;;                (list 'face face 'font-lock-face face)))
+;;;             ;; fontify "enabled"
+;;;             (when (string= "y" (buffer-substring (+ b (match-beginning 3))
+;;;                                                  (+ b (match-end 3))))
+;;;               (add-text-properties
+;;;                (+ b (match-beginning 3)) (+ b (match-end 3))
+;;;                (list 'face compilation-error-face
+;;;                      'font-lock-face compilation-error-face)))
+	    )
         (forward-line)
         (beginning-of-line))))))
 
@@ -611,22 +627,22 @@ from `gdb-setup-windows', but simplified."
     (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
       (when (string-match rdebug--breakpoint-regexp s)
         (rdebug-display-line
-         (substring s (match-beginning 4) (match-end 4))
-         (string-to-number (substring s (match-beginning 5) (match-end 5))))
+         (substring s (match-beginning 2) (match-end 2))
+         (string-to-number (substring s (match-beginning 3) (match-end 3))))
         ))))
 
-(defun rdebug-toggle-breakpoint (pt)
-  "Toggles the breakpoint at PT in the breakpoints buffer."
-  (interactive "d")
-  (save-excursion
-    (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
-      (when (string-match rdebug--breakpoint-regexp s)
-        (let* ((enabled
-                (string= (substring s (match-beginning 3) (match-end 3)) "y"))
-               (cmd (if enabled "disable" "enable"))
-               (bpnum (substring s (match-beginning 1) (match-end 1))))
-          (gud-call (format "%s %s" cmd bpnum)))))))
+;;; (defun rdebug-toggle-breakpoint (pt)
+;;;   "Toggles the breakpoint at PT in the breakpoints buffer."
+;;;   (interactive "d")
+;;;   (save-excursion
+;;;     (goto-char pt)
+;;;     (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+;;;       (when (string-match rdebug--breakpoint-regexp s)
+;;;         (let* ((enabled
+;;;                 (string= (substring s (match-beginning 3) (match-end 3)) "y"))
+;;;                (cmd (if enabled "disable" "enable"))
+;;;                (bpnum (substring s (match-beginning 1) (match-end 1))))
+;;;           (gud-call (format "%s %s" cmd bpnum)))))))
 
 (defun rdebug-delete-breakpoint (pt)
   "Deletes the breakpoint at PT in the breakpoints buffer."
@@ -660,7 +676,7 @@ from `gdb-setup-windows', but simplified."
   "Keymap to navigate rdebug stack frames.")
 
 (defconst rdebug--stack-frame-regexp
-  "^\\(->\\|##\\|  \\) +\\([0-9]+\\) +\\([^ (]+\\).+$"
+  "^\\(-->\\|##\\|  \\) +#\\([0-9]+\\) +\\(.*\\)at line +\\([^:]+\\):\\([0-9]+\\)$"
   "Regexp to recognize stack frame lines in rdebug stack buffers.")
 
 (defun rdebug--setup-stack-buffer (buf)
@@ -674,10 +690,19 @@ from `gdb-setup-windows', but simplified."
                (s (buffer-substring b e)))
           (when (string-match rdebug--stack-frame-regexp s)
             (add-text-properties
-             (+ b (match-beginning 3)) (+ b (match-end 3))
-             (list 'face font-lock-function-name-face
-                   'font-lock-face font-lock-function-name-face))
-            (if (string= (substring s (match-beginning 1) (match-end 1)) "->")
+             (+ b (match-beginning 2)) (+ b (match-end 2))
+             (list 'face font-lock-constant-face
+                   'font-lock-face font-lock-constant-face))
+            (add-text-properties
+             (+ b (match-beginning 4)) (+ b (match-end 4))
+             (list 'face font-lock-comment-face
+                   'font-lock-face font-lock-comment-face))
+            (add-text-properties
+             (+ b (match-beginning 5)) (+ b (match-end 5))
+             (list 'face font-lock-constant-face
+                   'font-lock-face font-lock-constant-face))
+            (if (string= (substring s (match-beginning 1) (match-end 1)) 
+			 "-->")
                 ;; highlight the currently selected frame
                 (add-text-properties b e
                                      (list 'face 'bold
@@ -686,9 +711,16 @@ from `gdb-setup-windows', but simplified."
               (beginning-of-line)
               (delete-char 2)
               (insert "  "))
-            (add-text-properties b e
-                                 (list 'mouse-face 'highlight
-                                       'keymap rdebug--stack-frame-map))))
+	    (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
+		  (fn-start (+ b (match-beginning 3))))
+	      (if (string-match "\\([^(]+\\)(" fn-str)
+		  (add-text-properties
+		   (+ fn-start (match-beginning 1)) (+ fn-start (match-end 1))
+		   (list 'face font-lock-function-name-face
+			 'font-lock-face font-lock-function-name-face)))
+	      (add-text-properties b e
+				   (list 'mouse-face 'highlight
+					 'keymap rdebug--stack-frame-map)))))
         (forward-line)
         (beginning-of-line)))))
 

@@ -1,10 +1,27 @@
 ; -*- emacs-lisp -*-
 (load-file "./elk-test.el")
-(load-file "./rdebug-extra.el")
 (load-file "./rdebug-track.el")
 
+(defun regexp-stack-test (location-str pos-str file-str line-str)
+  "Test to see that location-str matches gud-rdebug-marker-regexp"
+  (assert-equal 0 (string-match rdebug--stack-frame-regexp location-str))
+  (assert-equal pos-str
+		(substring location-str (match-beginning 2)  (match-end 2)))
+  (assert-equal file-str
+		(substring location-str (match-beginning 4)  (match-end 4)))
+  (assert-equal line-str
+		(substring location-str (match-beginning 5)  (match-end 5)))
+)
+(deftest "rdebug-regexp-stack-test"
+
+  (regexp-stack-test 
+   "--> #0 at line /home/rocky/ruby/gcd.rb:18"
+   "0" "/home/rocky/ruby/gcd.rb" "18"
+   )
+)
+
 (defun regexp-file-test (location-str file-str)
-  "Test to see that location-str matches gud-rubydb-marker-regexp"
+  "Test to see that location-str matches gud-rdebug-marker-regexp"
   (assert-equal 0 (string-match gud-rdebug-marker-regexp location-str))
   (assert-equal file-str
 		(substring location-str (match-beginning 1)  (match-end 1)))

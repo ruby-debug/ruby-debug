@@ -13,10 +13,11 @@ module Debugger
 
   # File we look for debugger startup commands.
   INITFILE = ".rdebugrc"  unless defined?(INITFILE)
-
+  
   class << self
     # in remote mode, wait for the remote connection 
     attr_accessor :wait_connection
+    attr_accessor :annotate
     
     attr_reader :thread, :control_thread
 

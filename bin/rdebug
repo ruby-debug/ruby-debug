@@ -7,6 +7,7 @@ require "ostruct"
 require 'ruby-debug'
 
 options = OpenStruct.new(
+  'annotate'    => Debugger.annotate,
   'server'      => false,
   'client'      => false,
   'host'        => nil,
@@ -29,6 +30,7 @@ Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 EOB
   opts.separator ""
   opts.separator "Options:"
+  opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") {|Debugger::annotate|}
   opts.on("-s", "--server", "Listen for remote connections") {options.server = true}
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
   opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}

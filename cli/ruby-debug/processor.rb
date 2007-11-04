@@ -3,13 +3,21 @@ require 'ruby-debug/command'
 
 module Debugger
 
+  annotate = 0
+  
   class CommandProcessor # :nodoc:
     attr_accessor :interface
     attr_reader   :display
     
+    @@Show_breakpoints_postcmd = ["break", "tbreak", "disable", "enable",
+                                  "condition", "clear", "delete"]
+    @@Show_annotations_preloop = ["step", "continue", "next", "finish"]
+    @@Show_annotations_postcmd = ["down", "frame", "up"]
+    
     def initialize(interface = LocalInterface.new)
       @interface = interface
       @display = []
+      
       @mutex = Mutex.new
       @last_cmd = nil
       @actions = []
@@ -167,35 +175,73 @@ module Debugger
           m
         end
       end
-      
+
+      preloop(commands, context)
       while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
-          
           if input == ""
             next unless @last_cmd
             input = @last_cmd
           else
             @last_cmd = input
           end
-          
-          splitter[input].each do |input|
-            if cmd = commands.find{ |c| c.match(input) }
-              if context.dead? && cmd.class.need_context
-                print "Command is unavailable\n"
-              else
-                cmd.execute
-              end
-            else
-              unknown_cmd = commands.find{|cmd| cmd.class.unknown }
-              if unknown_cmd
-                unknown_cmd.execute
-              else
-                print "Unknown command\n"
-              end
-            end
+          splitter[input].each do |cmd|
+            one_cmd(commands, context, cmd)
+            postcmd(commands, context, cmd)
           end
         end
       end
+    end # process_commands
+    
+    def one_cmd(commands, context, input)
+      if cmd = commands.find{ |c| c.match(input) }
+        if context.dead? && cmd.class.need_context
+          print "Command is unavailable\n"
+        else
+          cmd.execute
+        end
+      else
+        unknown_cmd = commands.find{|cmd| cmd.class.unknown }
+        if unknown_cmd
+            unknown_cmd.execute
+        else
+          print "Unknown command\n"
+        end
+      end
+    end
+    
+    def postcmd(commands, context, cmd)
+      if Debugger.annotate and Debugger.annotate > 0
+        # FIXME: need to cannonicalize command names 
+        # e.g. b vs. break
+        # and break out the command name "break 10"
+        # until then we'll refresh always
+        # cmd = @last_cmd unless cmd
+        #if @@Show_breakpoints_postcmd.member?(cmd)
+          annotation('breakpoints', commands, context, 'info breakpoints')
+        # end
+        # if @@Show_annotations_postcmd.member?(cmd)
+          annotation('stack', commands, context, "where")
+          annotation('locals', commands, context, "info locals")
+        # end
+      end
+    end
+
+    def preloop(commands, context)
+      if Debugger.annotate and Debugger.annotate > 0
+        # if we are here, the stack frames have changed outside the
+        # command loop (e.g. after a "continue" command), so we show
+        # the annotations again
+        annotation('breakpoints', commands, context, "info breakpoints")
+        annotation('stack', commands, context, "where")
+        annotation('locals', commands, context, "info locals")
+      end
+    end
+
+    def annotation(label, commands, context, cmd)
+      print "\032\032#{label}\n"
+      one_cmd(commands, context, cmd)
+      print "\032\032\n"
     end
 
     class State # :nodoc:

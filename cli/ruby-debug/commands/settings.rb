@@ -5,6 +5,8 @@ module Debugger
       defined?(SubcmdStruct)
     Subcommands = 
       [
+       ['annotate', 2, false,
+       "Set annotation level."],
        ['args', 2, false,
        "Set argument list to give program being debugged when it is started."],
        ['autoeval', 4, true,
@@ -74,6 +76,14 @@ module Debugger
                 end
               end
               case try_subcmd.name
+              when /^annotate$/
+                level = get_int(args[0], "Set annotate", 0, 2, 0)
+                if level
+                  Debugger.annotate = level
+                else
+                  return
+                end
+                Command.settings[:argv][1..-1] = args
               when /^args$/
                 Command.settings[:argv][1..-1] = args
               when /^autolist$/

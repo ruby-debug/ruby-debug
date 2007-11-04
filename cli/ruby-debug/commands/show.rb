@@ -3,6 +3,9 @@ module Debugger
   module ShowFunctions # :nodoc:
     def show_setting(setting_name)
       case setting_name
+      when /^annotate$/
+        Debugger.annotate ||= 0
+        return ("Annotation level is #{Debugger.annotate}")
       when /^args$/
         if Command.settings[:argv] and Command.settings[:argv].size > 0
           args = Command.settings[:argv][1..-1].join(' ')
@@ -77,6 +80,7 @@ module Debugger
       defined?(SubcmdStruct)
     Subcommands = 
       [
+       ['annotate', 2, "Show annotation level"],
        ['args', 2, 
         "Show argument list to give program being debugged when it is started"],
        ['autoeval', 4, "Show if unrecognized command are evaluated"],
