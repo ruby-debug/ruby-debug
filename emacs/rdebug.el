@@ -244,7 +244,7 @@ and source-file directory for your debugger."
 			       (gud-rdebug-massage-args "1" words) nil))
 	(gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
 	(annotate-p (cadr script-name-annotate-p))
-	(rdebug-buffer-name (format "*rdebug-%s*" gud-target-name))
+	(rdebug-buffer-name (format "*rdebug-cmd-%s*" gud-target-name))
 	(rdebug-buffer (get-buffer rdebug-buffer-name))
 	)
 
@@ -387,22 +387,24 @@ at the beginning of the line.
 
     (if (not (and currproc rdebug-rdebugtrack-do-tracking-p))
         (rdebug-rdebugtrack-overlay-arrow nil)
-
+      ;else 
       (let* ((procmark (process-mark currproc))
-             (block (buffer-substring (max comint-last-input-end
+             (block-str (buffer-substring (max comint-last-input-end
                                            (- procmark
                                               rdebug-rdebugtrack-track-range))
                                       procmark))
              target target_fname target_lineno target_buffer)
 
-        (if (not (string-match rdebug-rdebugtrack-input-prompt block))
+        (if (not (string-match rdebug-rdebugtrack-input-prompt block-str))
             (rdebug-rdebugtrack-overlay-arrow nil)
-
-          (setq target (rdebug-rdebugtrack-get-source-buffer block))
+	  ;else 
+          
+          (setq target (rdebug-rdebugtrack-get-source-buffer block-str))
 
           (if (stringp target)
               (message "rdebugtrack: %s" target)
-
+	    ; else
+	    (gud-rdebug-marker-filter block-str)
             (setq target_lineno (car target))
             (setq target_buffer (cadr target))
             (setq target_fname (buffer-file-name target_buffer))
@@ -415,8 +417,9 @@ at the beginning of the line.
             )))))
   )
 
-(defun rdebug-rdebugtrack-get-source-buffer (block)
-  "Return line number and buffer of code indicated by block's traceback text.
+(defun rdebug-rdebugtrack-get-source-buffer (block-str)
+  "Return line number and buffer of code indicated by block-str's traceback 
+text.
 
 We look first to visit the file indicated in the trace.
 
@@ -427,13 +430,12 @@ having the named function.
 If we're unable find the source code we return a string describing the
 problem as best as we can determine."
 
-  (if (not (string-match rdebug-position-re block))
-
+  (if (not (string-match rdebug-position-re block-str))
       "line number cue not found"
-
-    (let* ((filename (match-string rdebug-marker-regexp-file-group block))
+    ;else
+    (let* ((filename (match-string rdebug-marker-regexp-file-group block-str))
            (lineno (string-to-number
-		    (match-string rdebug-marker-regexp-line-group block)))
+		    (match-string rdebug-marker-regexp-line-group block-str)))
            funcbuffer)
 
       (cond ((file-exists-p filename)
@@ -545,9 +547,19 @@ from `gdb-setup-windows', but simplified."
     (other-window 1)
     (goto-char (point-max))))
   
-  (defun rdebug-restore-windows ()
+(defun rdebug-restore-windows ()
   "Equivalent of `gdb-restore-windows' for rdebug."
   (interactive)
+  (when rdebug-many-windows
+    (rdebug-setup-windows)))
+
+(defun rdebug-set-windows (&optional name)
+  "Sets window used in multi-window frame and issues
+rdebug-restore-windows if rdebug-many-windows is set"
+  (interactive "sProgram name: ")
+  (when name (setq gud-target-name name)
+	(setq gud-comint-buffer (current-buffer)))
+  (when gud-last-frame (setq gud-last-last-frame gud-last-frame))
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 

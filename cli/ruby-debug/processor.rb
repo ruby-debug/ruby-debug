@@ -111,7 +111,6 @@ module Debugger
     protect :at_tracing
 
     def at_line(context, file, line)
-      CommandProcessor.print_location_and_text(file, line)
       process_commands(context, file, line)
     end
     protect :at_line
@@ -177,6 +176,7 @@ module Debugger
       end
 
       preloop(commands, context)
+      CommandProcessor.print_location_and_text(file, line)
       while !state.proceed? and input = @interface.read_command(prompt(context))
         catch(:debug_error) do
           if input == ""
@@ -288,6 +288,8 @@ module Debugger
       state = State.new(@interface, control_cmds)
       commands = control_cmds.map{|cmd| cmd.new(state) }
       
+      preloop(commands, context)
+      CommandProcessor.print_location_and_text(file, line)
       while input = @interface.read_command("(rdb:ctrl) ")
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }
