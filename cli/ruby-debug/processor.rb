@@ -288,8 +288,6 @@ module Debugger
       state = State.new(@interface, control_cmds)
       commands = control_cmds.map{|cmd| cmd.new(state) }
       
-      preloop(commands, context)
-      CommandProcessor.print_location_and_text(file, line)
       while input = @interface.read_command("(rdb:ctrl) ")
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }

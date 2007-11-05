@@ -229,6 +229,24 @@ annotate should be set to nil."
      ; found script name (or nil
       (t (list arg annotate-p)))))
 
+; From Emacs 23
+(unless (fboundp 'split-string-and-unquote)
+  (defun split-string-and-unquote (string &optional separator)
+  "Split the STRING into a list of strings.
+It understands Emacs Lisp quoting within STRING, such that
+  (split-string-and-unquote (combine-and-quote-strings strs)) == strs
+The SEPARATOR regexp defaults to \"\\s-+\"."
+  (let ((sep (or separator "\\s-+"))
+	(i (string-match "[\"]" string)))
+    (if (null i)
+	(split-string string sep t)	; no quoting:  easy
+      (append (unless (eq i 0) (split-string (substring string 0 i) sep t))
+	      (let ((rfs (read-from-string string i)))
+		(cons (car rfs)
+		      (split-string-and-unquote (substring string (cdr rfs))
+						sep)))))))
+)
+
 ;;;###autoload
 (defun rdebug (command-line)
   "Run rdebug on program FILE in buffer *rdebug-cmd-FILE*.
