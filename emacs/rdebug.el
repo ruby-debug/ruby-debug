@@ -725,8 +725,9 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 ;; -- stack
 
-(defvar rdebug--stack-frame-map
+(defvar rdebug-frames-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "q" 'kill-this-buffer)
     (define-key map [mouse-1] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-stack-frame)
@@ -759,19 +760,18 @@ rdebug-restore-windows if rdebug-many-windows is set"
              (+ b (match-beginning 5)) (+ b (match-end 5))
              (list 'face font-lock-constant-face
                    'font-lock-face font-lock-constant-face))
-            (if (string= (substring s (match-beginning 1) (match-end 1)) 
+            (when (string= (substring s (match-beginning 1) (match-end 1)) 
 			 "-->")
                 ;; highlight the currently selected frame
                 (add-text-properties b e
                                      (list 'face 'bold
                                            'font-lock-face 'bold))
-              ;; remove the trailing ## 
-              (beginning-of-line)
-              (delete-char 2)
-              (insert "  "))
+		(setq overlay-arrow-position (make-marker))
+		(set-marker overlay-arrow-position (point))
+		(setq frame-point (point)))
 	    (add-text-properties b e
 				 (list 'mouse-face 'highlight
-				       'keymap rdebug--stack-frame-map))
+				       'keymap rdebug-frames-mode-map))
 	    (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
 		  (fn-start (+ b (match-beginning 3))))
 	      (if (string-match "\\([^(]+\\)(" fn-str)
@@ -779,11 +779,14 @@ rdebug-restore-windows if rdebug-many-windows is set"
 		   (+ fn-start (match-beginning 1)) (+ fn-start (match-end 1))
 		   (list 'face font-lock-function-name-face
 			 'font-lock-face font-lock-function-name-face))))))
+	;; remove initial ###  or -->
+	(beginning-of-line)
+	(delete-char 3)
         (forward-line)
         (beginning-of-line)))))
 
 (defun rdebug-goto-stack-frame (pt)
-  "Show the rdebug stack frame correspoding at PT in the rdebug stack buffer."
+  "Show the rdebug stack frame corresponding at PT in the rdebug stack buffer."
   (interactive "d")
   (save-excursion
     (goto-char pt)
@@ -800,9 +803,41 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 ;; -- locals
 
+(defvar rdebug-locals-mode-map
+  (let ((map (make-sparse-keymap)))
+    (suppress-keymap map)
+    (define-key map "\r" 'rdebug-edit-locals-value)
+    (define-key map "e" 'rdebug-edit-locals-value)
+    (define-key map [mouse-2] 'rdebug-edit-locals-value)
+    (define-key map "q" 'kill-this-buffer)
+     map))
+
+(defun rdebug-locals-mode ()
+  "Major mode for rdebug locals.
+
+\\{rdebug-locals-mode-map}"
+  ; (kill-all-local-variables)
+  (setq major-mode 'rdebug-locals-mode)
+  (setq mode-name "RDEBUG Locals")
+  (setq buffer-read-only t)
+  (use-local-map rdebug-locals-mode-map)
+  ; (set (make-local-variable 'font-lock-defaults)
+  ;     '(gdb-locals-font-lock-keywords))
+  (run-mode-hooks 'rdebug-locals-mode-hook))
+
 (defun rdebug--setup-locals-buffer (buf)
   (with-current-buffer buf
-    (setq mode-name "RDEBUG Locals")))
+    (rdebug-locals-mode)))
+
+(defun rdebug-edit-locals-value (&optional event)
+  "Assign a value to a variable displayed in the locals buffer."
+  (interactive (list last-input-event))
+  (save-excursion
+    (if event (posn-set-point (event-end event)))
+    (beginning-of-line)
+    (let* ((var (current-word))
+	   (value (read-string (format "New value (%s): " var))))
+      (gud-call (format "p %s=%s" var value)))))
 
 ;;-----------------------------------------------------------------------------
 ;; ALB - redefinition of gud-reset for our own purposes
