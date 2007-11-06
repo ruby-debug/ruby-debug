@@ -101,10 +101,10 @@ Program-location lines look like this:
  "Group position in rdebug-position-re that matches the line number.")
 
 (defconst rdebug-annotation-start-regexp
-  "^\\([a-z]+\\)\n"
+  "\\([a-z]+\\)\n"
   "Start of an annotation. Note that in contrast to
 gud-rdebug-marker-regexp, we don't allow a colon. That's what
-distinguishes the two."  )
+distinguishes the two." )
 (defconst rdebug-annotation-end-regexp
   "\n")
 
@@ -322,7 +322,7 @@ below will appear.
     (gud-def gud-next   "next %p"     "\C-n"
 	     "Step one line (skip functions).")
     (gud-def gud-print  "p %e"        "\C-p"
-	     "Evaluate ruby expression at point.")
+	     "Evaluate Ruby expression at point.")
     (gud-def gud-remove "clear %d%f:%l" "\C-d"
 	     "Remove breakpoint at current line")
     (gud-def gud-run    "run"       "R"
@@ -338,8 +338,6 @@ below will appear.
     (gud-def gud-where   "where"
 	     "T" "Show stack trace.")
     (local-set-key "\C-i" 'gud-gdb-complete-command)
-    (setq comint-prompt-regexp "^(rdb:-) ")
-    (setq paragraph-start comint-prompt-regexp)
     
     ;; Update GUD menu bar
     (define-key gud-menu-map [args]      '("Show arguments of current stack" . 
@@ -396,7 +394,7 @@ Currently-active file is at the head of the list.")
 
 (defconst rdebug-traceback-line-re
   "^[ \t]+from \\([^:]+\\):\\([0-9]+\\)\\(in `.*'\\)?"
-  "Regular expression that describes tracebacks.")
+  "Regular expression that describes a Ruby traceback line.")
 
 (defun rdebug-rdebugtrack-overlay-arrow (activation)
   "Activate or de arrow at beginning-of-line in current buffer."
@@ -435,10 +433,9 @@ at the beginning of the line.
         (rdebug-rdebugtrack-overlay-arrow nil)
       ;else 
       (let* ((procmark (process-mark currproc))
-             (block-str (buffer-substring (max comint-last-input-end
-                                           (- procmark
-                                              rdebug-rdebugtrack-track-range))
-                                      procmark))
+	     (block-start (max comint-last-input-end
+			       (- procmark rdebug-rdebugtrack-track-range)))
+             (block-str (buffer-substring block-start procmark))
              target target_fname target_lineno target_buffer)
 
         (if (not (string-match rdebug-rdebugtrack-input-prompt block-str))
@@ -459,9 +456,24 @@ at the beginning of the line.
             (message "rdebugtrack: line %s, file %s" target_lineno target_fname)
             (rdebug-rdebugtrack-overlay-arrow t)
             (pop-to-buffer origbuf t)
+            )
 
-            )))))
-  )
+	  ; Delete processed annotations from buffer.
+	  (save-excursion
+	    (let ((annotate-start)
+		  (annotate-end (point-max)))
+	      (goto-char block-start)
+	      (while (re-search-forward
+		      rdebug-annotation-start-regexp annotate-end t)
+		(setq annotate-start (match-beginning 0))
+		(if (re-search-forward 
+		     rdebug-annotation-end-regexp annotate-end t)
+		    (delete-region annotate-start (point))
+		;else
+		  (forward-line)))
+	      )))
+	)))
+    )
 
 (defun rdebug-rdebugtrack-get-source-buffer (block-str)
   "Return line number and buffer of code indicated by block-str's traceback 
@@ -691,11 +703,12 @@ rdebug-restore-windows if rdebug-many-windows is set"
         ))))
 
 (defun rdebug-goto-traceback-line (pt)
-  "Displays the location in a source file of the selected breakpoint."
+  "Displays the location in a source file of the Ruby traceback line."
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
+	  (gud-comint-buffer (current-buffer)))
       (when (string-match rdebug-traceback-line-re s)
         (rdebug-display-line
          (substring s (match-beginning 1) (match-end 1))
@@ -748,7 +761,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Keymap to navigate rdebug stack frames.")
 
 (defconst rdebug--stack-frame-regexp
-  "^\\(-->\\|##\\|  \\) +#\\([0-9]+\\) +\\(.*\\)at line +\\([^:]+\\):\\([0-9]+\\)$"
+  "^\\(-->\\|   \\) +#\\([0-9]+\\) +\\(.*\\)at line +\\([^:]+\\):\\([0-9]+\\)$"
   "Regexp to recognize stack frame lines in rdebug stack buffers.")
 
 (defun rdebug--setup-stack-buffer (buf)
@@ -792,7 +805,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 		   (+ fn-start (match-beginning 1)) (+ fn-start (match-end 1))
 		   (list 'face font-lock-function-name-face
 			 'font-lock-face font-lock-function-name-face))))))
-	;; remove initial ###  or -->
+	;; remove initial '   '  or '-->'
 	(beginning-of-line)
 	(delete-char 3)
         (forward-line)
@@ -803,7 +816,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+    (let ((s (concat "-->" (buffer-substring (point-at-bol) (point-at-eol)))))
       (when (string-match rdebug--stack-frame-regexp s)
         (let ((frame (substring s (match-beginning 2) (match-end 2))))
           (gud-call (concat "frame " frame)))))))
