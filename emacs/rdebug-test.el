@@ -44,11 +44,23 @@ file and line submatches."
                                        location-str))
   )
 
-(deftest "rdebug-regexp-position-test"
+(defun regexp-traceback-test (location-str file-str line-str)
+  "Test to see that location-str matches position-regexp-file-test with the correct
+file and line submatches."
+  (assert-equal 0 (string-match rdebug-traceback-line-re location-str))
+  (assert-equal file-str (match-string 1 location-str))
+  (assert-equal line-str (match-string 2 location-str))
+  )
 
-  (position-regexp-file-test 
-   "\032\032./hanoi.rb:3:\n"
-   "./hanoi.rb" "3"
+(deftest "rdebug-traceback-test"
+
+  (regexp-traceback-test 
+   "	from /home/rocky/ruby/gcd.rb:15:in `gcd'"
+   "/home/rocky/ruby/gcd.rb" "15"
+   )
+  (regexp-traceback-test 
+   "	from /home/rocky/ruby/gcd.rb:19"
+   "/home/rocky/ruby/gcd.rb" "19"
    )
 )  
    

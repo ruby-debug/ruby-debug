@@ -395,7 +395,7 @@ Currently-active file is at the head of the list.")
   "Regular expression for a rdebug position")
 
 (defconst rdebug-traceback-line-re
-  "^#[0-9]+[ \t]+\\((\\([a-zA-Z-.]+\\) at (\\(\\([a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\)).*\n"
+  "^[ \t]+from \\([^:]+\\):\\([0-9]+\\)\\(in `.*'\\)?"
   "Regular expression that describes tracebacks.")
 
 (defun rdebug-rdebugtrack-overlay-arrow (activation)
@@ -517,6 +517,7 @@ problem as best as we can determine."
   (interactive)
   (rdebug-rdebugtrack-toggle-stack-tracking 1)
   (setq rdebug-rdebugtrack-is-tracking-p t)
+  (local-set-key "\C-cg" 'rdebug-goto-traceback-line)
   (add-hook 'comint-output-filter-functions 'rdebug-rdebugtrack-track-stack-file)
   ; remove other py-pdbtrack if which gets in the way
   (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
@@ -687,6 +688,18 @@ rdebug-restore-windows if rdebug-many-windows is set"
         (rdebug-display-line
          (substring s (match-beginning 2) (match-end 2))
          (string-to-number (substring s (match-beginning 3) (match-end 3))))
+        ))))
+
+(defun rdebug-goto-traceback-line (pt)
+  "Displays the location in a source file of the selected breakpoint."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+      (when (string-match rdebug-traceback-line-re s)
+        (rdebug-display-line
+         (substring s (match-beginning 1) (match-end 1))
+         (string-to-number (substring s (match-beginning 2) (match-end 2))))
         ))))
 
 ;;; (defun rdebug-toggle-breakpoint (pt)
