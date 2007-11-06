@@ -808,6 +808,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
     (suppress-keymap map)
     (define-key map "\r" 'rdebug-edit-locals-value)
     (define-key map "e" 'rdebug-edit-locals-value)
+    (define-key map [mouse-1] 'rdebug-edit-locals-value)
     (define-key map [mouse-2] 'rdebug-edit-locals-value)
     (define-key map "q" 'kill-this-buffer)
      map))
@@ -826,8 +827,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (run-mode-hooks 'rdebug-locals-mode-hook))
 
 (defun rdebug--setup-locals-buffer (buf)
-  (with-current-buffer buf
-    (rdebug-locals-mode)))
+  (with-current-buffer buf (rdebug-locals-mode)))
 
 (defun rdebug-edit-locals-value (&optional event)
   "Assign a value to a variable displayed in the locals buffer."
