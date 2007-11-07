@@ -1,5 +1,5 @@
-;; Copyright (C) 2006, 2007 Free Software Foundation, Inc.
-;; This file is (not yet) part of GNU Emacs.
+;;; rdebug.el --- Debugger mode via GUD and rdebug.
+;; Copyright (C) 2006, 2007 Rocky Bernstein (rocky@gnu.org) 
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -784,7 +784,9 @@ rdebug-restore-windows if rdebug-many-windows is set"
 (defun rdebug--setup-stack-buffer (buf)
   "Detects stack frame lines and sets up mouse navigation."
   (with-current-buffer buf
-    (let ((inhibit-read-only t))
+    (let ((inhibit-read-only t)
+	  (frame-point nil) ; position in stack buffer of selected frame
+	  )
       (setq mode-name "RDEBUG Stack Frames")
       (goto-char (point-min))
       (while (not (eobp))

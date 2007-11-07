@@ -21,7 +21,8 @@ module Debugger
       require 'readline'
       class << Debugger
         FILE_HISTORY = ".rdebug_hist"
-        save_file = File.join(ENV["HOME"]||ENV["HOMEPATH"], FILE_HISTORY)
+        save_file = File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
+                              FILE_HISTORY)
         open(save_file, 'r') do |file|
           file.each do |line|
             line.chomp!

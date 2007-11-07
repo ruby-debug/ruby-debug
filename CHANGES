@@ -15,7 +15,9 @@
   the parameters (with the most recent values, not the values at call time).
 - post-mortem "exit" bug fixed. 
 - More Emacs-friendly: rdebug-track.el will track location inside an Emacs
-  shell. Emacs position information shown in breakpoints and catchpoints.
+  shell. Emacs position information is shown in breakpoints and catchpoints
+  similar to gdba. Commands to position in another window a unit test traceback
+  or ruby traceback.
 - INCOMPATIBLE CHANGE: "break" now sets a breakpoint on the current line
   (same as gdb). Use "info break" for a list of breakpoints.
 - INCOMPATIBLE CHANGE: "script" command removed. Use "source" command instead

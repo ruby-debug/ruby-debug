@@ -10,26 +10,24 @@ SO_NAME = "ruby_debug.so"
 # ------- Default Package ----------
 RUBY_DEBUG_VERSION = open("ext/ruby_debug.c"){|f| f.grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]}
 
-FILES = FileList[
+COMMON_FILES = FileList[
   'README',
   'LICENSE',
   'CHANGES',
   'AUTHORS',
-  'lib/**/*',
-  'emacs/**/*.el',
-  'ext/*',
   'doc/*',
-]
+]                        
 
-CLI_FILES = FileList[
-  'README',
-  'LICENSE',
-  'CHANGES',
-  'AUTHORS',
+CLI_FILES = COMMON_FILES + FileList[
   'bin/*',
   "cli/**/*",
-  'doc/*',
   'emacs/**/*.el',
+  'emacs/elisp-comp',
+]
+
+FILES = COMMON_FILES + FileList[
+  'lib/**/*',
+  'ext/*',
 ]
 
 desc "Test everything."
@@ -48,6 +46,14 @@ desc "Create the core ruby-debug shared library extension"
 task :lib do
   Dir.chdir("ext") do
     system("#{Gem.ruby} extconf.rb && make")
+  end
+end
+
+desc "Compile Emacs code"
+task :emacs => "emacs/rdebug.elc"
+file "emacs/rdebug.elc" => ["emacs/elisp-comp", "emacs/rdebug.el"] do
+  Dir.chdir("emacs") do
+    system("./elisp-comp ./rdebug.el")
   end
 end
 
