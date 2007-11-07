@@ -1,6 +1,6 @@
 ; -*- emacs-lisp -*-
 (load-file "./elk-test.el")
-(load-file "./rdebug-track.el")
+(load-file "./rdebug.el")
 
 (defun regexp-stack-test (location-str pos-str file-str line-str)
   "Test to see that location-str matches gud-rdebug-marker-regexp"
