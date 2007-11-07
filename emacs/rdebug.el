@@ -396,6 +396,10 @@ Currently-active file is at the head of the list.")
   "^[ \t]+from \\([^:]+\\):\\([0-9]+\\)\\(in `.*'\\)?"
   "Regular expression that describes a Ruby traceback line.")
 
+(defconst rdebug-unittest-traceback-line-re
+  "^[ \t]+[[]?\\([^:]+\\):\\([0-9]+\\):in `.*'"
+  "Regular expression that describes a Ruby traceback line from a unit test.")
+
 (defun rdebug-rdebugtrack-overlay-arrow (activation)
   "Activate or de arrow at beginning-of-line in current buffer."
   ;; This was derived/simplified from edebug-overlay-arrow
@@ -710,6 +714,19 @@ rdebug-restore-windows if rdebug-many-windows is set"
     (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
 	  (gud-comint-buffer (current-buffer)))
       (when (string-match rdebug-traceback-line-re s)
+        (rdebug-display-line
+         (substring s (match-beginning 1) (match-end 1))
+         (string-to-number (substring s (match-beginning 2) (match-end 2))))
+        ))))
+
+(defun rdebug-goto-unittest-traceback-line (pt)
+  "Displays the location in a source file of the Ruby traceback line."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
+	  (gud-comint-buffer (current-buffer)))
+      (when (string-match rdebug-unittest-traceback-line-re s)
         (rdebug-display-line
          (substring s (match-beginning 1) (match-end 1))
          (string-to-number (substring s (match-beginning 2) (match-end 2))))

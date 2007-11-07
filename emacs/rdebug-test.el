@@ -62,7 +62,27 @@ file and line submatches."
    "	from /home/rocky/ruby/gcd.rb:19"
    "/home/rocky/ruby/gcd.rb" "19"
    )
-)  
+)
+   
+(defun regexp-unittest-traceback-test (location-str file-str line-str)
+  "Test to see that location-str matches position-regexp-file-test with the correct
+file and line submatches."
+  (assert-equal 0 (string-match rdebug-unittest-traceback-line-re location-str))
+  (assert-equal file-str (match-string 1 location-str))
+  (assert-equal line-str (match-string 2 location-str))
+  )
+
+(deftest "rdebug-unittest-traceback-test"
+
+  (regexp-unittest-traceback-test 
+   "    [test-frame.rb:26:in `test_basic'"
+   "test-frame.rb" "26"
+   )
+  (regexp-unittest-traceback-test 
+   "     test-frame.rb:22:in `test_basic']:"
+   "test-frame.rb" "22"
+   )
+)
    
 (deftest "rdebug-get-script-name-test"
   (assert-equal '("foo" nil) (rdebug-get-script-name '("foo")))
@@ -78,7 +98,9 @@ file and line submatches."
 				"localhost" "foo" "-1")))
 )
 
-(build-suite "rdebug-suite" "rdebug-regexp-file-test" "rdebug-regexp-position-test")
+(build-suite "rdebug-suite" "rdebug-regexp-file-test" 
+	     "rdebug-regexp-stack-test" "rdebug-traceback-test"
+	     "rdebug-unittest-traceback-test") 
 (run-elk-test "rdebug-suite"
               "test regular expression used in tracking lines")
 
