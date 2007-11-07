@@ -84,7 +84,7 @@ EOF
   spec.files = FILES.to_a  
 
   spec.required_ruby_version = '>= 1.8.2'
-  spec.date = DateTime.now
+  spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
   
   # rdoc
@@ -113,7 +113,7 @@ EOF
   spec.files = CLI_FILES.to_a
 
   spec.required_ruby_version = '>= 1.8.2'
-  spec.date = DateTime.now
+  spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
   spec.add_dependency('ruby-debug-base', RUBY_DEBUG_VERSION)
   
