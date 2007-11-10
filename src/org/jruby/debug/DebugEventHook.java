@@ -207,8 +207,8 @@ final class DebugEventHook implements EventHook {
                     if (debugFrame != null) {
                         binding = debugFrame.getBinding();
                     }
-                    if (!binding.isNil() && tCtx != null) {
-                        binding = (tCtx != null ? RubyBinding.newBinding(runtime) : getNil());
+                    if (tCtx != null && binding.isNil()) {
+                        binding = RubyBinding.newBinding(runtime);
                     }
                     saveTopBinding(debugContext, binding);
 
@@ -289,8 +289,8 @@ final class DebugEventHook implements EventHook {
                         if (debugFrame != null) {
                             binding = debugFrame.getBinding();
                         }
-                        if (!binding.isNil() && tCtx != null) {
-                            binding = (tCtx != null ? RubyBinding.newBinding(runtime) : getNil());
+                        if (tCtx != null && binding.isNil()) {
+                            binding = RubyBinding.newBinding(runtime);
                         }
                         saveTopBinding(debugContext, binding);
                         callAtLine(tCtx, context, debugContext, runtime, file, line);
