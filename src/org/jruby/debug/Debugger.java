@@ -162,7 +162,6 @@ final class Debugger {
             return ctxs;
         }
 
-        Map<RubyThread, IRubyObject> threadsTable = this.threadsTable;
         synchronized (threadsTable) {
             ctxs.context = threadsTable.get(thread);
             if (ctxs.context == null) {
@@ -213,7 +212,6 @@ final class Debugger {
                 IRubyObject context = threadContextLookup(thread, false).context;
                 newList.add(context);
             }
-            Map<RubyThread, IRubyObject> threadsTable = this.threadsTable;
             for (int i = 0; i < newList.size(); i++) {
                 IRubyObject context = newList.entry(i);
                 DebugContext debugContext = (DebugContext) context.dataGetStruct();
@@ -362,7 +360,6 @@ final class Debugger {
     IRubyObject lastInterrupted(IRubyObject recv) {
         checkStarted(recv.getRuntime());
         IRubyObject result = Util.nil(recv);
-        Map<RubyThread, IRubyObject> threadsTable = this.threadsTable;
         synchronized (threadsTable) {
             for (Map.Entry<RubyThread, IRubyObject> entry : threadsTable.entrySet()) {
                 IRubyObject context = entry.getValue();
@@ -378,7 +375,6 @@ final class Debugger {
     
 
     void checkThreadContexts(Ruby runtime) {
-        Map<RubyThread, IRubyObject> threadsTable = this.threadsTable;
         synchronized (threadsTable) {
             for (Iterator<Map.Entry<RubyThread, IRubyObject>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
                 Map.Entry<RubyThread, IRubyObject> entry = it.next();
