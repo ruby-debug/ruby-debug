@@ -35,7 +35,7 @@ def make_jar
   require 'fileutils'
   lib = File.join(File.dirname(__FILE__), 'lib')
   FileUtils.mkdir(lib) unless File.exists? lib
-  separator = File::ALT_SEPARATOR or File::SEPARATOR
+  separator = File::ALT_SEPARATOR || File::SEPARATOR
   sh "jar cf lib#{separator}ruby_debug_base.jar -C pkg#{separator}classes ."
 end
 
