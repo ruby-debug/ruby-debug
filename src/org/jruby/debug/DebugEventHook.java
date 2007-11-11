@@ -31,7 +31,6 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyBinding;
 import org.jruby.RubyBoolean;
-import org.jruby.RubyException;
 import org.jruby.RubyFile;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyFloat;
@@ -72,11 +71,8 @@ final class DebugEventHook implements EventHook {
             final String methodName, final IRubyObject klass) {
         boolean needsSuspend = false;
         
-        RubyThread currThread;
-        DebugContextPair contexts;
-        
-        currThread = tCtx.getThread();
-        contexts = debugger.threadContextLookup(currThread, true);
+        RubyThread currThread = tCtx.getThread();
+        DebugContextPair contexts = debugger.threadContextLookup(currThread, true);
         
         // return if thread is marked as 'ignored'. debugger's threads are marked this way
         if (contexts.debugContext.isIgnored()) {
@@ -261,8 +257,14 @@ final class DebugEventHook implements EventHook {
                 setFrameSource(event, debugContext, tCtx, file, line, methodName);
                 
                 // XXX Implement post mortem debugging
+
+                IRubyObject exception = runtime.getGlobalVariables().get("$!");
+                // Might happen if the current ThreadContext is within 'defined?'
+                if (exception.isNil()) {
+                    assert tCtx.isWithinDefined() : "$! should be nil only when within defined?";
+                    break;
+                }
                 
-                RubyException exception = (RubyException)runtime.getGlobalVariables().get("$!");
                 if (exception.isKindOf(runtime.getClass("SystemExit"))) {
                     // Can't do this because this unhooks the event hook causing
                     // a ConcurrentModificationException because the runtime
@@ -378,11 +380,11 @@ final class DebugEventHook implements EventHook {
 
     /** Save scalar arguments or a class name. */
     private void copyScalarArgs(ThreadContext tCtx, DebugFrame debugFrame) {
-        RubyArray args = (RubyArray)runtime.newArray(tCtx.getCurrentScope().getArgValues());
+        RubyArray args = runtime.newArray(tCtx.getCurrentScope().getArgValues());
         
         int len = args.getLength();
         for (int i = 0; i < len; i++) {
-            IRubyObject obj = (IRubyObject)args.entry(i);
+            IRubyObject obj = args.entry(i);
             if (! isArgValueSmall(obj)) {
                 args.store(i, runtime.newString(obj.getType().getName()));
             }
