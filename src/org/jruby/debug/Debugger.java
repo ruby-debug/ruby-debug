@@ -138,20 +138,19 @@ final class Debugger {
     }
     
     IRubyObject getCurrentContext(IRubyObject recv) {
-        checkStarted(recv.getRuntime());
+        checkStarted(recv);
         RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
         return threadContextLookup(thread, false).context;
     }
     
     DebugContext getCurrentDebugContext(IRubyObject recv) {
-        checkStarted(recv.getRuntime());
+        checkStarted(recv);
         RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
         return threadContextLookup(thread, true).debugContext;
     }
 
     DebugContextPair threadContextLookup(final RubyThread thread, final boolean wantDebugContext) {
-        Ruby rt = thread.getRuntime();
-        checkStarted(rt);
+        checkStarted(thread);
 
         DebugContextPair ctxs = new DebugContextPair();
         if (lastThread == thread && !lastContext.isNil()) {
@@ -176,11 +175,16 @@ final class Debugger {
         }
 
         lastThread = thread;
-        setLastContext(rt, ctxs.context);
+        setLastContext(thread.getRuntime(), ctxs.context);
         lastDebugContext = lDebugContext;
         return ctxs;
     }
 
+    /** Calls {@link #checkStarted(Ruby)} with reciever's runtime. */
+    void checkStarted(final IRubyObject recv) {
+        checkStarted(recv.getRuntime());
+    }
+    
     void checkStarted(final Ruby runtime) {
         if (!started) {
             throw runtime.newRuntimeError("Debugger.start is not called yet.");
@@ -200,9 +204,8 @@ final class Debugger {
     }
 
     IRubyObject getDebugContexts(IRubyObject self) {
-        Ruby rt = self.getRuntime();
-        checkStarted(rt);
-        RubyArray newList = rt.newArray();
+        checkStarted(self);
+        RubyArray newList = self.getRuntime().newArray();
         RubyArray list = RubyThread.list(self);
 
         
@@ -284,8 +287,7 @@ final class Debugger {
     }
     
     IRubyObject addBreakpoint(IRubyObject recv, IRubyObject[] args) {
-        Ruby rt = recv.getRuntime();
-        checkStarted(rt);
+        checkStarted(recv);
         IRubyObject result = createBreakpointFromArgs(recv, args, ++bkp_count);
         ((RubyArray) breakpoints).add(result);
         return result;
@@ -347,7 +349,7 @@ final class Debugger {
     }
 
     IRubyObject lastInterrupted(IRubyObject recv) {
-        checkStarted(recv.getRuntime());
+        checkStarted(recv);
         IRubyObject result = Util.nil(recv);
         synchronized (threadsTable) {
             for (Map.Entry<RubyThread, IRubyObject> entry : threadsTable.entrySet()) {
