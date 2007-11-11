@@ -226,12 +226,14 @@ final class Debugger {
     }
 
     void suspend(IRubyObject recv) {
+        checkStarted(recv);
         for (Context context : getNonCurrentContexts(recv)) {
             context.suspend0();
         }
     }
     
     void resume(IRubyObject recv) {
+        checkStarted(recv);
         for (Context context : getNonCurrentContexts(recv)) {
             context.resume0();
         }
