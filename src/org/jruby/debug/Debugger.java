@@ -221,30 +221,20 @@ final class Debugger {
 
         return newList;
     }
-    
+
     void suspend(IRubyObject recv) {
-        RubyArray contexts; 
-        Context current;   
-        
-        synchronized (threadsTable) {
-            contexts = (RubyArray)getDebugContexts(recv);
-            current = (Context)threadContextLookup(
-                    recv.getRuntime().getCurrentContext().getThread(),
-                    false).context;
-        }
-        
-        int len = contexts.getLength();
-        for (int i = 0; i < len; i++) {
-            Context context = (Context)contexts.entry(i);
-            if (context == current) {
-                continue;
-            }
-            
+        for (Context context : getNonCurrentContexts(recv)) {
             context.suspend0();
         }
     }
     
     void resume(IRubyObject recv) {
+        for (Context context : getNonCurrentContexts(recv)) {
+            context.resume0();
+        }
+    }
+
+    private Iterable<Context> getNonCurrentContexts(final IRubyObject recv) {
         RubyArray contexts; 
         Context current;   
         
@@ -259,12 +249,11 @@ final class Debugger {
         for (int i = 0; i < len; i++) {
             Context context = (Context)contexts.entry(i);
             if (context == current) {
-                continue;
+                contexts.remove(i);
             }
-            
-            context.resume0();
         }
-    }    
+        return contexts;
+    }
 
     boolean isStarted() {
         return started;
