@@ -32,3 +32,8 @@ set linetrace on
 show linetrace
 set linetrace off
 show linetrace
+########################################
+###  show history
+########################################
+show history size
+show history save

@@ -22,7 +22,7 @@ def cheap_diff(got_lines, correct_lines)
 end
 
 # Test of C extension ruby_debug.so
-class TestCmd < Test::Unit::TestCase
+class TestSetShow < Test::Unit::TestCase
   require 'stringio'
 
   # Test initial variables and setting/getting state.

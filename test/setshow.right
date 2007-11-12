@@ -18,3 +18,5 @@ line tracing is on.
 line tracing is on.
 line tracing is off.
 line tracing is off.
+Debugger history size is 256
+Saving of history save is false

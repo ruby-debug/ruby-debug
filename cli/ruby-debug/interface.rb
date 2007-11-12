@@ -1,5 +1,25 @@
 module Debugger  
   class LocalInterface # :nodoc:
+    attr_accessor :histfile
+    attr_accessor :history_save
+    attr_accessor :history_length
+
+    unless defined?(FILE_HISTORY)
+      FILE_HISTORY = ".rdebug_hist"
+    end
+    def initialize()
+      @history_save = true
+      @history_length = 256  # take gdb default
+      @histfile = File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
+                            FILE_HISTORY)
+      open(@histfile, 'r') do |file|
+        file.each do |line|
+          line.chomp!
+          Readline::HISTORY << line
+        end
+      end if File.exists?(@histfile)
+    end
+
     def read_command(prompt)
       readline(prompt, true)
     end
@@ -20,21 +40,11 @@ module Debugger
     begin
       require 'readline'
       class << Debugger
-        FILE_HISTORY = ".rdebug_hist"
-        save_file = File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
-                              FILE_HISTORY)
-        open(save_file, 'r') do |file|
-          file.each do |line|
-            line.chomp!
-            Readline::HISTORY << line
-          end
-        end if File.exists?(save_file)
-        
         define_method(:save_history) do
-          open(save_file, 'w') do |file|
-            Readline::HISTORY.to_a.last(500).each do |line|
+          open(@histfile, 'w') do |file|
+            Readline::HISTORY.to_a.last(@history_length).each do |line|
               file.puts line unless line.strip.empty?
-            end
+            end if @history_save
           end rescue nil
         end
         public :save_history 
@@ -46,6 +56,8 @@ module Debugger
       end
     rescue LoadError
       def readline(prompt, hist)
+        @histfile = ''
+        @hist_save = false
         STDOUT.print prompt
         STDOUT.flush
         line = STDIN.gets
@@ -57,8 +69,15 @@ module Debugger
   end
 
   class RemoteInterface # :nodoc:
+    attr_accessor :histfile
+    attr_accessor :history_save
+    attr_accessor :history_length
+
     def initialize(socket)
       @socket = socket
+      @history_save = false
+      @history_length = 256
+      @histfile = ''
     end
     
     def read_command(prompt)
@@ -89,10 +108,16 @@ module Debugger
   end
   
   class ScriptInterface # :nodoc:
+    attr_accessor :histfile
+    attr_accessor :history_save
+    attr_accessor :history_length
     def initialize(file, out, verbose=false)
       @file = file.respond_to?(:gets) ? file : open(file)
       @out = out
       @verbose = verbose
+      @history_save = false
+      @history_length = 256  # take gdb default
+      @histfile = ''
     end
     
     def read_command(prompt)

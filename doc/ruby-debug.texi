@@ -1255,6 +1255,15 @@ require "ruby-debug/debugger"
 
 @node Command Syntax
 @section Command syntax
+Usually a command is put on a single line. However multiple commands can be put on a line
+by separating each with a semicolon (@code{;}).
+
+In the ``local'' interface, the Ruby Readline module is which handles
+line editing and retrieval of previous commands. Up arrow, for example
+moves to the previous debugger command; down arrow moves to the next
+more recent command (provided you are not already at the last
+command). Command history is saved in file @code{.rdebug_hist}. Up to
+500 commands are saved in the history file.
 
 @node Help
 @section Getting help (@samp{help})

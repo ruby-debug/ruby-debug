@@ -40,6 +40,41 @@ module Debugger
       when /^fullpath$/
         on_off = Command.settings[:full_path]
         return "Displaying frame's full file names is #{show_onoff(on_off)}."
+      when /^history(:?\s+(filename|save|size))?$/
+        args = @match[1].split
+        interface = @state.interface
+        if args[1] 
+          show_save = show_size = show_filename = false
+          prefix = false
+          if args[1] == "save"
+            show_save = true
+          elsif args[1] == "size"
+            show_size = true
+          elsif args[1] == "filename"
+            show_filename = true
+          end
+        else
+          show_save = show_size = show_filename = true
+          prefix = true
+        end
+        s = []
+        if show_filename
+          msg = (prefix ? "filename: " : "") + 
+            "The filename in which to record the command history is " +
+                      "#{interface.histfile.inspect}"
+          s << msg
+        end
+        if show_save
+          msg = (prefix ? "save: " : "") + 
+            "Saving of history save is #{interface.history_save}"
+          s << msg
+        end
+        if show_size
+          msg = (prefix ? "size: " : "") + 
+            "Debugger history size is #{interface.history_length}"
+          s << msg
+        end
+        return s.join("\n")
       when /^keep-frame-bindings$/
         on_off = Debugger.keep_frame_binding?
         return "keep-frame-bindings is #{show_onoff(on_off)}."
@@ -91,6 +126,7 @@ module Debugger
        ['callstyle', 2, "Show paramater style used showing call frames"],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
        ['fullpath', 2, "Show if full file names are displayed in frames"],
+       ['history', 2, "Generic command for showing command history parameters"],
        ['keep-frame-bindings', 1, "Save frame binding on each call"],
        ['linetrace', 3, "Show line execution tracing"],
        ['linetrace+', 10, 
