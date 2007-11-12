@@ -66,7 +66,7 @@ module Debugger
         end
         if show_save
           msg = (prefix ? "save: " : "") + 
-            "Saving of history save is #{interface.history_save}"
+            "Saving of history save is #{show_onoff(interface.history_save)}."
           s << msg
         end
         if show_size
