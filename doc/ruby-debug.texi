@@ -1274,7 +1274,7 @@ example moves to the previous debugger command; down arrow moves to
 the next more recent command (provided you are not already at the last
 command). Command history is saved in file @code{.rdebug_hist}. A
 limit is put on the history size. You can see this with the @code{show
-history size} command.
+history size} command. See @ref{History} for history parameters.
 
 @node Help
 @section Getting help (@samp{help})
