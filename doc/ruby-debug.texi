@@ -1255,15 +1255,26 @@ require "ruby-debug/debugger"
 
 @node Command Syntax
 @section Command syntax
-Usually a command is put on a single line. However multiple commands can be put on a line
-by separating each with a semicolon (@code{;}).
+Usually a command is put on a single line. There is no limit on how long
+it can be.  It starts with a command name, which is followed by
+arguments whose meaning depends on the command name.  For example, the
+command @code{step} accepts an argument which is the number of times to
+step, as in @code{step 5}.  You can also use the @code{step} command with no
+arguments.  Some commands do not allow any arguments.
 
-In the ``local'' interface, the Ruby Readline module is which handles
-line editing and retrieval of previous commands. Up arrow, for example
-moves to the previous debugger command; down arrow moves to the next
-more recent command (provided you are not already at the last
-command). Command history is saved in file @code{.rdebug_hist}. Up to
-500 commands are saved in the history file.
+Multiple commands can be put on a line by separating each with a
+semicolon (@code{;}).
+
+A blank line as input (typing just @key{<RET>}) means to repeat the
+previous command.  
+
+In the ``local'' interface, the Ruby Readline module is used. It
+handles line editing and retrieval of previous commands. Up arrow, for
+example moves to the previous debugger command; down arrow moves to
+the next more recent command (provided you are not already at the last
+command). Command history is saved in file @code{.rdebug_hist}. A
+limit is put on the history size. You can see this with the @code{show
+history size} command.
 
 @node Help
 @section Getting help (@samp{help})
@@ -1603,8 +1614,8 @@ def triangle(n)
 @table @code
 @item var const @var{object}
 @kindex var const @var{expr}
-Show the constants of @var{object}. This is basically iterating over
-values in @var{object}@code{.constant}.
+Show the constants of @var{object}. This is basically listing
+variables and their values in @var{object}@code{.constant}.
 @item var instance @var{object}
 @kindex var instance @var{expr}
 Show the instance variables of @var{object}. This is basically listing
@@ -1619,10 +1630,20 @@ Show local variables
 @kindex method instance @var{object}
 Show methods of @var{object}. Basically this is the same as running
 @code{ps object.instance_methods(false)} on @var{object}.
+@item method iv @var{object}
+@kindex method iv @var{object}
+Show method instance variables of @var{object}. Basically this is the same as running
+@smallexample
+  obj.instance_variables.each do |v| 
+     puts "%s = %s\n" % [v, obj.instance_variable_get(v)]
+  end  
+@end smallexample
+on @var{object}.
 @item method @var{class-or-module}
 @kindex method @var{class-or-module}
 Show methods of the class or module, @var{class-or-module}. Basically
 this is the same as running @code{ps object.methods} on @var{class-or-module}.
+on @var{class-or-module}.
 @end table
 
 @node List
@@ -2057,6 +2078,7 @@ allows you to see the current value.
 * Callstyle::            SHow Report file basename only showing file names
 * Forcestep::            Make sure 'next/step' commands always move to a new line
 * Fullpath::             Display full file names in frames
+* History::              Generic command for showing command history parameters.
 * Keepframebindings::    Save frame binding on each call
 * Linetrace::            line execution tracing
 * Linetrace+::           line tracing style
@@ -2202,6 +2224,22 @@ Shows whether forcestep is in effect or not.
 
 @node Fullpath
 @subsection Set/Show Frame full path
+
+@node History
+@subsection Command History Parameters
+@table @code
+@kindex show history filename
+@item show history filename
+Show the filename in which to record the command history
+(the list of previous commands of which a record is kept).
+@kindex show history save
+@item show history save
+Show saving of the history record on exit.
+@kindex show history size
+@item show history size
+Show the size of the command history, ie. the number of previous
+commands to keep a record of.
+@end table
 
 @node Keepframebindings
 @subsection Save frame binding on each call
