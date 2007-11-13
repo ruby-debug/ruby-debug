@@ -35,5 +35,5 @@ show linetrace
 ########################################
 ###  show history
 ########################################
-show history size
+# show history size # nuke until we get set done
 show history save
