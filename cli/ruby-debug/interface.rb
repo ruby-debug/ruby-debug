@@ -9,7 +9,7 @@ module Debugger
     end
     def initialize()
       @history_save = true
-      @history_length = 256  # take gdb default
+      @history_length = ENV["HISTSIZE"]||256  # take gdb default
       @histfile = File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
                             FILE_HISTORY)
       open(@histfile, 'r') do |file|
