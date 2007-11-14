@@ -27,6 +27,8 @@ module Debugger
         "Make sure 'next/step' commands always move to a new line"],
        ['fullpath', 2, true,
         "Display full file names in frames"],
+       ['history', 2, false,
+        "Generic command for setting command history parameters."],
        ['keep-frame-bindings', 1, true,
         "Save frame binding on each call"],
        ['linetrace+', 10, true,
@@ -117,6 +119,22 @@ module Debugger
                 end
               when /^forcestep$/
                 self.class.settings[:force_stepping] = set_on
+              when /^history$/
+                if 2 == args.size
+                  interface = @state.interface
+                  case args[0]
+                  when /^save$/
+                    interface.history_save = get_onoff(args[1])
+                  when /^size$/
+                    interface.history_length = get_int(args[1],
+                                                       "Set history size")
+                  else
+                    print "Invalid history parameter #{args[0]}. Should be 'save' or 'size'.\n" 
+                  end
+                else
+                  print "Need two parameters for 'set history'; got #{args.size}.\n" 
+                  return
+                end
               when /^keep-frame-bindings$/
                 Debugger.keep_frame_binding = set_on
               when /^linetrace\+$/

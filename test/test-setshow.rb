@@ -9,6 +9,7 @@ require "ruby_debug"
 require SRC_DIR + "../cli/ruby-debug.rb"
 
 def cheap_diff(got_lines, correct_lines)
+  puts got_lines if $DEBUG
   correct_lines.each_with_index do |line, i|
     correct_lines[i].chomp!
     if got_lines[i] != correct_lines[i]

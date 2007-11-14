@@ -18,4 +18,10 @@ line tracing is on.
 line tracing is on.
 line tracing is off.
 line tracing is off.
+Need two parameters for 'set history'; got 0.
+Debugger history size is 10
+Debugger history size is 10
 Saving of history save is off.
+Saving of history save is off.
+Saving of history save is on.
+Saving of history save is on.
