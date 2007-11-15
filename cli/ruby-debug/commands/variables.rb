@@ -93,6 +93,8 @@ module Debugger
 
     def execute
       locals = @state.context.frame_locals(@state.frame_pos)
+      _self = @state.context.frame_self(@state.frame_pos) 
+      locals['self'] = _self unless _self.to_s == 'main'
       locals.keys.sort.each do |name|
         print "  %s => %p\n", name, locals[name]
       end

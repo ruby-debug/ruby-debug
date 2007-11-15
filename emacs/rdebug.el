@@ -534,6 +534,7 @@ problem as best as we can determine."
   (rdebug-rdebugtrack-toggle-stack-tracking 1)
   (setq rdebug-rdebugtrack-is-tracking-p t)
   (local-set-key "\C-cg" 'rdebug-goto-traceback-line)
+  (local-set-key "\C-cG" 'rdebug-goto-dollarbang-traceback-line)
   (add-hook 'comint-output-filter-functions 'rdebug-rdebugtrack-track-stack-file)
   ; remove other py-pdbtrack if which gets in the way
   (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)

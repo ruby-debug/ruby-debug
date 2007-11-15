@@ -1,5 +1,6 @@
 # Some common routines used in testing.
 
+require "fileutils"
 # require "diff/lcs"
 # require "diff/lcs/hunk"
 
@@ -27,6 +28,7 @@ module TestHelper
   end
 
   def cheap_diff(got_lines, correct_lines)
+    puts got_lines if $DEBUG
     correct_lines.each_with_index do |line, i|
       correct_lines[i].chomp!
       if got_lines[i] != correct_lines[i]
@@ -37,8 +39,8 @@ module TestHelper
       end
     end
     if correct_lines.size != got_lines.size
-      puts ("difference in number of lines: " + 
-            "#{correct_lines.size} vs. #{got_lines.size}")
+      puts("difference in number of lines: " + 
+           "#{correct_lines.size} vs. #{got_lines.size}")
       return false
     end
     return true
