@@ -396,9 +396,9 @@ Currently-active file is at the head of the list.")
   "^[ \t]+from \\([^:]+\\):\\([0-9]+\\)\\(in `.*'\\)?"
   "Regular expression that describes a Ruby traceback line.")
 
-(defconst rdebug-unittest-traceback-line-re
+(defconst rdebug-dollarbang-traceback-line-re
   "^[ \t]+[[]?\\([^:]+\\):\\([0-9]+\\):in `.*'"
-  "Regular expression that describes a Ruby traceback line from a unit test.")
+  "Regular expression that describes a Ruby traceback line from $! list.")
 
 (defun rdebug-rdebugtrack-overlay-arrow (activation)
   "Activate or de arrow at beginning-of-line in current buffer."
@@ -719,14 +719,14 @@ rdebug-restore-windows if rdebug-many-windows is set"
          (string-to-number (substring s (match-beginning 2) (match-end 2))))
         ))))
 
-(defun rdebug-goto-unittest-traceback-line (pt)
-  "Displays the location in a source file of the Ruby traceback line."
+(defun rdebug-goto-dollarbang-traceback-line (pt)
+  "Displays the location in a source file of the Ruby $! traceback line."
   (interactive "d")
   (save-excursion
     (goto-char pt)
     (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
 	  (gud-comint-buffer (current-buffer)))
-      (when (string-match rdebug-unittest-traceback-line-re s)
+      (when (string-match rdebug-dollarbang-traceback-line-re s)
         (rdebug-display-line
          (substring s (match-beginning 1) (match-end 1))
          (string-to-number (substring s (match-beginning 2) (match-end 2))))
@@ -779,13 +779,13 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 (defconst rdebug--stack-frame-regexp
   "^\\(-->\\|   \\) +#\\([0-9]+\\) +\\(.*\\)at line +\\([^:]+\\):\\([0-9]+\\)$"
-  "Regexp to recognize stack frame lines in rdebug stack buffers.")
+  "Regexp to recognize stack fracme lines in rdebug stack buffers.")
 
 (defun rdebug--setup-stack-buffer (buf)
   "Detects stack frame lines and sets up mouse navigation."
   (with-current-buffer buf
     (let ((inhibit-read-only t)
-	  (frame-point nil) ; position in stack buffer of selected frame
+	  (current-frame-point nil) ; position in stack buffer of selected frame
 	  )
       (setq mode-name "RDEBUG Stack Frames")
       (goto-char (point-min))
@@ -813,7 +813,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
                                            'font-lock-face 'bold))
 		(setq overlay-arrow-position (make-marker))
 		(set-marker overlay-arrow-position (point))
-		(setq frame-point (point)))
+		(setq current-frame-point (point)))
 	    (add-text-properties b e
 				 (list 'mouse-face 'highlight
 				       'keymap rdebug-frames-mode-map))
@@ -828,7 +828,9 @@ rdebug-restore-windows if rdebug-many-windows is set"
 	(beginning-of-line)
 	(delete-char 3)
         (forward-line)
-        (beginning-of-line)))))
+        (beginning-of-line))
+      (when current-frame-point (goto-char current-frame-point)))
+    ))
 
 (defun rdebug-goto-stack-frame (pt)
   "Show the rdebug stack frame corresponding at PT in the rdebug stack buffer."
