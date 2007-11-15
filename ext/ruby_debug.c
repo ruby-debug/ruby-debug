@@ -730,8 +730,8 @@ check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
 }
 
 /*
- * This is a NASTY HACK. For some reasons rb_f_binding is decalred
- * static in eval.c
+ * This is a NASTY HACK. For some reasons rb_f_binding is declared
+ * static in eval.c. So we create a cons up call to binding in C.
  */
 static VALUE
 create_binding(VALUE self)
