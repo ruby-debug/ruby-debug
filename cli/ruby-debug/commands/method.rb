@@ -8,7 +8,7 @@ module Debugger
       if @match[1] == "iv"
         obj = debug_eval(@match.post_match)
         obj.instance_variables.sort.each do |v|
-          print "%s = %s\n", v, obj.instance_variable_get(v)
+          print "%s = %s\n", v, obj.instance_variable_get(v).inspect
         end
       elsif @match[1]
         obj = debug_eval(@match.post_match)
