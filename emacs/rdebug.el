@@ -651,7 +651,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
       (setq mode-name "RDEBUG Breakpoints")
       (goto-char (point-min))
       (while (not (eobp))
-        (let ((b (point-at-bol)) (e (point-at-eol)))
+        (let ((b (line-beginning-position)) (e (line-end-position)))
           (when (string-match rdebug--breakpoint-regexp
                               (buffer-substring b e))
             (add-text-properties b e
@@ -700,7 +700,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
       (when (string-match rdebug--breakpoint-regexp s)
         (rdebug-display-line
          (substring s (match-beginning 2) (match-end 2))
@@ -712,7 +712,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position)))
 	  (gud-comint-buffer (current-buffer)))
       (when (string-match rdebug-traceback-line-re s)
         (rdebug-display-line
@@ -725,7 +725,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol)))
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position)))
 	  (gud-comint-buffer (current-buffer)))
       (when (string-match rdebug-dollarbang-traceback-line-re s)
         (rdebug-display-line
@@ -738,7 +738,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 ;;;   (interactive "d")
 ;;;   (save-excursion
 ;;;     (goto-char pt)
-;;;     (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+;;;     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
 ;;;       (when (string-match rdebug--breakpoint-regexp s)
 ;;;         (let* ((enabled
 ;;;                 (string= (substring s (match-beginning 3) (match-end 3)) "y"))
@@ -751,7 +751,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (buffer-substring (point-at-bol) (point-at-eol))))
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
       (when (string-match rdebug--breakpoint-regexp s)
         (let ((bpnum (substring s (match-beginning 1) (match-end 1))))
           (gud-call (format "delete %s" bpnum)))))))
@@ -778,9 +778,30 @@ rdebug-restore-windows if rdebug-many-windows is set"
     map)
   "Keymap to navigate rdebug stack frames.")
 
+(defun rdebug-frames-mode ()
+  "Major mode for rdebug frames.
+
+\\{rdebug-frames-mode-map}"
+  ; (kill-all-local-variables)
+  (interactive "")
+  (setq major-mode 'rdebug-frames-mode)
+  (setq mode-name "RDEBUG Stack Frames")
+  (use-local-map rdebug-frames-mode-map)
+  ; (set (make-local-variable 'font-lock-defaults)
+  ;     '(gdb-locals-font-lock-keywords))
+  (run-mode-hooks 'rdebug-frames-mode-hook))
+
+(defconst rdebug--stack-frame-1st-regexp
+  "^\\(-->\\|   \\) +#\\([0-9]+\\)\\(.*\\)"
+  "Regexp to recognize the first line of a a stack frame line in rdebug stack buffers.")
+
+(defconst rdebug--stack-frame-2nd-regexp
+  "\s+at line +\\([^:]+\\):\\([0-9]+\\)$"
+  "Regexp to recognize the second line of a a stack frame line in rdebug stack buffers.")
+
 (defconst rdebug--stack-frame-regexp
-  "^\\(-->\\|   \\) +#\\([0-9]+\\) +\\(.*\\)at line +\\([^:]+\\):\\([0-9]+\\)$"
-  "Regexp to recognize stack fracme lines in rdebug stack buffers.")
+  (concat rdebug--stack-frame-1st-regexp rdebug--stack-frame-2nd-regexp)
+  "Regexp to recognize a stack frame line in rdebug stack buffers.")
 
 (defun rdebug--setup-stack-buffer (buf)
   "Detects stack frame lines and sets up mouse navigation."
@@ -788,24 +809,28 @@ rdebug-restore-windows if rdebug-many-windows is set"
     (let ((inhibit-read-only t)
 	  (current-frame-point nil) ; position in stack buffer of selected frame
 	  )
-      (setq mode-name "RDEBUG Stack Frames")
+      (rdebug-frames-mode)
       (goto-char (point-min))
       (while (not (eobp))
-        (let* ((b (point-at-bol)) (e (point-at-eol))
+        (let* ((b (line-beginning-position)) (e (line-end-position))
                (s (buffer-substring b e)))
-          (when (string-match rdebug--stack-frame-regexp s)
+          (when (string-match rdebug--stack-frame-1st-regexp s)
             (add-text-properties
              (+ b (match-beginning 2)) (+ b (match-end 2))
              (list 'face font-lock-constant-face
                    'font-lock-face font-lock-constant-face))
-            (add-text-properties
-             (+ b (match-beginning 4)) (+ b (match-end 4))
-             (list 'face font-lock-comment-face
-                   'font-lock-face font-lock-comment-face))
-            (add-text-properties
+	    ; Not all stack frames are on one line. 
+	    ; handle those that are.
+	    (when (string-match rdebug--stack-frame-regexp s)
+	      (add-text-properties
+	       (+ b (match-beginning 4)) (+ b (match-end 4))
+	       (list 'face font-lock-comment-face
+		     'font-lock-face font-lock-comment-face))
+	      (add-text-properties
              (+ b (match-beginning 5)) (+ b (match-end 5))
              (list 'face font-lock-constant-face
-                   'font-lock-face font-lock-constant-face))
+                   'font-lock-face font-lock-constant-face)))
+
             (when (string= (substring s (match-beginning 1) (match-end 1)) 
 			 "-->")
                 ;; highlight the currently selected frame
@@ -838,8 +863,15 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (concat "-->" (buffer-substring (point-at-bol) (point-at-eol)))))
-      (when (string-match rdebug--stack-frame-regexp s)
+    (let ((s (concat "-->" (buffer-substring (line-beginning-position) (line-end-position))))
+	  (s2 (if (= (line-number-at-pos (line-end-position 2)) (line-number-at-pos (point-max)))
+		  nil
+		;else 
+		  (buffer-substring (line-beginning-position 2) (line-end-position 2)))))
+      (when (or (string-match rdebug--stack-frame-regexp s)
+		; need to match 1st line last to get the match position right
+		(and s2 (string-match rdebug--stack-frame-2nd-regexp s2)
+		     (string-match rdebug--stack-frame-1st-regexp s)))
         (let ((frame (substring s (match-beginning 2) (match-end 2))))
           (gud-call (concat "frame " frame)))))))
 
@@ -866,6 +898,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 \\{rdebug-locals-mode-map}"
   ; (kill-all-local-variables)
+  (interactive "")
   (setq major-mode 'rdebug-locals-mode)
   (setq mode-name "RDEBUG Locals")
   (setq buffer-read-only t)
