@@ -920,20 +920,15 @@ rdebug-restore-windows if rdebug-many-windows is set"
 	   (value (read-string (format "New value (%s): " var))))
       (gud-call (format "p %s=%s" var value)))))
 
-;;-----------------------------------------------------------------------------
-;; ALB - redefinition of gud-reset for our own purposes
-
-(defvar rdebug--orig-gud-reset (symbol-function 'gud-reset))
-
-(defun gud-reset ()
-  "Redefinition of `gud-reset' to take care of rdebug cleanup."
-  (funcall rdebug--orig-gud-reset)
+(defadvice gud-reset (before rdebug-reset)
+  "pydb cleanup - remove debugger's internal buffers (frame, breakpoints, 
+etc.)."
   (dolist (buffer (buffer-list))
     (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
       (let ((w (get-buffer-window buffer)))
         (when w (delete-window w)))
       (kill-buffer buffer))))
-
+(ad-activate 'gud-reset)
 
 (provide 'rdebug)
 
