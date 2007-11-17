@@ -49,12 +49,19 @@ can write into: the value (if any) of the environment variable TMPDIR,
   :type 'string
   :group 'rdebug)
 
+(defcustom rdebug-many-windows t
+  "*If non-nil, display secondary rdebug windows, in a layout similar to `gdba'.
+However only set to the multi-window display if the rdebug
+command invocation has an annotate options (\"--annotate 3\"."
+  :type 'boolean
+  :group 'rdebug)
+
 (defgroup rdebugtrack nil
   "Rdebug file tracking by watching the prompt."
-  :prefix "rdebug-rdebugtrack-"
+  :prefix "rdebugtrack"
   :group 'shell)
 
-(defcustom rdebug-rdebugtrack-do-tracking-p nil
+(defcustom rdebugtrack-do-tracking-p nil
   "*Controls whether the rdebugtrack feature is enabled or not.
 When non-nil, rdebugtrack is enabled in all comint-based buffers,
 e.g. shell buffers and the *Python* buffer.  When using rdebug to debug a
@@ -63,16 +70,9 @@ source file and line that the program is stopped at, much the same way
 as gud-mode does for debugging C programs with gdb."
   :type 'boolean
   :group 'rdebug)
-(make-variable-buffer-local 'rdebug-rdebugtrack-do-tracking-p)
+(make-variable-buffer-local 'rdebugtrack-do-tracking-p)
 
-(defcustom rdebug-many-windows t
-  "*If non-nil, display secondary rdebug windows, in a layout similar to `gdba'.
-However only set to the multi-window display if the rdebug
-command invocation has an annotate options (\"--annotate 3\"."
-  :type 'boolean
-  :group 'rdebug)
-
-(defcustom rdebug-rdebugtrack-minor-mode-string " RDEBUG"
+(defcustom rdebugtrack-minor-mode-string " rdebug"
   "*String to use in the minor mode list when rdebugtrack is enabled."
   :type 'string
   :group 'rdebug)
@@ -109,14 +109,14 @@ distinguishes the two." )
   "\n")
 
 ;; rdebugtrack constants
-(defconst rdebug-rdebugtrack-stack-entry-regexp
+(defconst rdebugtrack-stack-entry-regexp
       "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
   "Regular expression rdebugtrack uses to find a stack trace entry.")
 
-(defconst rdebug-rdebugtrack-input-prompt "\n(+rdb:\\([0-9]+\\|post-mortem\\))+ *"
+(defconst rdebugtrack-input-prompt "\n(+rdb:\\([0-9]+\\|post-mortem\\))+ *"
   "Regular expression rdebugtrack uses to recognize a rdebug prompt.")
 
-(defconst rdebug-rdebugtrack-track-range 10000
+(defconst rdebugtrack-track-range 10000
   "Max number of characters from end of buffer to search for stack entry.")
 
 (defun gud-rdebug-massage-args (file args)
@@ -383,7 +383,7 @@ below will appear.
   "Queue of Makefile temp files awaiting execution.
 Currently-active file is at the head of the list.")
 
-(defvar rdebug-rdebugtrack-is-tracking-p t)
+(defvar rdebugtrack-is-tracking-p t)
 
 
 ;; Constants
@@ -400,25 +400,25 @@ Currently-active file is at the head of the list.")
   "^[ \t]+[[]?\\([^:]+\\):\\([0-9]+\\):in `.*'"
   "Regular expression that describes a Ruby traceback line from $! list.")
 
-(defun rdebug-rdebugtrack-overlay-arrow (activation)
+(defun rdebugtrack-overlay-arrow (activation)
   "Activate or de arrow at beginning-of-line in current buffer."
   ;; This was derived/simplified from edebug-overlay-arrow
   (cond (activation
 	 (setq overlay-arrow-position (make-marker))
 	 (setq overlay-arrow-string "=>")
 	 (set-marker overlay-arrow-position (point) (current-buffer))
-	 (setq rdebug-rdebugtrack-is-tracking-p t))
-	(rdebug-rdebugtrack-is-tracking-p
+	 (setq rdebugtrack-is-tracking-p t))
+	(rdebugtrack-is-tracking-p
 	 (setq overlay-arrow-position nil)
-	 (setq rdebug-rdebugtrack-is-tracking-p nil))
+	 (setq rdebugtrack-is-tracking-p nil))
 	))
 
-(defun rdebug-rdebugtrack-track-stack-file (text)
+(defun rdebugtrack-track-stack-file (text)
   "Show the file indicated by the rdebug stack entry line, in a separate window.
 Activity is disabled if the buffer-local variable
-`rdebug-rdebugtrack-do-tracking-p' is nil.
+`rdebugtrack-do-tracking-p' is nil.
 
-We depend on the rdebug input prompt matching `rdebug-rdebugtrack-input-prompt'
+We depend on the rdebug input prompt matching `rdebugtrack-input-prompt'
 at the beginning of the line.
 " 
   ;; Instead of trying to piece things together from partial text
@@ -433,20 +433,20 @@ at the beginning of the line.
   (let* ((origbuf (current-buffer))
 	 (currproc (get-buffer-process origbuf)))
 
-    (if (not (and currproc rdebug-rdebugtrack-do-tracking-p))
-        (rdebug-rdebugtrack-overlay-arrow nil)
+    (if (not (and currproc rdebugtrack-do-tracking-p))
+        (rdebugtrack-overlay-arrow nil)
       ;else 
       (let* ((procmark (process-mark currproc))
 	     (block-start (max comint-last-input-end
-			       (- procmark rdebug-rdebugtrack-track-range)))
+			       (- procmark rdebugtrack-track-range)))
              (block-str (buffer-substring block-start procmark))
              target target_fname target_lineno target_buffer)
 
-        (if (not (string-match rdebug-rdebugtrack-input-prompt block-str))
-            (rdebug-rdebugtrack-overlay-arrow nil)
+        (if (not (string-match rdebugtrack-input-prompt block-str))
+            (rdebugtrack-overlay-arrow nil)
 	  ;else 
           
-          (setq target (rdebug-rdebugtrack-get-source-buffer block-str))
+          (setq target (rdebugtrack-get-source-buffer block-str))
 
           (if (stringp target)
               (message "rdebugtrack: %s" target)
@@ -458,7 +458,7 @@ at the beginning of the line.
             (switch-to-buffer-other-window target_buffer)
             (goto-line target_lineno)
             (message "rdebugtrack: line %s, file %s" target_lineno target_fname)
-            (rdebug-rdebugtrack-overlay-arrow t)
+            (rdebugtrack-overlay-arrow t)
             (pop-to-buffer origbuf t)
             )
 
@@ -479,7 +479,7 @@ at the beginning of the line.
 	)))
     )
 
-(defun rdebug-rdebugtrack-get-source-buffer (block-str)
+(defun rdebugtrack-get-source-buffer (block-str)
   "Return line number and buffer of code indicated by block-str's traceback 
 text.
 
@@ -516,44 +516,69 @@ problem as best as we can determine."
 
 
 
-;; rdebugtrack functions
-(defun rdebug-rdebugtrack-toggle-stack-tracking (arg)
-  (interactive "P")
-  (if (not (get-buffer-process (current-buffer)))
-      (error "No process associated with buffer '%s'" (current-buffer)))
-  ;; missing or 0 is toggle, >0 turn on, <0 turn off
-  (if (or (not arg)
-	  (zerop (setq arg (prefix-numeric-value arg))))
-      (setq rdebug-rdebugtrack-do-tracking-p (not rdebug-rdebugtrack-do-tracking-p))
-    (setq rdebug-rdebugtrack-do-tracking-p (> arg 0)))
-  (message "%sabled rdebug's rdebugtrack"
-           (if rdebug-rdebugtrack-do-tracking-p "En" "Dis")))
+;; rdebugtrack 
+(defcustom rdebugrack-mode-text " rdebug"
+  "*String to display in the mode line when rdebugtrack mode is active.
 
-(defun turn-on-rdebugtrack ()
-  (interactive)
-  (rdebug-rdebugtrack-toggle-stack-tracking 1)
-  (setq rdebug-rdebugtrack-is-tracking-p t)
+\(When the string is not empty, make sure that it has a leading space.)"
+  :tag "rdebug mode text"                ; To separate it from `global-...'
+  :group 'rdebug
+  :type 'string)
+
+(define-minor-mode rdebugtrack-mode ()
+  "Minor mode for tracking ruby debugging inside a process shell."
+  :init-value nil
+  ;; The indicator for the mode line.
+  :lighter rdebugtrack-mode-text
+  ;; The minor mode bindings.
+  :keymap
+  '(("\C-cg" . 'rdebug-goto-traceback-line)
+    ("\C-cG" . 'rdebug-goto-dollarbang-traceback-line))
+  :global nil
+  :group 'rdebug
+  (rdebugtrack-toggle-stack-tracking 1)
+  (setq rdebugtrack-is-tracking-p t)
   (local-set-key "\C-cg" 'rdebug-goto-traceback-line)
   (local-set-key "\C-cG" 'rdebug-goto-dollarbang-traceback-line)
-  (add-hook 'comint-output-filter-functions 'rdebug-rdebugtrack-track-stack-file)
-  ; remove other py-pdbtrack if which gets in the way
-  (remove-hook 'comint-output-filter-functions 'py-pdbtrack-track-stack-file)
-  (remove-hook 'comint-output-filter-functions 'py-pydbtrack-track-stack-file)
-  (remove-hook 'comint-output-filter-functions 'bashdb-bashdbtrack-track-stack-file)
+  (add-hook 'comint-output-filter-functions 'rdebugtrack-track-stack-file)
+  (run-mode-hooks 'rdebugtrack-mode-hook))
+
+
+(defun rdebugtrack-toggle-stack-tracking (arg)
+  (interactive "P")
+  (if (not (get-buffer-process (current-buffer)))
+      (message "No process associated with buffer '%s'" (current-buffer))
+    ;else
+    ;; missing or 0 is toggle, >0 turn on, <0 turn off
+    (if (or (not arg)
+	    (zerop (setq arg (prefix-numeric-value arg))))
+	(setq rdebugtrack-do-tracking-p (not rdebugtrack-do-tracking-p))
+      (setq rdebugtrack-do-tracking-p (> arg 0)))
+    (message "%sabled rdebug's rdebugtrack"
+	     (if rdebugtrack-do-tracking-p "En" "Dis")))
+  )
+
+(defun turn-on-rdebugtrack-mode ()
+  "Turn on rdebugtrack mode.
+
+This function is designed to be added to hooks, for example:
+  (add-hook 'comint-mode-hook 'turn-on-rdebugtrack-mode)"
+  (interactive)
+  (rdebugtrack-mode 1)
 )
 
 (defun turn-off-rdebugtrack ()
   (interactive)
-  (rdebug-rdebugtrack-toggle-stack-tracking 0)
-  (setq rdebug-rdebugtrack-is-tracking-p nil)
+  (setq rdebugtrack-is-tracking-p nil)
+  (rdebugtrack-toggle-stack-tracking 0)
   (remove-hook 'comint-output-filter-functions 
-	       'rdebug-rdebugtrack-track-stack-file) )
+	       'rdebugtrack-track-stack-file))
 
 ;; Add a designator to the minor mode strings if we are tracking
-(or (assq 'rdebug-rdebugtrack-minor-mode-string minor-mode-alist)
+(or (assq 'rdebugtrack-minor-mode-string minor-mode-alist)
     (add-to-list 'minor-mode-alist 
-		 '(rdebug-rdebugtrack-is-tracking-p
-		   rdebug-rdebugtrack-minor-mode-string)))
+		 '(rdebugtrack-is-tracking-p
+		   rdebugtrack-minor-mode-string)))
 ;; rdebugtrack
 
 ;;-----------------------------------------------------------------------------
