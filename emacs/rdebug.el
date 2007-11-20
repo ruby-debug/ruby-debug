@@ -517,7 +517,7 @@ problem as best as we can determine."
 
 
 ;; rdebugtrack 
-(defcustom rdebugrack-mode-text " rdebug"
+(defcustom rdebugtrack-mode-text " rdebug"
   "*String to display in the mode line when rdebugtrack mode is active.
 
 \(When the string is not empty, make sure that it has a leading space.)"
@@ -531,9 +531,6 @@ problem as best as we can determine."
   ;; The indicator for the mode line.
   :lighter rdebugtrack-mode-text
   ;; The minor mode bindings.
-  :keymap
-  '(("\C-cg" . 'rdebug-goto-traceback-line)
-    ("\C-cG" . 'rdebug-goto-dollarbang-traceback-line))
   :global nil
   :group 'rdebug
   (rdebugtrack-toggle-stack-tracking 1)
