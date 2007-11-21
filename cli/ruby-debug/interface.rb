@@ -42,6 +42,8 @@ module Debugger
       require 'readline'
       class << Debugger
         define_method(:save_history) do
+          @histfile ||= File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
+                                  FILE_HISTORY)
           open(@histfile, 'w') do |file|
             Readline::HISTORY.to_a.last(@history_length).each do |line|
               file.puts line unless line.strip.empty?
