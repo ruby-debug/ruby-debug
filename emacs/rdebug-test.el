@@ -67,7 +67,8 @@ file and line submatches."
 (defun regexp-unittest-traceback-test (location-str file-str line-str)
   "Test to see that location-str matches position-regexp-file-test with the correct
 file and line submatches."
-  (assert-equal 0 (string-match rdebug-unittest-traceback-line-re location-str))
+  (assert-equal 0 (string-match rdebug-dollarbang-traceback-line-re 
+				location-str))
   (assert-equal file-str (match-string 1 location-str))
   (assert-equal line-str (match-string 2 location-str))
   )
