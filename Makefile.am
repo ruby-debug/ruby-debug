@@ -1,4 +1,4 @@
 SUBDIRS = doc emacs
-PHONY = ChangeLog gem
+PHONY = ChangeLog
 ChangeLog:
 	svn2cl 

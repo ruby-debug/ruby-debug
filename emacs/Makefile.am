@@ -15,15 +15,17 @@
 #   Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 #$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
 
-check_DATA = $(srcdir)/rdebug-test.el $(srcdir)/elk-test.el
+check_DATA = rdebug-test.el elk-test.el
 EXTRA_DIST = rdebug.el $(check_DATA)
 ELCFILES   = rdebug.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = rdebug.el 
 endif
 
+PHONY = test check
+
 test: check
 
 check:
-	$(EMACS) -batch -q -l $(check_DATA)
+	(cd $(srcdir) && $(EMACS) -batch -q -l $(check_DATA))
 

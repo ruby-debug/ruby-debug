@@ -17,7 +17,7 @@
 ##############################################################################
 
 EXT=1
-# man1_MANS = ruby-debug.$(EXT)
+man1_MANS = rdebug.$(EXT)
 
 EXTRA_DIST = $(man1_MANS)  \
 	ruby-debug.info ruby-debug.html ruby-debug.pdf
