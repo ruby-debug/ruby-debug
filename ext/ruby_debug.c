@@ -1187,8 +1187,9 @@ debug_start(VALUE self)
  *   This method disables the debugger. It returns +true+ if the debugger is disabled,
  *   otherwise it returns +false+.
  *
- *   <i>Note that if you want to stop debugger, you must call Debugger.stop as many time as you
- *   called Debugger.start method.</i>
+ *   <i>Note that if you want to stop debugger, you must call
+ *   Debugger.stop as many times as you called Debugger.start
+ *   method.</i>
  */
 static VALUE
 debug_stop(VALUE self)
@@ -2205,7 +2206,7 @@ context_stack_size(VALUE self)
 
 /*
  *   call-seq:
- *      context.thread -> trhread
+ *      context.thread -> thrread
  *
  *   Returns a thread this context is associated with.
  */
