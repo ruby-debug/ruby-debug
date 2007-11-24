@@ -972,7 +972,9 @@ ruby-debug 0.9.4
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 
 Options:
+    -A, --annotate LEVEL             Set annotation level
     -s, --server                     Listen for remote connections
+    -d, --debug                      Set $DEBUG=true
     -w, --wait                       Wait for a client connection, implies -s option
     -c, --client                     Connect to remote debugger
     -h, --host HOST                  Host name used for remote debugging
@@ -989,6 +991,7 @@ Options:
         --emacs                      Activates emacs mode
 
 Common options:
+        --verbose                    turn on verbose mode
         --help                       Show this message
     -v, --version                    Show version
 @end smallexample
@@ -1025,6 +1028,13 @@ This option causes @ttDBG{} to print some basic help and exit.
 @cindex @code{-v}
 This option causes @ttDBG{} to print its version number and exit.
 
+@item -A | --annotation @var{level}
+@cindex @code{-A}
+@cindex @code{--annotation} @var{level}
+Set gdb-style annotation @var{level}, a number. Additional information is output
+automatically when program state is changed. This can be used by
+front-ends such as GNU Emacs to post this updated information without
+having to poll for it.
 @item -c | --client
 @cindex @code{-c}
 @cindex @code{--client}
@@ -2363,21 +2373,66 @@ end
 @ifset LATER
 * Debugger.post-mortem:: 
 @end ifset
+* Debugger.context::
 * Debugger.settings::
 @end menu
 
 @node Debugger.run
-@subsection @code{Debugger.start}, @code{Debugger.stop}, etc.
+@subsection @code{Debugger.start}, @code{Debugger.stop}, @code{Debugger.started?}, @code{Debugger.run_script}
+
+In order to provide better debugging information regarding the stack
+frame, ruby-debug has to intercept each call and add this
+information. Possibly, in Ruby 1.9 possibly this will not be true.
 
 @table @code
-@item Debugger.start
+@item Debugger.start @ovar{block}
 Turn on add additional instrumentation code to facilitate debugging.
+If called without a block, it returns @code{true}, unless debugger was
+already started. If a block is given, it starts debugger and
+@code{yields} to block. When the block is finished executing, the
+debugger stopped with the @code{Debugger.stop method}.  @emph{Note
+that if you want to stop debugger, you must call @code{Debugger.stop}
+as many times as you called Debugger.start method.}
 @item Debugger.stop
-Turn off instrumentation to allow debugging.
+Turn off instrumentation to allow debugging. Return @code{true} is returned
+if the debugger is disabled, otherwise it returns @code{false}.
+@emph{Note that if you want to stop debugger, you must call Debugger.stop
+as many times as you called the @code{Debugger.start} method.}
 @item Debugger.started?
 Boolean. Return @code{true} if debugger has been started.
 @item Debugger.run_script(@var{debugger-command-file}, out = handler.interface)
 Reads/runs the given file contaiing debugger commands. @code{.rdebugrc} is run this way.
+@end table
+
+@node Debugger.context
+@subsection @code{Debugger.context}
+As mentioned previously, @code{Debugger.start} instruments additional
+information to be obtained about the current block/frame stack. Here
+we describe these additional @code{Debugger.context} methods. 
+
+Were a frame position is indicated, it is optional. The top or current frame 
+position (position zero) is used if none is given.
+
+@table @code
+@item Debugger.context.frame_args @ovar{frame-position=0}
+If track_frame_args? is true, return information saved about call
+arguments (if any saved) for the given frame position.
+@item Debugger.context.frame_args_info @ovar{frame-position=0}
+@item Debugger.context.frame_class @ovar{frame-position=0}
+Return the class of the current frame stack.
+@item Debugger.context.frame_file @ovar{frame-position=0}
+Return the filename of the location of the indicated frame position.
+@item Debugger.context.frame_id @ovar{frame-position=0}
+Same as @code{Debugger.context.method}.
+@item Debugger.context.frame_line @ovar{frame-position=0}
+Return the filename of the location of the indicated frame position.
+@item Debugger.context.frame_method @ovar{frame-position=0}
+Symbol of the method name of the indicated frame position.
+@item Debugger.context.stack_size
+Return the number the size of the frame stack. Note this may be less
+that the actual frame stack size if debugger recording
+(@code{Debugger.start}) was turned on at after some blocks were added
+and not finished when the @code{Debugger.start} was issued.
 @end table
 
 @node Debugger.settings

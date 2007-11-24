@@ -26,7 +26,7 @@ these) to help you catch bugs in the act:
 
 .TP
 \ \ \ \(bu
-Start or restart your Python script, specifying arguments that might
+Start or restart your Ruby script, specifying arguments that might
 affect its behavior.
 
 .TP
@@ -141,14 +141,18 @@ http://rubyforge.org/projects/ruby-debug/
 .PP
 .TP 10
 .B \-h | \-\-help
-show invocation help and exit
+Show invocation help and exit.
 .TP
 .B \-\-version
-show the version number and exit
+Show the version number and exit.
+.TP
+.B \-\-verbose
+Turn on verbose mode.
 .TP
 .B \-\-v
-print the version number, then turn on verbose mode is a script name is given. If no script name
-is given just exit after printing the version number.
+Print the version number, then turn on verbose mode if a script name
+is given. If no script name is given just exit after printing the
+version number.
 .TP
 .B \-n | \-\-nx
 Don't execute commands found in any initialization files
@@ -174,10 +178,11 @@ Activates GNU Emacs mode. Debugger prompts are pref
 .B \-n | \-\-nostop
 Do not stop when stript is loaded.
 .TP
-.b \-a | \-\-annotate=level
-set gdb-like annotation_level. the annotation level is used by
-front-ends to get posted about program information when things change
-without having to poll for the information.
+.b \-a | \-\-annotate=LEVEL
+Set gdb-style annotation to LEVEL, a number. Additional information is output
+automatically when program state is changed. This can be used by
+front-ends such as GNU Emacs to post this updated information without
+having to poll for it.
 .TP
 .B \-\-debug
 Set $DEBUG true.
