@@ -2087,12 +2087,14 @@ context_copy_locals(debug_frame_t *debug_frame)
  *   Returns frame's local variables.
  */
 static VALUE
-context_frame_locals(VALUE self, VALUE frame)
+context_frame_locals(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     debug_frame = GET_FRAME;
@@ -2721,9 +2723,9 @@ Init_context()
     rb_define_method(cContext, "frame_file", context_frame_file, -1);
     rb_define_method(cContext, "frame_id", context_frame_id, -1);
     rb_define_method(cContext, "frame_line", context_frame_line, -1);
-    rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
+    rb_define_method(cContext, "frame_locals", context_frame_locals, -1);
     rb_define_method(cContext, "frame_method", context_frame_id, -1);
-    rb_define_method(cContext, "frame_self", context_frame_self, 1);
+    rb_define_method(cContext, "frame_self", context_frame_self, -1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
     rb_define_method(cContext, "dead?", context_dead, 0);
     rb_define_method(cContext, "breakpoint", context_breakpoint, 0);
