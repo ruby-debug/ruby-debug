@@ -1858,19 +1858,35 @@ check_frame_number(debug_context_t *debug_context, VALUE frame)
     return frame_n;
 }
 
+static int 
+optional_frame_position(int argc, VALUE *argv) {
+  unsigned int i_scanned;
+  VALUE level;
+
+  if ((argc > 1) || (argc < 0))
+    rb_raise(rb_eArgError, "wrong number of arguments (%d for 0 or 1)", argc);
+  i_scanned = rb_scan_args(argc, argv, "01", &level);
+  if (0 == i_scanned) {
+    level = INT2FIX(0);
+  }
+  return level;
+}
+
 /*
  *   call-seq:
- *      context.frame_args(frame) -> list 
-        if track_frame_args or nil othersise
+ *      context.frame_args_info(frame_position=0) -> list 
+        if track_frame_args or nil otherwise
  *
  *   Returns info saved about call arguments (if any saved).
  */
 static VALUE
-context_frame_args_info(VALUE self, VALUE frame)
+context_frame_args_info(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     return RTEST(track_frame_args) ? GET_FRAME->arg_ary : Qnil;
@@ -1878,34 +1894,37 @@ context_frame_args_info(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_binding(frame) -> binding
+ *      context.frame_binding(frame_position=0) -> binding
  *
  *   Returns frame's binding.
  */
 static VALUE
-context_frame_binding(VALUE self, VALUE frame)
+context_frame_binding(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
     return GET_FRAME->binding;
 }
 
 /*
  *   call-seq:
- *      context.frame_method(frame) -> sym
+ *      context.frame_method(frame_position=0) -> sym
  *
  *   Returns the sym of the called method.
  */
 static VALUE
-context_frame_id(VALUE self, VALUE frame)
+context_frame_id(int argc, VALUE *argv, VALUE self)
 {
-
+    VALUE frame;
     debug_context_t *debug_context;
     ID id;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     id = GET_FRAME->id;
@@ -1914,16 +1933,18 @@ context_frame_id(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_line(frame) -> int
+ *      context.frame_line(frame_position) -> int
  *
  *   Returns the line number in the file.
  */
 static VALUE
-context_frame_line(VALUE self, VALUE frame)
+context_frame_line(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     return INT2FIX(GET_FRAME->line);
@@ -1931,16 +1952,18 @@ context_frame_line(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_file(frame) -> string
+ *      context.frame_file(frame_position) -> string
  *
  *   Returns the name of the file.
  */
 static VALUE
-context_frame_file(VALUE self, VALUE frame)
+context_frame_file(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     return rb_str_new2(GET_FRAME->file);
@@ -2081,17 +2104,19 @@ context_frame_locals(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_args(frame) -> list
+ *      context.frame_args(frame_position=0) -> list
  *
  *   Returns frame's argument parameters
  */
 static VALUE
-context_frame_args(VALUE self, VALUE frame)
+context_frame_args(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     debug_frame = GET_FRAME;
@@ -2103,17 +2128,19 @@ context_frame_args(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_self(frame) -> obj
+ *      context.frame_self(frame_postion=0) -> obj
  *
  *   Returns self object of the frame.
  */
 static VALUE
-context_frame_self(VALUE self, VALUE frame)
+context_frame_self(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     debug_frame = GET_FRAME;
@@ -2122,19 +2149,21 @@ context_frame_self(VALUE self, VALUE frame)
 
 /*
  *   call-seq:
- *      context.frame_class(frame) -> obj
+ *      context.frame_class(frame_position) -> obj
  *
  *   Returns the real class of the frame. 
  *   It could be different than context.frame_self(frame).class
  */
 static VALUE
-context_frame_class(VALUE self, VALUE frame)
+context_frame_class(int argc, VALUE *argv, VALUE self)
 {
+    VALUE frame;
     debug_context_t *debug_context;
     debug_frame_t *debug_frame;
     VALUE klass;
 
     debug_check_started();
+    frame = optional_frame_position(argc, argv);
     Data_Get_Struct(self, debug_context_t, debug_context);
 
     debug_frame = GET_FRAME;
@@ -2685,16 +2714,16 @@ Init_context()
     rb_define_method(cContext, "tracing", context_tracing, 0);
     rb_define_method(cContext, "tracing=", context_set_tracing, 1);
     rb_define_method(cContext, "ignored?", context_ignored, 0);
-    rb_define_method(cContext, "frame_args", context_frame_args, 1);
-    rb_define_method(cContext, "frame_binding", context_frame_binding, 1);
-    rb_define_method(cContext, "frame_id", context_frame_id, 1);
-    rb_define_method(cContext, "frame_method", context_frame_id, 1);
-    rb_define_method(cContext, "frame_args_info", context_frame_args_info, 1);
-    rb_define_method(cContext, "frame_line", context_frame_line, 1);
-    rb_define_method(cContext, "frame_file", context_frame_file, 1);
+    rb_define_method(cContext, "frame_args", context_frame_args, -1);
+    rb_define_method(cContext, "frame_args_info", context_frame_args_info, -1);
+    rb_define_method(cContext, "frame_binding", context_frame_binding, -1);
+    rb_define_method(cContext, "frame_class", context_frame_class, -1);
+    rb_define_method(cContext, "frame_file", context_frame_file, -1);
+    rb_define_method(cContext, "frame_id", context_frame_id, -1);
+    rb_define_method(cContext, "frame_line", context_frame_line, -1);
     rb_define_method(cContext, "frame_locals", context_frame_locals, 1);
+    rb_define_method(cContext, "frame_method", context_frame_id, -1);
     rb_define_method(cContext, "frame_self", context_frame_self, 1);
-    rb_define_method(cContext, "frame_class", context_frame_class, 1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
     rb_define_method(cContext, "dead?", context_dead, 0);
     rb_define_method(cContext, "breakpoint", context_breakpoint, 0);

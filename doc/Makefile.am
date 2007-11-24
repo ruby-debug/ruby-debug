@@ -1,6 +1,6 @@
 ##############################################################################
 # $Id: Makefile.am,v 1.3 2006/12/28 12:34:25 rockyb Exp $
-#  Copyright (C) 2003 Rocky Bernstein
+#  Copyright (C) 2007 Rocky Bernstein
 #  This program is free software; you can redistribute it and/or modify
 #  it under the terms of the GNU General Public License as published by
 #  the Free Software Foundation; either version 2 of the License, or
@@ -38,9 +38,6 @@ html: ruby-debug.html
 
 ruby-debug.html: ruby-debug.texi
 	texi2html $(srcdir)/ruby-debug.texi || true
-
-# $(man1_MANS): ruby-debug-man.pod
-#	pod2man --release=$(PACKAGE_VERSION) --center="GNU Tools" --section=$(EXT) $(srcdir)/bashdb-man.pod >$@
 
 %.ps.gz: %.ps
 	gzip -9c $< > $@

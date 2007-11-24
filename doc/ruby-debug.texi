@@ -310,9 +310,9 @@ debugger, one can issue a @code{quit} command.
 @section Sample Session 2: Delving Deeper (@code{where}, @code{frame}, @code{restart}, @code{autoeval}, @code{break}, @code{ps})
 
 In this section we'll introduce breakpoints, the call stack and
-restarting.  
-So far we've been doing pretty good in that we've not encountered a bug
-to fix. Let's try another simple example. Okay here's the program.
+restarting.  So far we've been doing pretty good in that we've not
+encountered a bug to fix. Let's try another simple example. Okay
+here's the program.
 
 Below we will debug a simple Ruby program to solve the classic Towers
 of Hanoi puzzle. It is augmented by the bane of programming: some
@@ -1712,14 +1712,17 @@ When your script has stopped, one thing you'll probably want to know
 is where it stopped and some idea of how it got there.
 
 @cindex call stack
-Each time your script performs a function call (either as part of a
-command substitution or not), or `source's a file, information about
-this action is saved.  The call stack then is this a history of the
-calls that got you to the point that you are currently stopped at.
+Each time your script performs a function or sends a message to a
+method, or enters a block, information about this action is saved.
+The frame stack then is this a history of the blocks that got you to
+the point that you are currently stopped at.@footnote{More accurately
+we should call this a ``block stack''; but we'll use the name that is
+more commonly used. And internally in Ruby, there is ``FRAME''
+structure which is yet slightly different.}
 
-@cindex selected frame
-One of the stack frames is @dfn{selected} by @DBG{} and many
-@DBG commands refer implicitly to the selected frame.  In
+@cindex selected block
+One entry in call stack is @dfn{selected} by @DBG{} and many
+@DBG commands refer implicitly to the selected block.  In
 particular, whenever you ask @DBG to list lines without giving
 a line number or location the value is found in the selected frame.
 There are special @DBG commands to select whichever frame you
@@ -1746,12 +1749,11 @@ updated via a prior @code{list} command.
 
 @cindex frame, definition
 @cindex stack frame
-The call stack is divided up into contiguous pieces called @dfn{stack
-frames}, or @dfn{frames} for short; each frame is the data associated
-with one call to one function or method.  The frame contains the line
-number of the caller of the function, the source-file name that the
-line refers to a function name (which could be the built-in name
-``source'')..
+The block stack is divided up into contiguous pieces called @dfn{stack
+frames}, @dfn{frames}, or @dfn{blocks} for short; each frame/block has
+a scope associated with it; It contains a line number and the
+source-file name that the line refers. If the frame/block is the beginning
+of a method or function it also contains the function name.
 
 @cindex initial frame
 @cindex outermost frame

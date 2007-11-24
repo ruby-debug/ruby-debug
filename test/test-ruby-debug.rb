@@ -2,12 +2,36 @@
 require "test/unit"
 
 $: << File.expand_path(File.dirname(__FILE__)) + '/../ext'
+$: << File.expand_path(File.dirname(__FILE__)) + '/../cli'
 $: << File.expand_path(File.dirname(__FILE__)) + '/../cli/ruby-debug'
 require "ruby_debug"
 
 # Test of C extension ruby_debug.so
 class TestRubyDebug < Test::Unit::TestCase
   include Debugger
+
+  # test current_context
+  def test_current_context
+    assert_equal(false, Debugger.started?, 
+                 "debugger should not initially be started.")
+    Debugger.start
+    assert(Debugger.started?, 
+           "debugger should now be started.")
+    assert_equal(20, Debugger.current_context.frame_line)
+    assert_equal(nil, Debugger.current_context.frame_args_info,
+                 "no frame args info.")
+    assert_equal(Debugger.current_context.frame_file, 
+                 Debugger.current_context.frame_file(0))
+    assert_equal("test-ruby-debug.rb",
+                 File.basename(Debugger.current_context.frame_file))
+    assert_raises(ArgumentError) {Debugger.current_context.frame_file(1, 2)}
+    assert_raises(ArgumentError) {Debugger.current_context.frame_file(10)}
+    assert_equal(1, Debugger.current_context.stack_size)
+    assert_equal(TestRubyDebug, Debugger.current_context.frame_class)
+    Debugger.stop
+    assert_equal(false, Debugger.started?, 
+                 "Debugger should no longer be started.")
+  end
 
   # Test initial variables and setting/getting state.
   def test_basic
@@ -27,7 +51,7 @@ class TestRubyDebug < Test::Unit::TestCase
                  "Context should be an array.")
     Debugger.stop
     assert_equal(false, Debugger.started?, 
-                 "Debugger should no longer be started.")
+                 "debugger should no longer be started.")
   end
 
   # Test breakpoint handling

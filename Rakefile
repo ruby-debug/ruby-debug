@@ -22,7 +22,6 @@ CLI_FILES = COMMON_FILES + FileList[
   'bin/*',
   "cli/**/*",
   'emacs/**/*.el',
-  'emacs/elisp-comp',
 ]
 
 FILES = COMMON_FILES + FileList[
