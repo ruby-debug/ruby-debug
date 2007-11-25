@@ -2004,7 +2004,7 @@ count step+ commands. Instead it uses count-1 step commands followed
 by a step+ command. For example, @code{step+ 3} is the
 same as @code{step; step; step+}, not @code{step+; step+; step+}}
 
-If you find yourself generally wanting to use @code{step +} rather
+If you find yourself generally wanting to use @code{step+} rather
 than @code{step}, you may want to considier using @code{set
 forcestep}, (@pxref{Forcestep}).
 
