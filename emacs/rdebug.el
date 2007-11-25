@@ -1,4 +1,5 @@
 ;;; rdebug.el --- Debugger mode via GUD and rdebug.
+;;; $Id$
 ;; Copyright (C) 2006, 2007 Rocky Bernstein (rocky@gnu.org) 
 
 ;; GNU Emacs is free software; you can redistribute it and/or modify
@@ -693,7 +694,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
 
 (defun rdebug--setup-breakpoints-buffer (buf)
-  "Detects breakpoint lines and sets up mouse navigation."
+  "Detects breakpoint lines and sets up keymap and mouse navigation."
   (with-current-buffer buf
     (let ((inhibit-read-only t))
       (rdebug-breakpoints-mode)
