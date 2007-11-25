@@ -653,14 +653,40 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 ;; -- breakpoints
 
-(defvar rdebug--breakpoints-map
-  (let ((map (make-sparse-keymap)))
+(defvar rdebug-breakpoints-mode-map
+  (let ((map (make-sparse-keymap))
+	(menu (make-sparse-keymap "Breakpoints")))
+    (define-key menu [quit] '("Quit"   . rdebug-delete-frame-or-window))
+    (define-key menu [goto] '("Goto"   . rdebug-goto-breakpoint))
+    (define-key menu [delete] '("Delete" . rdebug-delete-breakpoint))
+    ; (define-key menu [toggle] '("Toggle" . gdb-toggle-breakpoint))
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     ; (define-key map [? ] 'rdebug-toggle-breakpoint)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     map)
   "Keymap to navigate/set/enable rdebug breakpoints.")
+
+(defun rdebug-delete-frame-or-window ()
+  "Delete frame if there is only one window.  Otherwise delete the window."
+  (interactive)
+  (if (one-window-p) (delete-frame)
+    (delete-window)))
+
+(defun rdebug-breakpoints-mode ()
+  "Major mode for rdebug breakpoints.
+
+\\{rdebug-breakpoints-mode-map}"
+  (kill-all-local-variables)
+  (setq major-mode 'rdebug-breakpoints-mode)
+  (setq mode-name "RDEBUG Breakpoints")
+  (use-local-map rdebug-breakpoints-mode-map)
+  (setq buffer-read-only t)
+  (run-mode-hooks 'rdebug-breakpoints-mode-hook)
+  ;(if (eq (buffer-local-value 'gud-minor-mode gud-comint-buffer) 'gdba)
+  ;    'gdb-invalidate-breakpoints
+  ;  'gdbmi-invalidate-breakpoints)
+)
 
 (defconst rdebug--breakpoint-regexp
   "^\\ +\\([0-9]+\\) +at +\\(.+\\):\\([0-9]+\\)$"
@@ -670,7 +696,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Detects breakpoint lines and sets up mouse navigation."
   (with-current-buffer buf
     (let ((inhibit-read-only t))
-      (setq mode-name "RDEBUG Breakpoints")
+      (rdebug-breakpoints-mode)
       (goto-char (point-min))
       (while (not (eobp))
         (let ((b (line-beginning-position)) (e (line-end-position)))
@@ -678,7 +704,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
                               (buffer-substring b e))
             (add-text-properties b e
                                  (list 'mouse-face 'highlight
-                                       'keymap rdebug--breakpoints-map))
+                                       'keymap rdebug-breakpoints-mode-map))
             (add-text-properties
              (+ b (match-beginning 1)) (+ b (match-end 1))
              (list 'face font-lock-constant-face
@@ -921,6 +947,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 \\{rdebug-locals-mode-map}"
   ; (kill-all-local-variables)
   (interactive "")
+  (kill-all-local-variables)
   (setq major-mode 'rdebug-locals-mode)
   (setq mode-name "RDEBUG Locals")
   (setq buffer-read-only t)
