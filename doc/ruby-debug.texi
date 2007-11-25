@@ -2381,8 +2381,12 @@ end
 @subsection @code{Debugger.start}, @code{Debugger.stop}, @code{Debugger.started?}, @code{Debugger.run_script}
 
 In order to provide better debugging information regarding the stack
-frame, ruby-debug has to intercept each call and add this
-information. Possibly, in Ruby 1.9 possibly this will not be true.
+frame(s) across all threads, ruby-debug has to intercept each call,
+save some information and on return remove it. Possibly, in Ruby 1.9
+possibly this will not be needed. Therefore one has to issue call to
+indicate start saving information and another call to stop. Of course,
+If you call ruby-debug from the outset via @code{rdebug} this is done
+for you.
 
 @table @code
 @item Debugger.start @ovar{block}
