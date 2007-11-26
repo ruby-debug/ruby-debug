@@ -17,13 +17,17 @@
 ;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
 
+(if (< emacs-major-version 22)
+  (error
+   "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
+   emacs-major-version))
 (require 'gud)
 
 
 ;; user definable variables
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-(defcustom gud-rdebug-command-name "rdebug --no-control --annotate=3"
+(defcustom gud-rdebug-command-name "rdebug --emacs --no-control --annotate=3"
   "File name for executing the Ruby debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
