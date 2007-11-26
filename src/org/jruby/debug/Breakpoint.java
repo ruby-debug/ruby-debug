@@ -29,11 +29,14 @@ import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyNumeric;
 import org.jruby.RubyObject;
+import org.jruby.RubySymbol;
 import org.jruby.anno.JRubyMethod;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public class Breakpoint extends RubyObject {
+    private static final long serialVersionUID = 1L;
+
     protected Breakpoint(Ruby runtime, RubyClass type) {
         super(runtime, type);
     }
@@ -134,11 +137,11 @@ public class Breakpoint extends RubyObject {
     public IRubyObject hit_condition_set(IRubyObject hit_condition, Block block) {
         DebugBreakpoint debugBreakpoint = debuggerBreakpoint();
         
-        if (! hit_condition.isKindOf(getRuntime().getSymbol())) {
+        if (! getRuntime().getSymbol().isInstance(hit_condition)) {
             throw getRuntime().newArgumentError("Invalid condition parameter");
         }
         
-        String symbol = hit_condition.asSymbol();
+        String symbol = ((RubySymbol)hit_condition).asInternedString();
         if (symbol.equals("greater_or_equal") || symbol.equals("ge")) {
             debugBreakpoint.setHitCondition(DebugBreakpoint.HitCondition.GE);
         } else if (symbol.equals("equal") || symbol.equals("eq")) {

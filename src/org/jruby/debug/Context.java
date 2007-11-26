@@ -41,7 +41,8 @@ import org.jruby.runtime.DynamicScope;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public class Context extends RubyObject {
-
+    private static final long serialVersionUID = 1L;
+    
     private final Debugger debugger;
 
     Context(Ruby runtime, RubyClass type, Debugger debugger) {
@@ -390,9 +391,9 @@ public class Context extends RubyObject {
         RubyHash locals = RubyHash.newHash(getRuntime());
         DynamicScope scope = debugFrame.getInfo().getDynaVars();
         if (scope != null) {
-            DynamicScope bindingScope = scope.getBindingScope();
-            if (bindingScope != null) {
-                scope = bindingScope;
+            DynamicScope evalScope = scope.getEvalScope();
+            if (evalScope != null) {
+                scope = evalScope;
             }
             while (scope != null) {
                 String[] variableNames = scope.getStaticScope().getVariables();

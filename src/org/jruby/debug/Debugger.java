@@ -239,7 +239,7 @@ final class Debugger {
         }
     }
 
-    private Iterable<Context> getNonCurrentContexts(final IRubyObject recv) {
+    private @SuppressWarnings("unchecked") Iterable<Context> getNonCurrentContexts(final IRubyObject recv) {
         RubyArray contexts; 
         Context current;   
         
@@ -371,7 +371,7 @@ final class Debugger {
         synchronized (threadsTable) {
             for (Iterator<Map.Entry<RubyThread, IRubyObject>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
                 Map.Entry<RubyThread, IRubyObject> entry = it.next();
-                if (runtime.getFalse().eql(entry.getKey().alive_p())) {
+                if (entry.getKey().alive_p().isFalse()) {
                     it.remove();
                 }
             }
@@ -434,7 +434,7 @@ final class Debugger {
         if (catchpoint.isNil()) {
             this.catchpoint = catchpoint;
         } else {
-            if (! catchpoint.isKindOf(recv.getRuntime().getString())) {
+            if (! recv.getRuntime().getString().isInstance(catchpoint)) {
                 throw recv.getRuntime().newTypeError("value of checkpoint must be String");
             }
             

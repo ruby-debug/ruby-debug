@@ -38,6 +38,8 @@ public final class RubyDebugBaseLibrary implements Library {
     }
     
     public static class DebugThread extends RubyThread {
+        private static final long serialVersionUID = 1L;
+
         protected DebugThread(Ruby runtime, RubyClass type, Block block) {
             super(runtime, type);
         }

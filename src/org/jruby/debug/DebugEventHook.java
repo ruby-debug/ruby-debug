@@ -265,7 +265,7 @@ final class DebugEventHook implements EventHook {
                     break;
                 }
                 
-                if (exception.isKindOf(runtime.getClass("SystemExit"))) {
+                if (runtime.getClass("SystemExit").isInstance(exception)) {
                     // Can't do this because this unhooks the event hook causing
                     // a ConcurrentModificationException because the runtime
                     // is still iterating over event hooks.  Shouldn't really
