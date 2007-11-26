@@ -1,3 +1,4 @@
+.\" $Id$
 .TH rdebug 1 
 .SH NAME
 rdebug \- Fast Ruby debugger
@@ -46,25 +47,23 @@ effects of one bug and go on to learn about another.
 
 Here are some of the most frequently-needed commands:
 .TP
-.B break \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
+.B break \fR[\|\fIfile\fB:\fIline\fR\fR|\fIclass.method\fR] \fR[if \fIexpr\fR]
 \&
 Set a breakpoint at \c
-.I function\c
+.I class.method\c
 \& or at the specified file and line.
 .TP
-.B clear \fR[\|\fIfile\fB:\fIline\fR\fR|\fIfunction\fR]
-\&
-Clear a breakpoint at \c
-.I function\c
-\& or at the specified file and line.
-.TP
-.TP
-.B continue
-Continue running your program (after stopping, e.g. at a breakpoint).
+.B continue \fR[\fIline\fR]
+Continue running your program (after stopping, e.g. at a
+breakpoint). If a line is given a one-time breakpoint is set there.
 .TP
 .B delete \fR[\fIbreakpoint-numbers\fR]
 \&
-Delete breakpoints by number.
+Delete breakpoints by number. If no number is given delete all breakpoints.
+.TP
+.B down \fR[\|\fIcount\fR\|]
+Move down one block frame. If count is given move up that many frames. A negative number
+goes the other direction and is like the up command
 .TP
 .B finish
 Run until the completion of the current function or method.
@@ -73,7 +72,7 @@ Run until the completion of the current function or method.
 Set the stack frame to \fIframe-number\fR for purposes of examinine local variables. For positioning relative to the current frame, use 
 .B up
 or 
-.B down.
+.B down. A negative number starts counting from the other end.
 .TP
 .B help \fR[\|\fIname\fR\|]
 Show information about rdebug command \c
@@ -83,6 +82,9 @@ about using rdebug.
 .TP
 .B info \fR[\|\fIname\fR\|]
 Get the various information usually about the debugged program.
+.TP
+.B irb \fIcommand\fR
+Run an interactive ruby shell (irb) using the current environment.
 .TP
 .B list \fR[\|\fIfile\fB:\fIline\fR|\fIfunction]
 type the text of the program in the vicinity of where it is presently stopped
@@ -102,10 +104,9 @@ Pretty print the value of an expression.
 \&
 Display the value of an expression.
 .TP
-.BI source " filename"\c
+.BI ps " expr"\c
 \&
-Read and execute the lines in file \fIfilename\fR as a series of debugger 
-commands.
+Print an array as a columized sorted list.
 .TP
 .B quit
 Exit from the debugger.
@@ -120,17 +121,23 @@ instead.
 .B set
 Modify parts of the debugger environment.
 .TP
-.B irb \fIcommand\fR
-Run an interactive ruby shell (irb) using the current environment.
-.TP
 .B show
 See the debugger environment settings
+.TP
+.BI source " filename"\c
+\&
+Read and execute the lines in file \fIfilename\fR as a series of debugger 
+commands.
 .TP
 .B step \fR[\|\fIcount\fR\|]
 Execute next program line(s) (after stopping); step \c
 .I into\c
 \& any
 function calls in the line.
+.TP
+.B up \fR[\|\fIcount\fR\|]
+Move up one block frame. If count is given move up that many frames. A negative number
+goes the other direction and is like the down command
 .TP
 .B where \fR[\|\fIcount\fR\|]
 Display all or \fIcount\fR items of the program stack.
