@@ -271,7 +271,7 @@ below will appear.
 +----------------------------------------------------------------------+
 |                               GDB Toolbar                            |
 +-----------------------------------+----------------------------------+
-| GUD buffer (I/O of rdebug)        | Locals buffer                    |
+| GUD buffer (I/O of rdebug)        | Variables buffer                 |
 |                                   |                                  |
 |                                   |                                  |
 |                                   |                                  |
@@ -593,7 +593,7 @@ This function is designed to be added to hooks, for example:
     (let ((map (make-hash-table :test 'str-hash)))
       (puthash "breakpoints" 'rdebug--setup-breakpoints-buffer map)
       (puthash "stack" 'rdebug--setup-stack-buffer map)
-      (puthash "locals" 'rdebug--setup-locals-buffer map)
+      (puthash "variables" 'rdebug--setup-variables-buffer map)
       map)))
 
 (defun rdebug-process-annotation (name contents)
@@ -618,7 +618,7 @@ from `gdb-setup-windows', but simplified."
     (other-window 1)
     (set-window-buffer 
      (selected-window) 
-     (get-buffer-create (format "*rdebug-locals-%s*" script-name)))
+     (get-buffer-create (format "*rdebug-variables-%s*" script-name)))
     (other-window 1)
     (switch-to-buffer
      (if gud-last-last-frame
@@ -934,38 +934,38 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (with-current-buffer (window-buffer (posn-window (event-end event)))
     (rdebug-goto-stack-frame (posn-point (event-end event)))))
 
-;; -- locals
+;; -- variables
 
-(defvar rdebug-locals-mode-map
+(defvar rdebug-variables-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
-    (define-key map "\r" 'rdebug-edit-locals-value)
-    (define-key map "e" 'rdebug-edit-locals-value)
-    (define-key map [mouse-1] 'rdebug-edit-locals-value)
-    (define-key map [mouse-2] 'rdebug-edit-locals-value)
+    (define-key map "\r" 'rdebug-edit-variables-value)
+    (define-key map "e" 'rdebug-edit-variables-value)
+    (define-key map [mouse-1] 'rdebug-edit-variables-value)
+    (define-key map [mouse-2] 'rdebug-edit-variables-value)
     (define-key map "q" 'kill-this-buffer)
      map))
 
-(defun rdebug-locals-mode ()
-  "Major mode for rdebug locals.
+(defun rdebug-variables-mode ()
+  "Major mode for rdebug variables.
 
-\\{rdebug-locals-mode-map}"
+\\{rdebug-variables-mode-map}"
   ; (kill-all-local-variables)
   (interactive "")
   (kill-all-local-variables)
-  (setq major-mode 'rdebug-locals-mode)
-  (setq mode-name "RDEBUG Locals")
+  (setq major-mode 'rdebug-variables-mode)
+  (setq mode-name "RDEBUG Variables")
   (setq buffer-read-only t)
-  (use-local-map rdebug-locals-mode-map)
+  (use-local-map rdebug-variables-mode-map)
   ; (set (make-local-variable 'font-lock-defaults)
-  ;     '(gdb-locals-font-lock-keywords))
-  (run-mode-hooks 'rdebug-locals-mode-hook))
+  ;     '(gdb-variables-font-lock-keywords))
+  (run-mode-hooks 'rdebug-variables-mode-hook))
 
-(defun rdebug--setup-locals-buffer (buf)
-  (with-current-buffer buf (rdebug-locals-mode)))
+(defun rdebug--setup-variables-buffer (buf)
+  (with-current-buffer buf (rdebug-variables-mode)))
 
-(defun rdebug-edit-locals-value (&optional event)
-  "Assign a value to a variable displayed in the locals buffer."
+(defun rdebug-edit-variables-value (&optional event)
+  "Assign a value to a variable displayed in the variables buffer."
   (interactive (list last-input-event))
   (save-excursion
     (if event (posn-set-point (event-end event)))

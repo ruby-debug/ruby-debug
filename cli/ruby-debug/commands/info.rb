@@ -7,11 +7,13 @@ module Debugger
        ['args', 1, "Argument variables of current stack frame"],
        ['breakpoints', 1, "Status of user-settable breakpoints"],
        ['file', 1, "File names and timestamps of files read in"],
+       ['global_variables', 2, "global variables"],
+       ['instance_variables', 2, "instance variables"],
        ['line', 2, "Current source position"],
        ['locals', 2, "Local variables of the current stack frame"],
        ['stack', 2, "Backtrace of the stack"],
        ['threads', 1, "IDs of currently known threads"],
-       ['variables', 1, "global variables"]
+       ['variables', 1, "local and instance variables"]
       ].map do |name, min, short_help| 
       SubcmdStruct.new(name, min, short_help)
     end unless defined?(Subcommands)
@@ -74,6 +76,11 @@ module Debugger
       end
     end
     
+    def info_instance_variables(*args)
+      obj = debug_eval('self')
+      var_list(obj.instance_variables)
+    end
+    
     def info_line(*args)
       print "Line %d of \"%s\"\n",  @state.line, @state.file
     end
@@ -106,8 +113,21 @@ module Debugger
       end
     end
     
-    def info_variables(*args)
+    def info_global_variables(*args)
       var_list(global_variables)
+    end
+    
+    def info_variables(*args)
+      obj = debug_eval('self')
+      locals = @state.context.frame_locals(@state.frame_pos)
+      locals.keys.sort.each do |name|
+        s = "#{name} = #{locals[name].inspect}"
+        if s.size > self.class.settings[:width]
+          s[self.class.settings[:width]-3 .. -1] = "..."
+        end
+        print "#{s}\n"
+      end
+      var_list(obj.instance_variables, obj.instance_eval{binding()})
     end
     
     class << self

@@ -1630,12 +1630,18 @@ variables and their values in @var{object}@code{.constant}.
 @kindex var instance @var{expr}
 Show the instance variables of @var{object}. This is basically listing
 @var{object}@code{.instance_variables}.
-@item var global
-@kindex var global
-Show global variables
-@item var local
-@kindex var local
+@item info instance_variables
+@kindex info instance_variables
+Show instance_variables of @code{@@self}
+@item info locals
+@kindex info locals
 Show local variables
+@item info globals
+@kindex info globals
+Show global variables
+@item info variables
+@kindex info variables
+Show local and instance variables of @code{@@self}
 @item method instance @var{object}
 @kindex method instance @var{object}
 Show methods of @var{object}. Basically this is the same as running

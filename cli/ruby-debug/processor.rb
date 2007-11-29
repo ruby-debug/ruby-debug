@@ -222,7 +222,7 @@ module Debugger
         # end
         # if @@Show_annotations_postcmd.member?(cmd)
           annotation('stack', commands, context, "where")
-          annotation('locals', commands, context, "info locals")
+          annotation('variables', commands, context, "info variables")
         # end
       end
     end
@@ -234,7 +234,7 @@ module Debugger
         # the annotations again
         annotation('breakpoints', commands, context, "info breakpoints")
         annotation('stack', commands, context, "where")
-        annotation('locals', commands, context, "info locals")
+        annotation('variables', commands, context, "info variables")
       end
     end
 

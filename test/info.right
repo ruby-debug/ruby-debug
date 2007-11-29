@@ -15,11 +15,13 @@ List of info subcommands:
 info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
 info file -- File names and timestamps of files read in
+info global_variables -- global variables
+info instance_variables -- instance variables
 info line -- Current source position
 info locals -- Local variables of the current stack frame
 info stack -- Backtrace of the stack
 info threads -- IDs of currently known threads
-info variables -- global variables
+info variables -- local and instance variables
 # info args
 # info line
 Line 4 of "./gcd.rb"

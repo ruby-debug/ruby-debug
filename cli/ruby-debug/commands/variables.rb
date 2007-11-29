@@ -3,7 +3,11 @@ module Debugger
     def var_list(ary, b = get_binding)
       ary.sort!
       for v in ary
-        print "  %s => %p\n", v, debug_eval(v, b)
+        s = debug_eval(v, b).inspect
+        if s.size > self.class.settings[:width]
+          s[self.class.settings[:width]-3 .. -1] = "..."
+        end
+        print "%s = %s\n", v, s
       end
     end
   end
