@@ -3,6 +3,22 @@ module Debugger
     def display_expression(exp)
       print "%s = %s\n", exp, debug_silent_eval(exp).to_s
     end
+    
+    def active_display_expressions?
+      @state.display.select{|d| d[0]}.size > 0
+    end
+
+    def print_display_expressions
+      n = 1
+      for d in @state.display
+        if d[0]
+          print "%d: ", n
+          display_expression(d[1])
+          displayed = true
+        end
+        n += 1
+      end
+    end
   end
 
   class AddDisplayCommand < Command # :nodoc:
@@ -38,14 +54,7 @@ module Debugger
     end
 
     def execute
-      n = 1
-      for d in @state.display
-        if d[0]
-          print "%d: ", n
-          display_expression(d[1])
-        end
-        n += 1
-      end
+      print_display_expressions
     end
 
     class << self

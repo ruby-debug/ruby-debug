@@ -14,6 +14,7 @@ List of info subcommands:
 --  
 info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
+info display -- Expressions to display when program stops
 info file -- File names and timestamps of files read in
 info global_variables -- global variables
 info instance_variables -- instance variables

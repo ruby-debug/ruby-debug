@@ -6,6 +6,7 @@ module Debugger
       [
        ['args', 1, "Argument variables of current stack frame"],
        ['breakpoints', 1, "Status of user-settable breakpoints"],
+       ['display', 2, "Expressions to display when program stops"],
        ['file', 1, "File names and timestamps of files read in"],
        ['global_variables', 2, "global variables"],
        ['instance_variables', 2, "instance variables"],
@@ -67,6 +68,14 @@ module Debugger
         end
       else
         print "No breakpoints.\n"
+      end
+    end
+    
+    def info_display(*args)
+      if active_display_expressions? 
+        print_display_expressions
+      else
+        print "There are no auto-display expressions now.\n"
       end
     end
     

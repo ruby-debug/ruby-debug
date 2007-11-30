@@ -1456,6 +1456,10 @@ done when your program stops.
 @itemx delete display @var{num}
 Remove item number @var{num} from the list of expressions to display.
 
+@kindex info display
+@item info display
+Show all display expressions
+
 @ifset GDB_COMPLETED
 @code{undisplay} does not repeat if you press @key{RET} after using it.
 (Otherwise you would just get the error @samp{No display number @dots{}}.)

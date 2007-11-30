@@ -79,7 +79,7 @@ module Debugger
               end
               case try_subcmd.name
               when /^annotate$/
-                level = get_int(args[0], "Set annotate", 0, 2, 0)
+                level = get_int(args[0], "Set annotate", 0, 3, 0)
                 if level
                   Debugger.annotate = level
                 else

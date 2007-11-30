@@ -218,10 +218,14 @@ module Debugger
         # until then we'll refresh always
         # cmd = @last_cmd unless cmd
         #if @@Show_breakpoints_postcmd.member?(cmd)
-          annotation('breakpoints', commands, context, 'info breakpoints')
+        annotation('breakpoints', commands, context, "info breakpoints") unless
+          Debugger.breakpoints.empty?
+        annotation('display', commands, context, "info display") if
+          display.select{|d| d[0]}.size > 0
         # end
         # if @@Show_annotations_postcmd.member?(cmd)
-          annotation('stack', commands, context, "where")
+        annotation('stack', commands, context, "where") if 
+          context.stack_size > 0
           annotation('variables', commands, context, "info variables")
         # end
       end
@@ -232,9 +236,13 @@ module Debugger
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
-        annotation('breakpoints', commands, context, "info breakpoints")
-        annotation('stack', commands, context, "where")
+        annotation('breakpoints', commands, context, "info breakpoints") unless
+          Debugger.breakpoints.empty?
+        annotation('stack', commands, context, "where") if 
+          context.stack_size > 0
         annotation('variables', commands, context, "info variables")
+        annotation('display', commands, context, "info display") if
+          display.select{|d| d[0]}.size > 0
       end
     end
 
