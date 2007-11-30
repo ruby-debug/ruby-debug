@@ -293,9 +293,9 @@ below will appear.
   (let* ((words (split-string-and-unquote command-line))
 	(script-name-annotate-p (rdebug-get-script-name 
 			       (gud-rdebug-massage-args "1" words) nil))
-	(gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
+        (target-name (file-name-nondirectory (car script-name-annotate-p)))
 	(annotate-p (cadr script-name-annotate-p))
-	(rdebug-buffer-name (format "*rdebug-cmd-%s*" gud-target-name))
+	(rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
 	(rdebug-buffer (get-buffer rdebug-buffer-name))
 	)
 
@@ -308,7 +308,7 @@ below will appear.
     ; it can't parse the command line properly to pick out the script name.
     ; So we'll do it here and rename that buffer. The buffer we want to rename
     ; happens to be the current buffer.
-    (setq gud-target-name (file-name-nondirectory (car script-name-annotate-p)))
+    (setq gud-target-name target-name)
     (when rdebug-buffer (kill-buffer rdebug-buffer))
     (rename-buffer rdebug-buffer-name)
 
