@@ -8,4 +8,5 @@ info args
 info line
 info locals
 info stack
+info display
 quit

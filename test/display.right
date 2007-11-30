@@ -1,0 +1,18 @@
+gcd.rb:4
+def gcd(a, b)
+# # ***************************************************
+# # This tests display expressions.
+# # ***************************************************
+# set debuggertesting on
+Currently testing the debugger is on.
+# b 6
+Breakpoint 1 file gcd.rb, line 6
+# c
+Breakpoint 1 at gcd.rb:6
+gcd.rb:6
+if a > b
+# display a
+1: a = 3
+# display b 
+2: b  = 5
+# q

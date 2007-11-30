@@ -14,7 +14,6 @@ module Debugger
         if d[0]
           print "%d: ", n
           display_expression(d[1])
-          displayed = true
         end
         n += 1
       end

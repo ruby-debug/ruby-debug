@@ -29,4 +29,6 @@ Line 4 of "./gcd.rb"
 # info locals
 # info stack
 --> #0 at line gcd.rb:4
+# info display
+There are no auto-display expressions now.
 # quit

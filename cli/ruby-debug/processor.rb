@@ -236,13 +236,10 @@ module Debugger
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
-        annotation('breakpoints', commands, context, "info breakpoints") unless
-          Debugger.breakpoints.empty?
-        annotation('stack', commands, context, "where") if 
-          context.stack_size > 0
+        annotation('breakpoints', commands, context, "info breakpoints")
+        annotation('stack', commands, context, "where")
         annotation('variables', commands, context, "info variables")
-        annotation('display', commands, context, "info display") if
-          display.select{|d| d[0]}.size > 0
+        annotation('display', commands, context, "info display")
       end
     end
 
