@@ -22,6 +22,11 @@ CLI_FILES = COMMON_FILES + FileList[
   'bin/*',
   "cli/**/*",
   'emacs/**/*.el',
+  'test/**/helper.rb',
+  'test/**/*.cmd',
+  'test/**/*.right',
+  'test/**/test-*.cmd',
+  'test/**/tdebug.rb',
 ]
 
 FILES = COMMON_FILES + FileList[
