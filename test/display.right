@@ -15,4 +15,10 @@ if a > b
 1: a = 3
 # display b 
 2: b  = 5
+# c
+Breakpoint 1 at gcd.rb:6
+1: a = 2
+2: b  = 3
+gcd.rb:6
+if a > b
 # q

@@ -6,5 +6,6 @@ b 6
 c
 display a
 display b 
+c
 q
 
