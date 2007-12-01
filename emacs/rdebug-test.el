@@ -2,6 +2,21 @@
 (load-file "./elk-test.el")
 (load-file "./rdebug.el")
 
+; Redefine functions to make them harmless for testing
+(defun rdebug-process-annotation (name contents)
+  (message name)
+)
+
+(make-variable-buffer-local 'gud-rdebug-marker-acc)
+
+(deftest "rdebug-marker-filter-test"
+  (assert-equal "Testing 1 2 3" (gud-rdebug-marker-filter "Testing 1 2 3"))
+  (assert-equal "ABC" (gud-rdebug-marker-filter 
+"breakpoints
+No breakpoints
+
+ABC")))
+
 (defun regexp-stack-test (location-str pos-str file-str line-str)
   "Test to see that location-str matches gud-rdebug-marker-regexp"
   (assert-equal 0 (string-match rdebug--stack-frame-regexp location-str))
@@ -99,9 +114,12 @@ file and line submatches."
 				"localhost" "foo" "-1")))
 )
 
-(build-suite "rdebug-suite" "rdebug-regexp-file-test" 
-	     "rdebug-regexp-stack-test" "rdebug-traceback-test"
-	     "rdebug-unittest-traceback-test") 
+(build-suite "rdebug-suite" 
+	     "rdebug-regexp-file-test" 
+	     "rdebug-regexp-stack-test" 
+	     "rdebug-traceback-test"
+	     "rdebug-unittest-traceback-test" 
+	     "rdebug-marker-filter-test") 
 (run-elk-test "rdebug-suite"
               "test regular expression used in tracking lines")
 

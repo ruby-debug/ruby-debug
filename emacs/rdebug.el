@@ -47,7 +47,7 @@ This should be an executable on your path, or an absolute file name."
 	(funcall ok  ".")
 	(error
 	 "Couldn't find a usable temp directory -- set `rdebug-temp-directory'")))
-  "*Directory used for temporary files created by a *Python* process.
+  "*Directory used for temporary files created by a *Ruby* process.
 By default, the first directory from this list that exists and that you
 can write into: the value (if any) of the environment variable TMPDIR,
 /usr/tmp, /tmp, /var/tmp, or the current directory."
@@ -124,8 +124,47 @@ distinguishes the two." )
 (defconst rdebugtrack-track-range 10000
   "Max number of characters from end of buffer to search for stack entry.")
 
+;;
+;; Internal debug support. Then `rdebug-debug-active' is non-nil,
+;; internal debug messages are placed in the buffer *Xrdebug*.
+;; Functions can be annotated with `rdebug-debug-enter' to display a
+;; call trace.
+;;
+
+(defvar rdebug-debug-active nil
+  "Non-nil when rdebug should emit internal debug output to *Xrdebug*.")
+
+
+;; Identation depth of `rdebug-debug-enter'.
+(defvar rdebug-debug-depth 0)
+
+(defun rdebug-debug-message (&rest args)
+  (if rdebug-debug-active
+      (let ((buf (get-buffer-create "*Xrdebug*")))
+        (with-current-buffer buf
+          (save-excursion
+            (goto-char (point-max))
+            ;; 32 = space.
+            (insert (make-string (* 4 rdebug-debug-depth) 32))
+            (insert (apply #'format args)))))))
+
+
+(defmacro rdebug-debug-enter (str &rest body)
+  `(progn
+     (rdebug-debug-message "--> %s\n" ,str)
+     (setq rdebug-debug-depth (+ rdebug-debug-depth 1))
+     (unwind-protect
+         (progn
+           ,@body)
+       (setq rdebug-debug-depth (max 0 (- rdebug-debug-depth 1)))
+       (rdebug-debug-message "<-- %s\n" ,str))))
+
+
+;; Interface to gud.
+
 (defun gud-rdebug-massage-args (file args)
   args)
+
 
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
@@ -134,77 +173,78 @@ distinguishes the two." )
 ;; beginning of a marker, we save it here between calls to the
 ;; filter.
 (defun gud-rdebug-marker-filter (string)
-  ;(message "GOT: %s" string)
-  (setq gud-marker-acc (concat gud-marker-acc string))
-  (let ((output "") s s2 (tmp ""))
-
-    ;; ALB first we process the annotations (if any)
-    (while (setq s (string-match rdebug-annotation-start-regexp
-                                 gud-marker-acc))
-      ;(message "ACC: %s" gud-marker-acc)
-      (let ((name (substring gud-marker-acc (match-beginning 1) (match-end 1)))
-            (end (match-end 0)))
-        (if (setq s2 (string-match rdebug-annotation-end-regexp
-                                   gud-marker-acc end))
-            ;; ok, annotation complete, process it and remove it
-            (let ((contents (substring gud-marker-acc end s2))
-                  (end2 (match-end 0)))
-              (rdebug-process-annotation name contents)
-              (setq gud-marker-acc
-                    (concat (substring gud-marker-acc 0 s)
-                            (substring gud-marker-acc end2))))
-          ;; otherwise, save the partial annotation to a temporary, and re-add
-          ;; it to gud-marker-acc after normal output has been processed
-          (setq tmp (substring gud-marker-acc s))
-          (setq gud-marker-acc (substring gud-marker-acc 0 s)))))
-    
-    (when (setq s (string-match rdebug-annotation-end-regexp gud-marker-acc))
-      ;; save the beginning of gud-marker-acc to tmp, remove it and restore it
-      ;; after normal output has been processed
-      (setq tmp (substring gud-marker-acc 0 s))
-      (setq gud-marker-acc (substring gud-marker-acc s)))
-           
-    ;; Process all the complete markers in this chunk.
-    ;; Format of line looks like this:
-    ;;   /etc/init.d/ntp.init:16:
-    (while (string-match gud-rdebug-marker-regexp gud-marker-acc)
-      (setq
-
-       ;; Extract the frame position from the marker.
-       gud-last-frame
-       (cons (substring gud-marker-acc 
-			(match-beginning 1) (match-end 1))
-	     (string-to-number
-	      (substring gud-marker-acc
-			 (match-beginning 2) (match-end 2))))
-
-       ;; Append any text before the marker to the output we're going
-       ;; to return - we don't include the marker in this text.
-       output (concat output
-		      (substring gud-marker-acc 0 (match-beginning 0)))
-
-       ;; Set the accumulator to the remaining text.
-       gud-marker-acc (substring gud-marker-acc (match-end 0))))
-
-    ;; Does the remaining text look like it might end with the
-    ;; beginning of another marker?  If it does, then keep it in
-    ;; gud-marker-acc until we receive the rest of it.  Since we
-    ;; know the full marker regexp above failed, it's pretty simple to
-    ;; test for marker starts.
-    (if (string-match "\032\032.*\\'" gud-marker-acc)
-	(progn
-	  ;; Everything before the potential marker start can be output.
-	  (setq output (concat output (substring gud-marker-acc
-						 0 (match-beginning 0))))
-
-	  ;; Everything after, we save, to combine with later input.
-	  (setq gud-marker-acc
-		(concat tmp (substring gud-marker-acc (match-beginning 0)))))
-
-      (setq output (concat output gud-marker-acc)
-	    gud-marker-acc tmp))
-
-    output))
+  (rdebug-debug-enter "gud-rdebug-marker-filter"
+    (rdebug-debug-message "GOT: %S\n" string)
+    (setq gud-marker-acc (concat gud-marker-acc string))
+    (let ((output "") s s2 (tmp ""))
+      
+      ;; ALB first we process the annotations (if any)
+      (while (setq s (string-match rdebug-annotation-start-regexp
+				   gud-marker-acc))
+	(rdebug-debug-message "ACC: %S\n" gud-marker-acc)
+	(let ((name (substring gud-marker-acc (match-beginning 1) (match-end 1)))
+	      (end (match-end 0)))
+	  (if (setq s2 (string-match rdebug-annotation-end-regexp
+				     gud-marker-acc end))
+	      ;; ok, annotation complete, process it and remove it
+	      (let ((contents (substring gud-marker-acc end s2))
+		    (end2 (match-end 0)))
+		(rdebug-process-annotation name contents)
+		(setq gud-marker-acc
+		      (concat (substring gud-marker-acc 0 s)
+			      (substring gud-marker-acc end2))))
+	    ;; otherwise, save the partial annotation to a temporary, and re-add
+	    ;; it to gud-marker-acc after normal output has been processed
+	    (setq tmp (substring gud-marker-acc s))
+	    (setq gud-marker-acc (substring gud-marker-acc 0 s)))))
+      
+      (when (setq s (string-match rdebug-annotation-end-regexp gud-marker-acc))
+	;; save the beginning of gud-marker-acc to tmp, remove it and restore it
+	;; after normal output has been processed
+	(setq tmp (substring gud-marker-acc 0 s))
+	(setq gud-marker-acc (substring gud-marker-acc s)))
+      
+      ;; Process all the complete markers in this chunk.
+      ;; Format of line looks like this:
+      ;;   /etc/init.d/ntp.init:16:
+      (while (string-match gud-rdebug-marker-regexp gud-marker-acc)
+	(setq
+	 
+	 ;; Extract the frame position from the marker.
+	 gud-last-frame
+	 (cons (substring gud-marker-acc 
+			  (match-beginning 1) (match-end 1))
+	       (string-to-number
+		(substring gud-marker-acc
+			   (match-beginning 2) (match-end 2))))
+	 
+	 ;; Append any text before the marker to the output we're going
+	 ;; to return - we don't include the marker in this text.
+	 output (concat output
+			(substring gud-marker-acc 0 (match-beginning 0)))
+	 
+	 ;; Set the accumulator to the remaining text.
+	 gud-marker-acc (substring gud-marker-acc (match-end 0))))
+      
+      ;; Does the remaining text look like it might end with the
+      ;; beginning of another marker?  If it does, then keep it in
+      ;; gud-marker-acc until we receive the rest of it.  Since we
+      ;; know the full marker regexp above failed, it's pretty simple to
+      ;; test for marker starts.
+      (if (string-match "\032\032.*\\'" gud-marker-acc)
+	  (progn
+	    ;; Everything before the potential marker start can be output.
+	    (setq output (concat output (substring gud-marker-acc
+						   0 (match-beginning 0))))
+	    
+	    ;; Everything after, we save, to combine with later input.
+	    (setq gud-marker-acc
+		  (concat tmp (substring gud-marker-acc (match-beginning 0)))))
+	
+	(setq output (concat output gud-marker-acc)
+	      gud-marker-acc tmp))
+      
+      output)))
 
 (defun gud-rdebug-find-file (f)
   (find-file-noselect f))
@@ -288,6 +328,7 @@ below will appear.
   (interactive
    (list (gud-query-cmdline 'rdebug)))
 
+  (rdebug-debug-enter "rdebug"
   ; Parse the command line and pick out the script name and whether --annotate
   ; has been set.
   (let* ((words (split-string-and-unquote command-line))
@@ -369,7 +410,8 @@ below will appear.
     (when rdebug-many-windows (rdebug-setup-windows))
     
     (run-hooks 'rdebug-mode-hook))
-  )
+  ))
+;)
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -435,6 +477,7 @@ at the beginning of the line.
   ;; to minimize residue.  This means, for instance, that executing
   ;; other rdebug commands wipe out the highlight.  You can always do a
   ;; 'where' (aka 'w') command to reveal the overlay arrow.
+  (rdebug-debug-enter "rdebugtrack-track-stack-file"
   (let* ((origbuf (current-buffer))
 	 (currproc (get-buffer-process origbuf)))
 
@@ -454,7 +497,7 @@ at the beginning of the line.
           (setq target (rdebugtrack-get-source-buffer block-str))
 
           (if (stringp target)
-              (message "rdebugtrack: %s" target)
+              (rdebug-debug-message "rdebugtrack: %s" target)
 	    ; else
 	    (gud-rdebug-marker-filter block-str)
             (setq target_lineno (car target))
@@ -462,7 +505,7 @@ at the beginning of the line.
             (setq target_fname (buffer-file-name target_buffer))
             (switch-to-buffer-other-window target_buffer)
             (goto-line target_lineno)
-            (message "rdebugtrack: line %s, file %s" target_lineno target_fname)
+            (rdebug-debug-message "rdebugtrack: line %s, file %s" target_lineno target_fname)
             (rdebugtrack-overlay-arrow t)
             (pop-to-buffer origbuf t)
             )
@@ -482,7 +525,7 @@ at the beginning of the line.
 		  (forward-line)))
 	      )))
 	)))
-    )
+    ))
 
 (defun rdebugtrack-get-source-buffer (block-str)
   "Return line number and buffer of code indicated by block-str's traceback 
@@ -597,6 +640,7 @@ This function is designed to be added to hooks, for example:
       map)))
 
 (defun rdebug-process-annotation (name contents)
+  (rdebug-debug-enter "rdebug-process-annotation"
   (let ((buf (get-buffer-create (format "*rdebug-%s-%s*" name gud-target-name))))
     (with-current-buffer buf
       (setq buffer-read-only t)
@@ -604,11 +648,12 @@ This function is designed to be added to hooks, for example:
             (setup-func (gethash name rdebug--annotation-setup-map)))
         (erase-buffer)
         (insert contents)
-        (when setup-func (funcall setup-func buf))))))
+        (when setup-func (funcall setup-func buf)))))))
 
 (defun rdebug-setup-windows ()
   "Layout the window pattern for `rdebug-many-windows'. This was mostly copied
 from `gdb-setup-windows', but simplified."
+  (rdebug-debug-enter "rdebug-setup-windows"
   (pop-to-buffer gud-comint-buffer)
   (let ((script-name gud-target-name))
     (delete-other-windows)
@@ -636,7 +681,7 @@ from `gdb-setup-windows', but simplified."
      (selected-window) 
      (get-buffer-create (format "*rdebug-breakpoints-%s*" script-name)))
     (other-window 1)
-    (goto-char (point-max))))
+    (goto-char (point-max)))))
   
 (defun rdebug-restore-windows ()
   "Equivalent of `gdb-restore-windows' for rdebug."
@@ -699,6 +744,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 (defun rdebug--setup-breakpoints-buffer (buf)
   "Detects breakpoint lines and sets up keymap and mouse navigation."
+  (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
   (with-current-buffer buf
     (let ((inhibit-read-only t))
       (rdebug-breakpoints-mode)
@@ -740,7 +786,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 ;;;                      'font-lock-face compilation-error-face)))
 	    )
         (forward-line)
-        (beginning-of-line))))))
+        (beginning-of-line)))))))
 
 (defun rdebug-goto-breakpoint-mouse (event)
   "Displays the location in a source file of the selected breakpoint."
@@ -858,6 +904,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 (defun rdebug--setup-stack-buffer (buf)
   "Detects stack frame lines and sets up mouse navigation."
+  (rdebug-debug-enter "rdebug--setup-stack-buffer"
   (with-current-buffer buf
     (let ((inhibit-read-only t)
 	  (current-frame-point nil) ; position in stack buffer of selected frame
@@ -909,7 +956,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
         (forward-line)
         (beginning-of-line))
       (when current-frame-point (goto-char current-frame-point)))
-    ))
+    )))
 
 (defun rdebug-goto-stack-frame (pt)
   "Show the rdebug stack frame corresponding at PT in the rdebug stack buffer."
@@ -962,7 +1009,8 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (run-mode-hooks 'rdebug-variables-mode-hook))
 
 (defun rdebug--setup-variables-buffer (buf)
-  (with-current-buffer buf (rdebug-variables-mode)))
+  (rdebug-debug-enter "rdebug--setup-variables-buffer"
+  (with-current-buffer buf (rdebug-variables-mode))))
 
 (defun rdebug-edit-variables-value (&optional event)
   "Assign a value to a variable displayed in the variables buffer."
@@ -970,12 +1018,14 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (save-excursion
     (if event (posn-set-point (event-end event)))
     (beginning-of-line)
-    (let* ((var (current-word))
-	   (value (read-string (format "New value (%s): " var))))
-      (gud-call (format "p %s=%s" var value)))))
+    (if (looking-at "^@?[a-zA-Z_0-9]+")
+	(let* ((var (match-string 0))
+	       (value (read-string (format "New value (%s): " var))))
+	  (gud-call (format "p %s=%s" var value)))
+      (message "No variable found"))))
 
 (defadvice gud-reset (before rdebug-reset)
-  "pydb cleanup - remove debugger's internal buffers (frame, breakpoints, 
+  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints, 
 etc.)."
   (dolist (buffer (buffer-list))
     (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
@@ -984,6 +1034,11 @@ etc.)."
       (kill-buffer buffer))))
 (ad-activate 'gud-reset)
 
-(provide 'rdebug)
 
+(provide 'rdebug)
 
+;;; Local variables:
+;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
+;;; End:
+
+;;; rdebug.el ends here
