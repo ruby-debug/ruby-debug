@@ -662,6 +662,7 @@ This function is designed to be added to hooks, for example:
       (puthash "breakpoints" 'rdebug--setup-breakpoints-buffer map)
       (puthash "stack" 'rdebug--setup-stack-buffer map)
       (puthash "variables" 'rdebug--setup-variables-buffer map)
+      (puthash "display" 'rdebug--setup-display-buffer map)
       map)))
 
 (defun rdebug-process-annotation (name contents)
@@ -691,16 +692,19 @@ from `gdb-setup-windows', but simplified."
      (get-buffer-create (format "*rdebug-variables-%s*" script-name)))
     (other-window 1)
     (switch-to-buffer
-     (if gud-last-last-frame
-	 (gud-find-file (car gud-last-last-frame))
-       ;; Put buffer list in window if we
-       ;; can't find a source file.
-       ;;
-       ;; Note: The frame-specific buffer list (used when
-       ;; `Buffer-menu-use-frame-buffer-list' is non-nil), can contain
-       ;; killed buffers, which `list-buffers-noselect' crashes on.
-       (let ((Buffer-menu-use-frame-buffer-list nil))
-         (list-buffers-noselect))))
+     (cond (gud-last-last-frame
+            (gud-find-file (car gud-last-last-frame)))
+           (gud-target-name
+            (gud-find-file gud-target-name))
+           (t
+            ;; Put buffer list in window if we
+            ;; can't find a source file.
+            ;;
+            ;; Note: The frame-specific buffer list (used when
+            ;; `Buffer-menu-use-frame-buffer-list' is non-nil), can contain
+            ;; killed buffers, which `list-buffers-noselect' crashes on.
+            (let ((Buffer-menu-use-frame-buffer-list nil))
+              (list-buffers-noselect)))))
     (other-window 1)
     (set-window-buffer 
      (selected-window) 
@@ -721,6 +725,7 @@ from `gdb-setup-windows', but simplified."
 
 (defun rdebug-display-original-frame-configuration ()
   "Display the layout of windows prior to starting the ruby debugger."
+  (interactive)
   (when rdebug-original-frame-configuration
     (set-frame-configuration rdebug-original-frame-configuration)
     (message
@@ -738,6 +743,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 (defun rdebug-process-sentinel (process event)
   "Restore the original window configuration when the debugger process exits."
+  (gud-sentinel process event)
   (rdebug-debug-enter "rdebug-process-sentinel"
     (rdebug-debug-message "status=%S event=%S state=%S\n"
                           (process-status process)
@@ -765,9 +771,10 @@ rdebug-restore-windows if rdebug-many-windows is set"
     (define-key menu [quit] '("Quit"   . rdebug-delete-frame-or-window))
     (define-key menu [goto] '("Goto"   . rdebug-goto-breakpoint))
     (define-key menu [delete] '("Delete" . rdebug-delete-breakpoint))
-    ; (define-key menu [toggle] '("Toggle" . gdb-toggle-breakpoint))
+    (define-key menu [toggle] '("Toggle" . rdebug-toggle-breakpoint))
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
-    ; (define-key map [? ] 'rdebug-toggle-breakpoint)
+    (define-key map " " 'rdebug-toggle-breakpoint)
+    (define-key map [? ] 'rdebug-toggle-breakpoint)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     map)
@@ -894,18 +901,18 @@ rdebug-restore-windows if rdebug-many-windows is set"
          (string-to-number (substring s (match-beginning 2) (match-end 2))))
         ))))
 
-;;; (defun rdebug-toggle-breakpoint (pt)
-;;;   "Toggles the breakpoint at PT in the breakpoints buffer."
-;;;   (interactive "d")
-;;;   (save-excursion
-;;;     (goto-char pt)
-;;;     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
-;;;       (when (string-match rdebug--breakpoint-regexp s)
-;;;         (let* ((enabled
-;;;                 (string= (substring s (match-beginning 3) (match-end 3)) "y"))
-;;;                (cmd (if enabled "disable" "enable"))
-;;;                (bpnum (substring s (match-beginning 1) (match-end 1))))
-;;;           (gud-call (format "%s %s" cmd bpnum)))))))
+(defun rdebug-toggle-breakpoint (pt)
+  "Toggles the breakpoint at PT in the breakpoints buffer."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
+      (when (string-match rdebug--breakpoint-regexp s)
+        (let* ((enabled
+                (string= (substring s (match-beginning 2) (match-end 2)) "y"))
+               (cmd (if enabled "disable" "enable"))
+               (bpnum (substring s (match-beginning 1) (match-end 1))))
+          (gud-call (format "%s breakpoint %s" cmd bpnum)))))))
 
 (defun rdebug-delete-breakpoint (pt)
   "Deletes the breakpoint at PT in the breakpoints buffer."
@@ -1059,7 +1066,6 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Major mode for rdebug variables.
 
 \\{rdebug-variables-mode-map}"
-  ; (kill-all-local-variables)
   (interactive "")
   (kill-all-local-variables)
   (setq major-mode 'rdebug-variables-mode)
@@ -1085,6 +1091,33 @@ rdebug-restore-windows if rdebug-many-windows is set"
 	       (value (read-string (format "New value (%s): " var))))
 	  (gud-call (format "p %s=%s" var value)))
       (message "No variable found"))))
+
+;; -- display (a.k.a watch window)
+
+;; TODO: Add display, delete display.
+
+(defvar rdebug-display-mode-map
+  (let ((map (make-sparse-keymap)))
+    (suppress-keymap map)
+    map))
+
+(defun rdebug-display-mode ()
+  "Major mode for rdebug display (watch) window.
+
+\\{rdebug-display-mode}"
+  (interactive)
+  (kill-all-local-variables)
+  (setq major-mode 'rdebug-display-mode)
+  (setq mode-name "RDEBUG Display")
+  (setq buffer-read-only t)
+  (use-local-map rdebug-display-mode-map)
+  (run-mode-hooks 'rdebug-display-mode-hook))
+
+(defun rdebug--setup-display-buffer (buf)
+  (rdebug-debug-enter "rdebug--setup-display-buffer"
+    (with-current-buffer buf (rdebug-display-mode))))
+
+;; -- Reset support
 
 (defadvice gud-reset (before rdebug-reset)
   "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints, 
