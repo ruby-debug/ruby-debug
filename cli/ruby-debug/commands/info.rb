@@ -58,12 +58,14 @@ module Debugger
     
     def info_breakpoints(*args)
       unless Debugger.breakpoints.empty?
-        print "Breakpoints:\n"
+        print "Num Enb What\n"
         Debugger.breakpoints.sort_by{|b| b.id }.each do |b|
           if b.expr.nil?
-            print "  %d at %s:%s\n", b.id, b.source, b.pos
+            print "%3d %s   at %s:%s\n", 
+            b.id, (b.enabled? ? 'y' : 'n'), b.source, b.pos
           else
-            print "  %d at %s:%s if %s\n", b.id, b.source, b.pos, b.expr
+            print "%3d %s   at %s:%s if %s\n", 
+            b.id, (b.enabled? ? 'y' : 'n'), b.source, b.pos, b.expr
           end
         end
       else
@@ -77,7 +79,7 @@ module Debugger
         print "Num Enb Expression\n"
         n = 1
         for d in @state.display
-          print "%d:   %s  %s\n", n, (d[0] ? 'y' : 'n'), d[1]
+          print "%3d: %s  %s\n", n, (d[0] ? 'y' : 'n'), d[1]
           n += 1
         end
       else

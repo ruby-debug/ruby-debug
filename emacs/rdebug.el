@@ -795,14 +795,14 @@ rdebug-restore-windows if rdebug-many-windows is set"
 )
 
 (defconst rdebug--breakpoint-regexp
-  "^\\ +\\([0-9]+\\) +at +\\(.+\\):\\([0-9]+\\)$"
+  "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
 
 (defun rdebug--setup-breakpoints-buffer (buf)
   "Detects breakpoint lines and sets up keymap and mouse navigation."
   (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
   (with-current-buffer buf
-    (let ((inhibit-read-only t))
+    (let ((inhibit-read-only t) (flag))
       (rdebug-breakpoints-mode)
       (goto-char (point-min))
       (while (not (eobp))
@@ -816,12 +816,18 @@ rdebug-restore-windows if rdebug-many-windows is set"
              (+ b (match-beginning 1)) (+ b (match-end 1))
              (list 'face font-lock-constant-face
                    'font-lock-face font-lock-constant-face))
+	    (setq flag (char-after (+ b (match-beginning 2))))
+	    (add-text-properties
+	     (+ b (match-beginning 2)) (+ b (match-end 2))
+	     (if (eq flag ?y)
+		 '(face font-lock-warning-face)
+	       '(face font-lock-type-face)))
             (add-text-properties
-             (+ b (match-beginning 2)) (+ b (match-end 2))
+             (+ b (match-beginning 3)) (+ b (match-end 3))
              (list 'face font-lock-comment-face
                    'font-lock-face font-lock-comment-face))
             (add-text-properties
-             (+ b (match-beginning 3)) (+ b (match-end 3))
+             (+ b (match-beginning 4)) (+ b (match-end 4))
              (list 'face font-lock-constant-face
                    'font-lock-face font-lock-constant-face))
 ;;;             ;; fontify "keep/del"

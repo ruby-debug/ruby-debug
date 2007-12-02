@@ -18,7 +18,7 @@ No breakpoints
 ABC")))
 
 (defun regexp-stack-test (location-str pos-str file-str line-str)
-  "Test to see that location-str matches gud-rdebug-marker-regexp"
+  "Test to see that location-str parses rdebug--stack-frame-regexp properly"
   (assert-equal 0 (string-match rdebug--stack-frame-regexp location-str))
   (assert-equal pos-str
 		(substring location-str (match-beginning 2)  (match-end 2)))
@@ -32,6 +32,26 @@ ABC")))
   (regexp-stack-test 
    "--> #0 at line /home/rocky/ruby/gcd.rb:18"
    "0" "/home/rocky/ruby/gcd.rb" "18"
+   )
+)
+
+(defun regexp-breakpoint-test (location-str pos-str enabled-str file-str line-str)
+  "Test to see that location-str parses rdebug--breakpoint-regexp properly"
+  (assert-equal 0 (string-match rdebug--breakpoint-regexp location-str))
+  (assert-equal pos-str
+		(substring location-str (match-beginning 1)  (match-end 1)))
+  (assert-equal enabled-str
+		(substring location-str (match-beginning 2)  (match-end 2)))
+  (assert-equal file-str
+		(substring location-str (match-beginning 3)  (match-end 3)))
+  (assert-equal line-str
+		(substring location-str (match-beginning 4)  (match-end 4)))
+)
+(deftest "rdebug-regexp-breakpoint-test"
+
+  (regexp-breakpoint-test 
+   "  1 y   at gcd.rb:6"
+   "1" "y" "gcd.rb" "6"
    )
 )
 
@@ -115,6 +135,7 @@ file and line submatches."
 )
 
 (build-suite "rdebug-suite" 
+	     "rdebug-regexp-breakpoint-test" 
 	     "rdebug-regexp-file-test" 
 	     "rdebug-regexp-stack-test" 
 	     "rdebug-traceback-test"

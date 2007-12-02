@@ -4,6 +4,7 @@ module Debugger
       defined?(SubcmdStruct)
     Subcommands = 
       [
+       ['breakpoints', 2, "Enable specified breakpoints"],
        ['display', 2, "Enable some expressions to be displayed when program stops"],
       ].map do |name, min, short_help| 
       SubcmdStruct.new(name, min, short_help)
@@ -27,6 +28,15 @@ module Debugger
           end
         end
         print "Unknown enable command #{subcmd}\n"
+      end
+    end
+    
+    def enable_breakpoints(*args)
+      breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
+      args.each do |pos|
+        pos = get_int(pos, "Enable breakpoints", 1, breakpoints.size)
+        return nil unless pos
+        breakpoints[pos-1].enabled = true
       end
     end
     
@@ -63,6 +73,7 @@ module Debugger
       defined?(SubcmdStruct)
     Subcommands = 
       [
+       ['breakpoints', 2, "Disable specified breakpoints"],
        ['display', 2, "Disable some display expressions when program stops"],
       ].map do |name, min, short_help| 
       SubcmdStruct.new(name, min, short_help)
@@ -86,6 +97,15 @@ module Debugger
           end
         end
         print "Unknown disable command #{subcmd}\n"
+      end
+    end
+    
+    def disable_breakpoints(*args)
+      breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
+      args.each do |pos|
+        pos = get_int(pos, "Disable breakpoints", 1, breakpoints.size)
+        return nil unless pos
+        breakpoints[pos-1].enabled = false
       end
     end
     

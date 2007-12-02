@@ -19,9 +19,9 @@ if a > b
 # break main.gcd
 Breakpoint 2 at ::gcd
 # info break
-Breakpoints:
-  1 at gcd.rb:6
-  2 at :gcd
+Num Enb What
+  1 y   at gcd.rb:6
+  2 y   at :gcd
 # continue
 Breakpoint 1 at gcd.rb:6
 gcd.rb:6
@@ -34,18 +34,26 @@ if a > b
 gcd.rb:10
 return nil if a <= 0
 # info break
-Breakpoints:
-  1 at gcd.rb:6
-  2 at :gcd
+Num Enb What
+  1 y   at gcd.rb:6
+  2 y   at :gcd
 # break foo
 Unknown command
 # info break
-Breakpoints:
-  1 at gcd.rb:6
-  2 at :gcd
+Num Enb What
+  1 y   at gcd.rb:6
+  2 y   at :gcd
+# disable break 1
+# info break
+Num Enb What
+  1 n   at gcd.rb:6
+  2 y   at :gcd
+# enable breakpoint 1
+# enable br 10
+Enable breakpoints argument '10' needs to at most 2.
 # delete 1
 # info break
-Breakpoints:
-  2 at :gcd
+Num Enb What
+  2 y   at :gcd
 # # finish
 # quit

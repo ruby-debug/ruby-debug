@@ -123,6 +123,7 @@ typedef struct {
         ID  mid;
     } pos;
     VALUE expr;
+    VALUE enabled;
     int hit_count;
     int hit_value;
     enum hit_condition hit_condition;
@@ -623,6 +624,7 @@ check_breakpoint_hit_condition(VALUE breakpoint)
     Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
 
     debug_breakpoint->hit_count++;
+    if (!Qtrue == debug_breakpoint->enabled) return 0;
     switch(debug_breakpoint->hit_condition)
     {
         case HIT_COND_NONE:
@@ -657,6 +659,7 @@ check_breakpoint_by_pos(VALUE breakpoint, char *file, int line)
     if(breakpoint == Qnil)
         return 0;
     Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+    if (!Qtrue == debug_breakpoint->enabled) return 0;
     if(debug_breakpoint->type != BP_POS_TYPE)
         return 0;
     if(debug_breakpoint->pos.line != line)
@@ -674,6 +677,7 @@ check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid)
     if(breakpoint == Qnil)
         return 0;
     Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+    if (!Qtrue == debug_breakpoint->enabled) return 0;
     if(debug_breakpoint->type != BP_METHOD_TYPE)
         return 0;
     if(debug_breakpoint->pos.mid != mid)
@@ -1242,6 +1246,7 @@ create_breakpoint_from_args(int argc, VALUE *argv, int id)
         breakpoint->pos.line = FIX2INT(pos);
     else
         breakpoint->pos.mid = rb_intern(RSTRING(pos)->ptr);
+    breakpoint->enabled = Qtrue;
     breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
     breakpoint->hit_count = 0;
     breakpoint->hit_value = 0;
@@ -2475,6 +2480,36 @@ context_stop_reason(VALUE self)
 
 /*
  *   call-seq:
+ *      breakpoint.enabled?
+ *
+ *   Returns whether breakpoint is enabled or not.
+ */
+static VALUE
+breakpoint_enabled(VALUE self)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    return breakpoint->enabled;
+}
+
+/*
+ *   call-seq:
+ *      breakpoint.enabled = bool
+ *
+ *   Enables or disables breakpoint.
+ */
+static VALUE
+breakpoint_set_enabled(VALUE self, VALUE bool)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    return breakpoint->enabled = bool;
+}
+
+/*
+ *   call-seq:
  *      breakpoint.source -> string
  *
  *   Returns a source of the breakpoint.
@@ -2748,6 +2783,8 @@ Init_breakpoint()
     rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
     rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
     rb_define_method(cBreakpoint, "source=", breakpoint_set_source, 1);
+    rb_define_method(cBreakpoint, "enabled?", breakpoint_enabled, 0);
+    rb_define_method(cBreakpoint, "enabled=", breakpoint_set_enabled, 1);
     rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
     rb_define_method(cBreakpoint, "pos=", breakpoint_set_pos, 1);
     rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
@@ -2781,7 +2818,8 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "started?", debug_is_started, 0);
     rb_define_module_function(mDebugger, "breakpoints", debug_breakpoints, 0);
     rb_define_module_function(mDebugger, "add_breakpoint", debug_add_breakpoint, -1);
-    rb_define_module_function(mDebugger, "remove_breakpoint", debug_remove_breakpoint, 1);
+    rb_define_module_function(mDebugger, "remove_breakpoint", 
+			      debug_remove_breakpoint, 1);
     rb_define_module_function(mDebugger, "catchpoint", debug_catchpoint, 0);
     rb_define_module_function(mDebugger, "catchpoint=", debug_set_catchpoint, 1);
     rb_define_module_function(mDebugger, "last_context", debug_last_interrupted, 0);
