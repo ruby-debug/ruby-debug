@@ -1,0 +1,122 @@
+module Debugger
+  class EnableCommand < Command # :nodoc:
+    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
+      defined?(SubcmdStruct)
+    Subcommands = 
+      [
+       ['display', 2, "Enable some expressions to be displayed when program stops"],
+      ].map do |name, min, short_help| 
+      SubcmdStruct.new(name, min, short_help)
+    end unless defined?(Subcommands)
+
+    def regexp
+      /^\s* en(?:able)? (?:\s+(.*))?$/ix
+    end
+    
+    def execute
+      if not @match[1]
+        print "\"enable\" must be followed by display\n"
+      else
+        subcmd, args = @match[1].split(/[ \t]+/)
+        subcmd.downcase!
+        for try_subcmd in Subcommands do
+          if (subcmd.size >= try_subcmd.min) and
+              (try_subcmd.name[0..subcmd.size-1] == subcmd)
+            send("enable_#{try_subcmd.name}", args)
+            return
+          end
+        end
+        print "Unknown enable command #{subcmd}\n"
+      end
+    end
+    
+    def enable_display(*args)
+      args.each do |pos|
+        pos = get_int(pos, "Enable display", 1, @state.display.size)
+        @state.display[pos-1][0] = true
+      end
+    end
+    
+    class << self
+      def help_command
+        'enable'
+      end
+
+      def help(cmd)
+        s = %{
+          Enable some things.
+          This is used to cancel the effect of the "disable" command.
+          -- 
+          List of disable subcommands:
+          --  
+        }
+        for subcmd in Subcommands do
+          s += "enable #{subcmd.name} -- #{subcmd.short_help}\n"
+        end
+        return s
+      end
+    end
+  end
+
+  class DisableCommand < Command # :nodoc:
+    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
+      defined?(SubcmdStruct)
+    Subcommands = 
+      [
+       ['display', 2, "Disable some display expressions when program stops"],
+      ].map do |name, min, short_help| 
+      SubcmdStruct.new(name, min, short_help)
+    end unless defined?(Subcommands)
+
+    def regexp
+      /^\s* dis(?:able)? (?:\s+(.*))?$/ix
+    end
+    
+    def execute
+      if not @match[1]
+        print "\"disable\" must be followed by display\n"
+      else
+        subcmd, args = @match[1].split(/[ \t]+/)
+        subcmd.downcase!
+        for try_subcmd in Subcommands do
+          if (subcmd.size >= try_subcmd.min) and
+              (try_subcmd.name[0..subcmd.size-1] == subcmd)
+            send("disable_#{try_subcmd.name}", args)
+            return
+          end
+        end
+        print "Unknown disable command #{subcmd}\n"
+      end
+    end
+    
+    def disable_display(*args)
+      args.each do |pos|
+        pos = get_int(pos, "Disable display", 1, @state.display.size)
+        @state.display[pos-1][0] = false
+      end
+    end
+    
+    class << self
+      def help_command
+        'disable'
+      end
+
+      def help(cmd)
+        s = %{
+          Disable some things.
+
+          A disabled item is not forgotten, but has no effect until reenabled.
+          Use the "enable" command to have it take effect again.
+          -- 
+          List of disable subcommands:
+          --  
+        }
+        for subcmd in Subcommands do
+          s += "disable #{subcmd.name} -- #{subcmd.short_help}\n"
+        end
+        return s
+      end
+    end
+  end
+
+end # module Debugger

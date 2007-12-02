@@ -72,14 +72,12 @@ module Debugger
     end
     
     def info_display(*args)
-      if active_display_expressions? 
+      if @state.display.size > 0
         print "Auto-display expressions now in effect:\n"
         print "Num Enb Expression\n"
         n = 1
         for d in @state.display
-          if d[0]
-            print "%d:  %s %s\n", n, (d[0] ? 'y' : 'n'), d[1]
-          end
+          print "%d:   %s  %s\n", n, (d[0] ? 'y' : 'n'), d[1]
           n += 1
         end
       else

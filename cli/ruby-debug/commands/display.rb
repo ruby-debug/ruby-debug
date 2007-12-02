@@ -100,7 +100,12 @@ module Debugger
 
       def help(cmd)
         %{
-          undisp[lay][ nnn]\tdelete one particular or all display expressions
+          undisp[lay][ nnn]
+          Cancel some expressions to be displayed when program stops.
+          Arguments are the code numbers of the expressions to stop displaying.
+          No argument means cancel all automatic-display expressions.
+          "delete display" has the same effect as this command.
+          Do "info display" to see current list of code numbers.
         }
       end
     end
