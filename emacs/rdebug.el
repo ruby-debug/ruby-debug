@@ -61,6 +61,11 @@ command invocation has an annotate options (\"--annotate 3\"."
   :type 'boolean
   :group 'rdebug)
 
+(defcustom rdebug-restore-original-frame-configuration t
+  "*If non-nil, the original window layout is restored when debugger exits."
+  :type 'boolean
+  :group 'rdebug)
+
 (defgroup rdebugtrack nil
   "Rdebug file tracking by watching the prompt."
   :prefix "rdebugtrack"
@@ -113,6 +118,15 @@ distinguishes the two." )
 (defconst rdebug-annotation-end-regexp
   "\n")
 
+(defvar rdebug-original-frame-configuration nil
+  "The window layout rdebug should restore when the debugger exits.")
+
+;; This is used to ensure that the original frame configuration is
+;; restored even when the user re-starts the debugger several times.
+(defvar rdebug-frame-configuration-state 'original
+  "Represent which frame configuration  currently is in use.
+Can be `original' or `debugger'.")
+
 ;; rdebugtrack constants
 (defconst rdebugtrack-stack-entry-regexp
       "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
@@ -150,6 +164,7 @@ distinguishes the two." )
 
 
 (defmacro rdebug-debug-enter (str &rest body)
+  (declare (indent 1) (debug t))
   `(progn
      (rdebug-debug-message "--> %s\n" ,str)
      (setq rdebug-debug-depth (+ rdebug-debug-depth 1))
@@ -329,6 +344,9 @@ below will appear.
    (list (gud-query-cmdline 'rdebug)))
 
   (rdebug-debug-enter "rdebug"
+  (if (eq rdebug-frame-configuration-state 'original)
+      (setq rdebug-original-frame-configuration (current-frame-configuration)))
+  (setq rdebug-frame-configuration-state 'debugger)
   ; Parse the command line and pick out the script name and whether --annotate
   ; has been set.
   (let* ((words (split-string-and-unquote command-line))
@@ -352,6 +370,13 @@ below will appear.
     (setq gud-target-name target-name)
     (when rdebug-buffer (kill-buffer rdebug-buffer))
     (rename-buffer rdebug-buffer-name)
+
+    ;; Setup exit callback so that the original frame configuration
+    ;; can be restored.
+    (let ((process (get-buffer-process gud-comint-buffer)))
+      (if process
+          (set-process-sentinel process
+                                'rdebug-process-sentinel)))
 
     (set (make-local-variable 'gud-minor-mode) 'rdebug)
 
@@ -670,7 +695,12 @@ from `gdb-setup-windows', but simplified."
 	 (gud-find-file (car gud-last-last-frame))
        ;; Put buffer list in window if we
        ;; can't find a source file.
-       (list-buffers-noselect)))
+       ;;
+       ;; Note: The frame-specific buffer list (used when
+       ;; `Buffer-menu-use-frame-buffer-list' is non-nil), can contain
+       ;; killed buffers, which `list-buffers-noselect' crashes on.
+       (let ((Buffer-menu-use-frame-buffer-list nil))
+         (list-buffers-noselect))))
     (other-window 1)
     (set-window-buffer 
      (selected-window) 
@@ -689,6 +719,13 @@ from `gdb-setup-windows', but simplified."
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 
+(defun rdebug-display-original-frame-configuration ()
+  "Display the layout of windows prior to starting the ruby debugger."
+  (when rdebug-original-frame-configuration
+    (set-frame-configuration rdebug-original-frame-configuration)
+    (message
+     "Type `M-x rdebug-restore-windows RET' to see debugger windows.")))
+
 (defun rdebug-set-windows (&optional name)
   "Sets window used in multi-window frame and issues
 rdebug-restore-windows if rdebug-many-windows is set"
@@ -698,6 +735,25 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (when gud-last-frame (setq gud-last-last-frame gud-last-frame))
   (when rdebug-many-windows
     (rdebug-setup-windows)))
+
+(defun rdebug-process-sentinel (process event)
+  "Restore the original window configuration when the debugger process exits."
+  (rdebug-debug-enter "rdebug-process-sentinel"
+    (rdebug-debug-message "status=%S event=%S state=%S\n"
+                          (process-status process)
+                          event
+                          rdebug-frame-configuration-state)
+    ;; When the debugger process exited, when the comint buffer has no
+    ;; buffer process (nil). When the debugger processes is replaced
+    ;; with another process we should not restore the window
+    ;; configuration.
+    (when (and rdebug-restore-original-frame-configuration
+               (or (null (get-buffer-process gud-comint-buffer))
+                   (eq process (get-buffer-process gud-comint-buffer)))
+               (eq rdebug-frame-configuration-state 'debugger)
+               (not (eq (process-status process) 'run)))
+      (setq rdebug-frame-configuration-state 'original)
+      (rdebug-display-original-frame-configuration))))
 
 ;; Fontification and keymaps for secondary buffers (breakpoints, stack)
 
