@@ -46,7 +46,13 @@ module Debugger
   end
 
   class DisplayCommand < Command # :nodoc:
-    self.always_run = 2
+    def self.always_run 
+      if Debugger.annotate > 1 
+        0
+      else
+        2
+      end
+    end
     
     def regexp
       /^\s*disp(?:lay)?$/

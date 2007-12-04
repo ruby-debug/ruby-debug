@@ -644,11 +644,6 @@ This function is designed to be added to hooks, for example:
   (remove-hook 'comint-output-filter-functions 
 	       'rdebugtrack-track-stack-file))
 
-;; Add a designator to the minor mode strings if we are tracking
-(or (assq 'rdebugtrack-minor-mode-string minor-mode-alist)
-    (add-to-list 'minor-mode-alist 
-		 '(rdebugtrack-is-tracking-p
-		   rdebugtrack-minor-mode-string)))
 ;; rdebugtrack
 
 ;;-----------------------------------------------------------------------------
