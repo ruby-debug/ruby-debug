@@ -47,6 +47,7 @@ module Debugger
 
   class DisplayCommand < Command # :nodoc:
     def self.always_run 
+      Debugger.annotate = 0 unless Debugger.annotate
       if Debugger.annotate > 1 
         0
       else

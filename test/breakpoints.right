@@ -43,7 +43,7 @@ Unknown command
 Num Enb What
   1 y   at gcd.rb:6
   2 y   at :gcd
-# disable break 1
+# disable  1
 # info break
 Num Enb What
   1 n   at gcd.rb:6
@@ -55,5 +55,13 @@ Enable breakpoints argument '10' needs to at most 2.
 # info break
 Num Enb What
   2 y   at :gcd
+# enable
+"enable" must be followed "display", "breakpoints" or breakpoint numbers.
+# enable foo
+Enable breakpoints argument 'foo' needs to be a number.
+# disable bar
+Disable breakpoints argument 'bar' needs to be a number.
+# disable
+"disable" must be followed "display", "breakpoints" or breakpoint numbers.
 # # finish
 # quit

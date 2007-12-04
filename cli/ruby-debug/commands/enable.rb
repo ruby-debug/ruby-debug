@@ -16,10 +16,11 @@ module Debugger
     
     def execute
       if not @match[1]
-        print "\"enable\" must be followed by display\n"
+        print "\"enable\" must be followed \"display\", \"breakpoints\"" +
+          " or breakpoint numbers.\n"
       else
-        subcmd, args = @match[1].split(/[ \t]+/)
-        subcmd.downcase!
+        args = @match[1].split(/[ \t]+/)
+        subcmd = args.shift.downcase
         for try_subcmd in Subcommands do
           if (subcmd.size >= try_subcmd.min) and
               (try_subcmd.name[0..subcmd.size-1] == subcmd)
@@ -27,11 +28,11 @@ module Debugger
             return
           end
         end
-        print "Unknown enable command #{subcmd}\n"
+        send("enable_breakpoints", args.unshift(subcmd))
       end
     end
     
-    def enable_breakpoints(*args)
+    def enable_breakpoints(args)
       breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
       args.each do |pos|
         pos = get_int(pos, "Enable breakpoints", 1, breakpoints.size)
@@ -40,7 +41,7 @@ module Debugger
       end
     end
     
-    def enable_display(*args)
+    def enable_display(args)
       args.each do |pos|
         pos = get_int(pos, "Enable display", 1, @state.display.size)
         @state.display[pos-1][0] = true
@@ -85,10 +86,11 @@ module Debugger
     
     def execute
       if not @match[1]
-        print "\"disable\" must be followed by display\n"
+        print "\"disable\" must be followed \"display\", \"breakpoints\"" +
+          " or breakpoint numbers.\n"
       else
-        subcmd, args = @match[1].split(/[ \t]+/)
-        subcmd.downcase!
+        args = @match[1].split(/[ \t]+/)
+        subcmd = args.shift.downcase
         for try_subcmd in Subcommands do
           if (subcmd.size >= try_subcmd.min) and
               (try_subcmd.name[0..subcmd.size-1] == subcmd)
@@ -96,11 +98,11 @@ module Debugger
             return
           end
         end
-        print "Unknown disable command #{subcmd}\n"
+        send("disable_breakpoints", args.unshift(subcmd))
       end
     end
     
-    def disable_breakpoints(*args)
+    def disable_breakpoints(args)
       breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
       args.each do |pos|
         pos = get_int(pos, "Disable breakpoints", 1, breakpoints.size)
@@ -109,7 +111,7 @@ module Debugger
       end
     end
     
-    def disable_display(*args)
+    def disable_display(args)
       args.each do |pos|
         pos = get_int(pos, "Disable display", 1, @state.display.size)
         @state.display[pos-1][0] = false
