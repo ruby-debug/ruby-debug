@@ -75,8 +75,8 @@ command invocation has an annotate options (\"--annotate 3\"."
 (defcustom rdebugtrack-do-tracking-p nil
   "*Controls whether the rdebugtrack feature is enabled or not.
 When non-nil, rdebugtrack is enabled in all comint-based buffers,
-e.g. shell buffers and the *Python* buffer.  When using rdebug to debug a
-Python program, rdebugtrack notices the rdebug prompt and displays the
+e.g. shell buffers and the *Ruby* buffer.  When using rdebug to debug a
+Ruby program, rdebugtrack notices the rdebug prompt and displays the
 source file and line that the program is stopped at, much the same way
 as gud-mode does for debugging C programs with gdb."
   :type 'boolean
