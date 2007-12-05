@@ -220,8 +220,7 @@ module Debugger
         #if @@Show_breakpoints_postcmd.member?(cmd)
         annotation('breakpoints', commands, context, "info breakpoints") unless
           Debugger.breakpoints.empty?
-        annotation('display', commands, context, "display") if
-          display.select{|d| d[0]}.size > 0
+        annotation('display', commands, context, "display")
         # end
         # if @@Show_annotations_postcmd.member?(cmd)
         annotation('stack', commands, context, "where") if 

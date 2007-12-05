@@ -79,7 +79,8 @@ module Debugger
         print "Num Enb Expression\n"
         n = 1
         for d in @state.display
-          print "%3d: %s  %s\n", n, (d[0] ? 'y' : 'n'), d[1]
+          print "%3d: %s  %s\n", n, (d[0] ? 'y' : 'n'), d[1] if
+            d[0] != nil
           n += 1
         end
       else

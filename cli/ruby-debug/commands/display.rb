@@ -93,7 +93,7 @@ module Debugger
         pos = get_int(pos, "Undisplay")
         return unless pos
         if @state.display[pos-1]
-          @state.display[pos-1][0] = false
+          @state.display[pos-1][0] = nil
         else
           print "Display expression %d is not defined\n", pos
         end
