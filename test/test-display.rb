@@ -14,7 +14,7 @@ require File.join(SRC_DIR, "helper.rb")
 include TestHelper
 
 # Test info commands
-class TestInfo < Test::Unit::TestCase
+class TestDisplay < Test::Unit::TestCase
   require 'stringio'
 
   # Test commands in stepping.rb

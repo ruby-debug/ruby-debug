@@ -44,6 +44,7 @@ module Debugger
     def enable_display(args)
       args.each do |pos|
         pos = get_int(pos, "Enable display", 1, @state.display.size)
+        return nil unless pos
         @state.display[pos-1][0] = true
       end
     end
@@ -114,6 +115,7 @@ module Debugger
     def disable_display(args)
       args.each do |pos|
         pos = get_int(pos, "Disable display", 1, @state.display.size)
+        return nil unless pos
         @state.display[pos-1][0] = false
       end
     end
