@@ -62,9 +62,18 @@ command invocation has an annotate options (\"--annotate 3\"."
   :type 'boolean
   :group 'rdebug)
 
-(defcustom rdebug-restore-original-window-configuration t
-  "*If non-nil, the original window layout is restored when debugger exits."
-  :type 'boolean
+(defcustom rdebug-restore-original-window-configuration :many
+  "*Control if the original window layout is restored when the debugger exits.
+The value can be t, nil, or :many.
+
+A value of t means that the original layout is always restored,
+nil means that it's never restored.
+
+:many means that the original layout is restored only when
+`rdebug-many-windows' is used."
+  :type '(choice (const :tag "Always restore" t)
+		 (const :tag "Never restore" nil)
+		 (const :tag "Restore in many windows mode" :many))
   :group 'rdebug)
 
 (defgroup rdebugtrack nil
@@ -170,19 +179,20 @@ Can be `original' or `debugger'.")
             (goto-char (point-max))
             ;; 32 = space.
             (insert (make-string (* 4 rdebug-debug-depth) 32))
-            (insert (apply #'format args)))))))
+            (insert (apply #'format args))
+            (insert "\n"))))))
 
 
 (defmacro rdebug-debug-enter (str &rest body)
   (declare (indent 1) (debug t))
   `(progn
-     (rdebug-debug-message "--> %s\n" ,str)
+     (rdebug-debug-message "--> %s" ,str)
      (setq rdebug-debug-depth (+ rdebug-debug-depth 1))
      (unwind-protect
          (progn
            ,@body)
        (setq rdebug-debug-depth (max 0 (- rdebug-debug-depth 1)))
-       (rdebug-debug-message "<-- %s\n" ,str))))
+       (rdebug-debug-message "<-- %s" ,str))))
 
 
 ;; Interface to gud.
@@ -199,14 +209,14 @@ Can be `original' or `debugger'.")
 ;; filter.
 (defun gud-rdebug-marker-filter (string)
   (rdebug-debug-enter "gud-rdebug-marker-filter"
-    (rdebug-debug-message "GOT: %S\n" string)
+    (rdebug-debug-message "GOT: %S" string)
     (setq gud-marker-acc (concat gud-marker-acc string))
     (let ((output "") s s2 (tmp ""))
       
       ;; ALB first we process the annotations (if any)
       (while (setq s (string-match rdebug-annotation-start-regexp
 				   gud-marker-acc))
-	(rdebug-debug-message "ACC: %S\n" gud-marker-acc)
+	(rdebug-debug-message "ACC: %S" gud-marker-acc)
 	(let ((name (substring gud-marker-acc (match-beginning 1) (match-end 1)))
 	      (end (match-end 0)))
 	  (if (setq s2 (string-match rdebug-annotation-end-regexp
@@ -317,6 +327,14 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
 						sep)))))))
 )
 
+
+;; Set the window configuration state (and make sure we log this).
+(defun rdebug-set-window-configuration-state (state)
+  (rdebug-debug-message "Setting state to %s (was %s)"
+                        state rdebug-window-configuration-state)
+  (setq rdebug-window-configuration-state state))
+
+
 ;;;###autoload
 (defun rdebug (command-line)
   "Run rdebug on program FILE in buffer *rdebug-cmd-FILE*.
@@ -357,7 +375,7 @@ below will appear.
   (if (eq rdebug-window-configuration-state 'original)
       (setq rdebug-original-window-configuration
             (current-window-configuration)))
-  (setq rdebug-window-configuration-state 'debugger)
+  (rdebug-set-window-configuration-state 'debugger)
   ; Parse the command line and pick out the script name and whether --annotate
   ; has been set.
   (let* ((words (split-string-and-unquote command-line))
@@ -681,14 +699,14 @@ This function is designed to be added to hooks, for example:
   (rdebug-debug-enter "rdebug-process-annotation"
   (let ((buf (get-buffer-create (format "*rdebug-%s-%s*" name gud-target-name)))
         ;; Buffer local, doesn't survive the buffer change.
-        (target-name gud-target-name))
+        (comint-buffer gud-comint-buffer))
     (with-current-buffer buf
       (setq buffer-read-only t)
       (let ((inhibit-read-only t)
             (setup-func (gethash name rdebug--annotation-setup-map)))
         (erase-buffer)
         (insert contents)
-        (when setup-func (funcall setup-func buf target-name)))))))
+        (when setup-func (funcall setup-func buf comint-buffer)))))))
 
 (defun rdebug-setup-windows ()
   "Layout the window pattern for `rdebug-many-windows'. This was mostly copied
@@ -725,7 +743,8 @@ from `gdb-setup-windows', but simplified."
      (selected-window) 
      (get-buffer-create (format "*rdebug-breakpoints-%s*" script-name)))
     (other-window 1)
-    (goto-char (point-max)))))
+    (goto-char (point-max))
+    (rdebug-set-window-configuration-state 'debugger))))
   
 (defun rdebug-restore-windows ()
   "Equivalent of `gdb-restore-windows' for rdebug."
@@ -738,6 +757,7 @@ from `gdb-setup-windows', but simplified."
   (interactive)
   (when rdebug-original-window-configuration
     (set-window-configuration rdebug-original-window-configuration)
+    (rdebug-set-window-configuration-state 'original)
     (message
      "Type `M-x rdebug-restore-windows RET' to see debugger windows.")))
 
@@ -755,7 +775,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Restore the original window configuration when the debugger process exits."
   (gud-sentinel process event)
   (rdebug-debug-enter "rdebug-process-sentinel"
-    (rdebug-debug-message "status=%S event=%S state=%S\n"
+    (rdebug-debug-message "status=%S event=%S state=%S"
                           (process-status process)
                           event
                           rdebug-window-configuration-state)
@@ -763,12 +783,14 @@ rdebug-restore-windows if rdebug-many-windows is set"
     ;; buffer process (nil). When the debugger processes is replaced
     ;; with another process we should not restore the window
     ;; configuration.
-    (when (and rdebug-restore-original-window-configuration
+    (when (and (or (eq rdebug-restore-original-window-configuration t)
+                   (and (eq rdebug-restore-original-window-configuration :many)
+                        rdebug-many-windows))
                (or (null (get-buffer-process gud-comint-buffer))
                    (eq process (get-buffer-process gud-comint-buffer)))
                (eq rdebug-window-configuration-state 'debugger)
                (not (eq (process-status process) 'run)))
-      (setq rdebug-window-configuration-state 'original)
+      (rdebug-set-window-configuration-state 'original)
       (rdebug-display-original-window-configuration))))
 
 ;; Fontification and keymaps for secondary buffers (breakpoints, stack)
@@ -817,10 +839,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
 (defun rdebug-display-secondary-buffer (name)
   "Display one of the rdebug secondary buffers.
 If the buffer doesn't exist, do nothing."
-  ;; Try local variable first, if that fails check the current comint process.
-  (let* ((target-name (or (and (assq 'gud-target-name (buffer-local-variables))
-                               gud-target-name)
-                          (and gud-comint-buffer
+  (let* ((target-name (or (and gud-comint-buffer
                                (buffer-local-value 'gud-target-name
                                                    gud-comint-buffer))
                           gud-target-name))
@@ -892,13 +911,13 @@ If the buffer doesn't exist, do nothing."
   "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
 
-(defun rdebug--setup-breakpoints-buffer (buf name)
+(defun rdebug--setup-breakpoints-buffer (buf comint-buffer)
   "Detects breakpoint lines and sets up keymap and mouse navigation."
   (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
   (with-current-buffer buf
     (let ((inhibit-read-only t) (flag))
       (rdebug-breakpoints-mode)
-      (set (make-local-variable 'gud-target-name) name)
+      (set (make-local-variable 'gud-comint-buffer) comint-buffer)
       (goto-char (point-min))
       (while (not (eobp))
         (let ((b (line-beginning-position)) (e (line-end-position)))
@@ -1061,7 +1080,7 @@ If the buffer doesn't exist, do nothing."
   (concat rdebug--stack-frame-1st-regexp rdebug--stack-frame-2nd-regexp)
   "Regexp to recognize a stack frame line in rdebug stack buffers.")
 
-(defun rdebug--setup-stack-buffer (buf name)
+(defun rdebug--setup-stack-buffer (buf comint-buffer)
   "Detects stack frame lines and sets up mouse navigation."
   (rdebug-debug-enter "rdebug--setup-stack-buffer"
   (with-current-buffer buf
@@ -1069,7 +1088,7 @@ If the buffer doesn't exist, do nothing."
 	  (current-frame-point nil) ; position in stack buffer of selected frame
 	  )
       (rdebug-frames-mode)
-      (set (make-local-variable 'gud-target-name) name)
+      (set (make-local-variable 'gud-comint-buffer) comint-buffer)
       (goto-char (point-min))
       (while (not (eobp))
         (let* ((b (line-beginning-position)) (e (line-end-position))
@@ -1146,10 +1165,10 @@ If the buffer doesn't exist, do nothing."
 (defvar rdebug-variables-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
-    (define-key map "\r" 'rdebug-edit-variables-value)
+    (define-key map "\r" 'rdebug-variables-edit)
     (define-key map "e" 'rdebug-edit-variables-value)
-    (define-key map [mouse-1] 'rdebug-edit-variables-value)
-    (define-key map [mouse-2] 'rdebug-edit-variables-value)
+    (define-key map [mouse-2] 'rdebug-variables-edit-mouse)
+    (define-key map [mouse-3] 'rdebug-variables-edit-mouse)
     (define-key map "q" 'kill-this-buffer)
     (rdebug-secondary-buffer-populate-map map)
      map))
@@ -1169,23 +1188,35 @@ If the buffer doesn't exist, do nothing."
   ;     '(gdb-variables-font-lock-keywords))
   (run-mode-hooks 'rdebug-variables-mode-hook))
 
-(defun rdebug--setup-variables-buffer (buf name)
+(defun rdebug--setup-variables-buffer (buf comint-buffer)
   (rdebug-debug-enter "rdebug--setup-variables-buffer"
   (with-current-buffer buf
     (rdebug-variables-mode)
-    (set (make-local-variable 'gud-target-name) name))))
+    (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
-(defun rdebug-edit-variables-value (&optional event)
-  "Assign a value to a variable displayed in the variables buffer."
+(defun rdebug-variables-edit-mouse (&optional event)
+  "Assign a value to a variable displayed in the variables buffer.
+This function is intended to be bound to a mouse key"
   (interactive (list last-input-event))
   (save-excursion
     (if event (posn-set-point (event-end event)))
-    (beginning-of-line)
-    (if (looking-at "^@?[a-zA-Z_0-9]+")
-	(let* ((var (match-string 0))
-	       (value (read-string (format "New value (%s): " var))))
-	  (gud-call (format "p %s=%s" var value)))
-      (message "No variable found"))))
+    (call-interactively 'rdebug-variables-edit)))
+
+(defun rdebug-variables-edit (var value)
+  "Assign a value to a variable displayed in the variables buffer."
+  (interactive
+   (let ((var nil)
+         (value nil))
+     (save-excursion
+       (beginning-of-line)
+       (when (looking-at "^\\(@?[a-zA-Z_0-9]+\\) *= *\\(.*\\)$")
+         (setq var (match-string 1))
+         (setq value (match-string 2))
+         (setq value (read-from-minibuffer
+                      (format "New value (%s): " var) value)))
+       (list var value))))
+  (gud-call (format "p %s=%s" var value)))
+
 
 ;; -- display (a.k.a watch window)
 
@@ -1195,6 +1226,7 @@ If the buffer doesn't exist, do nothing."
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
     (define-key map "a" 'rdebug-display-add)
+    (define-key map "\C-d" 'rdebug-display-delete)
     (define-key map "d" 'rdebug-display-delete)
     (define-key map "e" 'rdebug-display-edit)
     (define-key map "\r" 'rdebug-display-edit)
@@ -1214,11 +1246,11 @@ If the buffer doesn't exist, do nothing."
   (use-local-map rdebug-display-mode-map)
   (run-mode-hooks 'rdebug-display-mode-hook))
 
-(defun rdebug--setup-display-buffer (buf name)
+(defun rdebug--setup-display-buffer (buf comint-buffer)
   (rdebug-debug-enter "rdebug--setup-display-buffer"
     (with-current-buffer buf
       (rdebug-display-mode)
-      (set (make-local-variable 'gud-target-name) name))))
+      (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
 (defun rdebug-display-add (expr)
   (interactive "sRuby expression: ")
@@ -1234,15 +1266,15 @@ If the buffer doesn't exist, do nothing."
 
 (defun rdebug-display-edit (number expr)
   (interactive
-    (let ((number nil)
-          (expr nil))
-      (save-excursion
-        (beginning-of-line)
-        (when (looking-at "^\\([0-9]+\\): *\\([^=]*[^= ]\\) *=")
-          (setq number (match-string 1))
-          (setq expr (match-string 2))
-          (setq expr (read-from-minibuffer "Ruby expression: " expr)))
-        (list number expr))))
+   (let ((number nil)
+         (expr nil))
+     (save-excursion
+       (beginning-of-line)
+       (when (looking-at "^\\([0-9]+\\): *\\([^=]*[^= ]\\) *=")
+         (setq number (match-string 1))
+         (setq expr (match-string 2))
+         (setq expr (read-from-minibuffer "Ruby expression: " expr)))
+       (list number expr))))
   (when expr
     (gud-call (format "undisplay %s" number))
     (gud-call (format "display %s" expr))))
@@ -1270,11 +1302,11 @@ If the buffer doesn't exist, do nothing."
   (run-mode-hooks 'rdebug-secondary-window-help-mode-hook))
 
 
-(defun rdebug--setup-secondary-window-help-buffer (buf name)
+(defun rdebug--setup-secondary-window-help-buffer (buf comint-buffer)
   (rdebug-debug-enter "rdebug--setup-secondary-window-help-bufferr"
     (with-current-buffer buf
       (rdebug-secondary-window-help-mode)
-      (set (make-local-variable 'gud-target-name) name)
+      (set (make-local-variable 'gud-comint-buffer) comint-buffer)
       (insert "\
 
 This is a rdebug secondary window, you can use it to display a
