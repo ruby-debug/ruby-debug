@@ -62,6 +62,20 @@ command invocation has an annotate options (\"--annotate 3\"."
   :type 'boolean
   :group 'rdebug)
 
+(defvar rdebug-many-windows-layout-function
+  'rdebug-many-windows-layout-standard
+  "*A function that performs the window layout of `rdebug'.
+
+This is only used in `rdebug-many-windows' mode. This should be
+bound to a function that performs the actual window layout. The
+function should takes two arguments, the first is the source
+buffer and the second the name of the script to debug.
+
+Rdebug provides three different layout functions:
+* `rdebug-many-windows-layout-standard'
+* `rdebug-many-windows-layout-conservative'
+* `rdebug-many-windows-layout-stack-of-secondary-windows'")
+
 (defcustom rdebug-restore-original-window-configuration :many
   "*Control if the original window layout is restored when the debugger exits.
 The value can be t, nil, or :many.
@@ -466,7 +480,7 @@ below will appear.
     (setq paragraph-start comint-prompt-regexp)
     
     (setq paragraph-start comint-prompt-regexp)
-    (when rdebug-many-windows (rdebug-setup-windows))
+    (when rdebug-many-windows (rdebug-setup-windows-initially))
     
     (run-hooks 'rdebug-mode-hook))
   ))
@@ -692,11 +706,17 @@ This function is designed to be added to hooks, for example:
       (puthash "stack"       'rdebug--setup-stack-buffer                 map)
       (puthash "variables"   'rdebug--setup-variables-buffer             map)
       (puthash "display"     'rdebug--setup-display-buffer               map)
+      (puthash "output"      'rdebug--setup-output-buffer                map)
       (puthash "help"        'rdebug--setup-secondary-window-help-buffer map)
       map)))
 
 (defun rdebug-process-annotation (name contents)
   (rdebug-debug-enter "rdebug-process-annotation"
+  ;; Ruby-debug uses the name "starting" for process output (just like
+  ;; GDB). However, it's better to present the buffer as "output" to
+  ;; the user.
+  (if (string= name "starting")
+      (setq name "output"))
   (let ((buf (get-buffer-create (format "*rdebug-%s-%s*" name gud-target-name)))
         ;; Buffer local, doesn't survive the buffer change.
         (comint-buffer gud-comint-buffer))
@@ -704,48 +724,117 @@ This function is designed to be added to hooks, for example:
       (setq buffer-read-only t)
       (let ((inhibit-read-only t)
             (setup-func (gethash name rdebug--annotation-setup-map)))
-        (erase-buffer)
+        (if (string= name "output")
+            (goto-char (point-max))
+          (erase-buffer))
         (insert contents)
         (when setup-func (funcall setup-func buf comint-buffer)))))))
+
+
+;;
+;; Window layout
+;;
+
+(defun rdebug-many-windows-layout-standard (src-buf name)
+  "The default rdebug window layout, see `rdebug' for more information."
+  (delete-other-windows)
+  (split-window nil ( / ( * (window-height) 3) 4))
+  (split-window nil ( / (window-height) 3))
+  (split-window-horizontally)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "variables" name))
+  (other-window 1)
+  (switch-to-buffer src-buf)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "stack" name))
+  (split-window-horizontally)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "breakpoints" name))
+  (other-window 1)
+  (goto-char (point-max)))
+
+(defun rdebug-many-windows-layout-conservative (src-buf name)
+  "A conservative rdebug window layout with three windows.
+
+This window layout mimics the traditional debugger shell and
+source window layout, it only add one secondary window.
+Initially, the secondary window displays output of the debugged
+process, but any secondary buffer can be displayed, press `?' in
+the window for more details."
+  (delete-other-windows)
+  (split-window-horizontally)
+  (other-window 1)
+  (switch-to-buffer src-buf)
+  (other-window 1)
+  (split-window nil 20)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "output" name))
+  (other-window 1))
+
+(defun rdebug-many-windows-layout-stack-of-secondary-windows (src-buf name)
+  "A rdebug window layout with several secondary windows to the right.
+The debugger shell and the source code window is to the left."
+  (delete-other-windows)
+  (split-window-horizontally)
+  (split-window nil 20)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "cmd" name))
+  (other-window 1)
+  (switch-to-buffer src-buf)
+  (other-window 1)
+  (split-window)
+  (split-window)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "variables" name))
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "stack" name))
+  (other-window 1)
+  (split-window)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "output" name))
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "breakpoints" name))
+  (other-window 1))
+
 
 (defun rdebug-setup-windows ()
   "Layout the window pattern for `rdebug-many-windows'. This was mostly copied
 from `gdb-setup-windows', but simplified."
   (rdebug-debug-enter "rdebug-setup-windows"
   (pop-to-buffer gud-comint-buffer)
-  (let ((script-name gud-target-name))
-    (rdebug-process-annotation "help" "")
-    (delete-other-windows)
-    (split-window nil ( / ( * (window-height) 3) 4))
-    (split-window nil ( / (window-height) 3))
-    (split-window-horizontally)
-    (other-window 1)
-    (set-window-buffer 
-     (selected-window) 
-     (get-buffer-create (format "*rdebug-variables-%s*" script-name)))
-    (other-window 1)
-    (switch-to-buffer
-     (cond (gud-last-last-frame
-            (gud-find-file (car gud-last-last-frame)))
-           (gud-target-name
-            (gud-find-file gud-target-name))
-           (t
-            ;; Put buffer list in window if we
-            ;; can't find a source file.
-            (list-buffers-noselect))))
-    (other-window 1)
-    (set-window-buffer 
-     (selected-window) 
-     (get-buffer-create (format "*rdebug-stack-%s*" script-name)))
-    (split-window-horizontally)
-    (other-window 1)
-    (set-window-buffer 
-     (selected-window) 
-     (get-buffer-create (format "*rdebug-breakpoints-%s*" script-name)))
-    (other-window 1)
-    (goto-char (point-max))
-    (rdebug-set-window-configuration-state 'debugger))))
-  
+  (rdebug-process-annotation "help" "")
+  (let ((buf
+         (cond (gud-last-last-frame
+                (gud-find-file (car gud-last-last-frame)))
+               (gud-target-name
+                (gud-find-file gud-target-name))
+               (t
+                ;; Put buffer list in window if we
+                ;; can't find a source file.
+                (list-buffers-noselect)))))
+    (funcall rdebug-many-windows-layout-function buf gud-target-name))
+  (rdebug-set-window-configuration-state 'debugger)))
+
+
+(defun rdebug-setup-windows-initially ()
+  "Like `rdebug-setup-windows', but erase the content of accumulative windows.
+This is called when the debugger starts."
+  (let ((buf (get-buffer (format "*rdebug-output-%s*" gud-target-name))))
+    (if buf
+        (with-current-buffer buf
+          (let ((inhibit-read-only t))
+            (erase-buffer)))))
+  (rdebug-setup-windows))
+
+(defun rdebug-get-buffer (name script-name)
+  (get-buffer-create (format "*rdebug-%s-%s*" name script-name)))
+
+
 (defun rdebug-restore-windows ()
   "Equivalent of `gdb-restore-windows' for rdebug."
   (interactive)
@@ -773,12 +862,17 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 (defun rdebug-process-sentinel (process event)
   "Restore the original window configuration when the debugger process exits."
-  (gud-sentinel process event)
   (rdebug-debug-enter "rdebug-process-sentinel"
     (rdebug-debug-message "status=%S event=%S state=%S"
                           (process-status process)
                           event
                           rdebug-window-configuration-state)
+    (gud-sentinel process event)
+    ;; This will "flush" the last annotation. Especially "output"
+    ;; (a.k.a. "starting") annotations don't have an end markers, if
+    ;; the last command printed something.
+    (if (string= event "finished\n")
+        (gud-rdebug-marker-filter "\032\032\n"))
     ;; When the debugger process exited, when the comint buffer has no
     ;; buffer process (nil). When the debugger processes is replaced
     ;; with another process we should not restore the window
@@ -801,6 +895,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
   (define-key map "D" 'rdebug-display-display-buffer)
+  (define-key map "O" 'rdebug-display-output-buffer)
   (define-key map "V" 'rdebug-display-variables-buffer)
   (define-key map "S" 'rdebug-display-stack-buffer)
   (define-key map "?" 'rdebug-display-secondary-window-help-buffer))
@@ -819,6 +914,11 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Display the rdebug display buffer."
   (interactive)
   (rdebug-display-secondary-buffer "display"))
+
+(defun rdebug-display-output-buffer ()
+  "Display the rdebug output buffer."
+  (interactive)
+  (rdebug-display-secondary-buffer "output"))
 
 (defun rdebug-display-variables-buffer ()
   "Display the rdebug variables buffer."
@@ -1220,8 +1320,6 @@ This function is intended to be bound to a mouse key"
 
 ;; -- display (a.k.a watch window)
 
-;; TODO: Add display, delete display.
-
 (defvar rdebug-display-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
@@ -1279,6 +1377,32 @@ This function is intended to be bound to a mouse key"
     (gud-call (format "undisplay %s" number))
     (gud-call (format "display %s" expr))))
 
+;; -- output
+
+(defvar rdebug-output-mode-map
+  (let ((map (make-sparse-keymap)))
+    (suppress-keymap map)
+    (rdebug-secondary-buffer-populate-map map)
+    map))
+
+(defun rdebug-output-mode ()
+  "Major mode for rdebug output window.
+
+\\{rdebug-output-mode}"
+  (interactive)
+  (kill-all-local-variables)
+  (setq major-mode 'rdebug-output-mode)
+  (setq mode-name "RDEBUG Output")
+  (setq buffer-read-only t)
+  (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (use-local-map rdebug-output-mode-map)
+  (run-mode-hooks 'rdebug-output-mode-hook))
+
+(defun rdebug--setup-output-buffer (buf comint-buffer)
+  (rdebug-debug-enter "rdebug--setup-output-buffer"
+    (with-current-buffer buf
+      (rdebug-output-mode)
+      (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
 ;; -- help
 
@@ -1319,6 +1443,7 @@ Press `C-h m' for more help, when the individual buffers are visible.
  B - Breakpoints buffer.
  C - Command buffer (the debugger shell)
  D - Display buffer (also known as Watch buffer)
+ O - Output window
  V - Variables buffer
  S - Stack trace buffer
  ? - This help text.
