@@ -74,7 +74,8 @@ buffer and the second the name of the script to debug.
 Rdebug provides three different layout functions:
 * `rdebug-many-windows-layout-standard'
 * `rdebug-many-windows-layout-conservative'
-* `rdebug-many-windows-layout-stack-of-secondary-windows'")
+* `rdebug-many-windows-layout-stack-of-secondary-windows'
+* `rdebug-many-windows-rocky'")
 
 (defcustom rdebug-restore-original-window-configuration :many
   "*Control if the original window layout is restored when the debugger exits.
@@ -754,6 +755,23 @@ This function is designed to be added to hooks, for example:
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "breakpoints" name))
   (other-window 1)
+  (goto-char (point-max)))
+
+(defun rdebug-many-windows-rocky (src-buf name)
+  "Rocky's window layout. 
+
+3 windows. The source window is on top 4/5 of height. The 
+bottom is split between the command windos and a stack window. See `rdebug' for more information."
+  (delete-other-windows)
+  (split-window nil ( / ( * (window-height) 4) 5))
+  (set-window-buffer
+   (selected-window) src-buf)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "stack" name))
+  (split-window-horizontally)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "cmd" name))
   (goto-char (point-max)))
 
 (defun rdebug-many-windows-layout-conservative (src-buf name)

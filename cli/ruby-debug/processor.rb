@@ -23,6 +23,7 @@ module Debugger
       @actions = []
       @last_file = nil   # Filename the last time we stopped
       @last_line = nil   # line number the last time we stopped
+      @output_annotation_in_progress = false
     end
     
     def interface=(interface)
@@ -157,6 +158,11 @@ module Debugger
 
     # Handle debugger commands
     def process_commands(context, file, line)
+      if @output_annotation_in_progress
+        print "\032\032\n"
+        @output_annotation_in_progress = false
+      end
+
       state, commands = always_run(context, file, line, 1)
       
       splitter = lambda do |str|
@@ -190,6 +196,11 @@ module Debugger
             postcmd(commands, context, cmd)
           end
         end
+      end
+
+      if ENV['EMACS']
+        print "\032\032starting\n"
+        @output_annotation_in_progress = true
       end
     end # process_commands
     
