@@ -198,8 +198,8 @@ module Debugger
         end
       end
 
-      if ENV['EMACS']
-        print "\032\032starting\n"
+      if ENV['EMACS'] and Debugger.annotate and Debugger.annotate > 2
+        print "\032\032starting\n" 
         @output_annotation_in_progress = true
       end
     end # process_commands
