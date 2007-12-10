@@ -2586,6 +2586,20 @@ Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
 @node Kernel routines
 @section Additions to Kernel 
 
+@table @code
+
+@item debugger @ovar{steps=1}
+Enters the debugger in the current thread after a stepping @var{steps} steps.
+Before entering the debugger startup script is read.
+
+@item breakpoint @ovar{steps=1}
+An alias for debugger.
+
+@item binding_n @ovar{n=0}
+Returns a binding of @var{n}-th call frame. 
+
+@end table
+
 @node GNU Emacs
 @chapter Using @code{ruby-debug} from GNU Emacs
 
