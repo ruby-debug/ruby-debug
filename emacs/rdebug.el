@@ -438,6 +438,8 @@ below will appear.
 	     "Step one line (skip functions).")
     (gud-def gud-print  "p %e"        "\C-p"
 	     "Evaluate Ruby expression at point.")
+    (gud-def gud-source-resync "up 0" "\C-l"
+	     "Show current source window")
     (gud-def gud-remove "clear %d%f:%l" "\C-d"
 	     "Remove breakpoint at current line")
     (gud-def gud-run    "run"       "R"
@@ -912,10 +914,13 @@ rdebug-restore-windows if rdebug-many-windows is set"
 (defun rdebug-secondary-buffer-populate-map (map &optional menu)
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
+  (define-key map "d" 'gud-down)
   (define-key map "D" 'rdebug-display-display-buffer)
   (define-key map "O" 'rdebug-display-output-buffer)
-  (define-key map "V" 'rdebug-display-variables-buffer)
+  (define-key map "s" 'gud-source-resync)
   (define-key map "S" 'rdebug-display-stack-buffer)
+  (define-key map "u" 'gud-up)
+  (define-key map "V" 'rdebug-display-variables-buffer)
   (define-key map "?" 'rdebug-display-secondary-window-help-buffer))
 
 (defun rdebug-display-breakpoints-buffer ()
@@ -1461,8 +1466,11 @@ Press `C-h m' for more help, when the individual buffers are visible.
  B - Breakpoints buffer.
  C - Command buffer (the debugger shell)
  D - Display buffer (also known as Watch buffer)
+ d - go down frame (with numeric argument goes down that many frames)
  O - Output window
  V - Variables buffer
+ u - go up one frame (with numeric argument goes down that many frames)
+ U - go to source frame
  S - Stack trace buffer
  ? - This help text.
 "))))
