@@ -2607,22 +2607,23 @@ Returns a binding of @var{n}-th call frame.
 A special interface which comes with Ruby that allows you to use
 @value{Emacs} to view (and edit) the source files for the program you
 are debugging with @value{DBG}. However you must be using
-@value{Emacs} version 21 or greater. (@code{M-x show-emacs-version}
-inside @value{Emacs} will tell you what version you are running.)
+@value{Emacs} version 21, but with @value{Emacs} version 22 or 23
+there are even more debugging features available. @code{M-x
+show-emacs-version} inside @value{Emacs} will tell you what version
+you are running.
 
-To use this interface, you to load @code{rubydb3x.el}. 
+To use this interface, you to load @code{rdebug.el}. 
 
 @smallexample
-  (autoload 'rubydb "rubydb3x.el"  "Debugger Ruby programs." t)
-  (setq rubydb-command-name "rdebug")
+  (autoload 'rdebug "rdebug.el"  "Debugger Ruby programs." t)
 @end smallexample 
 
-Once this is done, use the command @kbd{M-x rubydb} in @sc{gnu} Emacs.
+Once this is done, use the command @kbd{M-x rdebug} in @sc{gnu} Emacs.
 Give the executable file you want to debug as an argument. Make sure
 to use the version that comes with this package as this is newer than
 that supplied with @value{Emacs}.
 
-The @kbd{rubydb} command starts @value{DBG} as a subprocess of Emacs,
+The @kbd{rdebug} command starts @value{DBG} as a subprocess of Emacs,
 with input and output through a newly created Emacs buffer.
 
 Using @value{DBG} under Emacs is just like using @value{DBG}
@@ -2646,13 +2647,14 @@ way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
 stop.
 
 @menu
-* GUD::           Commands from the GUD buffer
+* Debugger Command Buffer:: 
 * Emacs Source::  Commands from the source script
 * Emacs Shell::   @value{DBG} from a @value{Emacs} Shell
+* Emacs with Annotate:: A richer debugging environment
 @end menu
 
-@node GUD
-@section Commands from the GUD buffer
+@node Debugger Command Buffer
+@section Emacs Debugger Command buffer
 
 @itemize @bullet
 @item
@@ -2684,13 +2686,6 @@ A similar confusion can result if you use the @value{DBG} @code{file} command to
 switch to debugging a program in some other location, from an existing
 @value{DBG} buffer in Emacs.
 @end quotation
-
-By default, @kbd{M-x rubydb} run the @code{ruby -r debug} which is the
-other debugger.  However you can set this to @code{rdebug} by running this:
-
-@smallexample
- (setq rubydb-command-name "rdebug")
-@end smallexample
 
 @noindent
 (preceded by @kbd{M-:} or @kbd{ESC :}, or typed in the @code{*scratch*} buffer, or
@@ -2930,6 +2925,105 @@ command (from M-x) @code{turn-on-rdebugtrack}. There is some overhead
 involved in scanning output, so if you are not debugging Ruby programs
 you probably want to turn this off which can be done via the M-x
 @code{turn-off-rdebugtrack} command.
+
+@node Emacs with Annotate
+@section A richer debugging environment using @code{--annotate}
+
+When @code{--annotate 3} is added as an option to the @code{rdebug}
+command, extra information is passed between @value{Emacs} and
+@value{DBG}.  For each debug session several internal buffers set up
+and constantly updated. They contain information about the current
+state of the program. The names of the buffers start @code{*rdebug-};
+they are:
+
+@itemize @bullet
+@item @code{*rdebug-breakpoints-@emph{program-name}*}
+
+A buffer containing breakpoint information.
+
+@item @code{*rdebug-display-@emph{program-name}*}
+
+A buffer containing display expressions (@pxref{DisplayCommands}).
+@item @code{*rdebug-output-@emph{program-name}*}
+
+A buffer containing output producted in running the program so far.
+@item @code{*rdebug-stack-@emph{program-name}*}
+
+The call stack for the current thread
+@item @code{*rdebug-variables-@emph{program-name}*}
+
+A buffer containing local variables (@code{local_variables}) and
+instance variables (@code{instance_variables}).
+@end itemize
+@kindex secondary buffers.
+These are called @emph{secondary buffers}.
+
+Because screen real-estate is limited, some of these buffers may be
+visable in a frame and some not. There are commands to switch to these
+buffers moving to the visible frame if the buffer is visable, or
+replacing the secondary buffer that the command was issued from with
+the desired secondary buffer.
+
+Capital letters move between secondary buffers as mentioned above (jump
+to if visible or replace a secondary if not).
+
+@table @kbd
+@item SPACE
+step (edebug compatible)
+@item <
+up    (Gud uses this and Emacs uses M-< for beginning of buffer)
+@item >  
+down  (Gud uses this and Emacs uses M-> for beginning of buffer)
+@item ?
+help
+@item B 
+goto/display breakpoints buffer
+@item C
+goto/display command buffer
+@item D
+goto/display display
+@item O
+goto/display program output
+@item S
+goto/display source window
+@item T
+goto/display stack-buffer (Perl uses T for stack trace)
+@item V
+goto/display variables buffer
+@item b
+set breakpoint (edebug compatible)
+@item c
+continue  (edebug compatible)
+@item d
+remove break
+@item f
+finish
+@item n
+next  (edebug compatible)
+@item p 
+print
+@item q
+quit (edebug compatible)
+@item r
+restart
+@item s
+step
+@end table
+
+Some secondary buffers may have specific commands applicable, but
+there are very few of these.
+
+@verbatim
+Buffer specific commands
+  Stack buffer
+  return: set frame at this position
+
+  variables buffer
+  return: edit the variable's value
+
+  breakpoints:
+  return toggle breakpoint (enable/disable it)
+@end verbatim
 
 @node Command Index
 @unnumbered Command Index
