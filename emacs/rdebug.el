@@ -442,11 +442,15 @@ below will appear.
 	     "Show current source window")
     (gud-def gud-remove "clear %d%f:%l" "\C-d"
 	     "Remove breakpoint at current line")
-    (gud-def gud-run    "run"       "R"
+    (gud-def gud-quit    "quit"       "Q"
+	     "Quit debugger.")
+    (gud-def gud-run    "restart"       "R"
 	     "Restart the Ruby script.")
     (gud-def gud-statement "eval %e" "\C-e"
 	     "Execute Ruby statement at point.")
     (gud-def gud-step   "step %p"       "\C-s"
+	     "Step one source line with display.")
+    (gud-def gud-step-plus "step+ %p"       "+"
 	     "Step one source line with display.")
     (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
 	     "Set temporary breakpoint at current line.")
@@ -912,16 +916,30 @@ rdebug-restore-windows if rdebug-many-windows is set"
 ;; -- General, for all secondary buffers.
 
 (defun rdebug-secondary-buffer-populate-map (map &optional menu)
+  (define-key map " " 'gud-step)
+  (define-key map "+" 'gud-step-plus)
+  (define-key map "<" 'gud-up)
+  (define-key map ">" 'gud-down)
+  (define-key map "?" 'rdebug-display-secondary-window-help-buffer)
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
-  (define-key map "d" 'gud-down)
   (define-key map "D" 'rdebug-display-display-buffer)
   (define-key map "O" 'rdebug-display-output-buffer)
-  (define-key map "s" 'gud-source-resync)
-  (define-key map "S" 'rdebug-display-stack-buffer)
-  (define-key map "u" 'gud-up)
+  (define-key map "S" 'gud-source-resync)
+  (define-key map "T" 'rdebug-display-stack-buffer)
   (define-key map "V" 'rdebug-display-variables-buffer)
-  (define-key map "?" 'rdebug-display-secondary-window-help-buffer))
+  ; (define-key map "a" 'gud-args)
+  ; (define-key map "b" 'gud-break)
+  (define-key map "c" 'gud-cont)
+  ; (define-key map "d" 'gud-remove)
+  (define-key map "f" 'gud-finish)
+  (define-key map "n" 'gud-next)
+  (define-key map "p" 'gud-print)
+  (define-key map "q" 'gud-quit)
+  (define-key map "r" 'gud-run)
+  (define-key map "s" 'gud-step)
+  ;(define-key map "t" 'gud-tbreak)
+)
 
 (defun rdebug-display-breakpoints-buffer ()
   "Display the rdebug breakpoints buffer."
