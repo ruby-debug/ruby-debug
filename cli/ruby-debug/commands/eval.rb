@@ -4,13 +4,16 @@ module Debugger
       binding = @state.context ? get_binding : TOPLEVEL_BINDING
       $__dbg_interface = @state.interface
       eval(<<-EOC, binding)
+        __dbg_verbose_save=$VERBOSE; $VERBOSE=false
         def dbg_print(*args)
           $__dbg_interface.print(*args)
         end
+        remove_method :puts if self.respond_to?(:puts)
         def dbg_puts(*args)
           $__dbg_interface.print(*args)
           $__dbg_interface.print("\n")
         end
+        $VERBOSE=__dbg_verbose_save
       EOC
       yield binding
     ensure
