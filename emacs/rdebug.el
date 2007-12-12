@@ -390,17 +390,17 @@ below will appear.
 |                               GDB Toolbar                            |
 +-----------------------------------+----------------------------------+
 | GUD buffer (I/O of rdebug)        | Variables buffer                 |
-|                                   |                                  |
+|                                   | RET rdebug-variables-edi         |
 |                                   |                                  |
 |                                   |                                  |
 +-----------------------------------+----------------------------------+
-| Source buffer                                                        |
-|                                                                      |
+| Source buffer                     | Output buffer                    |
+|                                   |                                  |
 +-----------------------------------+----------------------------------+
 | Stack buffer                      | Breakpoints buffer               |
 | RET rdebug-goto-stack-frame       | SPC  rdebug-toggle-breakpoint    |
 |                                   | RET  rdebug-goto-breakpoint      |
-|                                   | D    rdebug-delete-breakpoint    |
+|                                   | DEL  rdebug-delete-breakpoint    |
 +-----------------------------------+----------------------------------+
 "
   (interactive
@@ -1037,7 +1037,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
     (define-key map [menu-bar debugger view display]
       '(menu-item "Watch" rdebug-display-display-buffer))
 
-    (define-key map [menu-bar debugger view breakpoints]
+    (define-key map [menu-bar debugger view stack]
       '(menu-item "Stack trace" rdebug-display-stack-buffer))
 
     (define-key map [menu-bar debugger view shell]

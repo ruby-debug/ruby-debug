@@ -2615,7 +2615,8 @@ you are running.
 To use this interface, you to load @code{rdebug.el}. 
 
 @smallexample
-  (autoload 'rdebug "rdebug.el"  "Debugger Ruby programs." t)
+  (autoload 'rdebug-turn-on-debugger-support "rdebug" nil t)
+  (add-hook 'ruby-mode-hook 'rdebug-turn-on-debugger-support)
 @end smallexample 
 
 Once this is done, use the command @kbd{M-x rdebug} in @sc{gnu} Emacs.
