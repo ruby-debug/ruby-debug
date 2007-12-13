@@ -147,6 +147,9 @@ distinguishes the two." )
 (defvar rdebug-original-window-configuration nil
   "The window layout rdebug should restore when the debugger exits.")
 
+(defvar rdebug-debugger-window-configuration nil
+  "The saved window layout of the debugger.")
+
 ;; This is used to ensure that the original frame configuration is
 ;; restored even when the user re-starts the debugger several times.
 (defvar rdebug-window-configuration-state 'original
@@ -345,10 +348,27 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
 
 
 ;; Set the window configuration state (and make sure we log this).
-(defun rdebug-set-window-configuration-state (state)
+(defun rdebug-set-window-configuration-state (state &optional dont-restore)
   (rdebug-debug-message "Setting state to %s (was %s)"
                         state rdebug-window-configuration-state)
-  (setq rdebug-window-configuration-state state))
+  (when (not (eq state rdebug-window-configuration-state))
+    ;; Save the previous state.
+    (cond ((eq rdebug-window-configuration-state 'debugger)
+           (setq rdebug-debugger-window-configuration
+                 (current-window-configuration)))
+          ((eq rdebug-window-configuration-state 'original)
+           (setq rdebug-original-window-configuration
+                 (current-window-configuration))))
+    (unless dont-restore
+      ;; Switch to the saved state,
+      (cond
+       ((eq state 'debugger)
+        (if rdebug-debugger-window-configuration
+            (set-window-configuration rdebug-debugger-window-configuration)))
+       ((eq state 'original)
+        (if rdebug-original-window-configuration
+            (set-window-configuration rdebug-original-window-configuration)))))
+    (setq rdebug-window-configuration-state state)))
 
 
 ;; -- Common key support.
@@ -408,10 +428,7 @@ below will appear.
    (list (gud-query-cmdline 'rdebug)))
 
   (rdebug-debug-enter "rdebug"
-  (if (eq rdebug-window-configuration-state 'original)
-      (setq rdebug-original-window-configuration
-            (current-window-configuration)))
-  (rdebug-set-window-configuration-state 'debugger)
+  (rdebug-set-window-configuration-state 'debugger t)
   ; Parse the command line and pick out the script name and whether --annotate
   ; has been set.
   (let* ((words (split-string-and-unquote command-line))
@@ -443,7 +460,10 @@ below will appear.
           (set-process-sentinel process
                                 'rdebug-process-sentinel)))
 
-    (set (make-local-variable 'gud-minor-mode) 'rdebug)
+    ;; This opens up "Gud" menu, which isn't used since we've got our
+    ;; own "Debugger" menu.
+
+    ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
 
     (gud-def gud-args   "info args" "a"
 	     "Show arguments of current stack.")
@@ -453,7 +473,7 @@ below will appear.
 	     "Continue with display.")
     (gud-def gud-down   "down %p"     ">"
 	     "Down N stack frames (numeric arg).")
-    (gud-def gud-finish "finish"      "f\C-f"
+    (gud-def gud-finish "finish"      "\C-f"
 	     "Finish executing current function.")
     (gud-def gud-next   "next %p"     "\C-n"
 	     "Step one line (skip functions).")
@@ -503,17 +523,18 @@ below will appear.
     (define-key gud-menu-map [tbreak]    '("Temporary break" . gud-tbreak))
     (define-key gud-menu-map [up]        '("Up Stack" . gud-up))
     (define-key gud-menu-map [where]     '("Show stack trace" . gud-where))
-    
-    (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
-    (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
-    (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
-    
+
+;;    (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
+;;    (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
+;;    (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
+
     (setq comint-prompt-regexp "^(rdb:-) ")
     (setq paragraph-start comint-prompt-regexp)
-    
-    (setq paragraph-start comint-prompt-regexp)
+
+    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+            rdebug-debugger-support-minor-mode-map-when-active)
     (when rdebug-many-windows (rdebug-setup-windows-initially))
-    
+
     (run-hooks 'rdebug-mode-hook))
   ))
 ;)
@@ -522,12 +543,11 @@ below will appear.
 (defun rdebug-quit ()
   "Kill current debugger process.
 
-When `rdebug-many-windows' is active, this also restores the original
+When `rdebug-many-windows' is active, restores the original
 window layout."
   (interactive)
-  (let ((proc (get-buffer-process gud-comint-buffer)))
-    (if proc
-        (kill-process proc))))
+  (if (yes-or-no-p "Really quit? ")
+      (gud-call "quit unconditionally")))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -748,7 +768,7 @@ This function is designed to be added to hooks, for example:
       (puthash "breakpoints" 'rdebug--setup-breakpoints-buffer           map)
       (puthash "stack"       'rdebug--setup-stack-buffer                 map)
       (puthash "variables"   'rdebug--setup-variables-buffer             map)
-      (puthash "display"     'rdebug--setup-display-buffer               map)
+      (puthash "watch"       'rdebug--setup-watch-buffer                 map)
       (puthash "output"      'rdebug--setup-output-buffer                map)
       (puthash "help"        'rdebug--setup-secondary-window-help-buffer map)
       map)))
@@ -757,9 +777,11 @@ This function is designed to be added to hooks, for example:
   (rdebug-debug-enter "rdebug-process-annotation"
   ;; Ruby-debug uses the name "starting" for process output (just like
   ;; GDB). However, it's better to present the buffer as "output" to
-  ;; the user.
-  (if (string= name "starting")
-      (setq name "output"))
+  ;; the user. Ditto for "display" and "watch".
+  (cond ((string= name "starting")
+         (setq name "output"))
+        ((string= name "display")
+         (setq name "watch")))
   (let ((buf (get-buffer-create (format "*rdebug-%s-%s*" name gud-target-name)))
         ;; Buffer local, doesn't survive the buffer change.
         (comint-buffer gud-comint-buffer))
@@ -870,6 +892,7 @@ The debugger shell and the source code window is to the left."
   "Layout the window pattern for `rdebug-many-windows'. This was mostly copied
 from `gdb-setup-windows', but simplified."
   (rdebug-debug-enter "rdebug-setup-windows"
+  (rdebug-set-window-configuration-state 'debugger t)
   (pop-to-buffer gud-comint-buffer)
   (rdebug-process-annotation "help" "")
   (let ((buf
@@ -881,8 +904,7 @@ from `gdb-setup-windows', but simplified."
                 ;; Put buffer list in window if we
                 ;; can't find a source file.
                 (list-buffers-noselect)))))
-    (funcall rdebug-many-windows-layout-function buf gud-target-name))
-  (rdebug-set-window-configuration-state 'debugger)))
+    (funcall rdebug-many-windows-layout-function buf gud-target-name))))
 
 
 (defun rdebug-setup-windows-initially ()
@@ -900,7 +922,7 @@ This is called when the debugger starts."
 
 
 (defun rdebug-restore-windows ()
-  "Equivalent of `gdb-restore-windows' for rdebug."
+  "Display the initial ruby debugger window layout."
   (interactive)
   (when rdebug-many-windows
     (rdebug-setup-windows)))
@@ -908,11 +930,16 @@ This is called when the debugger starts."
 (defun rdebug-display-original-window-configuration ()
   "Display the layout of windows prior to starting the ruby debugger."
   (interactive)
-  (when rdebug-original-window-configuration
-    (set-window-configuration rdebug-original-window-configuration)
-    (rdebug-set-window-configuration-state 'original)
-    (message
-     "Type `M-x rdebug-restore-windows RET' to see debugger windows.")))
+  (rdebug-set-window-configuration-state 'original)
+  (message
+   "Type `M-x rdebug-display-debugger-window-configuration RET' to restore."))
+
+(defun rdebug-display-debugger-window-configuration ()
+  "Display the corrent layout of windows of the ruby debugger."
+  (interactive)
+  (rdebug-set-window-configuration-state 'debugger)
+  (message
+   "Type `M-x rdebug-display-original-window-configuration RET' to restore."))
 
 (defun rdebug-set-windows (&optional name)
   "Sets window used in multi-window frame and issues
@@ -948,8 +975,10 @@ rdebug-restore-windows if rdebug-many-windows is set"
                    (eq process (get-buffer-process gud-comint-buffer)))
                (eq rdebug-window-configuration-state 'debugger)
                (not (eq (process-status process) 'run)))
-      (rdebug-set-window-configuration-state 'original)
-      (rdebug-display-original-window-configuration))))
+      (rdebug-set-window-configuration-state 'original))
+    ;; This unbinds the special debugger keys of the source buffers.
+    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+            rdebug-debugger-support-minor-mode-map-when-deactive)))
 
 ;; Fontification and keymaps for secondary buffers (breakpoints, stack)
 
@@ -970,62 +999,44 @@ rdebug-restore-windows if rdebug-many-windows is set"
   "Populate the Rdebug 'Debugger' menu."
   (let ((menu (make-sparse-keymap)))
     (define-key map [menu-bar debugger] (cons "Debugger" menu))
+
+    (define-key menu [break-delete]
+      '(menu-item "Delete breakpoint" gud-remove))
+
+    (define-key menu [break]
+      '(menu-item "Set breakpoint" gud-break))
+
+    (define-key menu [finish] '(menu-item "Step out" gud-finish))
     (define-key menu [step] '(menu-item "Step into" gud-step))
     (define-key menu [next] '(menu-item "Step over" gud-next))
-    (define-key menu [go] '(menu-item "Run" gud-cont))
+    (define-key menu [cont] '(menu-item "Continue" gud-cont))
     (define-key menu [start] '(menu-item "Start the debugger" rdebug))
+
+    (define-key menu [placeholder] nil)
 
     ;; --------------------
     ;; The "Window Layout" submeny.
     (let ((submenu (make-sparse-keymap)))
       (define-key menu [layout] (cons "Window Layout" submenu)))
 
-    (define-key map [menu-bar debugger layout original]
-      '(menu-item "Original Layout" rdebug-display-original-window-configuration))
-
     (define-key map [menu-bar debugger layout initial]
       '(menu-item "Initial Debugger Layout" rdebug-restore-windows))
 
-    ;; --------------------
-    ;; The "Breakpoints" submeny.
-    (let ((submenu (make-sparse-keymap)))
-      (define-key menu [breakpoints] (cons "Breakpoints" submenu)))
+    (define-key map [menu-bar debugger layout line1] '(menu-item "--"))
 
-    (define-key map [menu-bar debugger breakpoints toggle]
-      '(menu-item "Toggle breakpoint" rdebug-toggle-breakpoint
-                  :enable (eq major-mode 'rdebug-breakpoints-mode)))
+    (define-key map [menu-bar debugger layout debugger]
+      '(menu-item "Current Debugger Layout"
+                  rdebug-display-debugger-window-configuration
+                  :button
+                  (:radio
+                   . (eq rdebug-window-configuration-state 'debugger))))
 
-    (define-key map [menu-bar debugger breakpoints goto]
-      '(menu-item "Goto breakpoint" rdebug-goto-breakpoint
-                  :enable (eq major-mode 'rdebug-breakpoints-mode)))
-    ;; The following are replaced with buffer-specific commands.
-    (define-key map [menu-bar debugger breakpoints delete]
-      '(menu-item "Delete breakpoint" gud-remove))
-
-    (define-key map [menu-bar debugger breakpoints set]
-      '(menu-item "Set breakpoint" gud-break
-                  :enable (not rdebug-secondary-buffer)))
-
-    ;; --------------------
-    ;; The "Variables" submeny.
-    (let ((submenu (make-sparse-keymap)))
-      (define-key menu [variables] (cons "Variables" submenu)))
-    (define-key map [menu-bar debugger variables edit]
-      '(menu-item "Edit" rdebug-variables-edit
-                  :enable (eq major-mode 'rdebug-variables-mode)))
-
-    ;; --------------------
-    ;; The "Watch" submeny.
-    (let ((submenu (make-sparse-keymap)))
-      (define-key menu [watch] (cons "Watch" submenu)))
-    (define-key map [menu-bar debugger watch delete]
-      '(menu-item "Delete" rdebug-display-delete
-                  :enable (eq major-mode 'rdebug-display-mode)))
-    (define-key map [menu-bar debugger watch goto]
-      '(menu-item "Edit" rdebug-display-edit
-                  :enable (eq major-mode 'rdebug-display-mode)))
-    (define-key map [menu-bar debugger watch add]
-      '(menu-item "Add" rdebug-display-add))
+    (define-key map [menu-bar debugger layout original]
+      '(menu-item "Original Layout"
+                  rdebug-display-original-window-configuration
+                  :button
+                  (:radio
+                   . (eq rdebug-window-configuration-state 'original))))
 
     ;; --------------------
     ;; The "View" submeny.
@@ -1035,8 +1046,8 @@ rdebug-restore-windows if rdebug-many-windows is set"
     (define-key map [menu-bar debugger view output]
       '(menu-item "Output" rdebug-display-output-buffer))
 
-    (define-key map [menu-bar debugger view display]
-      '(menu-item "Watch" rdebug-display-display-buffer))
+    (define-key map [menu-bar debugger view watch]
+      '(menu-item "Watch" rdebug-display-watch-buffer))
 
     (define-key map [menu-bar debugger view stack]
       '(menu-item "Stack trace" rdebug-display-stack-buffer))
@@ -1054,7 +1065,12 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 ;; -- Ruby debugger support for other modes.
 
-(defvar rdebug-debugger-support-minor-mode-map
+(defvar rdebug-debugger-support-minor-mode-map-when-deactive
+  (let ((map (make-sparse-keymap)))
+    (rdebug-populate-debugger-menu map)
+    map))
+
+(defvar rdebug-debugger-support-minor-mode-map-when-active
   (let ((map (make-sparse-keymap)))
     (rdebug-populate-common-keys map)
     (rdebug-populate-debugger-menu map)
@@ -1066,7 +1082,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   :group rdebug
   :global nil
   :init-value nil
-  :keymap rdebug-debugger-support-minor-mode-map
+  :keymap rdebug-debugger-support-minor-mode-map-when-deactive
   ())
 
 
@@ -1092,11 +1108,11 @@ Typically, this is added to the major mode hook, for example:
   (define-key map "?" 'rdebug-display-secondary-window-help-buffer)
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
-  (define-key map "D" 'rdebug-display-display-buffer)
   (define-key map "O" 'rdebug-display-output-buffer)
   (define-key map "S" 'gud-source-resync)
   (define-key map "T" 'rdebug-display-stack-buffer)
   (define-key map "V" 'rdebug-display-variables-buffer)
+  (define-key map "W" 'rdebug-display-watch-buffer)
   ;; Common debugger commands.
   (define-key map " " 'gud-step)
   (define-key map "+" 'gud-step-plus)
@@ -1130,10 +1146,10 @@ Typically, this is added to the major mode hook, for example:
   (interactive)
   (rdebug-display-secondary-buffer "cmd"))
 
-(defun rdebug-display-display-buffer ()
-  "Display the rdebug display buffer."
+(defun rdebug-display-watch-buffer ()
+  "Display the rdebug watch buffer."
   (interactive)
-  (rdebug-display-secondary-buffer "display"))
+  (rdebug-display-secondary-buffer "watch"))
 
 (defun rdebug-display-output-buffer ()
   "Display the rdebug output buffer."
@@ -1192,13 +1208,28 @@ If the buffer doesn't exist, do nothing."
 (defvar rdebug-breakpoints-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
-    (define-key map " " 'rdebug-toggle-breakpoint)
-    (define-key map [? ] 'rdebug-toggle-breakpoint)
+    (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
+    (define-key map "t" 'rdebug-toggle-breakpoint)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     (rdebug-populate-secondary-buffer-map map)
+
+    ;; --------------------
+    ;; The "Breakpoints window" submeny.
+    (let ((submenu (make-sparse-keymap)))
+      (define-key-after map [menu-bar debugger breakpoints]
+        (cons "Breakpoints window" submenu)
+        'placeholder))
+
+    (define-key map [menu-bar debugger breakpoints toggle]
+      '(menu-item "Toggle breakpoint" rdebug-toggle-breakpoint))
+
+    (define-key map [menu-bar debugger breakpoints goto]
+      '(menu-item "Goto breakpoint" rdebug-goto-breakpoint))
+
     (define-key map [menu-bar debugger breakpoints delete]
       '(menu-item "Delete breakpoint" rdebug-delete-breakpoint))
+
     map)
   "Keymap to navigate/set/enable rdebug breakpoints.")
 
@@ -1363,11 +1394,21 @@ If the buffer doesn't exist, do nothing."
 
 (defvar rdebug-frames-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map "q" 'kill-this-buffer)
     (define-key map [mouse-1] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
+    (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-stack-frame)
     (rdebug-populate-secondary-buffer-map map)
+
+    ;; --------------------
+    ;; The "Stack window" submeny.
+    (let ((submenu (make-sparse-keymap)))
+      (define-key-after map [menu-bar debugger stack]
+        (cons "Stack window" submenu)
+        'placeholder))
+
+    (define-key map [menu-bar debugger stack goto]
+      '(menu-item "Goto frame" rdebug-goto-stack-frame))
     map)
   "Keymap to navigate rdebug stack frames.")
 
@@ -1486,9 +1527,21 @@ If the buffer doesn't exist, do nothing."
     (define-key map "e" 'rdebug-edit-variables-value)
     (define-key map [mouse-2] 'rdebug-variables-edit-mouse)
     (define-key map [mouse-3] 'rdebug-variables-edit-mouse)
-    (define-key map "q" 'kill-this-buffer)
     (rdebug-populate-secondary-buffer-map map)
-     map))
+
+    ;; --------------------
+    ;; The "Variables window" submeny.
+
+    (let ((submenu (make-sparse-keymap)))
+      (define-key-after map [menu-bar debugger variables]
+        (cons "Variables window" submenu)
+        'placeholder))
+
+    (define-key map [menu-bar debugger variables edit]
+      '(menu-item "Edit" rdebug-variables-edit
+                  :enable (eq major-mode 'rdebug-variables-mode)))
+
+    map))
 
 (defun rdebug-variables-mode ()
   "Major mode for rdebug variables.
@@ -1535,51 +1588,68 @@ This function is intended to be bound to a mouse key"
   (gud-call (format "p %s=%s" var value)))
 
 
-;; -- display (a.k.a watch window)
+;; -- watch (the "display" annotation)
 
-(defvar rdebug-display-mode-map
+(defvar rdebug-watch-mode-map
   (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
-    (define-key map "a" 'rdebug-display-add)
-    (define-key map "\C-d" 'rdebug-display-delete)
-    (define-key map "d" 'rdebug-display-delete)
-    (define-key map "e" 'rdebug-display-edit)
-    (define-key map "\r" 'rdebug-display-edit)
+    (define-key map "a" 'rdebug-watch-add)
+    (define-key map "\C-d" 'rdebug-watch-delete)
+    (define-key map "d" 'rdebug-watch-delete)
+    (define-key map "e" 'rdebug-watch-edit)
+    (define-key map "\r" 'rdebug-watch-edit)
     (rdebug-populate-secondary-buffer-map map)
+
+    ;; --------------------
+    ;; The "Watch window" submeny.
+    (let ((submenu (make-sparse-keymap)))
+      (define-key-after map [menu-bar debugger watch]
+        (cons "Watch window" submenu)
+        'placeholder))
+
+    (define-key map [menu-bar debugger watch delete]
+      '(menu-item "Delete" rdebug-watch-delete
+                  :enable (eq major-mode 'rdebug-watch-mode)))
+    (define-key map [menu-bar debugger watch goto]
+      '(menu-item "Edit" rdebug-watch-edit
+                  :enable (eq major-mode 'rdebug-watch-mode)))
+    (define-key map [menu-bar debugger watch add]
+      '(menu-item "Add" rdebug-watch-add))
+
     map))
 
-(defun rdebug-display-mode ()
-  "Major mode for rdebug display (watch) window.
+(defun rdebug-watch-mode ()
+  "Major mode for rdebug watch window.
 
-\\{rdebug-display-mode}"
+\\{rdebug-watch-mode}"
   (interactive)
   (kill-all-local-variables)
-  (setq major-mode 'rdebug-display-mode)
-  (setq mode-name "RDEBUG Display")
+  (setq major-mode 'rdebug-watch-mode)
+  (setq mode-name "RDEBUG Watch")
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
-  (use-local-map rdebug-display-mode-map)
-  (run-mode-hooks 'rdebug-display-mode-hook))
+  (use-local-map rdebug-watch-mode-map)
+  (run-mode-hooks 'rdebug-watch-mode-hook))
 
-(defun rdebug--setup-display-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-display-buffer"
+(defun rdebug--setup-watch-buffer (buf comint-buffer)
+  (rdebug-debug-enter "rdebug--setup-watch-buffer"
     (with-current-buffer buf
-      (rdebug-display-mode)
+      (rdebug-watch-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
-(defun rdebug-display-add (expr)
+(defun rdebug-watch-add (expr)
   (interactive "sRuby expression: ")
   (if (not (string= expr ""))
       (gud-call (format "display %s" expr))))
 
-(defun rdebug-display-delete ()
+(defun rdebug-watch-delete ()
   (interactive)
   (save-excursion
     (beginning-of-line)
     (if (looking-at "^\\([0-9]+\\):")
         (gud-call (format "undisplay %s" (match-string 1))))))
 
-(defun rdebug-display-edit (number expr)
+(defun rdebug-watch-edit (number expr)
   (interactive
    (let ((number nil)
          (expr nil))
@@ -1630,7 +1700,7 @@ This function is intended to be bound to a mouse key"
     map))
 
 (defun rdebug-secondary-window-help-mode ()
-  "Major mode for displaying help test in secondary buffers.
+  "Major mode for watching help test in secondary buffers.
 
 \\{rdebug-secondary-window-help-mode-map}"
   (interactive)
@@ -1650,7 +1720,7 @@ This function is intended to be bound to a mouse key"
       (set (make-local-variable 'gud-comint-buffer) comint-buffer)
       (insert "\
 
-This is a rdebug secondary window, you can use it to display a
+This is a rdebug secondary window, you can use it to watch a
 number of help buffers. Use capital letters to switch between the
 available buffers. Lower case letters (and other key
 combinations) are used to issue buffer-specific commands.
@@ -1659,13 +1729,15 @@ Press `C-h m' for more help, when the individual buffers are visible.
 
  B - Breakpoints buffer.
  C - Command buffer (the debugger shell)
- D - Display buffer (also known as Watch buffer)
- d - go down frame (with numeric argument goes down that many frames)
  O - Output window
+ S - go to source frame
+ T - Stack trace buffer
  V - Variables buffer
+ W - Watch buffer
+
+ d - go down frame (with numeric argument goes down that many frames)
  u - go up one frame (with numeric argument goes down that many frames)
- U - go to source frame
- S - Stack trace buffer
+
  ? - This help text.
 "))))
 
