@@ -198,7 +198,7 @@ module Debugger
         end
       end
 
-      if ENV['EMACS'] and Debugger.annotate and Debugger.annotate > 2
+      if Debugger.annotate and Debugger.annotate > 2
         print "\032\032starting\n" 
         @output_annotation_in_progress = true
       end

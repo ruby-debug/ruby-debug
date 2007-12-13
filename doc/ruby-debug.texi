@@ -57,7 +57,7 @@
 @sp 1
 @subtitle @value{EDITION} Edition
 @subtitle @value{UPDATED-MONTH}
-@c @author ...
+@author Rocky Bernstein and Kent Sibelev
 @page
 @ifset WHERETO
 @tex
@@ -1091,6 +1091,10 @@ Do not automatically start control thread.
 Normally the @code{rdebug} stops before executing the first
 statement. If instead you want it to start running initially and will
 perhaps break it later in the running, use this options.
+
+@item --no-quit
+@cindex @code{--no-quit}
+Restart the debugger when your program terminates normally.
 
 @item -m | --post-mortem
 @cindex @code{-m}

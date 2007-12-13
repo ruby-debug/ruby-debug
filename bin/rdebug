@@ -160,9 +160,17 @@ else
     end
     if options.noquit
       while true do
-        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
-        print "The program has finished and will be restarted.\n"
-      end
+        begin
+          Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+        rescue
+          print $!.backtrce.map{|l| "\t#{l}"}.join("\n"), "\n", rescue nil
+          print "Uncaught exception: #{$!}\n"
+        end
+        if STDIN.tty? and !options.notstop
+          print "The program has finished and will be restarted.\n"
+        else
+          break
+        end
     else
       Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
     end
