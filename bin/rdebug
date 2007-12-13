@@ -163,7 +163,7 @@ else
         begin
           Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
         rescue
-          print $!.backtrce.map{|l| "\t#{l}"}.join("\n"), "\n", rescue nil
+          print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
           print "Uncaught exception: #{$!}\n"
         end
         if STDIN.tty? and !options.notstop
@@ -171,6 +171,7 @@ else
         else
           break
         end
+      end
     else
       Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
     end

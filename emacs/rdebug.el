@@ -29,7 +29,7 @@
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 (defcustom gud-rdebug-command-name 
-"rdebug --emacs --no-control --no-quit --annotate=3"
+"rdebug --emacs --no-control --no-quit --post-mortem --annotate=3"
   "File name for executing the Ruby debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
