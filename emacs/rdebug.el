@@ -829,7 +829,7 @@ This function is designed to be added to hooks, for example:
   "Rocky's window layout. 
 
 3 windows. The source window is on top 4/5 of height. The 
-bottom is split between the command windos and a stack window. See `rdebug' for more information."
+bottom is split between the command windows and a stack window. See `rdebug' for more information."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 4) 5))
   (set-window-buffer
