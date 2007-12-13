@@ -948,6 +948,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   (when name (setq gud-target-name name)
 	(setq gud-comint-buffer (current-buffer)))
   (when gud-last-frame (setq gud-last-last-frame gud-last-frame))
+  (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 
