@@ -28,7 +28,8 @@
 ;; user definable variables
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-(defcustom gud-rdebug-command-name "rdebug --emacs --no-control --annotate=3"
+(defcustom gud-rdebug-command-name 
+"rdebug --emacs --no-control --no-quit --annotate=3"
   "File name for executing the Ruby debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
