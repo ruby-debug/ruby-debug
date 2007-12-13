@@ -3,11 +3,11 @@ module Debugger
     self.control = true
 
     def regexp
-      /^\s*(?:q(?:uit)?|exit)\s*$/
+      /^\s*(?:q(?:uit)?|exit)\s*(\s+unconditionally)?\s*$/
     end
 
     def execute
-      if confirm("Really quit? (y/n) ")
+      if @match[1] or confirm("Really quit? (y/n) ") 
         Debugger.save_history if Debugger.respond_to? :save_history
         exit! # exit -> exit!: No graceful way to stop threads...
       end
@@ -20,8 +20,11 @@ module Debugger
 
       def help(cmd)
         %{
-          q[uit]\texit from debugger, 
+          q[uit] [unconditionally]\texit from debugger. 
           exit\talias to quit
+
+          Normally we prompt before exiting. However if the parameter
+          "unconditionally" is given, we stop without asking further questions.
         }
       end
     end

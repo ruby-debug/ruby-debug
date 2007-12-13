@@ -10,6 +10,7 @@ break main.gcd
 info break
 continue
 where
+info program
 c 10
 info break
 break foo

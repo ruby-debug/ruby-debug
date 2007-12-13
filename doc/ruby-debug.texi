@@ -1335,6 +1335,43 @@ l[ist] nn-mm    list given lines
 (rdb:1)
 @end smallexample
 
+In addition to @code{help}, you can use the debugger command
+@code{info} to inquire about the state of your script, or the state of
+@DBG itself.  The listings under @code{info} in the Index
+point to all the sub-commands.  @xref{Command Index}.
+@end table
+
+@c @group
+@table @code
+@kindex info
+@kindex i @r{(@code{info})}
+@item info
+This command (abbreviated @code{i}) is for describing the state of
+your program.  For example, you can list the arguments given to your
+script with @code{info args}, or list the breakpoints you have set
+with @code{info breakpoints}.  You can get a complete list of the
+@code{info} sub-commands with @w{@code{help info}}.
+
+@example
+bashdb<0> @b{help info}
+Generic command for showing things about the program being debugged.
+-- 
+List of info subcommands:
+--  
+info args -- Argument variables of current stack frame
+info breakpoints -- Status of user-settable breakpoints
+info display -- Expressions to display when program stops
+info file -- File names and timestamps of files read in
+info global_variables -- global variables
+info instance_variables -- instance variables
+info line -- Current source position
+info locals -- Local variables of the current stack frame
+info program -- Execution status of the program
+info stack -- Backtrace of the stack
+info threads -- IDs of currently known threads
+info variables -- local and instance variables
+@end example
+
 @end table
 @node Control
 @section Controlling the debugger (@samp{quit}, @samp{restart}, @samp{interrupt}, @samp{source})
@@ -2942,7 +2979,7 @@ they are:
 
 A buffer containing breakpoint information.
 
-@item @code{*rdebug-display-@emph{program-name}*}
+@item @code{*rdebug-watch-@emph{program-name}*}
 
 A buffer containing display expressions (@pxref{DisplayCommands}).
 @item @code{*rdebug-output-@emph{program-name}*}

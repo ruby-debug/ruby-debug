@@ -15,6 +15,7 @@ options = OpenStruct.new(
   'cport'       => Debugger::PORT + 1,
   'control'     => true,
   'wait'        => false,
+  'noquit'      => false,
   'nostop'      => false,
   'post_mortem' => false,
   'script'      => nil,
@@ -40,6 +41,9 @@ EOB
   opts.on("--cport PORT", Integer, "Port used for contol commands") {|options.cport|}
   opts.on("--no-control", "Do not automatically start control thread") {options.control = false}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
+  opts.on("--no-quit", "Do not quit when stript finishes") {
+    options.noquit = true
+  }
   opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
@@ -154,6 +158,13 @@ else
       puts output
       exit $?.exitstatus 
     end
-    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+    if options.noquit
+      while true do
+        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+        print "The program has finished and will be restarted.\n"
+      end
+    else
+      Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+    end
   end
 end

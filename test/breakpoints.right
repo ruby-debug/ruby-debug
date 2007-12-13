@@ -30,6 +30,8 @@ if a > b
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
     #2 at line gcd.rb:18
+# info program
+Program stopped. It stopped at a breakpoint.
 # c 10
 gcd.rb:10
 return nil if a <= 0

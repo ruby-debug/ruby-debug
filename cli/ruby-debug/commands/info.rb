@@ -12,6 +12,7 @@ module Debugger
        ['instance_variables', 2, "instance variables"],
        ['line', 2, "Current source position"],
        ['locals', 2, "Local variables of the current stack frame"],
+       ['program', 2, "Execution status of the program"],
        ['stack', 2, "Backtrace of the stack"],
        ['threads', 1, "IDs of currently known threads"],
        ['variables', 1, "local and instance variables"]
@@ -111,6 +112,26 @@ module Debugger
           s[self.class.settings[:width]-3 .. -1] = "..."
         end
         print "#{s}\n"
+      end
+    end
+    
+    def info_program(*args)
+      if @state.context.dead? 
+        print "The program being debugged is not being run.\n"
+        return
+      end
+      print "Program stopped. "
+      case @state.context.stop_reason
+      when :step
+        print "It stopped after stepping, next'ing or initial start.\n"
+      when :breakpoint
+        print("It stopped at a breakpoint.\n")
+      when :catchpoint
+        print("It stopped at a catchpoint.\n")
+      when :catchpoint
+        print("It stopped at a catchpoint.\n")
+      else
+        print "unknown reason: %s\n" % @state.context.stop_reason.to_s
       end
     end
     

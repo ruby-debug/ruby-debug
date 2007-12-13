@@ -28,6 +28,7 @@ class TestRubyDebug < Test::Unit::TestCase
     assert_raises(ArgumentError) {Debugger.current_context.frame_file(10)}
     assert_equal(1, Debugger.current_context.stack_size)
     assert_equal(TestRubyDebug, Debugger.current_context.frame_class)
+    assert_equal(false, Debugger.current_context.dead?, "Not dead yet!")
     Debugger.stop
     assert_equal(false, Debugger.started?, 
                  "Debugger should no longer be started.")
