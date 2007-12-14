@@ -6,7 +6,7 @@
 @set ttDBG @code{@value{DBG}}
 @set Emacs @sc{gnu} Emacs
 
-@set RDEBUG_VERSION 0.9.9
+@set RDEBUG_VERSION 0.10.0
 
 @macro Example {}
 @iftex
