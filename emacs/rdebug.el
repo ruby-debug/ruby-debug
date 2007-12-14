@@ -125,9 +125,9 @@ as gud-mode does for debugging C programs with gdb."
   "Regular expression used to find a file location given by rdebug.
 
 Program-location lines look like this:
-   /tmp/gcd.py:29:  gcd
-   /tmp/gcd.py:29
-   \\sources\\capfilterscanner\\capanalyzer.py:3:  <module>
+   /tmp/gcd.rb:29:  gcd
+   /tmp/gcd.rb:29
+   \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>
 ")
 
 (defconst rdebug-marker-regexp-file-group 2
@@ -393,37 +393,41 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
 
 ;;;###autoload
 (defun rdebug (command-line)
-  "Run rdebug on program FILE in buffer *rdebug-cmd-FILE*.
-The directory containing FILE becomes the initial working directory
-and source-file directory for your debugger.
+  "Run the rdebug Ruby debugger and start the Emacs user interface.
 
-The custom variable `gud-rdebug-command-name' sets the pattern used
-to invoke pydb.
-
-If `rdebug-many-windows' is nil (the default value) then pydb just
-starts with two windows: one displaying the GUD buffer and the
-other with the source file with the main routine of the inferior.
-
-If `rdebug-many-windows' is t, regardless of the value of the layout
-below will appear.
+By default, the user interface looks like the following:
 
 +----------------------------------------------------------------------+
-|                               GDB Toolbar                            |
+|                                Toolbar                               |
 +-----------------------------------+----------------------------------+
-| GUD buffer (I/O of rdebug)        | Variables buffer                 |
-|                                   | RET rdebug-variables-edi         |
+| Debugger shell                    | Variables buffer                 |
+|                                   | RET rdebug-variables-edit        |
 |                                   |                                  |
 |                                   |                                  |
 +-----------------------------------+----------------------------------+
+|                                   |                                  |
 | Source buffer                     | Output buffer                    |
 |                                   |                                  |
 +-----------------------------------+----------------------------------+
 | Stack buffer                      | Breakpoints buffer               |
-| RET rdebug-goto-stack-frame       | SPC  rdebug-toggle-breakpoint    |
+| RET rdebug-goto-stack-frame       | t    rdebug-toggle-breakpoint    |
 |                                   | RET  rdebug-goto-breakpoint      |
 |                                   | DEL  rdebug-delete-breakpoint    |
 +-----------------------------------+----------------------------------+
-"
+
+The variable `rdebug-many-windows-layout-function' can be
+customized so that another layout is used. In addition to a
+number of predefined layouts it's possible to define a function
+to perform a custom layout.
+
+If `rdebug-many-windows' is nil, only a traditional debugger
+shell and source window is opened.
+
+The directory containing the debugged script becomes the initial
+working directory and source-file directory for your debugger.
+
+The custom variable `gud-rdebug-command-name' sets the command
+and options used to invoke rdebug."
   (interactive
    (list (gud-query-cmdline 'rdebug)))
 
@@ -669,9 +673,8 @@ text.
 
 We look first to visit the file indicated in the trace.
 
-Failing that, we look for the most recently visited python-mode buffer
-with the same name or having 
-having the named function.
+Failing that, we look for the most recently visited ruby-mode buffer
+with the same name or having having the named function.
 
 If we're unable find the source code we return a string describing the
 problem as best as we can determine."
@@ -1088,13 +1091,10 @@ rdebug-restore-windows if rdebug-many-windows is set"
 
 
 (defun rdebug-turn-on-debugger-support ()
-  "Activate debugger support in source buffer.
+  "Enable extra source buffer support for the `rdebug' Ruby debugger.
 
-This adds a menu and binds keys to debugger commands.
-
-Typically, this is added to the major mode hook, for example:
-
-  (add-hook 'ruby-mode-hook 'rdebug-turn-on-debugger-support)"
+This includes a 'Debugger' menu and special key bindings when the
+debugger is active."
   (rdebug-debugger-support-minor-mode 1))
 
 
