@@ -353,7 +353,7 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
                         state rdebug-window-configuration-state)
   (when (not (eq state rdebug-window-configuration-state))
     ;; Save the previous state.
-    (cond ((eq rdebug-window-configuration-state 'debugger)
+    (cond ((not (eq rdebug-window-configuration-state 'original))
            (setq rdebug-debugger-window-configuration
                  (current-window-configuration)))
           ((eq rdebug-window-configuration-state 'original)
@@ -362,7 +362,7 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
     (unless dont-restore
       ;; Switch to the saved state,
       (cond
-       ((eq state 'debugger)
+       ((not (eq state 'original))
         (if rdebug-debugger-window-configuration
             (set-window-configuration rdebug-debugger-window-configuration)))
        ((eq state 'original)
@@ -1715,7 +1715,7 @@ This function is intended to be bound to a mouse key"
 
 
 (defun rdebug--setup-secondary-window-help-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-secondary-window-help-bufferr"
+  (rdebug-debug-enter "rdebug--setup-secondary-window-help-buffer"
     (with-current-buffer buf
       (rdebug-secondary-window-help-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer)
@@ -1736,8 +1736,18 @@ Press `C-h m' for more help, when the individual buffers are visible.
  V - Variables buffer
  W - Watch buffer
 
- d - go down frame (with numeric argument goes down that many frames)
- u - go up one frame (with numeric argument goes down that many frames)
+ SPC - step (into)
+ +   - step+
+ c   - continue
+ f   - finish (step out)
+ n   - next (step over)
+ p   - print
+ q   - quit
+ r   - run
+ s   - step (into)
+
+ > - go down frame (with numeric argument goes down that many frames)
+ < - go up one frame (with numeric argument goes down that many frames)
 
  ? - This help text.
 "))))
