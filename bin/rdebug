@@ -41,10 +41,10 @@ EOB
   opts.on("--cport PORT", Integer, "Port used for contol commands") {|options.cport|}
   opts.on("--no-control", "Do not automatically start control thread") {options.control = false}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
-  opts.on("--no-quit", "Do not quit when stript finishes") {
+  opts.on("--no-quit", "Do not quit when script finishes") {
     options.noquit = true
   }
-  opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
+  opts.on("-n", "--nostop", "Do not stop when script is loaded") {options.nostop = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
