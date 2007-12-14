@@ -72,6 +72,11 @@ module Debugger
     end
     
     def at_breakpoint(context, breakpoint)
+      if @output_annotation_in_progress
+        print "\032\032\n"
+        @output_annotation_in_progress = false
+      end
+
       n = Debugger.breakpoints.index(breakpoint) + 1
       print "\032\032%s:%d\n", 
       CommandProcessor.canonic_file(breakpoint.source), 
@@ -81,6 +86,11 @@ module Debugger
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
+      if @output_annotation_in_progress
+        print "\032\032\n"
+        @output_annotation_in_progress = false
+      end
+
       print "\032\032%s:%d\n", 
       CommandProcessor.canonic_file(context.frame_file(1)), 
       context.frame_line(1) if ENV['EMACS']
@@ -98,6 +108,11 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
+      if @output_annotation_in_progress
+        print "\032\032\n"
+        @output_annotation_in_progress = false
+      end
+
       @last_file = CommandProcessor.canonic_file(file)
       file = CommandProcessor.canonic_file(file)
       unless file == @last_file and @last_line == line and 
