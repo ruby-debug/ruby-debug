@@ -6,7 +6,7 @@
 @set ttDBG @code{@value{DBG}}
 @set Emacs @sc{gnu} Emacs
 
-@set RDEBUG_VERSION 0.9.4
+@set RDEBUG_VERSION 0.9.9
 
 @macro Example {}
 @iftex
@@ -2742,38 +2742,45 @@ Many of the commands listed below are also bound to a second key
 sequence which also can be used in the also be used in the source
 script. These are listed in @ref{Emacs Source}.
 
+In secondary buffers many commands are available the corresponding
+final keystroke. For example @code{C-c n} in a secondary window is
+@code{n}.
+
 @table @kbd
 @item C-h m
 Describe the features of Emacs' @value{DBG} Mode.
 
-@item C-c C-f
-Execute until exit from the selected stack frame. The Same as @value{DBG}
-@code{finish} command. The @value{Emacs} command name is
-@code{gud-finish} and @code{C-x C-a f C-f} is an alternate binding
-which also can be used in the source script. @xref{Finish}.
+@item C-c C-b (gud-break)
+Set breakpoint at current line.
 
-@item C-c C-l
-Resynchronize the current position with the source window. The
-@value{Emacs} command name is @code{gud-refresh} and @code{C-x C-a
-C-l} is an alternate binding which also can be used in the source script.
+@item C-c C-d (gud-remove)
+Remove breakpoint at current line.
 
-@item C-c C-n
-Execute to next source line in this function, skipping all function
-calls. Same as @value{DBG} @code{next} command.  The @value{Emacs}
-command name is @code{gud-next} and @code{C-x C-a n} is an
-alternate binding which also can be used in the source script. @xref{Next}.
+@item C-c C-e (gud-statement)
+Execute Ruby statement at point.
 
-With a numeric argument, run that many times.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
+@item C-c C-l (gud-refresh)
 
-@item C-c C-r
-Continue execution of your script Same as @value{DBG} @code{continue}
-command. The @value{Emacs} command name is @code{gud-cont} and
-@code{C-x C-a C-r} is an alternate binding which also can be used in the
-source script. See @ref{Continue}.
+@item C-c RET (comint-copy-old-input)
+Insert after prompt old input at point as new input to be edited.
+Calls `comint-get-old-input' to get old input.
 
-@item C-c C-s
+@item C-c n (gud-next)
+Step one line, skipping functions. (Step over).
+
+@item C-c C-o (comint-delete-output)
+comint-delete-output is an interactive compiled Lisp function in `comint.el'.
+(comint-delete-output)
+
+Delete all output from interpreter since last input.
+Does not delete the prompt.
+
+@item C-c C-p (gud-print)
+
+@item C-c C-r (gud-cont)
+
+@item C-c SPC (gud-step @var{arg})
+@itemx C-c C-s (gud-step @var{arg})
 Step one source line. Same as @value{DBG} @code{step} command. The
 @value{Emacs} command name is @code{gud-step} and @code{C-x C-a C-s}
 is an alternate binding which can be used in the source
@@ -2783,36 +2790,107 @@ With a numeric argument, run that many times.
 @xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
 Manual}.
 
-@item C-c >
-Go down a stack frame.  Same as @value{DBG} @code{down}.
-With a numeric argument, go down that many stack frames.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
 
-The @value{Emacs} command name is
-@code{gud-down} and @code{C-x C-a >} is an alternate binding
-which can be used in the source script. 
+@item C-c C-t (gud-tbreak @var{arg})
+Set temporary breakpoint at current line.
 
-@item C-c <
+@item C-c C-u (gud-until @var{arg})
+gud-until is an interactive compiled Lisp function.
+It is bound to C-x C-a C-u.
+(gud-until arg)
+
+Continue to current line or address.
+
+@item C-c C-v (gud-pv)
+Print the value of a variable.
+
+@item C-c C-w (backward-kill-word)
+@item C-c C-x (comint-get-next-from-history)
+@item C-c C-z (comint-stop-subjob)
+Stop the current subjob.
+This command also kills the pending input
+between the process mark and point.
+
+WARNING: if there is no current subjob, you can end up suspending
+the top-level process running in the buffer.  If you accidentally do
+this, use M-x comint-continue-subjob to resume the process.  (This
+is not a problem with most shells, since they ignore this signal.)
+
+@item C-c C-\ (comint-quit-subjob)
+Send quit signal to the current subjob.
+This command also kills the pending input
+between the process mark and point.
+
+@item C-c +   (gud-step-plus)
+
+@item C-c .   (comint-insert-previous-argument @var{index})
+Insert the indexth argument from the previous Comint command-line at point.
+Spaces are added at beginning and/or end of the inserted string if
+necessary to ensure that it's separated from adjacent arguments.
+Interactively, if no prefix argument is given, the last argument is inserted.
+Repeated interactive invocations will cycle through the same argument
+from progressively earlier commands (using the value of index specified
+with the first command).
+
+@item C-c < (gud-up) 
 Go up a stack frame. With a numeric argument, go up that many
 stack frames. Same @value{DBG} @code{up} command.
 @xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
 Manual}.
 
-The @value{Emacs} command name is
-@code{gud-up} and @code{C-x C-a <} is an alternate binding
-which can be used in the source script. 
+@item C-c >	(gud-down)
+Go down a stack frame.  Same as @value{DBG} @code{down}.
+With a numeric argument, go down that many stack frames.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+@item C-c ?	(rdebug-display-secondary-window-help-buffer)
+@item C-c B	(rdebug-display-breakpoints-buffer)
+@item C-c C	(rdebug-display-cmd-buffer)
+@item C-c O	(rdebug-display-output-buffer)
+
+@item C-c R	(gud-run)
+@itemx C-c r	(gud run)
+Restart or run the script. Same as @value{DBG} @code{run} command.
+
+@item C-c S	(gud-source-resync)
+@item C-c T	(rdebug-display-stack-buffer)
+Display the rdebug stack buffer.
+@item C-c V	(rdebug-display-variables-buffer)
+Display the rdebug variables buffer.
+
+@item C-c W	(rdebug-display-watch-buffer)
+Display the rdebug watch buffer.
+
+@item C-c a	(gud-args)
+@item C-c f	(gud-finish @var{arg})
+Finish executing current function.
+
+@itemx C-c C-f (gud-finish)
+Finish executing current function. The Same as @value{DBG}
+@code{finish} command. @xref{Finish}.
+
+@item C-c n	(gud next)
+Execute to next source line in this function, skipping all function
+calls. Same as @value{DBG} @code{next} command.  @xref{Next}.
+
+With a numeric argument, run that many times.
+@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
+Manual}.
+
+@item C-c p	(gud print)
+@item C-c q	(gud quit)
+
+@item C-c Cl
+Resynchronize the current position with the source window. The
+@value{Emacs} command name is @code{gud-refresh} and @code{C-x C-a
+C-l} is an alternate binding which also can be used in the source script.
 
 @item C-c a
 Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
 stack frame. Same as @value{DBG} @code{info args} command. The
 @value{Emacs} command name is @code{gud-args} and @code{C-x C-a a} is
 an alternate binding which also can be used in the source script.
-
-@item C-c R
-Restart or run the script. Same as @value{DBG} @code{run} command. The
-@value{Emacs} command name is @code{gud-finish} and @code{C-x C-a R}
-is an alternate binding which also can be used in the source script.
 
 @item C-c T
 Show stack trace. Same as @value{DBG} @code{where} command. The
@@ -3022,8 +3100,6 @@ help
 goto/display breakpoints buffer
 @item C
 goto/display command buffer
-@item D
-goto/display display
 @item O
 goto/display program output
 @item S
@@ -3032,6 +3108,8 @@ goto/display source window
 goto/display stack-buffer (Perl uses T for stack trace)
 @item V
 goto/display variables buffer
+@item W
+goto/display watch buffer
 @item b
 set breakpoint (edebug compatible)
 @item c

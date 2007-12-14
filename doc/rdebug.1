@@ -182,8 +182,11 @@ Execute commands from FILE
 .B \-\-emacs
 Activates GNU Emacs mode. Debugger prompts are pref
 .TP
+.B \-n | \-\-noquit
+Do not quit when script terminates. Instead rerun the program.
+.TP
 .B \-n | \-\-nostop
-Do not stop when stript is loaded.
+Do not stop when script is loaded.
 .TP
 .b \-a | \-\-annotate=LEVEL
 Set gdb-style annotation to LEVEL, a number. Additional information is output

@@ -1,7 +1,10 @@
 0.9.4
 - '-r' option can be used to require additional libraries.
+- --noquit option added to stay in debugger when the program exits
+- gdb-like --annotate option added. Can be used by front-ends to get information
+  without polling
 - Fixed 'var const' command. Issue #10847.
-- Using pretty-print for all var commands. Patch from R. Bernstein.
+- Using pretty-print for all var commands.
 - Better error reporting for commands that require a numeric argument.
 - Fixed Kernel#binding_n method
 - Add option -d ($DEBUG = true) and --verbose. Make -v work like ruby.
@@ -17,7 +20,7 @@
 - More Emacs-friendly: rdebug-track.el will track location inside an Emacs
   shell. Emacs position information is shown in breakpoints and catchpoints
   similar to gdba. Commands to position in another window a unit test traceback
-  or ruby traceback.
+  or ruby traceback. Much more work invisioned for Emacs.
 - INCOMPATIBLE CHANGE: "break" now sets a breakpoint on the current line
   (same as gdb). Use "info break" for a list of breakpoints.
 - INCOMPATIBLE CHANGE: "script" command removed. Use "source" command instead
@@ -25,13 +28,15 @@
 - Run .rdebugrc on Debugger.start. Look for a file in the current directory and
   run that instead the one in $HOME if that exists. Again, inspired and compatible
   with gdb.
-- Ruby 1.9 compatible
+- Changes compatible with Ruby 1.9. NOTE: this debugger will NOT work with
+  Ruby 1.9
 - leaving irb shows position same as entering debugger; "list" position
   is also cleared when leaving irb
 - help "foo" gives message "Undefined command "foo" rather than a list
   of help commands. (Message test is gdb's)
 - Add set linetrace+ - similar step+ for linetrace
 - Start unit tests.
+- Start a reference guide.
 
 0.9.3
 - Fixed if..elsif..end stepping.

@@ -1,4 +1,4 @@
-AC_INIT(ruby-debug-extra, 1.0,)
+AC_INIT(ruby-debug-extra, 0.9.9,)
 AC_CONFIG_SRCDIR(doc/ruby-debug.texi)
 AM_INIT_AUTOMAKE
 
