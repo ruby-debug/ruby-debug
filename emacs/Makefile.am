@@ -19,7 +19,7 @@ check_DATA = rdebug-test.el elk-test.el
 EXTRA_DIST = rdebug.el $(check_DATA)
 ELCFILES   = rdebug.elc
 if INSTALL_EMACS_LISP
-lisp_LISP = rdebug.el 
+lisp_LISP = rdebug.el rdebug-core.el
 endif
 
 PHONY = test check
