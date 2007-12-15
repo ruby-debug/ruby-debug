@@ -1542,7 +1542,7 @@ If the buffer doesn't exist, do nothing."
  "Major mode for displaying the stack trace in the `rdebug' Ruby debugger.
 
 \\{rdebug-frames-mode-map}"
-  (interactive "")
+  (interactive)
   ;; (kill-all-local-variables)
   (setq major-mode 'rdebug-frames-mode)
   (setq mode-name "RDEBUG Stack Frames")
@@ -1674,19 +1674,27 @@ If the buffer doesn't exist, do nothing."
     map)
   "Keymap used in the variables buffer in the `rdebug' Ruby debugger.")
 
+(defvar rdebug-variables-font-lock-keywords
+  '(("@[a-zA-Z0-9_]+" 0 font-lock-variable-name-face)
+    ("\\<\\(nil\\|true\\|false\\)\\>" 0 font-lock-constant-face)
+    ("#<\\([a-zA-Z0-9_]+\\):\\([0-9a-fx]*\\)"
+     (1 font-lock-type-face)
+     (2 font-lock-constant-face)))
+  "Font-lock rules for the variables and watch windows in `rdebug'.")
+
 (defun rdebug-variables-mode ()
   "Major mode for the variables buffer in the `rdebug' Ruby debugger.
 
 \\{rdebug-variables-mode-map}"
-  (interactive "")
+  (interactive)
   (kill-all-local-variables)
   (setq major-mode 'rdebug-variables-mode)
   (setq mode-name "RDEBUG Variables")
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (set (make-local-variable 'font-lock-defaults)
+       '(rdebug-variables-font-lock-keywords))
   (use-local-map rdebug-variables-mode-map)
-  ;; (set (make-local-variable 'font-lock-defaults)
-  ;;     '(gdb-variables-font-lock-keywords))
   (run-mode-hooks 'rdebug-variables-mode-hook))
 
 (defun rdebug--setup-variables-buffer (buf comint-buffer)
@@ -1760,6 +1768,8 @@ This function is intended to be bound to a mouse key"
   (setq mode-name "RDEBUG Watch")
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (set (make-local-variable 'font-lock-defaults)
+       '(rdebug-variables-font-lock-keywords))
   (use-local-map rdebug-watch-mode-map)
   (run-mode-hooks 'rdebug-watch-mode-hook))
 
