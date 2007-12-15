@@ -3,7 +3,7 @@
 ;; Copyright (C) 2006, 2007 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007 Anders Lindgren
 
-;; $Id$
+;; $Id: rdebug.el 409 2007-12-14 02:36:37Z rockyb $
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -70,12 +70,22 @@ working directory and source-file directory for your debugger.
 The custom variable `gud-rdebug-command-name' sets the command
 and options used to invoke rdebug." t)
 
+
 (autoload 'rdebug-turn-on-debugger-support "rdebug-core"
   "Enable extra source buffer support for the `rdebug' Ruby debugger.
 
 This includes a 'Debugger' menu and special key bindings when the
 debugger is active."
  t)
+
+
+(autoload 'turn-on-rdebugtrack-mode "rdebug-core"
+  "Turn on rdebugtrack mode.
+
+This function is designed to be added to hooks, for example:
+  (add-hook 'comint-mode-hook 'turn-on-rdebugtrack-mode)"
+  t)
+
 
 (add-hook 'ruby-mode-hook 'rdebug-turn-on-debugger-support)
 

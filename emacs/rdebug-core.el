@@ -1,14 +1,16 @@
-;;; rdebug.el --- Debugger mode via GUD and rdebug.
-;;; $Id$
-;; Copyright (C) 2006, 2007 Rocky Bernstein (rocky@gnu.org) 
+;;; rdebug-core.el --- Ruby debugger user interface.
+
+;; Copyright (C) 2006, 2007 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007 Anders Lindgren
 
-;; GNU Emacs is free software; you can redistribute it and/or modify
+;; $Id$
+
+;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
 ;; the Free Software Foundation; either version 2, or (at your option)
 ;; any later version.
 
-;; GNU Emacs is distributed in the hope that it will be useful,
+;; This program is distributed in the hope that it will be useful,
 ;; but WITHOUT ANY WARRANTY; without even the implied warranty of
 ;; MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 ;; GNU General Public License for more details.
@@ -17,6 +19,60 @@
 ;; along with GNU Emacs; see the file COPYING.  If not, write to the
 ;; Free Software Foundation, Inc., 59 Temple Place - Suite 330,
 ;; Boston, MA 02111-1307, USA.
+
+;;; Commentary:
+
+;;
+;; Introduction:
+;;
+;; This is a full-blown debugger user interface to the Ruby rdebug
+;; debugger shell.
+;;
+;; The main features are:
+;;
+;;  * Window layout with dedicted windows for:
+;;      + Local and member variables
+;;      + Stack trace
+;;      + Watch expressions
+;;      + Breakpoints
+;;      + Output
+;;      + Debugger Shell
+;;
+;;  * Source-level debugging:
+;;      + The current source file is shown and current line is marked.
+;;      + Function keys bindings for effective stepping in the source code.
+;;      + A "Debugger" menu for easy access to all features.
+;;
+;;  * A number of predefined window layouts and key bindings are
+;;    supplied, including binding that emulate Eclipse and NetBeans.
+;;    The user can easily provide their own window layout and
+;;    settings.
+;;
+;;  * `rdebugtrack-mode' allows access to full debugger user interface
+;;    for Ruby deugger sesstions started in a standard shell window.
+;;
+
+;;
+;; Installation:
+;;
+;; To use this package, place the following line in an appropriate
+;; init file (for example ~/.emacs):
+;;
+;;    (require 'rdebug)
+;;
+
+;;
+;; History and Future:
+;;
+;; The design of this debugger user interface was inspired by
+;; `gdb-ui', a similar user interface to GDB.
+;;
+;; Hopefully, rdebug, gdb-ui, and other emacs user interfaces could
+;; join forces to create a common user-level look and feel, and a
+;; battery of underlying support functions.
+;;
+
+;;; Code:
 
 (if (< emacs-major-version 22)
   (error
@@ -28,43 +84,23 @@
 ;; user definable variables
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
-(defcustom gud-rdebug-command-name 
+(defcustom gud-rdebug-command-name
 "rdebug --emacs --no-control --no-quit --post-mortem --annotate=3"
   "File name for executing the Ruby debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
   :group 'gud)
 
-(defcustom rdebug-temp-directory
-  (let ((ok '(lambda (x)
-	       (and x
-		    (setq x (expand-file-name x)) ; always true
-		    (file-directory-p x)
-		    (file-writable-p x)
-		    x))))
-    (or (funcall ok (getenv "TMPDIR"))
-	(funcall ok "/usr/tmp")
-	(funcall ok "/tmp")
-	(funcall ok "/var/tmp")
-	(funcall ok  ".")
-	(error
-	 "Couldn't find a usable temp directory -- set `rdebug-temp-directory'")))
-  "*Directory used for temporary files created by a *Ruby* process.
-By default, the first directory from this list that exists and that you
-can write into: the value (if any) of the environment variable TMPDIR,
-/usr/tmp, /tmp, /var/tmp, or the current directory."
-  :type 'string
-  :group 'rdebug)
-
 (defcustom rdebug-many-windows t
-  "*If non-nil, display secondary rdebug windows, in a layout similar to `gdba'.
+  "*If non-nil, use the full debugger user interface, see `rdebug'.
+
 However only set to the multi-window display if the rdebug
-command invocation has an annotate options (\"--annotate 3\"."
+command invocation has an annotate options (\"--annotate 3\")."
   :type 'boolean
   :group 'rdebug)
 
-(defvar rdebug-many-windows-layout-function
-  'rdebug-many-windows-layout-standard
+(defcustom rdebug-window-layout-function
+  'rdebug-window-layout-standard
   "*A function that performs the window layout of `rdebug'.
 
 This is only used in `rdebug-many-windows' mode. This should be
@@ -72,11 +108,54 @@ bound to a function that performs the actual window layout. The
 function should takes two arguments, the first is the source
 buffer and the second the name of the script to debug.
 
-Rdebug provides three different layout functions:
-* `rdebug-many-windows-layout-standard'
-* `rdebug-many-windows-layout-conservative'
-* `rdebug-many-windows-layout-stack-of-secondary-windows'
-* `rdebug-many-windows-rocky'")
+Rdebug provides the following predefined layout functions:
+
+* `rdebug-window-layout-standard'         -- See `rdebug'
+
+* `rdebug-window-layout-conservative'     -- Source + Shell + Output
+
+* `rdebug-window-layout-stack-of-windows' -- Extra windows to the right
+
+* `rdebug-window-layout-rocky'            -- Rocky's own layout"
+  :type
+  '(choice
+    (function :tag "Standard"         rdebug-window-layout-standard)
+    (function :tag "Conservative"     rdebug-window-layout-conservative)
+    (function :tag "Stack of windows" rdebug-window-layout-stack-of-windows)
+    (function :tag "Rocky's own"      rdebug-window-layout-rocky)
+    (function :tag "Other"            function))
+  :group 'rdebug)
+
+
+(defcustom rdebug-populate-common-keys-function
+  'rdebug-populate-common-keys-standard
+  "The function to call to populate key bindings common to all rdebug windows.
+This includes the secondary windows, the debugger shell, and all
+Ruby source buffers when the debugger is active.
+
+This variable can be bound to the following:
+
+* nil -- Don't bind any keys.
+
+* `rdebug-populate-common-keys-standard' -- Bind according to a videly used
+  debugger covention:
+
+\\{rdebug-example-map-standard}
+
+* `rdebug-populate-common-keys-eclipse' -- Bind according to Eclipse.
+
+\\{rdebug-example-map-eclipse}
+
+* `rdebug-populate-common-keys-netbeans' -- Bind according to NetBeans.
+
+\\{rdebug-example-map-netbeans}
+
+* Any other value is expected to be a callable function that takes one
+  argument, the keymap, and populates it with suitable keys."
+  :type 'function
+  :group 'rdebug)
+
+
 
 (defcustom rdebug-restore-original-window-configuration :many
   "*Control if the original window layout is restored when the debugger exits.
@@ -177,7 +256,7 @@ Can be `original' or `debugger'.")
   "Max number of characters from end of buffer to search for stack entry.")
 
 ;;
-;; Internal debug support. Then `rdebug-debug-active' is non-nil,
+;; Internal debug support. When `rdebug-debug-active' is non-nil,
 ;; internal debug messages are placed in the buffer *Xrdebug*.
 ;; Functions can be annotated with `rdebug-debug-enter' to display a
 ;; call trace.
@@ -347,8 +426,14 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
 )
 
 
-;; Set the window configuration state (and make sure we log this).
 (defun rdebug-set-window-configuration-state (state &optional dont-restore)
+  "Change window configuration state.
+
+Two states are supported `original' and `debugger'.
+
+When `dont-restore' is non-nil, the old window layout is not
+restored. This is used when a new layout is being drawn, for
+example when the debugger starts."
   (rdebug-debug-message "Setting state to %s (was %s)"
                         state rdebug-window-configuration-state)
   (when (not (eq state rdebug-window-configuration-state))
@@ -373,20 +458,68 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
 
 ;; -- Common key support.
 
-(defun rdebug-populate-common-keys (map)
-  "Define the keys that are used by all debugger windows, even by the source."
-  ;; TODO: Redirect to different variants (or none).
-  (rdebug-populate-common-keys-standard map))
-
-
 (defun rdebug-populate-common-keys-standard (map)
-  "The key layout used by many debuggers."
+  "Bind the basic debugger key layout used by many debuggers:
+
+\\{rdebug-example-map-standard}"
   (define-key map [f5]    'gud-cont)
   (define-key map [S-f5]  'rdebug-quit)
-  (define-key map [f9]    'gud-break)
+  (define-key map [f9]    'gud-break)   ; TODO: Should be "toggle"
   (define-key map [f10]   'gud-next)
   (define-key map [f11]   'gud-step)
   (define-key map [S-f11] 'gud-finish))
+
+
+;; TODO: Verify and complement.
+(defun rdebug-populate-common-keys-eclipse (map)
+  "Bind the basic debugger key layout used by Eclipse:
+
+\\{rdebug-example-map-eclipse}"
+  ;;(define-key map []  'gud-cont)
+  ;;(define-key map []  'rdebug-quit)
+  (define-key map [S-C-b]    'gud-break) ; TODO: Should be "toggle"
+  (define-key map [f6]   'gud-next)
+  (define-key map [f5]   'gud-step)
+  (define-key map [f7] 'gud-finish))
+
+
+;; TODO: Verify and complement.
+(defun rdebug-populate-common-keys-netbeans (map)
+  "Bind the basic debugger key layout used by NetBeans:
+
+\\{rdebug-example-map-netbeans}"
+  ;;(define-key map []  'gud-cont)
+  ;;(define-key map []  'rdebug-quit)
+  ;; F4 - Run to cursor.
+  (define-key map [S-f8]   'gud-break) ; TODO: Should be "toggle"
+  (define-key map [f8]     'gud-next)
+  (define-key map [f7]     'gud-step)
+  (define-key map [M-S-f7] 'gud-finish))
+
+
+;; Note: This is only used in doc-strings.
+(defvar rdebug-example-map-standard
+  (let ((map (make-sparse-keymap)))
+    (rdebug-populate-common-keys-standard map)
+    map))
+
+(defvar rdebug-example-map-eclipse
+  (let ((map (make-sparse-keymap)))
+    (rdebug-populate-common-keys-eclipse map)
+    map))
+
+(defvar rdebug-example-map-netbeans
+  (let ((map (make-sparse-keymap)))
+    (rdebug-populate-common-keys-netbeans map)
+    map))
+
+
+(defun rdebug-populate-common-keys (map)
+  "Define the keys that are used by all debugger windows, even by the source.
+
+The variable `rdebug-populate-common-keys-function' controls the layout."
+  (if rdebug-populate-common-keys-function
+      (funcall rdebug-populate-common-keys-function map)))
 
 
 ;; -- The debugger
@@ -415,7 +548,7 @@ By default, the user interface looks like the following:
 |                                   | DEL  rdebug-delete-breakpoint    |
 +-----------------------------------+----------------------------------+
 
-The variable `rdebug-many-windows-layout-function' can be
+The variable `rdebug-window-layout-function' can be
 customized so that another layout is used. In addition to a
 number of predefined layouts it's possible to define a function
 to perform a custom layout.
@@ -742,6 +875,8 @@ problem as best as we can determine."
 	     (if rdebugtrack-do-tracking-p "En" "Dis")))
   )
 
+
+;;;###autoload
 (defun turn-on-rdebugtrack-mode ()
   "Turn on rdebugtrack mode.
 
@@ -803,7 +938,7 @@ This function is designed to be added to hooks, for example:
 ;; Window layout
 ;;
 
-(defun rdebug-many-windows-layout-standard (src-buf name)
+(defun rdebug-window-layout-standard (src-buf name)
   "The default rdebug window layout, see `rdebug' for more information."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 3) 4))
@@ -828,11 +963,13 @@ This function is designed to be added to hooks, for example:
   (other-window 1)
   (goto-char (point-max)))
 
-(defun rdebug-many-windows-rocky (src-buf name)
-  "Rocky's window layout. 
+(defun rdebug-window-layout-rocky (src-buf name)
+  "Rocky's window layout.
 
-3 windows. The source window is on top 4/5 of height. The 
-bottom is split between the command windows and a stack window. See `rdebug' for more information."
+3 windows. The source window is on top 4/5 of height. The
+bottom is split between the command windows and a stack window.
+
+See `rdebug' for more information."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 4) 5))
   (set-window-buffer
@@ -845,7 +982,7 @@ bottom is split between the command windows and a stack window. See `rdebug' for
    (selected-window) (rdebug-get-buffer "cmd" name))
   (goto-char (point-max)))
 
-(defun rdebug-many-windows-layout-conservative (src-buf name)
+(defun rdebug-window-layout-conservative (src-buf name)
   "A conservative rdebug window layout with three windows.
 
 This window layout mimics the traditional debugger shell and
@@ -863,7 +1000,7 @@ the window for more details."
    (selected-window) (rdebug-get-buffer "output" name))
   (other-window 1))
 
-(defun rdebug-many-windows-layout-stack-of-secondary-windows (src-buf name)
+(defun rdebug-window-layout-stack-of-windows (src-buf name)
   "A rdebug window layout with several secondary windows to the right.
 The debugger shell and the source code window is to the left."
   (delete-other-windows)
@@ -907,7 +1044,7 @@ from `gdb-setup-windows', but simplified."
                 ;; Put buffer list in window if we
                 ;; can't find a source file.
                 (list-buffers-noselect)))))
-    (funcall rdebug-many-windows-layout-function buf gud-target-name))))
+    (funcall rdebug-window-layout-function buf gud-target-name))))
 
 
 (defun rdebug-setup-windows-initially ()
@@ -1090,6 +1227,7 @@ rdebug-restore-windows if rdebug-many-windows is set"
   ())
 
 
+;;;###autoload
 (defun rdebug-turn-on-debugger-support ()
   "Enable extra source buffer support for the `rdebug' Ruby debugger.
 
@@ -1771,4 +1909,4 @@ etc.)."
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
 
-;;; rdebug.el ends here
+;;; rdebug-code.el ends here
