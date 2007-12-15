@@ -1229,7 +1229,7 @@ debugger is active."
 ;; submap for keys.
 (defun rdebug-populate-secondary-buffer-map (map &optional no-menu)
   "Bind keys common to all rdebug secondary buffers.
-(This does not include the debugger shell and source buffers.)"
+\(This does not include the debugger shell and source buffers.)"
   ;; Keys to view other buffers.
   (define-key map "?" 'rdebug-display-secondary-window-help-buffer)
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
@@ -1691,6 +1691,7 @@ If the buffer doesn't exist, do nothing."
   (setq major-mode 'rdebug-variables-mode)
   (setq mode-name "RDEBUG Variables")
   (setq buffer-read-only t)
+  (setq truncate-lines t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (set (make-local-variable 'font-lock-defaults)
        '(rdebug-variables-font-lock-keywords))
@@ -1767,6 +1768,7 @@ This function is intended to be bound to a mouse key"
   (setq major-mode 'rdebug-watch-mode)
   (setq mode-name "RDEBUG Watch")
   (setq buffer-read-only t)
+  (setq truncate-lines t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (set (make-local-variable 'font-lock-defaults)
        '(rdebug-variables-font-lock-keywords))
