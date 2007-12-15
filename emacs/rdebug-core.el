@@ -75,9 +75,9 @@
 ;;; Code:
 
 (if (< emacs-major-version 22)
-  (error
-   "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
-   emacs-major-version))
+    (error
+     "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
+     emacs-major-version))
 (require 'gud)
 
 
@@ -85,7 +85,7 @@
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 (defcustom gud-rdebug-command-name
-"rdebug --emacs --no-control --no-quit --post-mortem --annotate=3"
+  "rdebug --emacs --no-control --no-quit --post-mortem --annotate=3"
   "File name for executing the Ruby debugger.
 This should be an executable on your path, or an absolute file name."
   :type 'string
@@ -213,7 +213,7 @@ Program-location lines look like this:
   "Group position in rdebug-position-re that matches the file name.")
 
 (defconst rdebug-marker-regexp-line-group 3
- "Group position in rdebug-position-re that matches the line number.")
+  "Group position in rdebug-position-re that matches the line number.")
 
 (defconst rdebug-annotation-start-regexp
   "\\([a-z]+\\)\n"
@@ -246,7 +246,7 @@ Can be `original' or `debugger'.")
 
 ;; rdebugtrack constants
 (defconst rdebugtrack-stack-entry-regexp
-      "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
+  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
   "Regular expression rdebugtrack uses to find a stack trace entry.")
 
 (defconst rdebugtrack-input-prompt "\n(+rdb:\\([0-9]+\\|post-mortem\\))+ *"
@@ -310,7 +310,7 @@ Can be `original' or `debugger'.")
     (rdebug-debug-message "GOT: %S" string)
     (setq gud-marker-acc (concat gud-marker-acc string))
     (let ((output "") s s2 (tmp ""))
-      
+
       ;; ALB first we process the annotations (if any)
       (while (setq s (string-match rdebug-annotation-start-regexp
 				   gud-marker-acc))
@@ -330,35 +330,35 @@ Can be `original' or `debugger'.")
 	    ;; it to gud-marker-acc after normal output has been processed
 	    (setq tmp (substring gud-marker-acc s))
 	    (setq gud-marker-acc (substring gud-marker-acc 0 s)))))
-      
+
       (when (setq s (string-match rdebug-annotation-end-regexp gud-marker-acc))
 	;; save the beginning of gud-marker-acc to tmp, remove it and restore it
 	;; after normal output has been processed
 	(setq tmp (substring gud-marker-acc 0 s))
 	(setq gud-marker-acc (substring gud-marker-acc s)))
-      
+
       ;; Process all the complete markers in this chunk.
       ;; Format of line looks like this:
       ;;   /etc/init.d/ntp.init:16:
       (while (string-match gud-rdebug-marker-regexp gud-marker-acc)
 	(setq
-	 
+
 	 ;; Extract the frame position from the marker.
 	 gud-last-frame
-	 (cons (substring gud-marker-acc 
+	 (cons (substring gud-marker-acc
 			  (match-beginning 1) (match-end 1))
 	       (string-to-number
 		(substring gud-marker-acc
 			   (match-beginning 2) (match-end 2))))
-	 
+
 	 ;; Append any text before the marker to the output we're going
 	 ;; to return - we don't include the marker in this text.
 	 output (concat output
 			(substring gud-marker-acc 0 (match-beginning 0)))
-	 
+
 	 ;; Set the accumulator to the remaining text.
 	 gud-marker-acc (substring gud-marker-acc (match-end 0))))
-      
+
       ;; Does the remaining text look like it might end with the
       ;; beginning of another marker?  If it does, then keep it in
       ;; gud-marker-acc until we receive the rest of it.  Since we
@@ -369,14 +369,12 @@ Can be `original' or `debugger'.")
 	    ;; Everything before the potential marker start can be output.
 	    (setq output (concat output (substring gud-marker-acc
 						   0 (match-beginning 0))))
-	    
+
 	    ;; Everything after, we save, to combine with later input.
 	    (setq gud-marker-acc
 		  (concat tmp (substring gud-marker-acc (match-beginning 0)))))
-	
 	(setq output (concat output gud-marker-acc)
 	      gud-marker-acc tmp))
-      
       output)))
 
 (defun gud-rdebug-find-file (f)
@@ -387,43 +385,43 @@ Can be `original' or `debugger'.")
 list of that and whether the annotate option was set. Initially
 annotate should be set to nil."
   (let ((arg (pop args)))
-     (cond 
-      ((not arg) (list nil annotate-p))
-      ((string-match "^--annotate=[1-9]" arg)
-       (rdebug-get-script-name args t))
-      ((equal "--annotate" arg)
-       (rdebug-get-script-name (cdr args) t))
-      ((equal "-A" arg)
-       (rdebug-get-script-name (cdr args) t))
-      ((member arg '("-h" "--host" "-p" "--port"
+    (cond
+     ((not arg) (list nil annotate-p))
+     ((string-match "^--annotate=[1-9]" arg)
+      (rdebug-get-script-name args t))
+     ((equal "--annotate" arg)
+      (rdebug-get-script-name (cdr args) t))
+     ((equal "-A" arg)
+      (rdebug-get-script-name (cdr args) t))
+     ((member arg '("-h" "--host" "-p" "--port"
 		    "-I", "--include" "-r" "--require"))
-       (if args 
-	   (rdebug-get-script-name (cdr args) annotate-p)
-       ;else
-	 (list nil annotate-p)))
-      ((string-match "^-[a-zA-z]" arg) (rdebug-get-script-name args annotate-p))
-      ((string-match "^--[a-zA-z]+" arg) (rdebug-get-script-name args annotate-p))
-      ((string-match "^rdebug" arg) (rdebug-get-script-name args annotate-p))
-     ; found script name (or nil
-      (t (list arg annotate-p)))))
+      (if args
+          (rdebug-get-script-name (cdr args) annotate-p)
+        ;;else
+        (list nil annotate-p)))
+     ((string-match "^-[a-zA-z]" arg) (rdebug-get-script-name args annotate-p))
+     ((string-match "^--[a-zA-z]+" arg) (rdebug-get-script-name args annotate-p))
+     ((string-match "^rdebug" arg) (rdebug-get-script-name args annotate-p))
+     ;; found script name (or nil
+     (t (list arg annotate-p)))))
 
-; From Emacs 23
+;; From Emacs 23
 (unless (fboundp 'split-string-and-unquote)
   (defun split-string-and-unquote (string &optional separator)
-  "Split the STRING into a list of strings.
+    "Split the STRING into a list of strings.
 It understands Emacs Lisp quoting within STRING, such that
   (split-string-and-unquote (combine-and-quote-strings strs)) == strs
 The SEPARATOR regexp defaults to \"\\s-+\"."
-  (let ((sep (or separator "\\s-+"))
-	(i (string-match "[\"]" string)))
-    (if (null i)
-	(split-string string sep t)	; no quoting:  easy
-      (append (unless (eq i 0) (split-string (substring string 0 i) sep t))
-	      (let ((rfs (read-from-string string i)))
-		(cons (car rfs)
-		      (split-string-and-unquote (substring string (cdr rfs))
-						sep)))))))
-)
+    (let ((sep (or separator "\\s-+"))
+          (i (string-match "[\"]" string)))
+      (if (null i)
+          (split-string string sep t)	; no quoting:  easy
+        (append (unless (eq i 0) (split-string (substring string 0 i) sep t))
+                (let ((rfs (read-from-string string i)))
+                  (cons (car rfs)
+                        (split-string-and-unquote (substring string (cdr rfs))
+                                                  sep)))))))
+  )
 
 
 (defun rdebug-set-window-configuration-state (state &optional dont-restore)
@@ -491,7 +489,7 @@ example when the debugger starts."
   ;;(define-key map []  'gud-cont)
   ;;(define-key map []  'rdebug-quit)
   ;; F4 - Run to cursor.
-  (define-key map [S-f8]   'gud-break) ; TODO: Should be "toggle"
+  (define-key map [S-f8]   'gud-break)  ; TODO: Should be "toggle"
   (define-key map [f8]     'gud-next)
   (define-key map [f7]     'gud-step)
   (define-key map [M-S-f7] 'gud-finish))
@@ -565,116 +563,115 @@ and options used to invoke rdebug."
    (list (gud-query-cmdline 'rdebug)))
 
   (rdebug-debug-enter "rdebug"
-  (rdebug-set-window-configuration-state 'debugger t)
-  ; Parse the command line and pick out the script name and whether --annotate
-  ; has been set.
-  (let* ((words (split-string-and-unquote command-line))
-	(script-name-annotate-p (rdebug-get-script-name 
-			       (gud-rdebug-massage-args "1" words) nil))
-        (target-name (file-name-nondirectory (car script-name-annotate-p)))
-	(annotate-p (cadr script-name-annotate-p))
-	(rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
-	(rdebug-buffer (get-buffer rdebug-buffer-name))
-	)
+    (rdebug-set-window-configuration-state 'debugger t)
+    ;; Parse the command line and pick out the script name and whether
+    ;; --annotate has been set.
+    (let* ((words (split-string-and-unquote command-line))
+           (script-name-annotate-p (rdebug-get-script-name
+                                    (gud-rdebug-massage-args "1" words) nil))
+           (target-name (file-name-nondirectory (car script-name-annotate-p)))
+           (annotate-p (cadr script-name-annotate-p))
+           (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
+           (rdebug-buffer (get-buffer rdebug-buffer-name))
+           )
 
-    ;; `gud-rdebug-massage-args' needs whole `command-line'.
-    ;; command-line is refered through dyanmic scope.
-    (gud-common-init command-line 'gud-rdebug-massage-args
-		     'gud-rdebug-marker-filter 'gud-rdebug-find-file)
+      ;; `gud-rdebug-massage-args' needs whole `command-line'.
+      ;; command-line is refered through dyanmic scope.
+      (gud-common-init command-line 'gud-rdebug-massage-args
+                       'gud-rdebug-marker-filter 'gud-rdebug-find-file)
 
-    ; gud-common-init sets the rdebug process buffer name incorrectly, because
-    ; it can't parse the command line properly to pick out the script name.
-    ; So we'll do it here and rename that buffer. The buffer we want to rename
-    ; happens to be the current buffer.
-    (setq gud-target-name target-name)
-    (when rdebug-buffer (kill-buffer rdebug-buffer))
-    (rename-buffer rdebug-buffer-name)
+      ;; gud-common-init sets the rdebug process buffer name
+      ;; incorrectly, because it can't parse the command line properly
+      ;; to pick out the script name. So we'll do it here and rename
+      ;; that buffer. The buffer we want to rename happens to be the
+      ;; current buffer.
+      (setq gud-target-name target-name)
+      (when rdebug-buffer (kill-buffer rdebug-buffer))
+      (rename-buffer rdebug-buffer-name)
 
-    ;; Setup exit callback so that the original frame configuration
-    ;; can be restored.
-    (let ((process (get-buffer-process gud-comint-buffer)))
-      (if process
-          (set-process-sentinel process
-                                'rdebug-process-sentinel)))
+      ;; Setup exit callback so that the original frame configuration
+      ;; can be restored.
+      (let ((process (get-buffer-process gud-comint-buffer)))
+        (if process
+            (set-process-sentinel process
+                                  'rdebug-process-sentinel)))
 
-    ;; This opens up "Gud" menu, which isn't used since we've got our
-    ;; own "Debugger" menu.
+      ;; This opens up "Gud" menu, which isn't used since we've got our
+      ;; own "Debugger" menu.
 
-    ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
+      ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
 
-    (gud-def gud-args   "info args" "a"
-	     "Show arguments of current stack.")
-    (gud-def gud-break  "break %d%f:%l""\C-b"
-	     "Set breakpoint at current line.")
-    (gud-def gud-cont   "continue"   "\C-r" 
-	     "Continue with display.")
-    (gud-def gud-down   "down %p"     ">"
-	     "Down N stack frames (numeric arg).")
-    (gud-def gud-finish "finish"      "\C-f"
-	     "Finish executing current function.")
-    (gud-def gud-next   "next %p"     "\C-n"
-	     "Step one line (skip functions).")
-    (gud-def gud-print  "p %e"        "\C-p"
-	     "Evaluate Ruby expression at point.")
-    (gud-def gud-source-resync "up 0" "\C-l"
-	     "Show current source window")
-    (gud-def gud-remove "clear %d%f:%l" "\C-d"
-	     "Remove breakpoint at current line")
-    (gud-def gud-quit    "quit"       "Q"
-	     "Quit debugger.")
-    (gud-def gud-run    "restart"       "R"
-	     "Restart the Ruby script.")
-    (gud-def gud-statement "eval %e" "\C-e"
-	     "Execute Ruby statement at point.")
-    (gud-def gud-step   "step %p"       "\C-s"
-	     "Step one source line with display.")
-    (gud-def gud-step-plus "step+ %p"       "+"
-	     "Step one source line with display.")
-    (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
-	     "Set temporary breakpoint at current line.")
-    (gud-def gud-up     "up %p"
-	     "<" "Up N stack frames (numeric arg).")
-    (gud-def gud-where   "where"
-	     "T" "Show stack trace.")
-    (local-set-key "\C-i" 'gud-gdb-complete-command)
+      (gud-def gud-args   "info args" "a"
+               "Show arguments of current stack.")
+      (gud-def gud-break  "break %d%f:%l""\C-b"
+               "Set breakpoint at current line.")
+      (gud-def gud-cont   "continue"   "\C-r"
+               "Continue with display.")
+      (gud-def gud-down   "down %p"     ">"
+               "Down N stack frames (numeric arg).")
+      (gud-def gud-finish "finish"      "\C-f"
+               "Finish executing current function.")
+      (gud-def gud-next   "next %p"     "\C-n"
+               "Step one line (skip functions).")
+      (gud-def gud-print  "p %e"        "\C-p"
+               "Evaluate Ruby expression at point.")
+      (gud-def gud-source-resync "up 0" "\C-l"
+               "Show current source window")
+      (gud-def gud-remove "clear %d%f:%l" "\C-d"
+               "Remove breakpoint at current line")
+      (gud-def gud-quit    "quit"       "Q"
+               "Quit debugger.")
+      (gud-def gud-run    "restart"       "R"
+               "Restart the Ruby script.")
+      (gud-def gud-statement "eval %e" "\C-e"
+               "Execute Ruby statement at point.")
+      (gud-def gud-step   "step %p"       "\C-s"
+               "Step one source line with display.")
+      (gud-def gud-step-plus "step+ %p"       "+"
+               "Step one source line with display.")
+      (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
+               "Set temporary breakpoint at current line.")
+      (gud-def gud-up     "up %p"
+               "<" "Up N stack frames (numeric arg).")
+      (gud-def gud-where   "where"
+               "T" "Show stack trace.")
+      (local-set-key "\C-i" 'gud-gdb-complete-command)
 
-    ;; Add the buffer-displaying commands to the Gud buffer,
-    ;; accessible using the C-c prefix.
-    (rdebug-populate-secondary-buffer-map
-     (lookup-key (current-local-map) "\C-c")
-     t)
+      ;; Add the buffer-displaying commands to the Gud buffer,
+      ;; accessible using the C-c prefix.
+      (rdebug-populate-secondary-buffer-map
+       (lookup-key (current-local-map) "\C-c")
+       t)
 
-    (rdebug-populate-debugger-menu (current-local-map))
-    (rdebug-populate-common-keys (current-local-map))
+      (rdebug-populate-debugger-menu (current-local-map))
+      (rdebug-populate-common-keys (current-local-map))
 
-    ;; Update GUD menu bar
-    (define-key gud-menu-map [args]      '("Show arguments of current stack" . 
-					   gud-args))
-    (define-key gud-menu-map [down]      '("Down Stack" . gud-down))
-    (define-key gud-menu-map [eval]      '("Execute Ruby statement at point" 
-					   . gud-statement))
-    (define-key gud-menu-map [finish]    '("Finish Function" . gud-finish))
-    (define-key gud-menu-map [run]       '("Restart the Ruby Script" . 
-					   gud-run))
-    (define-key gud-menu-map [stepi]     'undefined)
-    (define-key gud-menu-map [tbreak]    '("Temporary break" . gud-tbreak))
-    (define-key gud-menu-map [up]        '("Up Stack" . gud-up))
-    (define-key gud-menu-map [where]     '("Show stack trace" . gud-where))
+      ;; Update GUD menu bar
+      (define-key gud-menu-map [args]   '("Show arguments of current stack" .
+                                          gud-args))
+      (define-key gud-menu-map [down]   '("Down Stack" . gud-down))
+      (define-key gud-menu-map [eval]   '("Execute Ruby statement at point"
+                                          . gud-statement))
+      (define-key gud-menu-map [finish] '("Finish Function" . gud-finish))
+      (define-key gud-menu-map [run]    '("Restart the Ruby Script" .
+                                          gud-run))
+      (define-key gud-menu-map [stepi]  'undefined)
+      (define-key gud-menu-map [tbreak] '("Temporary break" . gud-tbreak))
+      (define-key gud-menu-map [up]     '("Up Stack" . gud-up))
+      (define-key gud-menu-map [where]  '("Show stack trace" . gud-where))
 
-;;    (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
-;;    (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
-;;    (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
+      ;;    (local-set-key [menu-bar debug finish] '("Finish Function" . gud-finish))
+      ;;    (local-set-key [menu-bar debug up] '("Up Stack" . gud-up))
+      ;;    (local-set-key [menu-bar debug down] '("Down Stack" . gud-down))
 
-    (setq comint-prompt-regexp "^(rdb:-) ")
-    (setq paragraph-start comint-prompt-regexp)
+      (setq comint-prompt-regexp "^(rdb:-) ")
+      (setq paragraph-start comint-prompt-regexp)
 
-    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
-            rdebug-debugger-support-minor-mode-map-when-active)
-    (when rdebug-many-windows (rdebug-setup-windows-initially))
+      (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+              rdebug-debugger-support-minor-mode-map-when-active)
+      (when rdebug-many-windows (rdebug-setup-windows-initially))
 
-    (run-hooks 'rdebug-mode-hook))
-  ))
-;)
+      (run-hooks 'rdebug-mode-hook))))
 
 
 (defun rdebug-quit ()
@@ -708,7 +705,7 @@ Currently-active file is at the head of the list.")
 
 ;; Constants
 
-(defconst rdebug-position-re 
+(defconst rdebug-position-re
   "\\(\\)\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)"
   "Regular expression for a rdebug position")
 
@@ -739,8 +736,7 @@ Activity is disabled if the buffer-local variable
 `rdebugtrack-do-tracking-p' is nil.
 
 We depend on the rdebug input prompt matching `rdebugtrack-input-prompt'
-at the beginning of the line.
-" 
+at the beginning of the line."
   ;; Instead of trying to piece things together from partial text
   ;; (which can be almost useless depending on Emacs version), we
   ;; monitor to the point where we have the next rdebug prompt, and then
@@ -751,57 +747,54 @@ at the beginning of the line.
   ;; other rdebug commands wipe out the highlight.  You can always do a
   ;; 'where' (aka 'w') command to reveal the overlay arrow.
   (rdebug-debug-enter "rdebugtrack-track-stack-file"
-  (let* ((origbuf (current-buffer))
-	 (currproc (get-buffer-process origbuf)))
+    (let* ((origbuf (current-buffer))
+           (currproc (get-buffer-process origbuf)))
 
-    (if (not (and currproc rdebugtrack-do-tracking-p))
-        (rdebugtrack-overlay-arrow nil)
-      ;else 
-      (let* ((procmark (process-mark currproc))
-	     (block-start (max comint-last-input-end
-			       (- procmark rdebugtrack-track-range)))
-             (block-str (buffer-substring block-start procmark))
-             target target_fname target_lineno target_buffer)
+      (if (not (and currproc rdebugtrack-do-tracking-p))
+          (rdebugtrack-overlay-arrow nil)
+        ;;else
+        (let* ((procmark (process-mark currproc))
+               (block-start (max comint-last-input-end
+                                 (- procmark rdebugtrack-track-range)))
+               (block-str (buffer-substring block-start procmark))
+               target target_fname target_lineno target_buffer)
 
-        (if (not (string-match rdebugtrack-input-prompt block-str))
-            (rdebugtrack-overlay-arrow nil)
-	  ;else 
-          
-          (setq target (rdebugtrack-get-source-buffer block-str))
+          (if (not (string-match rdebugtrack-input-prompt block-str))
+              (rdebugtrack-overlay-arrow nil)
+            ;;else
+            (setq target (rdebugtrack-get-source-buffer block-str))
 
-          (if (stringp target)
-              (rdebug-debug-message "rdebugtrack: %s" target)
-	    ; else
-	    (gud-rdebug-marker-filter block-str)
-            (setq target_lineno (car target))
-            (setq target_buffer (cadr target))
-            (setq target_fname (buffer-file-name target_buffer))
-            (switch-to-buffer-other-window target_buffer)
-            (goto-line target_lineno)
-            (rdebug-debug-message "rdebugtrack: line %s, file %s" target_lineno target_fname)
-            (rdebugtrack-overlay-arrow t)
-            (pop-to-buffer origbuf t)
-            )
+            (if (stringp target)
+                (rdebug-debug-message "rdebugtrack: %s" target)
+              ;;else
+              (gud-rdebug-marker-filter block-str)
+              (setq target_lineno (car target))
+              (setq target_buffer (cadr target))
+              (setq target_fname (buffer-file-name target_buffer))
+              (switch-to-buffer-other-window target_buffer)
+              (goto-line target_lineno)
+              (rdebug-debug-message "rdebugtrack: line %s, file %s"
+                                    target_lineno target_fname)
+              (rdebugtrack-overlay-arrow t)
+              (pop-to-buffer origbuf t)
+              )
 
-	  ; Delete processed annotations from buffer.
-	  (save-excursion
-	    (let ((annotate-start)
-		  (annotate-end (point-max)))
-	      (goto-char block-start)
-	      (while (re-search-forward
-		      rdebug-annotation-start-regexp annotate-end t)
-		(setq annotate-start (match-beginning 0))
-		(if (re-search-forward 
-		     rdebug-annotation-end-regexp annotate-end t)
-		    (delete-region annotate-start (point))
-		;else
-		  (forward-line)))
-	      )))
-	)))
-    ))
+            ;; Delete processed annotations from buffer.
+            (save-excursion
+              (let ((annotate-start)
+                    (annotate-end (point-max)))
+                (goto-char block-start)
+                (while (re-search-forward
+                        rdebug-annotation-start-regexp annotate-end t)
+                  (setq annotate-start (match-beginning 0))
+                  (if (re-search-forward
+                       rdebug-annotation-end-regexp annotate-end t)
+                      (delete-region annotate-start (point))
+                    ;;else
+                    (forward-line)))))))))))
 
 (defun rdebugtrack-get-source-buffer (block-str)
-  "Return line number and buffer of code indicated by block-str's traceback 
+  "Return line number and buffer of code indicated by block-str's traceback
 text.
 
 We look first to visit the file indicated in the trace.
@@ -814,7 +807,7 @@ problem as best as we can determine."
 
   (if (not (string-match rdebug-position-re block-str))
       "line number cue not found"
-    ;else
+    ;;else
     (let* ((filename (match-string rdebug-marker-regexp-file-group block-str))
            (lineno (string-to-number
 		    (match-string rdebug-marker-regexp-line-group block-str)))
@@ -826,22 +819,15 @@ problem as best as we can determine."
             ((= (elt filename 0) ?\<)
              (format "(Non-file source: '%s')" filename))
 
-            (t (format "Not found: %s" filename)))
-      )
-    )
-  )
+            (t (format "Not found: %s" filename))))))
 
 
-;;; Subprocess commands
-
-
-
-;; rdebugtrack 
+;; rdebugtrack
 (defcustom rdebugtrack-mode-text " rdebug"
   "*String to display in the mode line when rdebugtrack mode is active.
 
 \(When the string is not empty, make sure that it has a leading space.)"
-  :tag "rdebug mode text"                ; To separate it from `global-...'
+  :tag "rdebug mode text"           ; To separate it from `global-...'
   :group 'rdebug
   :type 'string)
 
@@ -865,15 +851,14 @@ problem as best as we can determine."
   (interactive "P")
   (if (not (get-buffer-process (current-buffer)))
       (message "No process associated with buffer '%s'" (current-buffer))
-    ;else
+    ;;else
     ;; missing or 0 is toggle, >0 turn on, <0 turn off
     (if (or (not arg)
 	    (zerop (setq arg (prefix-numeric-value arg))))
 	(setq rdebugtrack-do-tracking-p (not rdebugtrack-do-tracking-p))
       (setq rdebugtrack-do-tracking-p (> arg 0)))
     (message "%sabled rdebug's rdebugtrack"
-	     (if rdebugtrack-do-tracking-p "En" "Dis")))
-  )
+	     (if rdebugtrack-do-tracking-p "En" "Dis"))))
 
 
 ;;;###autoload
@@ -883,14 +868,13 @@ problem as best as we can determine."
 This function is designed to be added to hooks, for example:
   (add-hook 'comint-mode-hook 'turn-on-rdebugtrack-mode)"
   (interactive)
-  (rdebugtrack-mode 1)
-)
+  (rdebugtrack-mode 1))
 
 (defun turn-off-rdebugtrack ()
   (interactive)
   (setq rdebugtrack-is-tracking-p nil)
   (rdebugtrack-toggle-stack-tracking 0)
-  (remove-hook 'comint-output-filter-functions 
+  (remove-hook 'comint-output-filter-functions
 	       'rdebugtrack-track-stack-file))
 
 ;; rdebugtrack
@@ -913,25 +897,26 @@ This function is designed to be added to hooks, for example:
 
 (defun rdebug-process-annotation (name contents)
   (rdebug-debug-enter "rdebug-process-annotation"
-  ;; Ruby-debug uses the name "starting" for process output (just like
-  ;; GDB). However, it's better to present the buffer as "output" to
-  ;; the user. Ditto for "display" and "watch".
-  (cond ((string= name "starting")
-         (setq name "output"))
-        ((string= name "display")
-         (setq name "watch")))
-  (let ((buf (get-buffer-create (format "*rdebug-%s-%s*" name gud-target-name)))
-        ;; Buffer local, doesn't survive the buffer change.
-        (comint-buffer gud-comint-buffer))
-    (with-current-buffer buf
-      (setq buffer-read-only t)
-      (let ((inhibit-read-only t)
-            (setup-func (gethash name rdebug--annotation-setup-map)))
-        (if (string= name "output")
-            (goto-char (point-max))
-          (erase-buffer))
-        (insert contents)
-        (when setup-func (funcall setup-func buf comint-buffer)))))))
+    ;; Ruby-debug uses the name "starting" for process output (just like
+    ;; GDB). However, it's better to present the buffer as "output" to
+    ;; the user. Ditto for "display" and "watch".
+    (cond ((string= name "starting")
+           (setq name "output"))
+          ((string= name "display")
+           (setq name "watch")))
+    (let ((buf (get-buffer-create
+                (format "*rdebug-%s-%s*" name gud-target-name)))
+          ;; Buffer local, doesn't survive the buffer change.
+          (comint-buffer gud-comint-buffer))
+      (with-current-buffer buf
+        (setq buffer-read-only t)
+        (let ((inhibit-read-only t)
+              (setup-func (gethash name rdebug--annotation-setup-map)))
+          (if (string= name "output")
+              (goto-char (point-max))
+            (erase-buffer))
+          (insert contents)
+          (when setup-func (funcall setup-func buf comint-buffer)))))))
 
 
 ;;
@@ -1032,19 +1017,19 @@ The debugger shell and the source code window is to the left."
   "Layout the window pattern for `rdebug-many-windows'. This was mostly copied
 from `gdb-setup-windows', but simplified."
   (rdebug-debug-enter "rdebug-setup-windows"
-  (rdebug-set-window-configuration-state 'debugger t)
-  (pop-to-buffer gud-comint-buffer)
-  (rdebug-process-annotation "help" "")
-  (let ((buf
-         (cond (gud-last-last-frame
-                (gud-find-file (car gud-last-last-frame)))
-               (gud-target-name
-                (gud-find-file gud-target-name))
-               (t
-                ;; Put buffer list in window if we
-                ;; can't find a source file.
-                (list-buffers-noselect)))))
-    (funcall rdebug-window-layout-function buf gud-target-name))))
+    (rdebug-set-window-configuration-state 'debugger t)
+    (pop-to-buffer gud-comint-buffer)
+    (rdebug-process-annotation "help" "")
+    (let ((buf
+           (cond (gud-last-last-frame
+                  (gud-find-file (car gud-last-last-frame)))
+                 (gud-target-name
+                  (gud-find-file gud-target-name))
+                 (t
+                  ;; Put buffer list in window if we
+                  ;; can't find a source file.
+                  (list-buffers-noselect)))))
+      (funcall rdebug-window-layout-function buf gud-target-name))))
 
 
 (defun rdebug-setup-windows-initially ()
@@ -1257,17 +1242,17 @@ debugger is active."
   (define-key map "+" 'gud-step-plus)
   (define-key map "<" 'gud-up)
   (define-key map ">" 'gud-down)
-  ; (define-key map "a" 'gud-args)
-  ; (define-key map "b" 'gud-break)
+  ;; (define-key map "a" 'gud-args)
+  ;; (define-key map "b" 'gud-break)
   (define-key map "c" 'gud-cont)
-  ; (define-key map "d" 'gud-remove)
+  ;; (define-key map "d" 'gud-remove)
   (define-key map "f" 'gud-finish)
   (define-key map "n" 'gud-next)
   (define-key map "p" 'gud-print)
   (define-key map "q" 'rdebug-quit)
   (define-key map "r" 'gud-run)
   (define-key map "s" 'gud-step)
-  ;(define-key map "t" 'gud-tbreak)
+  ;; (define-key map "t" 'gud-tbreak)
   ;; Returns the menu.
   (if no-menu
       nil
@@ -1389,10 +1374,10 @@ If the buffer doesn't exist, do nothing."
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (run-mode-hooks 'rdebug-breakpoints-mode-hook)
-  ;(if (eq (buffer-local-value 'gud-minor-mode gud-comint-buffer) 'gdba)
-  ;    'gdb-invalidate-breakpoints
-  ;  'gdbmi-invalidate-breakpoints)
-)
+  ;;(if (eq (buffer-local-value 'gud-minor-mode gud-comint-buffer) 'gdba)
+  ;;    'gdb-invalidate-breakpoints
+  ;;  'gdbmi-invalidate-breakpoints)
+  )
 
 (defconst rdebug--breakpoint-regexp
   "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)$"
@@ -1401,36 +1386,36 @@ If the buffer doesn't exist, do nothing."
 (defun rdebug--setup-breakpoints-buffer (buf comint-buffer)
   "Detects breakpoint lines and sets up keymap and mouse navigation."
   (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
-  (with-current-buffer buf
-    (let ((inhibit-read-only t) (flag))
-      (rdebug-breakpoints-mode)
-      (set (make-local-variable 'gud-comint-buffer) comint-buffer)
-      (goto-char (point-min))
-      (while (not (eobp))
-        (let ((b (line-beginning-position)) (e (line-end-position)))
-          (when (string-match rdebug--breakpoint-regexp
-                              (buffer-substring b e))
-            (add-text-properties b e
-                                 (list 'mouse-face 'highlight
-                                       'keymap rdebug-breakpoints-mode-map))
-            (add-text-properties
-             (+ b (match-beginning 1)) (+ b (match-end 1))
-             (list 'face font-lock-constant-face
-                   'font-lock-face font-lock-constant-face))
-	    (setq flag (char-after (+ b (match-beginning 2))))
-	    (add-text-properties
-	     (+ b (match-beginning 2)) (+ b (match-end 2))
-	     (if (eq flag ?y)
-		 '(face font-lock-warning-face)
-	       '(face font-lock-type-face)))
-            (add-text-properties
-             (+ b (match-beginning 3)) (+ b (match-end 3))
-             (list 'face font-lock-comment-face
-                   'font-lock-face font-lock-comment-face))
-            (add-text-properties
-             (+ b (match-beginning 4)) (+ b (match-end 4))
-             (list 'face font-lock-constant-face
-                   'font-lock-face font-lock-constant-face))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t) (flag))
+        (rdebug-breakpoints-mode)
+        (set (make-local-variable 'gud-comint-buffer) comint-buffer)
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let ((b (line-beginning-position)) (e (line-end-position)))
+            (when (string-match rdebug--breakpoint-regexp
+                                (buffer-substring b e))
+              (add-text-properties b e
+                                   (list 'mouse-face 'highlight
+                                         'keymap rdebug-breakpoints-mode-map))
+              (add-text-properties
+               (+ b (match-beginning 1)) (+ b (match-end 1))
+               (list 'face font-lock-constant-face
+                     'font-lock-face font-lock-constant-face))
+              (setq flag (char-after (+ b (match-beginning 2))))
+              (add-text-properties
+               (+ b (match-beginning 2)) (+ b (match-end 2))
+               (if (eq flag ?y)
+                   '(face font-lock-warning-face)
+                 '(face font-lock-type-face)))
+              (add-text-properties
+               (+ b (match-beginning 3)) (+ b (match-end 3))
+               (list 'face font-lock-comment-face
+                     'font-lock-face font-lock-comment-face))
+              (add-text-properties
+               (+ b (match-beginning 4)) (+ b (match-end 4))
+               (list 'face font-lock-constant-face
+                     'font-lock-face font-lock-constant-face))
 ;;;             ;; fontify "keep/del"
 ;;;             (let ((face (if (string= "keep" (buffer-substring
 ;;;                                              (+ b (match-beginning 2))
@@ -1447,9 +1432,9 @@ If the buffer doesn't exist, do nothing."
 ;;;                (+ b (match-beginning 3)) (+ b (match-end 3))
 ;;;                (list 'face compilation-error-face
 ;;;                      'font-lock-face compilation-error-face)))
-	    )
-        (forward-line)
-        (beginning-of-line)))))))
+              )
+            (forward-line)
+            (beginning-of-line)))))))
 
 (defun rdebug-goto-breakpoint-mouse (event)
   "Displays the location in a source file of the selected breakpoint."
@@ -1555,14 +1540,14 @@ If the buffer doesn't exist, do nothing."
   "Major mode for rdebug frames.
 
 \\{rdebug-frames-mode-map}"
-  ; (kill-all-local-variables)
   (interactive "")
+  ;; (kill-all-local-variables)
   (setq major-mode 'rdebug-frames-mode)
   (setq mode-name "RDEBUG Stack Frames")
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (use-local-map rdebug-frames-mode-map)
-  ; (set (make-local-variable 'font-lock-defaults)
-  ;     '(gdb-locals-font-lock-keywords))
+  ;; (set (make-local-variable 'font-lock-defaults)
+  ;;     '(gdb-locals-font-lock-keywords))
   (run-mode-hooks 'rdebug-frames-mode-hook))
 
 (defconst rdebug--stack-frame-1st-regexp
@@ -1580,35 +1565,36 @@ If the buffer doesn't exist, do nothing."
 (defun rdebug--setup-stack-buffer (buf comint-buffer)
   "Detects stack frame lines and sets up mouse navigation."
   (rdebug-debug-enter "rdebug--setup-stack-buffer"
-  (with-current-buffer buf
-    (let ((inhibit-read-only t)
-	  (current-frame-point nil) ; position in stack buffer of selected frame
-	  )
-      (rdebug-frames-mode)
-      (set (make-local-variable 'gud-comint-buffer) comint-buffer)
-      (goto-char (point-min))
-      (while (not (eobp))
-        (let* ((b (line-beginning-position)) (e (line-end-position))
-               (s (buffer-substring b e)))
-          (when (string-match rdebug--stack-frame-1st-regexp s)
-            (add-text-properties
-             (+ b (match-beginning 2)) (+ b (match-end 2))
-             (list 'face font-lock-constant-face
-                   'font-lock-face font-lock-constant-face))
-	    ; Not all stack frames are on one line. 
-	    ; handle those that are.
-	    (when (string-match rdebug--stack-frame-regexp s)
-	      (add-text-properties
-	       (+ b (match-beginning 4)) (+ b (match-end 4))
-	       (list 'face font-lock-comment-face
-		     'font-lock-face font-lock-comment-face))
-	      (add-text-properties
-             (+ b (match-beginning 5)) (+ b (match-end 5))
-             (list 'face font-lock-constant-face
-                   'font-lock-face font-lock-constant-face)))
+    (with-current-buffer buf
+      (let ((inhibit-read-only t)
+            ;; position in stack buffer of selected frame
+            (current-frame-point nil)
+            )
+        (rdebug-frames-mode)
+        (set (make-local-variable 'gud-comint-buffer) comint-buffer)
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let* ((b (line-beginning-position)) (e (line-end-position))
+                 (s (buffer-substring b e)))
+            (when (string-match rdebug--stack-frame-1st-regexp s)
+              (add-text-properties
+               (+ b (match-beginning 2)) (+ b (match-end 2))
+               (list 'face font-lock-constant-face
+                     'font-lock-face font-lock-constant-face))
+              ;; Not all stack frames are on one line.
+              ;; handle those that are.
+              (when (string-match rdebug--stack-frame-regexp s)
+                (add-text-properties
+                 (+ b (match-beginning 4)) (+ b (match-end 4))
+                 (list 'face font-lock-comment-face
+                       'font-lock-face font-lock-comment-face))
+                (add-text-properties
+                 (+ b (match-beginning 5)) (+ b (match-end 5))
+                 (list 'face font-lock-constant-face
+                       'font-lock-face font-lock-constant-face)))
 
-            (when (string= (substring s (match-beginning 1) (match-end 1)) 
-			 "-->")
+              (when (string= (substring s (match-beginning 1) (match-end 1))
+                             "-->")
                 ;; highlight the currently selected frame
                 (add-text-properties b e
                                      (list 'face 'bold
@@ -1616,36 +1602,39 @@ If the buffer doesn't exist, do nothing."
 		(setq overlay-arrow-position (make-marker))
 		(set-marker overlay-arrow-position (point))
 		(setq current-frame-point (point)))
-	    (add-text-properties b e
-				 (list 'mouse-face 'highlight
-				       'keymap rdebug-frames-mode-map))
-	    (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
-		  (fn-start (+ b (match-beginning 3))))
-	      (if (string-match "\\([^(]+\\)(" fn-str)
-		  (add-text-properties
-		   (+ fn-start (match-beginning 1)) (+ fn-start (match-end 1))
-		   (list 'face font-lock-function-name-face
-			 'font-lock-face font-lock-function-name-face))))))
-	;; remove initial '   '  or '-->'
-	(beginning-of-line)
-	(delete-char 3)
-        (forward-line)
-        (beginning-of-line))
-      (when current-frame-point (goto-char current-frame-point)))
-    )))
+              (add-text-properties b e
+                                   (list 'mouse-face 'highlight
+                                         'keymap rdebug-frames-mode-map))
+              (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
+                    (fn-start (+ b (match-beginning 3))))
+                (if (string-match "\\([^(]+\\)(" fn-str)
+                    (add-text-properties
+                     (+ fn-start (match-beginning 1))
+                     (+ fn-start (match-end 1))
+                     (list 'face font-lock-function-name-face
+                           'font-lock-face font-lock-function-name-face))))))
+          ;; remove initial '   '  or '-->'
+          (beginning-of-line)
+          (delete-char 3)
+          (forward-line)
+          (beginning-of-line))
+        (when current-frame-point (goto-char current-frame-point))))))
 
 (defun rdebug-goto-stack-frame (pt)
   "Show the rdebug stack frame corresponding at PT in the rdebug stack buffer."
   (interactive "d")
   (save-excursion
     (goto-char pt)
-    (let ((s (concat "-->" (buffer-substring (line-beginning-position) (line-end-position))))
-	  (s2 (if (= (line-number-at-pos (line-end-position 2)) (line-number-at-pos (point-max)))
+    (let ((s (concat "-->" (buffer-substring (line-beginning-position)
+                                             (line-end-position))))
+	  (s2 (if (= (line-number-at-pos (line-end-position 2))
+                     (line-number-at-pos (point-max)))
 		  nil
-		;else 
-		  (buffer-substring (line-beginning-position 2) (line-end-position 2)))))
+		;;else
+                (buffer-substring (line-beginning-position 2)
+                                  (line-end-position 2)))))
       (when (or (string-match rdebug--stack-frame-regexp s)
-		; need to match 1st line last to get the match position right
+		;; need to match 1st line last to get the match position right
 		(and s2 (string-match rdebug--stack-frame-2nd-regexp s2)
 		     (string-match rdebug--stack-frame-1st-regexp s)))
         (let ((frame (substring s (match-beginning 2) (match-end 2))))
@@ -1693,15 +1682,15 @@ If the buffer doesn't exist, do nothing."
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (use-local-map rdebug-variables-mode-map)
-  ; (set (make-local-variable 'font-lock-defaults)
-  ;     '(gdb-variables-font-lock-keywords))
+  ;; (set (make-local-variable 'font-lock-defaults)
+  ;;     '(gdb-variables-font-lock-keywords))
   (run-mode-hooks 'rdebug-variables-mode-hook))
 
 (defun rdebug--setup-variables-buffer (buf comint-buffer)
   (rdebug-debug-enter "rdebug--setup-variables-buffer"
-  (with-current-buffer buf
-    (rdebug-variables-mode)
-    (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
+    (with-current-buffer buf
+      (rdebug-variables-mode)
+      (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
 (defun rdebug-variables-edit-mouse (&optional event)
   "Assign a value to a variable displayed in the variables buffer.
@@ -1893,7 +1882,7 @@ Press `C-h m' for more help, when the individual buffers are visible.
 ;; -- Reset support
 
 (defadvice gud-reset (before rdebug-reset)
-  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints, 
+  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
 etc.)."
   (dolist (buffer (buffer-list))
     (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
@@ -1903,7 +1892,7 @@ etc.)."
 (ad-activate 'gud-reset)
 
 
-(provide 'rdebug)
+(provide 'rdebug-core)
 
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
