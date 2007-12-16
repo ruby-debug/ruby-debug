@@ -160,7 +160,15 @@ module Debugger
       obj = debug_eval('self')
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|
-        s = "#{name} = #{locals[name].inspect}"
+        begin
+          s = "#{name} = #{locals[name].inspect}"
+        rescue
+          begin
+            s = "#{name} = #{locals[name].to_s}"
+          rescue
+            s = "#{name} = *Error in evaluation*"
+          end
+        end
         if s.size > self.class.settings[:width]
           s[self.class.settings[:width]-3 .. -1] = "..."
         end
