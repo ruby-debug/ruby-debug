@@ -3,7 +3,15 @@ module Debugger
     def var_list(ary, b = get_binding)
       ary.sort!
       for v in ary
-        s = debug_eval(v, b).inspect
+        begin
+          s = debug_eval(v, b).inspect
+        rescue
+          begin
+            s = debug_eval(v, b).to_s
+          rescue
+            s = "*Error in evaluation*"
+          end
+        end
         if s.size > self.class.settings[:width]
           s[self.class.settings[:width]-3 .. -1] = "..."
         end
