@@ -91,6 +91,12 @@ This should be an executable on your path, or an absolute file name."
   :type 'string
   :group 'gud)
 
+(defcustom rdebug-line-width 120
+  "Length of line before truncation occurs. This value limits 
+output in secondary buffers."
+  :type 'integer
+  :group 'rdebug)
+
 (defcustom rdebug-many-windows t
   "*If non-nil, use the full debugger user interface, see `rdebug'.
 
@@ -603,6 +609,7 @@ and options used to invoke rdebug."
       ;; can be restored.
       (let ((process (get-buffer-process gud-comint-buffer)))
         (if process
+	    (gud-call (format "set width %d" rdebug-line-width))
             (set-process-sentinel process
                                   'rdebug-process-sentinel)))
 

@@ -112,7 +112,12 @@ module Debugger
     register_setting_var(:listsize, 10)    # number of lines in list command
     register_setting_var(:stack_trace_on_error, false)
     register_setting_var(:tracing_plus, false) # different linetrace lines?
-    register_setting_var(:width, ENV['EMACS'] ? 400 : 80)  # width of line output
+    
+    # width of line output. Use COLUMNS value if it exists and is 
+    # not too rediculously large.
+    width = ENV['COLUMNS'].to_i 
+    width = 80 unless width > 10
+    register_setting_var(:width, width)  
 
     if not defined? Debugger::ARGV
       Debugger::ARGV = ARGV.clone

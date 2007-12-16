@@ -166,7 +166,9 @@ else
           print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
           print "Uncaught exception: #{$!}\n"
         end
-        if STDIN.tty? and !options.notstop
+        # FIXME: add status for whether we are interactive or not.
+        # if STDIN.tty? and !options.nostop
+        if !options.nostop
           print "The program has finished and will be restarted.\n"
         else
           break

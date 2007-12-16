@@ -6,7 +6,13 @@ require 'stringio'
 require 'rubygems'
 require 'optparse'
 require "ostruct"
-require 'ruby-debug'
+
+TOP_SRC_DIR = File.join(File.expand_path(File.dirname(__FILE__), "..")) unless 
+  defined?(TOP_SRC_DIR)
+
+$: << File.join(TOP_SRC_DIR, "ext")
+$: << File.join(TOP_SRC_DIR, "lib")
+$: << File.join(TOP_SRC_DIR, "cli")
 
 options = OpenStruct.new(
   'wait'        => false,
@@ -17,6 +23,8 @@ options = OpenStruct.new(
   'frame_bind'  => false,
   'verbose_long'=> false
 )
+
+require "ruby-debug"
 
 program = File.basename($0)
 opts = OptionParser.new do |opts|
