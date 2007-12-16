@@ -1265,6 +1265,7 @@ require "ruby-debug/debugger"
 * FrameCommands::            Examining the stack frame (where, up, down, frame)
 * Stopping::                 Stopping and continuing (break, watch, step, cont...)
 * ruby-debug settings::      rdebug-settings (set args, set autoeval, ...)
+* Program Information::      Program Status  (info)
 @end menu
 
 @node Command Syntax
@@ -2463,6 +2464,49 @@ We also change OS environment variable @code{COLUMNS}.
 Shows the current width setting.
 @end table
 
+@node Program Information
+@section Program Information (@samp{info})
+
+This @code{info} command (abbreviated @code{i}) is for describing the
+state of your program.  For example, you can list the current
+parameters with @code{info args}, or list the breakpoints you have set
+with @code{info breakpoints} or @code{info watchpoints}.  You can get
+a complete list of the @code{info} sub-commands with @w{@code{help
+info}}.
+
+@table @code
+@kindex info args
+@item info args
+method arguments of the current stack frame.
+@kindex info breakpoints
+@item info breakpoints
+Status of user-settable breakpoints
+@kindex info display
+@item info display
+All display expressions.
+@kindex info files
+@item info files
+Source files in the program.
+@kindex info line
+@item info line
+Line number and file name of current position in source.
+@kindex info program
+@item info locals
+Local variables of the current stack frame.
+@kindex info program
+@item info program
+Execution status of the program.
+@kindex info stack
+@item info stack
+Backtrace of the stack
+@kindex info threads
+@item info threads
+IDs of currently known threads
+@kindex info variables
+@item info variables
+Local and instance variables.
+@end table
+
 @node Post-Mortem Debugging
 @chapter Post-Mortem Debugging
 @cindex post-mortem debugging
@@ -2644,6 +2688,15 @@ Returns a binding of @var{n}-th call frame.
 @node GNU Emacs
 @chapter Using @code{ruby-debug} from GNU Emacs
 
+@menu
+* autoloaded functions::
+* Debugger Buffers:: 
+* Emacs with Annotate:: A richer debugging environment
+@ifset FINISHED
+* Debugger Commands::
+@end ifset
+@end menu
+
 @cindex @value{Emacs}
 A special interface which comes with Ruby that allows you to use
 @value{Emacs} to view (and edit) the source files for the program you
@@ -2656,11 +2709,27 @@ you are running.
 To use this interface, you to load @code{rdebug.el}. 
 
 @smallexample
-  (autoload 'rdebug-turn-on-debugger-support "rdebug" nil t)
-  (add-hook 'ruby-mode-hook 'rdebug-turn-on-debugger-support)
+  (require 'rdebug)
 @end smallexample 
 
-Once this is done, use the command @kbd{M-x rdebug} in @sc{gnu} Emacs.
+Once this is done, some commands become autoloaded. In particular
+@kbd{rdebug}, @kbd{rdebug-turn-on-debugger-support}, and
+@kbd{turn-on-rdebugtrack-mode}.
+
+@node autoloaded functions
+@section Autoloaded functions
+
+@menu
+* Emacs rdebug:: Invoke the ruby debugger initially
+@ifset FINISHED
+* Emacs rdebug-turn-rdebugtrack-mode::   track entering rdebug when entered in a shell
+@end ifset
+@end menu
+
+@node Emacs rdebug
+@subsection Emacs rdebug
+
+Use the command @kbd{M-x rdebug} in @sc{gnu} Emacs to start debugging.
 Give the executable file you want to debug as an argument. Make sure
 to use the version that comes with this package as this is newer than
 that supplied with @value{Emacs}.
@@ -2688,15 +2757,17 @@ with your script.  In particular, you can send signals the usual
 way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
 stop.
 
+@node Debugger Buffers
+@section Debugger Buffers
+
 @menu
 * Debugger Command Buffer:: 
 * Emacs Source::  Commands from the source script
 * Emacs Shell::   @value{DBG} from a @value{Emacs} Shell
-* Emacs with Annotate:: A richer debugging environment
 @end menu
 
 @node Debugger Command Buffer
-@section Emacs Debugger Command buffer
+@subsection Emacs Debugger Command buffer
 
 @itemize @bullet
 @item
@@ -2920,7 +2991,7 @@ to correspond properly with the code.
 Manual}.
 
 @node Emacs Source
-@section Commands from the source script
+@subsection Commands from the source script
 
 @table @kbd
 @item C-x SPC
@@ -3034,7 +3105,7 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 @end table
 
 @node Emacs Shell
-@section @value{DBG} from a @value{Emacs} Shell
+@subsection @value{DBG} from a @value{Emacs} Shell
 
 It is also possible in GNU emacs to use a (``comint'') shell
 and set a mode to watch for @value{DBG} prompts. @xref{Interactive
