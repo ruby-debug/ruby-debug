@@ -128,11 +128,11 @@ module Debugger
     # directory where you invoke ruby-debug.
     def run_init_script(out = handler.interface)
       cwd_script_file  = File.expand_path(File.join(".", INITFILE))
-      if File.exists?(cwd_script_file)
-        run_script(cwd_script_file, out)
-      else
-        home_script_file = File.expand_path(File.join(HOME_DIR, INITFILE))
-        run_script(home_script_file, out) if File.exists?(home_script_file)
+      run_script(cwd_script_file, out) if File.exists?(cwd_script_file)
+
+      home_script_file = File.expand_path(File.join(HOME_DIR, INITFILE))
+      run_script(home_script_file, out) if File.exists?(home_script_file) and 
+        cwd_script_file != home_script_file
       end
     end
 
