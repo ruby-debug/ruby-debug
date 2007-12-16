@@ -11,8 +11,18 @@ module Debugger
   # the port number used for remote debugging
   PORT = 8989 unless defined?(PORT)
 
-  # File we look for debugger startup commands.
-  INITFILE = ".rdebugrc"  unless defined?(INITFILE)
+  # What file is used for debugger startup commands.
+  unless defined?(INITFILE)
+    if RUBY_PLATFORM =~ /mswin/
+      # Of course MS Windows has to be different
+      INITFILE = 'rdebug.ini'
+      HOME_DIR =  (ENV['HOME'] || 
+                   ENV['HOMEDRIVE'].to_s + ENV['HOMEPATH'].to_s).to_s
+    else
+      INITFILE = '.rdebugrc'
+      HOME_DIR = ENV['HOME'].to_s
+    end
+  end
   
   class << self
     # in remote mode, wait for the remote connection 
@@ -117,13 +127,12 @@ module Debugger
     #  and another, specific to the program you are debugging, in the
     # directory where you invoke ruby-debug.
     def run_init_script(out = handler.interface)
-      script_file = "#{ENV["HOME"] || ENV["HOMEPATH"]}/#{INITFILE}"
-      home_script_file = File.expand_path(script_file)
-      cwd_script_file  = File.expand_path("./#{INITFILE}")
+      cwd_script_file  = File.expand_path(File.join(".", INITFILE))
       if File.exists?(cwd_script_file)
         run_script(cwd_script_file, out)
-      elsif File.exists?(home_script_file)
-        run_script(home_script_file, out)
+      else
+        home_script_file = File.expand_path(File.join(HOME_DIR, INITFILE))
+        run_script(home_script_file, out) if File.exists?(home_script_file)
       end
     end
 

@@ -1136,7 +1136,12 @@ the last command, as it would from the terminal.
 @cindex init file
 @cindex @file{.rdebugrc}
 When you start @value{DBG}, it automatically executes commands from its
-@dfn{init files}, normally called @file{.rdebugrc}
+@dfn{init files}, normally called @file{.rdebugrc}.
+
+On some configurations of @value{DBG}, the init file may be known by a
+different name. In particular on MS-Windows (but not cygwin)
+@file{rdebug.ini} is used.
+
 During startup, @DBG{} does the following:
 
 @enumerate
@@ -1853,7 +1858,17 @@ zero), followed by its caller (frame one), and on up the stack.
 @kindex w @r{(@code{where})}
 @itemx where
 Print a backtrace of the entire stack: one line per frame for all
-frames in the stack.
+frames in the stack; @code{info stack} is an alias for this command.
+Each frame is numbered and can be referred to in the @code{frame}
+command; @code{up} and @code{down} add or subtrack respectively to
+frame numbers shown.  The position of the current frame is marked with
+@code{-->}.
+
+@smallexample
+(rdb:1) where
+--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line /tmp/gcd.rb:6
+    #1 at line /tmp/gcd.rb:19
+@end smallexample
 
 @ifset FINISHED
 @item backtrace @var{n}
@@ -2477,7 +2492,7 @@ info}}.
 @table @code
 @kindex info args
 @item info args
-method arguments of the current stack frame.
+Method arguments of the current stack frame.
 @kindex info breakpoints
 @item info breakpoints
 Status of user-settable breakpoints
@@ -2490,15 +2505,16 @@ Source files in the program.
 @kindex info line
 @item info line
 Line number and file name of current position in source.
-@kindex info program
+@kindex info locals
 @item info locals
 Local variables of the current stack frame.
 @kindex info program
 @item info program
-Execution status of the program.
+Display information about the status of your program: whether it is
+running or not and why it stopped.
 @kindex info stack
 @item info stack
-Backtrace of the stack
+Backtrace of the stack. An alias for @code{where}. @xref{Backtrace}.
 @kindex info threads
 @item info threads
 IDs of currently known threads

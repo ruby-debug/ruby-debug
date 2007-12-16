@@ -1,4 +1,5 @@
 SUBDIRS = doc emacs
-PHONY = ChangeLog
+PHONY = ChangeLog test
+test: check
 ChangeLog:
 	svn2cl 

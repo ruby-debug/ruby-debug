@@ -10,7 +10,7 @@ module Debugger
        ['file', 1, "File names and timestamps of files read in"],
        ['global_variables', 2, "global variables"],
        ['instance_variables', 2, "instance variables"],
-       ['line', 2, "Current source position"],
+       ['line', 2, "Line number and file name of current position in source"],
        ['locals', 2, "Local variables of the current stack frame"],
        ['program', 2, "Execution status of the program"],
        ['stack', 2, "Backtrace of the stack"],

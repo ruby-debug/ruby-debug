@@ -18,7 +18,7 @@ info display -- Expressions to display when program stops
 info file -- File names and timestamps of files read in
 info global_variables -- global variables
 info instance_variables -- instance variables
-info line -- Current source position
+info line -- Line number and file name of current position in source
 info locals -- Local variables of the current stack frame
 info program -- Execution status of the program
 info stack -- Backtrace of the stack
