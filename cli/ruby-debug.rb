@@ -133,7 +133,6 @@ module Debugger
       home_script_file = File.expand_path(File.join(HOME_DIR, INITFILE))
       run_script(home_script_file, out) if File.exists?(home_script_file) and 
         cwd_script_file != home_script_file
-      end
     end
 
     #
