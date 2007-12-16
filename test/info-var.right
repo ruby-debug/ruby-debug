@@ -1,0 +1,21 @@
+info-var-bug.rb:1
+class Mine
+# # ***************************************************
+# # Test handling of info variables when we have 
+# # redefined inspect or to_s which give an error.
+# # ***************************************************
+# set debuggertesting on
+Currently testing the debugger is on.
+# continue 24
+info-var-bug.rb:24
+y = 5
+# info variables
+x = #<Mine:0xb7786e98>
+y = nil
+# continue 28
+info-var-bug.rb:28
+y = 5
+# info variables
+x = *Error in evaluation*
+y = nil
+# quit

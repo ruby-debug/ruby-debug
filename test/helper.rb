@@ -5,6 +5,8 @@ require "fileutils"
 # require "diff/lcs/hunk"
 
 module TestHelper
+  ## FIXME fix up so we can customize cheap_diff.
+  
   def run_debugger(testname, args='', outfile=nil)
     rightfile = File.join(SRC_DIR, "#{testname}.right")
     

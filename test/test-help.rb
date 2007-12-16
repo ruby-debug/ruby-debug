@@ -1,8 +1,13 @@
 #!/usr/bin/env ruby
+
+# require "rubygems"
+# require "ruby-debug" ; Debugger.start
+
 require "test/unit"
-SRC_DIR = File.expand_path(File.dirname(__FILE__)) unless defined?(SRC_DIR)
+SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless 
+  defined?(SRC_DIR)
 %w(ext lib cli).each do |dir|
-  $: <<  SRC_DIR + "/../#{dir}"
+  $: <<  File.join(SRC_DIR, "..", dir)
 end
 require "ruby_debug"
 require SRC_DIR + "/../cli/ruby-debug.rb"
@@ -28,11 +33,11 @@ class TestCmd < Test::Unit::TestCase
   def test_basic
     testbase = 'help'
     op = StringIO.new("", "w")
-    script = File.join(SRC_DIR, "/#{testbase}.cmd")
+    script = File.join(SRC_DIR, "#{testbase}.cmd")
     Debugger.const_set('Version', "unit testing")
     Debugger.run_script(script, op)
     got_lines = op.string.split("\n")
-    right_file = File.join(SRC_DIR, "/#{testbase}.right")
+    right_file = File.join(SRC_DIR, "#{testbase}.right")
     correct_lines = File.readlines(right_file)
     assert cheap_diff(got_lines, correct_lines)
   end

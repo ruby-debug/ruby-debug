@@ -160,6 +160,7 @@ module Debugger
       obj = debug_eval('self')
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|
+        next if name =~ /^__dbg_/ # skip debugger pollution
         begin
           s = "#{name} = #{locals[name].inspect}"
         rescue

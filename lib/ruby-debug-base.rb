@@ -81,7 +81,7 @@ module Debugger
             SCRIPT_LINES__[file] = File.readlines(file)
           end
 
-          change_time = test(?M, file)
+          change_time = File.stat(file).mtime
           SCRIPT_TIMESTAMPS__[file] ||= change_time
           if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
             SCRIPT_LINES__[file] = File.readlines(file)

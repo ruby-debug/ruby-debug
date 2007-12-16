@@ -6,7 +6,8 @@ require "fileutils"
 # require "ruby-debug"
 # Debugger.start
 
-SRC_DIR = File.expand_path(File.dirname(__FILE__)) unless defined?(SRC_DIR)
+SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless 
+  defined?(SRC_DIR)
 
 require File.join(SRC_DIR, "helper.rb")
 
