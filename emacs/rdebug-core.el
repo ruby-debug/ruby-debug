@@ -538,149 +538,71 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
 
 ;; -- The debugger
 
-;;;###autoload
-(defun rdebug (command-line)
-  "Run the rdebug Ruby debugger and start the Emacs user interface.
-
-By default, the user interface looks like the following:
-
-+----------------------------------------------------------------------+
-|                                Toolbar                               |
-+-----------------------------------+----------------------------------+
-| Debugger shell                    | Variables buffer                 |
-|                                   | RET rdebug-variables-edit        |
-|                                   |                                  |
-|                                   |                                  |
-+-----------------------------------+----------------------------------+
-|                                   |                                  |
-| Source buffer                     | Output buffer                    |
-|                                   |                                  |
-+-----------------------------------+----------------------------------+
-| Stack buffer                      | Breakpoints buffer               |
-| RET rdebug-goto-stack-frame       | t    rdebug-toggle-breakpoint    |
-|                                   | RET  rdebug-goto-breakpoint      |
-|                                   | DEL  rdebug-delete-breakpoint    |
-+-----------------------------------+----------------------------------+
-
-The variable `rdebug-window-layout-function' can be
-customized so that another layout is used. In addition to a
-number of predefined layouts it's possible to define a function
-to perform a custom layout.
-
-If `rdebug-many-windows' is nil, only a traditional debugger
-shell and source window is opened.
-
-The directory containing the debugged script becomes the initial
-working directory and source-file directory for your debugger.
-
-The custom variable `gud-rdebug-command-name' sets the command
-and options used to invoke rdebug."
-  (interactive
-   (list (gud-query-cmdline 'rdebug)))
-
-  (rdebug-debug-enter "rdebug"
-    (rdebug-set-window-configuration-state 'debugger t)
-    ;; Parse the command line and pick out the script name and whether
-    ;; --annotate has been set.
-    (let* ((words (split-string-and-unquote command-line))
-           (script-name-annotate-p (rdebug-get-script-name
-                                    (gud-rdebug-massage-args "1" words) nil))
-           (target-name (file-name-nondirectory (car script-name-annotate-p)))
-           (annotate-p (cadr script-name-annotate-p))
-           (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
-           (rdebug-buffer (get-buffer rdebug-buffer-name))
-           )
-
-      ;; `gud-rdebug-massage-args' needs whole `command-line'.
-      ;; command-line is refered through dyanmic scope.
-      (gud-common-init command-line 'gud-rdebug-massage-args
-                       'gud-rdebug-marker-filter 'gud-rdebug-find-file)
-
-      ;; gud-common-init sets the rdebug process buffer name
-      ;; incorrectly, because it can't parse the command line properly
-      ;; to pick out the script name. So we'll do it here and rename
-      ;; that buffer. The buffer we want to rename happens to be the
-      ;; current buffer.
-      (setq gud-target-name target-name)
-      (when rdebug-buffer (kill-buffer rdebug-buffer))
-      (rename-buffer rdebug-buffer-name)
-
-      ;; Setup exit callback so that the original frame configuration
-      ;; can be restored.
-      (let ((process (get-buffer-process gud-comint-buffer)))
-        (if process
-	    (gud-call (format "set width %d" rdebug-line-width))
-            (set-process-sentinel process
-                                  'rdebug-process-sentinel)))
-
-      ;; This opens up "Gud" menu, which isn't used since we've got our
-      ;; own "Debugger" menu.
-
-      ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
-
-      (gud-def gud-args   "info args" "a"
-               "Show arguments of current stack.")
-      (gud-def gud-break  "break %d%f:%l""\C-b"
-               "Set breakpoint at current line.")
-      (gud-def gud-cont   "continue"   "\C-r"
-               "Continue with display.")
-      (gud-def gud-down   "down %p"     ">"
-               "Down N stack frames (numeric arg).")
-      (gud-def gud-finish "finish"      "\C-f"
-               "Finish executing current function.")
-      (gud-def gud-next   "next %p"     "\C-n"
-               "Step one line (skip functions).")
-      (gud-def gud-print  "p %e"        "\C-p"
-               "Evaluate Ruby expression at point.")
-      (gud-def gud-source-resync "up 0" "\C-l"
-               "Show current source window")
-      (gud-def gud-remove "clear %d%f:%l" "\C-d"
-               "Remove breakpoint at current line")
-      (gud-def gud-quit    "quit"       "Q"
-               "Quit debugger.")
-      (gud-def gud-run    "restart"       "R"
-               "Restart the Ruby script.")
-      (gud-def gud-statement "eval %e" "\C-e"
-               "Execute Ruby statement at point.")
-      (gud-def gud-step   "step %p"       "\C-s"
-               "Step one source line with display.")
-      (gud-def gud-step-plus "step+ %p"       "+"
-               "Step one source line with display.")
-      (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
-               "Set temporary breakpoint at current line.")
-      (gud-def gud-up     "up %p"
-               "<" "Up N stack frames (numeric arg).")
-      (gud-def gud-where   "where"
-               "T" "Show stack trace.")
-      (local-set-key "\C-i" 'gud-gdb-complete-command)
-
-      ;; Add the buffer-displaying commands to the Gud buffer,
-      ;; accessible using the C-c prefix.
-      (rdebug-populate-secondary-buffer-map
-       (lookup-key (current-local-map) "\C-c")
-       t)
-
-      (rdebug-populate-common-keys (current-local-map))
-      (rdebug-populate-debugger-menu (current-local-map))
-
-      (setq comint-prompt-regexp "^(rdb:-) ")
-      (setq paragraph-start comint-prompt-regexp)
-
-      (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
-              rdebug-debugger-support-minor-mode-map-when-active)
-      (when rdebug-many-windows (rdebug-setup-windows-initially))
-
-      (run-hooks 'rdebug-mode-hook))))
-
-
-(defun rdebug-quit ()
-  "Kill current debugger process.
-
-When `rdebug-many-windows' is active, restores the original
-window layout."
+(defun rdebug-goto-line-1 ()
+  "go to line number 1. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
   (interactive)
-  (if (yes-or-no-p "Really quit? ")
-      (gud-call "quit unconditionally")))
+  (goto-line 1))
+
+(defun rdebug-goto-line-2 ()
+  "go to line number 2. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 2))
+
+(defun rdebug-goto-line-3 ()
+  "go to line number 3. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 3))
+
+(defun rdebug-goto-line-4 ()
+  "go to line number 4. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 4))
+
+(defun rdebug-goto-line-5 ()
+  "go to line number 5. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 5))
+
+(defun rdebug-goto-line-6 ()
+  "go to line number 6. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 6))
+
+(defun rdebug-goto-line-7 ()
+  "go to line number 7. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 7))
+
+(defun rdebug-goto-line-8 ()
+  "go to line number 8. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 8))
+
+(defun rdebug-goto-line-9 ()
+  "go to line number 9. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 9))
+
+(defun rdebug-goto-line-10 ()
+  "go to line number 10. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 10))
+
+(defun rdebug-goto-line-11 ()
+  "go to line number 11. 
+Used internally as a convenience go to this line of a stack or breakpoint buffer"
+  (interactive)
+  (goto-line 10))
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -1087,35 +1009,6 @@ window layout is used."
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 
-(defun rdebug-process-sentinel (process event)
-  "Restore the original window configuration when the debugger process exits."
-  (rdebug-debug-enter "rdebug-process-sentinel"
-    (rdebug-debug-message "status=%S event=%S state=%S"
-                          (process-status process)
-                          event
-                          rdebug-window-configuration-state)
-    (gud-sentinel process event)
-    ;; This will "flush" the last annotation. Especially "output"
-    ;; (a.k.a. "starting") annotations don't have an end markers, if
-    ;; the last command printed something.
-    (if (string= event "finished\n")
-        (gud-rdebug-marker-filter "\032\032\n"))
-    ;; When the debugger process exited, when the comint buffer has no
-    ;; buffer process (nil). When the debugger processes is replaced
-    ;; with another process we should not restore the window
-    ;; configuration.
-    (when (and (or (eq rdebug-restore-original-window-configuration t)
-                   (and (eq rdebug-restore-original-window-configuration :many)
-                        rdebug-many-windows))
-               (or (null (get-buffer-process gud-comint-buffer))
-                   (eq process (get-buffer-process gud-comint-buffer)))
-               (eq rdebug-window-configuration-state 'debugger)
-               (not (eq (process-status process) 'run)))
-      (rdebug-set-window-configuration-state 'original))
-    ;; This unbinds the special debugger keys of the source buffers.
-    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
-            rdebug-debugger-support-minor-mode-map-when-deactive)))
-
 ;; Fontification and keymaps for secondary buffers (breakpoints, stack)
 
 ;; -- General, for all secondary buffers.
@@ -1366,6 +1259,17 @@ If the buffer doesn't exist, do nothing."
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
     (define-key map "t" 'rdebug-toggle-breakpoint)
+    ; Numbers are adjusted to offset the header line.
+    (define-key map "1" 'rdebug-goto-line-2)
+    (define-key map "2" 'rdebug-goto-line-3)
+    (define-key map "3" 'rdebug-goto-line-4)
+    (define-key map "4" 'rdebug-goto-line-5)
+    (define-key map "5" 'rdebug-goto-line-6)
+    (define-key map "6" 'rdebug-goto-line-7)
+    (define-key map "7" 'rdebug-goto-line-8)
+    (define-key map "8" 'rdebug-goto-line-9)
+    (define-key map "9" 'rdebug-goto-line-10)
+    (define-key map "0" 'rdebug-goto-line-11)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     (rdebug-populate-secondary-buffer-map map)
@@ -1554,6 +1458,19 @@ If the buffer doesn't exist, do nothing."
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-stack-frame)
+
+    ; Numbers are adjusted to offset the header line.
+    (define-key map "0" 'rdebug-goto-line-1)
+    (define-key map "1" 'rdebug-goto-line-2)
+    (define-key map "2" 'rdebug-goto-line-3)
+    (define-key map "3" 'rdebug-goto-line-4)
+    (define-key map "4" 'rdebug-goto-line-5)
+    (define-key map "5" 'rdebug-goto-line-6)
+    (define-key map "6" 'rdebug-goto-line-7)
+    (define-key map "7" 'rdebug-goto-line-8)
+    (define-key map "8" 'rdebug-goto-line-9)
+    (define-key map "9" 'rdebug-goto-line-10)
+
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
@@ -1930,6 +1847,35 @@ Press `C-h m' for more help, when the individual buffers are visible.
  ? - This help text.
 "))))
 
+(defun rdebug-process-sentinel (process event)
+  "Restore the original window configuration when the debugger process exits."
+  (rdebug-debug-enter "rdebug-process-sentinel"
+    (rdebug-debug-message "status=%S event=%S state=%S"
+                          (process-status process)
+                          event
+                          rdebug-window-configuration-state)
+    (gud-sentinel process event)
+    ;; This will "flush" the last annotation. Especially "output"
+    ;; (a.k.a. "starting") annotations don't have an end markers, if
+    ;; the last command printed something.
+    (if (string= event "finished\n")
+        (gud-rdebug-marker-filter "\032\032\n"))
+    ;; When the debugger process exited, when the comint buffer has no
+    ;; buffer process (nil). When the debugger processes is replaced
+    ;; with another process we should not restore the window
+    ;; configuration.
+    (when (and (or (eq rdebug-restore-original-window-configuration t)
+                   (and (eq rdebug-restore-original-window-configuration :many)
+                        rdebug-many-windows))
+               (or (null (get-buffer-process gud-comint-buffer))
+                   (eq process (get-buffer-process gud-comint-buffer)))
+               (eq rdebug-window-configuration-state 'debugger)
+               (not (eq (process-status process) 'run)))
+      (rdebug-set-window-configuration-state 'original))
+    ;; This unbinds the special debugger keys of the source buffers.
+    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+            rdebug-debugger-support-minor-mode-map-when-deactive)))
+
 ;; -- Reset support
 
 (defadvice gud-reset (before rdebug-reset)
@@ -1942,6 +1888,144 @@ etc.)."
           (delete-window w)))
       (kill-buffer buffer))))
 (ad-activate 'gud-reset)
+
+;;;###autoload
+(defun rdebug (command-line)
+  "Run the rdebug Ruby debugger and start the Emacs user interface.
+
+By default, the \"standard\" user window layout looks like the following:
+
++----------------------------------------------------------------------+
+|                                Toolbar                               |
++-----------------------------------+----------------------------------+
+| Debugger shell                    | Variables buffer                 |
++-----------------------------------+----------------------------------+
+|                                   |                                  |
+| Source buffer                     | Output buffer                    |
+|                                   |                                  |
++-----------------------------------+----------------------------------+
+| Stack buffer                      | Breakpoints buffer               |
++-----------------------------------+----------------------------------+
+
+The variable `rdebug-window-layout-function' can be
+customized so that another layout is used. In addition to a
+number of predefined layouts it's possible to define a function
+to perform a custom layout.
+
+If `rdebug-many-windows' is nil, only a traditional debugger
+shell and source window is opened.
+
+The directory containing the debugged script becomes the initial
+working directory and source-file directory for your debugger.
+
+The custom variable `gud-rdebug-command-name' sets the command
+and options used to invoke rdebug."
+  (interactive
+   (list (gud-query-cmdline 'rdebug)))
+
+  (rdebug-debug-enter "rdebug"
+    (rdebug-set-window-configuration-state 'debugger t)
+    ;; Parse the command line and pick out the script name and whether
+    ;; --annotate has been set.
+    (let* ((words (split-string-and-unquote command-line))
+           (script-name-annotate-p (rdebug-get-script-name
+                                    (gud-rdebug-massage-args "1" words) nil))
+           (target-name (file-name-nondirectory (car script-name-annotate-p)))
+           (annotate-p (cadr script-name-annotate-p))
+           (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
+           (rdebug-buffer (get-buffer rdebug-buffer-name))
+           )
+
+      ;; `gud-rdebug-massage-args' needs whole `command-line'.
+      ;; command-line is refered through dyanmic scope.
+      (gud-common-init command-line 'gud-rdebug-massage-args
+                       'gud-rdebug-marker-filter 'gud-rdebug-find-file)
+
+      ;; gud-common-init sets the rdebug process buffer name
+      ;; incorrectly, because it can't parse the command line properly
+      ;; to pick out the script name. So we'll do it here and rename
+      ;; that buffer. The buffer we want to rename happens to be the
+      ;; current buffer.
+      (setq gud-target-name target-name)
+      (when rdebug-buffer (kill-buffer rdebug-buffer))
+      (rename-buffer rdebug-buffer-name)
+
+      ;; Setup exit callback so that the original frame configuration
+      ;; can be restored.
+      (let ((process (get-buffer-process gud-comint-buffer)))
+        (if process
+	    (gud-call (format "set width %d" rdebug-line-width))
+            (set-process-sentinel process
+                                  'rdebug-process-sentinel)))
+
+      ;; This opens up "Gud" menu, which isn't used since we've got our
+      ;; own "Debugger" menu.
+
+      ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
+
+      (gud-def gud-args   "info args" "a"
+               "Show arguments of current stack.")
+      (gud-def gud-break  "break %d%f:%l""\C-b"
+               "Set breakpoint at current line.")
+      (gud-def gud-cont   "continue"   "\C-r"
+               "Continue with display.")
+      (gud-def gud-down   "down %p"     ">"
+               "Down N stack frames (numeric arg).")
+      (gud-def gud-finish "finish"      "\C-f"
+               "Finish executing current function.")
+      (gud-def gud-next   "next %p"     "\C-n"
+               "Step one line (skip functions).")
+      (gud-def gud-print  "p %e"        "\C-p"
+               "Evaluate Ruby expression at point.")
+      (gud-def gud-source-resync "up 0" "\C-l"
+               "Show current source window")
+      (gud-def gud-remove "clear %d%f:%l" "\C-d"
+               "Remove breakpoint at current line")
+      (gud-def gud-quit    "quit"       "Q"
+               "Quit debugger.")
+      (gud-def gud-run    "restart"       "R"
+               "Restart the Ruby script.")
+      (gud-def gud-statement "eval %e" "\C-e"
+               "Execute Ruby statement at point.")
+      (gud-def gud-step   "step %p"       "\C-s"
+               "Step one source line with display.")
+      (gud-def gud-step-plus "step+ %p"       "+"
+               "Step one source line with display.")
+      (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
+               "Set temporary breakpoint at current line.")
+      (gud-def gud-up     "up %p"
+               "<" "Up N stack frames (numeric arg).")
+      (gud-def gud-where   "where"
+               "T" "Show stack trace.")
+      (local-set-key "\C-i" 'gud-gdb-complete-command)
+
+      ;; Add the buffer-displaying commands to the Gud buffer,
+      ;; accessible using the C-c prefix.
+      (rdebug-populate-secondary-buffer-map
+       (lookup-key (current-local-map) "\C-c")
+       t)
+
+      (rdebug-populate-common-keys (current-local-map))
+      (rdebug-populate-debugger-menu (current-local-map))
+
+      (setq comint-prompt-regexp "^(rdb:-) ")
+      (setq paragraph-start comint-prompt-regexp)
+
+      (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+              rdebug-debugger-support-minor-mode-map-when-active)
+      (when rdebug-many-windows (rdebug-setup-windows-initially))
+
+      (run-hooks 'rdebug-mode-hook))))
+
+
+(defun rdebug-quit ()
+  "Kill current debugger process.
+
+When `rdebug-many-windows' is active, restores the original
+window layout."
+  (interactive)
+  (if (yes-or-no-p "Really quit? ")
+      (gud-call "quit unconditionally")))
 
 
 (provide 'rdebug-core)

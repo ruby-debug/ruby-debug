@@ -36,24 +36,18 @@
 (autoload 'rdebug "rdebug-core"
   "Run the rdebug Ruby debugger and start the Emacs user interface.
 
-By default, the user interface looks like the following:
+By default, the \"standard\" user window layout looks like the following:
 
 +----------------------------------------------------------------------+
 |                                Toolbar                               |
 +-----------------------------------+----------------------------------+
 | Debugger shell                    | Variables buffer                 |
-|                                   | RET rdebug-variables-edit        |
-|                                   |                                  |
-|                                   |                                  |
 +-----------------------------------+----------------------------------+
 |                                   |                                  |
 | Source buffer                     | Output buffer                    |
 |                                   |                                  |
 +-----------------------------------+----------------------------------+
 | Stack buffer                      | Breakpoints buffer               |
-| RET rdebug-goto-stack-frame       | t    rdebug-toggle-breakpoint    |
-|                                   | RET  rdebug-goto-breakpoint      |
-|                                   | DEL  rdebug-delete-breakpoint    |
 +-----------------------------------+----------------------------------+
 
 The variable `rdebug-many-windows-layout-function' can be
