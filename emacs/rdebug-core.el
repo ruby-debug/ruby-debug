@@ -206,7 +206,7 @@ as gud-mode does for debugging C programs with gdb."
   "History of argument lists passed to rdebug.")
 
 (defconst gud-rdebug-marker-regexp
-  "^\\([^:\n]*\\):\\([0-9]*\\).*\n"
+  "^\\(\\(?:[a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\).*\n"
   "Regular expression used to find a file location given by rdebug.
 
 Program-location lines look like this:
@@ -660,8 +660,8 @@ and options used to invoke rdebug."
        (lookup-key (current-local-map) "\C-c")
        t)
 
-      (rdebug-populate-debugger-menu (current-local-map))
       (rdebug-populate-common-keys (current-local-map))
+      (rdebug-populate-debugger-menu (current-local-map))
 
       (setq comint-prompt-regexp "^(rdb:-) ")
       (setq paragraph-start comint-prompt-regexp)
@@ -1120,6 +1120,22 @@ window layout is used."
 
 ;; -- General, for all secondary buffers.
 
+
+(defun rdebug-menu-item (common-map name cmd &rest args)
+  "Return a menu item entry with the correct key bindings.
+
+A command can be bound to a number of different key sequences. If
+the rdebug common map contains a binding it is displayed in the
+menu. (The common map typically contains function key bindings.)"
+  (let ((key-binding-list (where-is-internal cmd (list common-map)))
+        (hint '()))
+    (if key-binding-list
+        (setq hint (list :key-sequence (car key-binding-list))))
+    (append (list 'menu-item name cmd)
+            hint
+            args)))
+
+
 ;; Note, we re-populate the menus of the different minor and major
 ;; modes. The reason is that Emacs caches the key bindings, which
 ;; means that wrong ones are shown when buffers are changed.
@@ -1128,20 +1144,25 @@ window layout is used."
 
 (defun rdebug-populate-debugger-menu (map)
   "Populate the Rdebug 'Debugger' menu."
-  (let ((menu (make-sparse-keymap)))
+  (let ((menu (make-sparse-keymap))
+        (common-map (make-sparse-keymap)))
+    ;; Use a simple common map to find the best key sequence to display in menu.
+    (rdebug-populate-common-keys common-map)
+
     (define-key map [menu-bar debugger] (cons "Debugger" menu))
 
     (define-key menu [break-delete]
-      '(menu-item "Delete breakpoint" gud-remove))
+      (rdebug-menu-item common-map "Delete breakpoint" 'gud-remove))
 
     (define-key menu [break]
-      '(menu-item "Set breakpoint" gud-break))
+      (rdebug-menu-item common-map "Set breakpoint" 'gud-break))
 
-    (define-key menu [finish] '(menu-item "Step out" gud-finish))
-    (define-key menu [step] '(menu-item "Step into" gud-step))
-    (define-key menu [next] '(menu-item "Step over" gud-next))
-    (define-key menu [cont] '(menu-item "Continue" gud-cont))
-    (define-key menu [start] '(menu-item "Start the debugger" rdebug))
+    (define-key menu [finish] (rdebug-menu-item common-map "Step out" 'gud-finish))
+    (define-key menu [step]   (rdebug-menu-item common-map "Step into" 'gud-step))
+    (define-key menu [next]   (rdebug-menu-item common-map "Step over" 'gud-next))
+    (define-key menu [cont]   (rdebug-menu-item common-map "Continue" 'gud-cont))
+    (define-key menu [start]
+      (rdebug-menu-item common-map "Start the debugger" 'rdebug))
 
     (define-key menu [placeholder] nil)
 
@@ -1151,23 +1172,24 @@ window layout is used."
       (define-key menu [layout] (cons "Window Layout" submenu)))
 
     (define-key map [menu-bar debugger layout initial]
-      '(menu-item "Initial Debugger Layout" rdebug-restore-windows))
+      (rdebug-menu-item common-map
+                        "Initial Debugger Layout" 'rdebug-restore-windows))
 
     (define-key map [menu-bar debugger layout line1] '(menu-item "--"))
 
     (define-key map [menu-bar debugger layout debugger]
-      '(menu-item "Current Debugger Layout"
-                  rdebug-display-debugger-window-configuration
-                  :button
-                  (:radio
-                   . (eq rdebug-window-configuration-state 'debugger))))
+      (rdebug-menu-item common-map "Current Debugger Layout"
+                        'rdebug-display-debugger-window-configuration
+                        :button
+                        '(:radio
+                          . (eq rdebug-window-configuration-state 'debugger))))
 
     (define-key map [menu-bar debugger layout original]
-      '(menu-item "Original Layout"
-                  rdebug-display-original-window-configuration
-                  :button
-                  (:radio
-                   . (eq rdebug-window-configuration-state 'original))))
+      (rdebug-menu-item common-map "Original Layout"
+                        'rdebug-display-original-window-configuration
+                        :button
+                        '(:radio
+                          . (eq rdebug-window-configuration-state 'original))))
 
     ;; --------------------
     ;; The "View" submeny.
@@ -1175,22 +1197,23 @@ window layout is used."
       (define-key menu [view] (cons "View" submenu)))
 
     (define-key map [menu-bar debugger view output]
-      '(menu-item "Output" rdebug-display-output-buffer))
+      (rdebug-menu-item common-map "Output" 'rdebug-display-output-buffer))
 
     (define-key map [menu-bar debugger view watch]
-      '(menu-item "Watch" rdebug-display-watch-buffer))
+      (rdebug-menu-item common-map "Watch" 'rdebug-display-watch-buffer))
 
     (define-key map [menu-bar debugger view stack]
-      '(menu-item "Stack trace" rdebug-display-stack-buffer))
+      (rdebug-menu-item common-map "Stack trace" 'rdebug-display-stack-buffer))
 
     (define-key map [menu-bar debugger view shell]
-      '(menu-item "Debugger Shell" rdebug-display-cmd-buffer))
+      (rdebug-menu-item common-map "Debugger Shell" 'rdebug-display-cmd-buffer))
 
     (define-key map [menu-bar debugger view variables]
-      '(menu-item "Variables" rdebug-display-variables-buffer))
+      (rdebug-menu-item common-map "Variables" 'rdebug-display-variables-buffer))
 
     (define-key map [menu-bar debugger view breakpoints]
-      '(menu-item "Breakpoints" rdebug-display-breakpoints-buffer))
+      (rdebug-menu-item common-map
+                        "Breakpoints" 'rdebug-display-breakpoints-buffer))
     menu))
 
 
@@ -1927,4 +1950,4 @@ etc.)."
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
 
-;;; rdebug-code.el ends here
+;;; rdebug-core.el ends here
