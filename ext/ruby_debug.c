@@ -2211,7 +2211,7 @@ context_stack_size(VALUE self)
 
 /*
  *   call-seq:
- *      context.thread -> thrread
+ *      context.thread -> thread
  *
  *   Returns a thread this context is associated with.
  */
