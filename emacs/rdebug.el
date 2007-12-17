@@ -33,6 +33,11 @@
 
 ;;; Code:
 
+(if (< emacs-major-version 22)
+    (error
+     "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
+     emacs-major-version))
+
 (autoload 'rdebug "rdebug-core"
   "Run the rdebug Ruby debugger and start the Emacs user interface.
 

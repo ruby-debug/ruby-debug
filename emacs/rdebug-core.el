@@ -33,7 +33,7 @@
 ;;  * Window layout with dedicated windows for:
 ;;      + Local and member variables
 ;;      + Stack trace
-;;      + Watch expressions
+;;      + Display expressions
 ;;      + Breakpoints
 ;;      + Output
 ;;      + Debugger Shell
@@ -538,69 +538,69 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
 
 ;; -- The debugger
 
-(defun rdebug-goto-line-1 ()
-  "go to line number 1. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-1 ()
+  "Go to entry number 1. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 1))
 
-(defun rdebug-goto-line-2 ()
-  "go to line number 2. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-2 ()
+  "Go to entry number 2. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 2))
 
-(defun rdebug-goto-line-3 ()
-  "go to line number 3. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-3 ()
+  "Go to entry number 3. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 3))
 
-(defun rdebug-goto-line-4 ()
-  "go to line number 4. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-4 ()
+  "Go to entry number 4. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 4))
 
-(defun rdebug-goto-line-5 ()
-  "go to line number 5. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-5 ()
+  "Go to entry number 5. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 5))
 
-(defun rdebug-goto-line-6 ()
-  "go to line number 6. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-6 ()
+  "Go to entry number 6. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 6))
 
-(defun rdebug-goto-line-7 ()
-  "go to line number 7. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-7 ()
+  "Go to entry number 7. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 7))
 
-(defun rdebug-goto-line-8 ()
-  "go to line number 8. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-8 ()
+  "Go to entry number 8. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 8))
 
-(defun rdebug-goto-line-9 ()
-  "go to line number 9. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-9 ()
+  "Go to entry number 9. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 9))
 
-(defun rdebug-goto-line-10 ()
-  "go to line number 10. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-10 ()
+  "Go to entry number 10. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 10))
 
-(defun rdebug-goto-line-11 ()
-  "go to line number 11. 
-Used internally as a convenience go to this line of a stack or breakpoint buffer"
+(defun rdebug-goto-entry-11 ()
+  "Go to entry number 11. 
+Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
   (interactive)
   (goto-line 10))
 
@@ -1255,24 +1255,28 @@ If the buffer doesn't exist, do nothing."
 ;; -- breakpoints
 
 (defvar rdebug-breakpoints-mode-map
-  (let ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap))
+	(rdebug-common-map (make-sparse-keymap)))
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
     (define-key map "t" 'rdebug-toggle-breakpoint)
     ; Numbers are adjusted to offset the header line.
-    (define-key map "1" 'rdebug-goto-line-2)
-    (define-key map "2" 'rdebug-goto-line-3)
-    (define-key map "3" 'rdebug-goto-line-4)
-    (define-key map "4" 'rdebug-goto-line-5)
-    (define-key map "5" 'rdebug-goto-line-6)
-    (define-key map "6" 'rdebug-goto-line-7)
-    (define-key map "7" 'rdebug-goto-line-8)
-    (define-key map "8" 'rdebug-goto-line-9)
-    (define-key map "9" 'rdebug-goto-line-10)
-    (define-key map "0" 'rdebug-goto-line-11)
+    (define-key map "1" 'rdebug-goto-entry-2)
+    (define-key map "2" 'rdebug-goto-entry-3)
+    (define-key map "3" 'rdebug-goto-entry-4)
+    (define-key map "4" 'rdebug-goto-entry-5)
+    (define-key map "5" 'rdebug-goto-entry-6)
+    (define-key map "6" 'rdebug-goto-entry-7)
+    (define-key map "7" 'rdebug-goto-entry-8)
+    (define-key map "8" 'rdebug-goto-entry-9)
+    (define-key map "9" 'rdebug-goto-entry-10)
+    (define-key map "0" 'rdebug-goto-entry-11)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     (rdebug-populate-secondary-buffer-map map)
+
+    (define-key map "\C-x\C-a" rdebug-common-map)
+    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Breakpoints window" submeny.
@@ -1453,25 +1457,29 @@ If the buffer doesn't exist, do nothing."
 ;; -- stack
 
 (defvar rdebug-frames-mode-map
-  (let ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap))
+	(rdebug-common-map (make-sparse-keymap)))
     (define-key map [mouse-1] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-stack-frame)
 
     ; Numbers are adjusted to offset the header line.
-    (define-key map "0" 'rdebug-goto-line-1)
-    (define-key map "1" 'rdebug-goto-line-2)
-    (define-key map "2" 'rdebug-goto-line-3)
-    (define-key map "3" 'rdebug-goto-line-4)
-    (define-key map "4" 'rdebug-goto-line-5)
-    (define-key map "5" 'rdebug-goto-line-6)
-    (define-key map "6" 'rdebug-goto-line-7)
-    (define-key map "7" 'rdebug-goto-line-8)
-    (define-key map "8" 'rdebug-goto-line-9)
-    (define-key map "9" 'rdebug-goto-line-10)
+    (define-key map "0" 'rdebug-goto-entry-1)
+    (define-key map "1" 'rdebug-goto-entry-2)
+    (define-key map "2" 'rdebug-goto-entry-3)
+    (define-key map "3" 'rdebug-goto-entry-4)
+    (define-key map "4" 'rdebug-goto-entry-5)
+    (define-key map "5" 'rdebug-goto-entry-6)
+    (define-key map "6" 'rdebug-goto-entry-7)
+    (define-key map "7" 'rdebug-goto-entry-8)
+    (define-key map "8" 'rdebug-goto-entry-9)
+    (define-key map "9" 'rdebug-goto-entry-10)
 
     (rdebug-populate-secondary-buffer-map map)
+
+    (define-key map "\C-x\C-a" rdebug-common-map)
+    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Stack window" submeny.
@@ -1598,13 +1606,17 @@ If the buffer doesn't exist, do nothing."
 ;; -- variables
 
 (defvar rdebug-variables-mode-map
-  (let ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap))
+	(rdebug-common-map (make-sparse-keymap)))
     (suppress-keymap map)
     (define-key map "\r" 'rdebug-variables-edit)
     (define-key map "e" 'rdebug-edit-variables-value)
     (define-key map [mouse-2] 'rdebug-variables-edit-mouse)
     (define-key map [mouse-3] 'rdebug-variables-edit-mouse)
     (rdebug-populate-secondary-buffer-map map)
+
+    (define-key map "\C-x\C-a" rdebug-common-map)
+    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Variables window" submeny.
@@ -1678,14 +1690,30 @@ This function is intended to be bound to a mouse key"
 ;; -- watch (the "display" annotation)
 
 (defvar rdebug-watch-mode-map
-  (let ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap))
+	(rdebug-common-map (make-sparse-keymap)))
     (suppress-keymap map)
     (define-key map "a" 'rdebug-watch-add)
     (define-key map "\C-d" 'rdebug-watch-delete)
     (define-key map "d" 'rdebug-watch-delete)
     (define-key map "e" 'rdebug-watch-edit)
     (define-key map "\r" 'rdebug-watch-edit)
+
+    (define-key map "1" 'rdebug-goto-entry-1)
+    (define-key map "2" 'rdebug-goto-entry-2)
+    (define-key map "3" 'rdebug-goto-entry-3)
+    (define-key map "4" 'rdebug-goto-entry-4)
+    (define-key map "5" 'rdebug-goto-entry-5)
+    (define-key map "6" 'rdebug-goto-entry-6)
+    (define-key map "7" 'rdebug-goto-entry-7)
+    (define-key map "8" 'rdebug-goto-entry-8)
+    (define-key map "9" 'rdebug-goto-entry-9)
+    (define-key map "0" 'rdebug-goto-entry-10)
+
     (rdebug-populate-secondary-buffer-map map)
+
+    (define-key map "\C-x\C-a" rdebug-common-map)
+    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Watch window" submeny.
@@ -1761,9 +1789,14 @@ This function is intended to be bound to a mouse key"
 ;; -- output
 
 (defvar rdebug-output-mode-map
-  (let ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap))
+	(rdebug-common-map (make-sparse-keymap)))
     (suppress-keymap map)
     (rdebug-populate-secondary-buffer-map map)
+
+    (define-key map "\C-x\C-a" rdebug-common-map)
+    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
+
     map)
   "Keymap used in the output buffer in the `rdebug' Ruby debugger.")
 
@@ -1789,9 +1822,13 @@ This function is intended to be bound to a mouse key"
 ;; -- help
 
 (defvar rdebug-secondary-window-help-mode-map
-  (let ((map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap))
+	(rdebug-common-map (make-sparse-keymap)))
     (suppress-keymap map)
     (rdebug-populate-secondary-buffer-map map)
+
+    (define-key map "\C-x\C-a" rdebug-common-map)
+    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
     map)
   "Keymap used in the help buffer in the `rdebug' Ruby debugger.")
 
@@ -1934,7 +1971,7 @@ and options used to invoke rdebug."
            (annotate-p (cadr script-name-annotate-p))
            (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
            (rdebug-buffer (get-buffer rdebug-buffer-name))
-           )
+	   (rdebug-common-map (make-sparse-keymap)))
 
       ;; `gud-rdebug-massage-args' needs whole `command-line'.
       ;; command-line is refered through dyanmic scope.
@@ -2000,10 +2037,8 @@ and options used to invoke rdebug."
       (local-set-key "\C-i" 'gud-gdb-complete-command)
 
       ;; Add the buffer-displaying commands to the Gud buffer,
-      ;; accessible using the C-c prefix.
-      (rdebug-populate-secondary-buffer-map
-       (lookup-key (current-local-map) "\C-c")
-       t)
+      (define-key (current-local-map) "\C-x\C-a" rdebug-common-map)
+      (rdebug-populate-secondary-buffer-map map t)
 
       (rdebug-populate-common-keys (current-local-map))
       (rdebug-populate-debugger-menu (current-local-map))
