@@ -5,9 +5,8 @@ require "fileutils"
 # require "diff/lcs/hunk"
 
 module TestHelper
-  ## FIXME fix up so we can customize cheap_diff.
   
-  def run_debugger(testname, args='', outfile=nil)
+  def run_debugger(testname, args='', outfile=nil, filter=nil)
     rightfile = File.join(SRC_DIR, "#{testname}.right")
     
     outfile = File.join(SRC_DIR, "#{testname}.out") unless outfile
@@ -20,8 +19,10 @@ module TestHelper
     cmd = "/bin/sh #{File.join(SRC_DIR, '../runner.sh')} #{args} >#{outfile}"
     output = `#{cmd}`
     
-    if cheap_diff(File.read(outfile).split(/\n/),
-                  File.read(rightfile).split(/\n/))
+    got_lines     = File.read(outfile).split(/\n/)
+    correct_lines = File.read(rightfile).split(/\n/)
+    filter.call(got_lines, correct_lines) if filter
+    if cheap_diff(got_lines, correct_lines)
       FileUtils.rm(outfile)
       return true
     end

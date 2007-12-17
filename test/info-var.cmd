@@ -3,8 +3,21 @@
 # redefined inspect or to_s which give an error.
 # ***************************************************
 set debuggertesting on
-continue 24
+# Go to where we have a bad "inspect" of a local variable
+continue 34
 info variables
-continue 28
+# Go to where we have a bad "inspect" and "to_s" of a local variable
+continue 38
 info variables
+break 29
+# The first time through, we can do inspect.
+continue
+info locals
+# Now go to where we have a bad "inspect" of an class variable
+continue
+info locals
+info variables
+# Now go to where we have a bad "inspect" and "to_s" of an class variable
+continue
+info locals
 quit

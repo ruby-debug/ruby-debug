@@ -1,32 +1,45 @@
-class Mine
+class Lousy_inspect
   attr_accessor :var
-  def inspect
-    throw "Foo"
+  def inspect    # An unhelpful inspect
+    throw "Foo"  # Raises an exception
   end
   def initialize
     @var = 'initialized'
   end
 end
-class MineAlso
+class Lousy_inspect_and_to_s
   attr_accessor :var
-  def inspect
-    throw "Foo"
+  def inspect    # An unhelpful inspect
+    throw "Foo"  # Raises an exception
   end
-  def to_s
-    throw "bar"
+  def to_s       # An unhelpful to_s
+    throw "bar"  # Raises an exception
   end
   def initialize
-    @var = 'initialized'
+    @var = 'initialized'  # Something to inspect
   end
 end
-def testMine
-  x = Mine.new
-  y = 5
+
+# Something that will be passed objects with
+# bad inspect or to_s methods
+class UnsuspectingClass
+  def initialize(a)
+    @a = a      # "info locals" will try to use
+                # inspect or to_s here
+    @b = 5
+  end
 end
-def testMineAlso
-  x = MineAlso.new
-  y = 5
+def test_Lousy_inspect
+  x = Lousy_inspect.new
+  return x
 end
-testMine
-testMineAlso
+def test_lousy_inspect_and_to_s
+  x = Lousy_inspect_and_to_s.new
+  return x
+end
+x = test_Lousy_inspect
+y = test_lousy_inspect_and_to_s
+UnsuspectingClass.new(10)
+UnsuspectingClass.new(x)
+UnsuspectingClass.new(y)
 y = 2

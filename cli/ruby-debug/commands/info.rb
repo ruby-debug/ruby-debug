@@ -107,7 +107,16 @@ module Debugger
     def info_locals(*args)
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|
-        s = "#{name} = #{locals[name].inspect}"
+        ### FIXME: make a common routine
+        begin
+          s = "#{name} = #{locals[name].inspect}"
+        rescue
+          begin
+          s = "#{name} = #{locals[name].to_s}"
+          rescue
+            s = "*Error in evaluation*"
+          end
+        end  
         if s.size > self.class.settings[:width]
           s[self.class.settings[:width]-3 .. -1] = "..."
         end
@@ -161,6 +170,7 @@ module Debugger
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|
         next if name =~ /^__dbg_/ # skip debugger pollution
+        ### FIXME: make a common routine
         begin
           s = "#{name} = #{locals[name].inspect}"
         rescue
