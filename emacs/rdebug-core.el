@@ -89,8 +89,8 @@ This should be an executable on your path, or an absolute file name."
   :group 'gud)
 
 (defcustom rdebug-line-width 120
-  "Length of line before truncation occurs. This value limits 
-output in secondary buffers."
+  "Length of line before truncation occurs.
+This value limits output in secondary buffers."
   :type 'integer
   :group 'rdebug)
 
@@ -733,7 +733,10 @@ This is only used when `rdebug-many-windows' is non-nil."
   (rdebug-debug-enter "rdebug-setup-windows"
     (rdebug-set-window-configuration-state 'debugger t)
     (pop-to-buffer gud-comint-buffer)
-    (rdebug-process-annotation "help" "")
+    (maphash
+     (lambda (name func)
+       (rdebug-process-annotation name ""))
+     rdebug--annotation-setup-map)
     (let ((buf
            (cond (gud-last-last-frame
                   (gud-find-file (car gud-last-last-frame)))
@@ -895,40 +898,6 @@ menu. (The common map typically contains function key bindings.)"
       (rdebug-menu-item common-map
                         "Breakpoints" 'rdebug-display-breakpoints-buffer))
     menu))
-
-
-;; -- Ruby debugger support for other modes.
-
-(defvar rdebug-debugger-support-minor-mode-map-when-deactive
-  (let ((map (make-sparse-keymap)))
-    (rdebug-populate-debugger-menu map)
-    map)
-  "Keymap used by rdebugs support minor mode when the debugger is active.")
-
-(defvar rdebug-debugger-support-minor-mode-map-when-active
-  (let ((map (make-sparse-keymap)))
-    (rdebug-populate-common-keys map)
-    (rdebug-populate-debugger-menu map)
-    map)
-  "Keymap used by rdebugs support minor mode when the debugger not active.")
-
-
-(define-minor-mode rdebug-debugger-support-minor-mode
-  "Minor mode active in source buffers that use the `rdebug' Ruby debugger."
-  :group rdebug
-  :global nil
-  :init-value nil
-  :keymap rdebug-debugger-support-minor-mode-map-when-deactive
-  ())
-
-
-;;;###autoload
-(defun rdebug-turn-on-debugger-support ()
-  "Enable extra source buffer support for the `rdebug' Ruby debugger.
-
-This includes a 'Debugger' menu and special key bindings when the
-debugger is active."
-  (rdebug-debugger-support-minor-mode 1))
 
 
 ;; -- Secondary buffer support.
@@ -1673,6 +1642,51 @@ Press `C-h m' for more help, when the individual buffers are visible.
  ? - This help text.
 "))))
 
+
+
+
+;; -- Ruby debugger support for other modes.
+
+(defvar rdebug-debugger-support-minor-mode-map-when-deactive
+  (let ((map (make-sparse-keymap))
+        (secondary-map (make-sparse-keymap)))
+    (rdebug-populate-debugger-menu map)
+    (rdebug-populate-secondary-buffer-map secondary-map t)
+    (define-key map "\C-x\C-a" secondary-map)
+    map)
+  "Keymap used by rdebugs support minor mode when the debugger is active.")
+
+(defvar rdebug-debugger-support-minor-mode-map-when-active
+  (let ((map (make-sparse-keymap))
+        (secondary-map (make-sparse-keymap)))
+    (rdebug-populate-common-keys map)
+    (rdebug-populate-secondary-buffer-map secondary-map t)
+    (define-key map "\C-x\C-a" secondary-map)
+    (rdebug-populate-debugger-menu map)
+    map)
+  "Keymap used by rdebugs support minor mode when the debugger not active.")
+
+
+(define-minor-mode rdebug-debugger-support-minor-mode
+  "Minor mode active in source buffers that use the `rdebug' Ruby debugger."
+  :group rdebug
+  :global nil
+  :init-value nil
+  :keymap rdebug-debugger-support-minor-mode-map-when-deactive
+  ())
+
+
+;;;###autoload
+(defun rdebug-turn-on-debugger-support ()
+  "Enable extra source buffer support for the `rdebug' Ruby debugger.
+
+This includes a 'Debugger' menu and special key bindings when the
+debugger is active."
+  (rdebug-debugger-support-minor-mode 1))
+
+
+;; -- The `rdebug' command and support functions.
+
 (defun rdebug-process-sentinel (process event)
   "Restore the original window configuration when the debugger process exits."
   (rdebug-debug-enter "rdebug-process-sentinel"
@@ -1701,6 +1715,7 @@ Press `C-h m' for more help, when the individual buffers are visible.
     ;; This unbinds the special debugger keys of the source buffers.
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
             rdebug-debugger-support-minor-mode-map-when-deactive)))
+
 
 ;; -- Reset support
 
