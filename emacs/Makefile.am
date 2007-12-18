@@ -15,11 +15,12 @@
 #   Foundation, 59 Temple Place, Suite 330, Boston, MA 02111 USA.
 #$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
 
+lisp_files = rdebug.el rdebug-core.el rdebug-track.el 
 check_DATA = rdebug-test.el elk-test.el
-EXTRA_DIST = rdebug.el $(check_DATA)
-ELCFILES   = rdebug.elc
+EXTRA_DIST = $(lisp_files) $(check_DATA)
+ELCFILES   = rdebug.elc rdebug-core.elc rdebug-track.elc
 if INSTALL_EMACS_LISP
-lisp_LISP = rdebug.el rdebug-core.el
+lisp_LISP = $(lisp_files)
 endif
 
 PHONY = test check

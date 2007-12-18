@@ -48,9 +48,6 @@
 ;;    The user can easily provide their own window layout and
 ;;    settings.
 ;;
-;;  * `rdebugtrack-mode' allows access to full debugger user interface
-;;    for Ruby debugger sessions started in a standard shell window.
-;;
 
 ;;
 ;; Installation:
@@ -177,33 +174,9 @@ nil means that it's never restored.
 		 (const :tag "Restore in many windows mode" :many))
   :group 'rdebug)
 
-(defgroup rdebugtrack nil
-  "Rdebug file tracking by watching the prompt."
-  :prefix "rdebugtrack"
-  :group 'shell)
-
-(defcustom rdebugtrack-do-tracking-p nil
-  "*Controls whether the rdebugtrack feature is enabled or not.
-When non-nil, rdebugtrack is enabled in all comint-based buffers,
-e.g. shell buffers and the *Ruby* buffer.  When using rdebug to debug a
-Ruby program, rdebugtrack notices the rdebug prompt and displays the
-source file and line that the program is stopped at, much the same way
-as gud-mode does for debugging C programs with gdb."
-  :type 'boolean
-  :group 'rdebug)
-(make-variable-buffer-local 'rdebugtrack-do-tracking-p)
-
-(defcustom rdebugtrack-minor-mode-string " rdebug"
-  "*String to use in the minor mode list when rdebugtrack is enabled."
-  :type 'string
-  :group 'rdebug)
-
 
 ;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 ;; NO USER DEFINABLE VARIABLES BEYOND THIS POINT
-
-(defvar gud-rdebug-history nil
-  "History of argument lists passed to rdebug.")
 
 (defconst gud-rdebug-marker-regexp
   "^\\(\\(?:[a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\).*\n"
@@ -251,17 +224,6 @@ Can be `original' or `debugger'.")
 ;; is since it gives help on how the secondary window is used.
 (defvar rdebug-secondary-buffer nil
   "Non-nil for rdebug secondary buffers (e.g. the breakpoints buffer).")
-
-;; rdebugtrack constants
-(defconst rdebugtrack-stack-entry-regexp
-  "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
-  "Regular expression rdebugtrack uses to find a stack trace entry.")
-
-(defconst rdebugtrack-input-prompt "\n(+rdb:\\([0-9]+\\|post-mortem\\))+ *"
-  "Regular expression rdebugtrack uses to recognize a rdebug prompt.")
-
-(defconst rdebugtrack-track-range 10000
-  "Max number of characters from end of buffer to search for stack entry.")
 
 ;;
 ;; Internal debug support. When `rdebug-debug-active' is non-nil,
@@ -604,24 +566,10 @@ Used internally as a convenience go to this entry of a stack, display, or breakp
   (interactive)
   (goto-line 10))
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
-;;; rdebugtrack --- tracking rdebug debugger in an Emacs shell window
-;;; Modified from  python-mode in particular the part:
-;; pdbtrack support contributed by Ken Manheimer, April 2001.
-
-(require 'comint)
-(require 'custom)
-(require 'cl)
-(require 'compile)
-(require 'shell)
-
 ;; have to bind rdebug-file-queue before installing the kill-emacs-hook
 (defvar rdebug-file-queue nil
   "Queue of Makefile temp files awaiting execution.
 Currently-active file is at the head of the list.")
-
-(defvar rdebugtrack-is-tracking-p t)
 
 
 ;; Constants
@@ -637,168 +585,6 @@ Currently-active file is at the head of the list.")
 (defconst rdebug-dollarbang-traceback-line-re
   "^[ \t]+[[]?\\([^:]+\\):\\([0-9]+\\):in `.*'"
   "Regular expression that describes a Ruby traceback line from $! list.")
-
-(defun rdebugtrack-overlay-arrow (activation)
-  "Activate or de arrow at beginning-of-line in current buffer."
-  ;; This was derived/simplified from edebug-overlay-arrow
-  (cond (activation
-	 (setq overlay-arrow-position (make-marker))
-	 (setq overlay-arrow-string "=>")
-	 (set-marker overlay-arrow-position (point) (current-buffer))
-	 (setq rdebugtrack-is-tracking-p t))
-	(rdebugtrack-is-tracking-p
-	 (setq overlay-arrow-position nil)
-	 (setq rdebugtrack-is-tracking-p nil))
-	))
-
-(defun rdebugtrack-track-stack-file (text)
-  "Show the file indicated by the rdebug stack entry line, in a separate window.
-Activity is disabled if the buffer-local variable
-`rdebugtrack-do-tracking-p' is nil.
-
-We depend on the rdebug input prompt matching `rdebugtrack-input-prompt'
-at the beginning of the line."
-  ;; Instead of trying to piece things together from partial text
-  ;; (which can be almost useless depending on Emacs version), we
-  ;; monitor to the point where we have the next rdebug prompt, and then
-  ;; check all text from comint-last-input-end to process-mark.
-  ;;
-  ;; Also, we're very conservative about clearing the overlay arrow,
-  ;; to minimize residue.  This means, for instance, that executing
-  ;; other rdebug commands wipe out the highlight.  You can always do a
-  ;; 'where' (aka 'w') command to reveal the overlay arrow.
-  (rdebug-debug-enter "rdebugtrack-track-stack-file"
-    (let* ((origbuf (current-buffer))
-           (currproc (get-buffer-process origbuf)))
-
-      (if (not (and currproc rdebugtrack-do-tracking-p))
-          (rdebugtrack-overlay-arrow nil)
-        ;;else
-        (let* ((procmark (process-mark currproc))
-               (block-start (max comint-last-input-end
-                                 (- procmark rdebugtrack-track-range)))
-               (block-str (buffer-substring block-start procmark))
-               target target_fname target_lineno target_buffer)
-
-          (if (not (string-match rdebugtrack-input-prompt block-str))
-              (rdebugtrack-overlay-arrow nil)
-            ;;else
-            (setq target (rdebugtrack-get-source-buffer block-str))
-
-            (if (stringp target)
-                (rdebug-debug-message "rdebugtrack: %s" target)
-              ;;else
-              (gud-rdebug-marker-filter block-str)
-              (setq target_lineno (car target))
-              (setq target_buffer (cadr target))
-              (setq target_fname (buffer-file-name target_buffer))
-              (switch-to-buffer-other-window target_buffer)
-              (goto-line target_lineno)
-              (rdebug-debug-message "rdebugtrack: line %s, file %s"
-                                    target_lineno target_fname)
-              (rdebugtrack-overlay-arrow t)
-              (pop-to-buffer origbuf t)
-              )
-
-            ;; Delete processed annotations from buffer.
-            (save-excursion
-              (let ((annotate-start)
-                    (annotate-end (point-max)))
-                (goto-char block-start)
-                (while (re-search-forward
-                        rdebug-annotation-start-regexp annotate-end t)
-                  (setq annotate-start (match-beginning 0))
-                  (if (re-search-forward
-                       rdebug-annotation-end-regexp annotate-end t)
-                      (delete-region annotate-start (point))
-                    ;;else
-                    (forward-line)))))))))))
-
-(defun rdebugtrack-get-source-buffer (block-str)
-  "Return line and buffer of code indicated by block-str's traceback text.
-
-We look first to visit the file indicated in the trace.
-
-Failing that, we look for the most recently visited ruby-mode buffer
-with the same name or having having the named function.
-
-If we're unable find the source code we return a string describing the
-problem as best as we can determine."
-
-  (if (not (string-match rdebug-position-re block-str))
-      "line number cue not found"
-    ;;else
-    (let* ((filename (match-string rdebug-marker-regexp-file-group block-str))
-           (lineno (string-to-number
-		    (match-string rdebug-marker-regexp-line-group block-str)))
-           funcbuffer)
-
-      (cond ((file-exists-p filename)
-             (list lineno (find-file-noselect filename)))
-
-            ((= (elt filename 0) ?\<)
-             (format "(Non-file source: '%s')" filename))
-
-            (t (format "Not found: %s" filename))))))
-
-
-;; rdebugtrack
-(defcustom rdebugtrack-mode-text " rdebug"
-  "*String to display in the mode line when rdebugtrack mode is active.
-
-\(When the string is not empty, make sure that it has a leading space.)"
-  :tag "rdebug mode text"           ; To separate it from `global-...'
-  :group 'rdebug
-  :type 'string)
-
-(define-minor-mode rdebugtrack-mode ()
-  "Minor mode for tracking ruby debugging inside a process shell."
-  :init-value nil
-  ;; The indicator for the mode line.
-  :lighter rdebugtrack-mode-text
-  ;; The minor mode bindings.
-  :global nil
-  :group 'rdebug
-  (rdebugtrack-toggle-stack-tracking 1)
-  (setq rdebugtrack-is-tracking-p t)
-  (local-set-key "\C-cg" 'rdebug-goto-traceback-line)
-  (local-set-key "\C-cG" 'rdebug-goto-dollarbang-traceback-line)
-  (add-hook 'comint-output-filter-functions 'rdebugtrack-track-stack-file)
-  (run-mode-hooks 'rdebugtrack-mode-hook))
-
-
-(defun rdebugtrack-toggle-stack-tracking (arg)
-  (interactive "P")
-  (if (not (get-buffer-process (current-buffer)))
-      (message "No process associated with buffer '%s'" (current-buffer))
-    ;;else
-    ;; missing or 0 is toggle, >0 turn on, <0 turn off
-    (if (or (not arg)
-	    (zerop (setq arg (prefix-numeric-value arg))))
-	(setq rdebugtrack-do-tracking-p (not rdebugtrack-do-tracking-p))
-      (setq rdebugtrack-do-tracking-p (> arg 0)))
-    (message "%sabled rdebug's rdebugtrack"
-	     (if rdebugtrack-do-tracking-p "En" "Dis"))))
-
-
-;;;###autoload
-(defun turn-on-rdebugtrack-mode ()
-  "Turn on rdebugtrack mode.
-
-This function is designed to be added to hooks, for example:
-  (add-hook 'comint-mode-hook 'turn-on-rdebugtrack-mode)"
-  (interactive)
-  (rdebugtrack-mode 1))
-
-(defun turn-off-rdebugtrack ()
-  "Turn off rdebugtrack mode."
-  (interactive)
-  (setq rdebugtrack-is-tracking-p nil)
-  (rdebugtrack-toggle-stack-tracking 0)
-  (remove-hook 'comint-output-filter-functions
-	       'rdebugtrack-track-stack-file))
-
-;; rdebugtrack
 
 ;;-----------------------------------------------------------------------------
 ;; ALB - annotations support
@@ -2038,7 +1824,7 @@ and options used to invoke rdebug."
 
       ;; Add the buffer-displaying commands to the Gud buffer,
       (define-key (current-local-map) "\C-x\C-a" rdebug-common-map)
-      (rdebug-populate-secondary-buffer-map map t)
+      (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
       (rdebug-populate-common-keys (current-local-map))
       (rdebug-populate-debugger-menu (current-local-map))

@@ -78,7 +78,7 @@ debugger is active."
  t)
 
 
-(autoload 'turn-on-rdebugtrack-mode "rdebug-core"
+(autoload 'turn-on-rdebugtrack-mode "rdebug-track"
   "Turn on rdebugtrack mode.
 
 This function is designed to be added to hooks, for example:
