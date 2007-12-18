@@ -902,13 +902,10 @@ menu. (The common map typically contains function key bindings.)"
 
 ;; -- Secondary buffer support.
 
-;; TODO: rename no-menu to something like not-top-level.
-;;
-;; OR: pass two maps, one top level (for menu and common) and one
-;; submap for keys.
-(defun rdebug-populate-secondary-buffer-map (map &optional no-menu)
-  "Bind keys common to all rdebug secondary buffers.
-\(This does not include the debugger shell and source buffers.)"
+(defun rdebug-populate-secondary-buffer-map-plain (map)
+  "Bind the plain keys used in rdebug secondary buffers.
+
+This does not menus or prefix keys."
   ;; Keys to view other buffers.
   (define-key map "?" 'rdebug-display-secondary-window-help-buffer)
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
@@ -932,13 +929,19 @@ menu. (The common map typically contains function key bindings.)"
   (define-key map "p" 'gud-print)
   (define-key map "q" 'rdebug-quit)
   (define-key map "r" 'gud-run)
-  (define-key map "s" 'gud-step)
-  ;; (define-key map "t" 'gud-tbreak)
-  ;; Returns the menu.
-  (if no-menu
-      nil
-    (rdebug-populate-common-keys map)
-    (rdebug-populate-debugger-menu map)))
+  (define-key map "s" 'gud-step))
+
+
+(defun rdebug-populate-secondary-buffer-map (map)
+  "Bind all common keys and menu used in the rdebug seondary buffers.
+This includes the keys bound to `gud-key-prefix' (typically C-x
+C-a)."
+  (rdebug-populate-secondary-buffer-map-plain map)
+  (rdebug-populate-common-keys map)
+  (rdebug-populate-debugger-menu map)
+  (let ((prefix-map (make-sparse-keymap)))
+    (rdebug-populate-secondary-buffer-map-plain prefix-map)
+    (define-key map gud-key-prefix prefix-map)))
 
 
 (defun rdebug-display-breakpoints-buffer ()
@@ -1011,8 +1014,7 @@ If the buffer doesn't exist, do nothing."
 ;; -- breakpoints
 
 (defvar rdebug-breakpoints-mode-map
-  (let ((map (make-sparse-keymap))
-	(rdebug-common-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
     (define-key map "t" 'rdebug-toggle-breakpoint)
@@ -1030,9 +1032,6 @@ If the buffer doesn't exist, do nothing."
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     (rdebug-populate-secondary-buffer-map map)
-
-    (define-key map "\C-x\C-a" rdebug-common-map)
-    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Breakpoints window" submeny.
@@ -1215,8 +1214,7 @@ If the buffer doesn't exist, do nothing."
 ;; -- stack
 
 (defvar rdebug-frames-mode-map
-  (let ((map (make-sparse-keymap))
-	(rdebug-common-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
@@ -1235,9 +1233,6 @@ If the buffer doesn't exist, do nothing."
     (define-key map "9" 'rdebug-goto-entry-10)
 
     (rdebug-populate-secondary-buffer-map map)
-
-    (define-key map "\C-x\C-a" rdebug-common-map)
-    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Stack window" submeny.
@@ -1364,17 +1359,13 @@ If the buffer doesn't exist, do nothing."
 ;; -- variables
 
 (defvar rdebug-variables-mode-map
-  (let ((map (make-sparse-keymap))
-	(rdebug-common-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
     (define-key map "\r" 'rdebug-variables-edit)
     (define-key map "e" 'rdebug-edit-variables-value)
     (define-key map [mouse-2] 'rdebug-variables-edit-mouse)
     (define-key map [mouse-3] 'rdebug-variables-edit-mouse)
     (rdebug-populate-secondary-buffer-map map)
-
-    (define-key map "\C-x\C-a" rdebug-common-map)
-    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Variables window" submeny.
@@ -1448,8 +1439,7 @@ This function is intended to be bound to a mouse key"
 ;; -- watch (the "display" annotation)
 
 (defvar rdebug-watch-mode-map
-  (let ((map (make-sparse-keymap))
-	(rdebug-common-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
     (define-key map "a" 'rdebug-watch-add)
     (define-key map "\C-d" 'rdebug-watch-delete)
@@ -1469,9 +1459,6 @@ This function is intended to be bound to a mouse key"
     (define-key map "0" 'rdebug-goto-entry-10)
 
     (rdebug-populate-secondary-buffer-map map)
-
-    (define-key map "\C-x\C-a" rdebug-common-map)
-    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
 
     ;; --------------------
     ;; The "Watch window" submeny.
@@ -1547,14 +1534,9 @@ This function is intended to be bound to a mouse key"
 ;; -- output
 
 (defvar rdebug-output-mode-map
-  (let ((map (make-sparse-keymap))
-	(rdebug-common-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
     (rdebug-populate-secondary-buffer-map map)
-
-    (define-key map "\C-x\C-a" rdebug-common-map)
-    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
-
     map)
   "Keymap used in the output buffer in the `rdebug' Ruby debugger.")
 
@@ -1580,13 +1562,9 @@ This function is intended to be bound to a mouse key"
 ;; -- help
 
 (defvar rdebug-secondary-window-help-mode-map
-  (let ((map (make-sparse-keymap))
-	(rdebug-common-map (make-sparse-keymap)))
+  (let ((map (make-sparse-keymap)))
     (suppress-keymap map)
     (rdebug-populate-secondary-buffer-map map)
-
-    (define-key map "\C-x\C-a" rdebug-common-map)
-    (rdebug-populate-secondary-buffer-map rdebug-common-map t)
     map)
   "Keymap used in the help buffer in the `rdebug' Ruby debugger.")
 
@@ -1649,20 +1627,20 @@ Press `C-h m' for more help, when the individual buffers are visible.
 
 (defvar rdebug-debugger-support-minor-mode-map-when-deactive
   (let ((map (make-sparse-keymap))
-        (secondary-map (make-sparse-keymap)))
+        (prefix-map (make-sparse-keymap)))
     (rdebug-populate-debugger-menu map)
-    (rdebug-populate-secondary-buffer-map secondary-map t)
-    (define-key map "\C-x\C-a" secondary-map)
+    (rdebug-populate-secondary-buffer-map-plain prefix-map)
+    (define-key map gud-key-prefix prefix-map)
     map)
   "Keymap used by rdebugs support minor mode when the debugger is active.")
 
 (defvar rdebug-debugger-support-minor-mode-map-when-active
   (let ((map (make-sparse-keymap))
-        (secondary-map (make-sparse-keymap)))
-    (rdebug-populate-common-keys map)
-    (rdebug-populate-secondary-buffer-map secondary-map t)
-    (define-key map "\C-x\C-a" secondary-map)
+        (prefix-map (make-sparse-keymap)))
     (rdebug-populate-debugger-menu map)
+    (rdebug-populate-secondary-buffer-map-plain prefix-map)
+    (define-key map gud-key-prefix prefix-map)
+    (rdebug-populate-common-keys map)
     map)
   "Keymap used by rdebugs support minor mode when the debugger not active.")
 
@@ -1774,8 +1752,7 @@ and options used to invoke rdebug."
            (target-name (file-name-nondirectory (car script-name-annotate-p)))
            (annotate-p (cadr script-name-annotate-p))
            (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
-           (rdebug-buffer (get-buffer rdebug-buffer-name))
-	   (rdebug-common-map (make-sparse-keymap)))
+           (rdebug-buffer (get-buffer rdebug-buffer-name)))
 
       ;; `gud-rdebug-massage-args' needs whole `command-line'.
       ;; command-line is refered through dyanmic scope.
@@ -1841,8 +1818,9 @@ and options used to invoke rdebug."
       (local-set-key "\C-i" 'gud-gdb-complete-command)
 
       ;; Add the buffer-displaying commands to the Gud buffer,
-      (define-key (current-local-map) "\C-x\C-a" rdebug-common-map)
-      (rdebug-populate-secondary-buffer-map rdebug-common-map t)
+      (let ((prefix-map (make-sparse-keymap)))
+        (define-key (current-local-map) gud-key-prefix prefix-map)
+        (rdebug-populate-secondary-buffer-map-plain prefix-map))
 
       (rdebug-populate-common-keys (current-local-map))
       (rdebug-populate-debugger-menu (current-local-map))
