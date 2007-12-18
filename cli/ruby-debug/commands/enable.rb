@@ -1,4 +1,35 @@
 module Debugger
+  # Mix-in module to assist in command parsing.
+  module EnableDisableFunctions # :nodoc:
+    def enable_disable_breakpoints(is_enable, args)
+      breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
+      largest = breakpoints.inject(0){|largest, b| largest = b.id if b.id > largest}
+      if 0 == largest
+        print "No breakpoints have been set.\n"
+        return
+      end
+      args.each do |pos|
+        pos = get_int(pos, "#{is_enable} breakpoints", 1, largest)
+        return nil unless pos
+        breakpoints.each do |b|
+          if b.id == pos 
+            b.enabled = ("Enable" == is_enable)
+            return
+          end
+        end
+      end
+    end
+
+    def enable_disable_display(is_enable, args)
+      args.each do |pos|
+        pos = get_int(pos, "#{is_enable} display", 1, @state.display.size)
+        return nil unless pos
+        @state.display[pos-1][0] = ("Enable" == is_enable)
+      end
+    end
+
+  end
+
   class EnableCommand < Command # :nodoc:
     SubcmdStruct=Struct.new(:name, :min, :short_help) unless
       defined?(SubcmdStruct)
@@ -33,20 +64,11 @@ module Debugger
     end
     
     def enable_breakpoints(args)
-      breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
-      args.each do |pos|
-        pos = get_int(pos, "Enable breakpoints", 1, breakpoints.size)
-        return nil unless pos
-        breakpoints[pos-1].enabled = true
-      end
+      enable_disable_breakpoints("Enable", args)
     end
     
     def enable_display(args)
-      args.each do |pos|
-        pos = get_int(pos, "Enable display", 1, @state.display.size)
-        return nil unless pos
-        @state.display[pos-1][0] = true
-      end
+      enable_disable_display("Enable", args)
     end
     
     class << self
@@ -59,7 +81,7 @@ module Debugger
           Enable some things.
           This is used to cancel the effect of the "disable" command.
           -- 
-          List of disable subcommands:
+          List of enable subcommands:
           --  
         }
         for subcmd in Subcommands do
@@ -104,20 +126,11 @@ module Debugger
     end
     
     def disable_breakpoints(args)
-      breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
-      args.each do |pos|
-        pos = get_int(pos, "Disable breakpoints", 1, breakpoints.size)
-        return nil unless pos
-        breakpoints[pos-1].enabled = false
-      end
+      enable_disable_breakpoints("Disable", args)
     end
     
     def disable_display(args)
-      args.each do |pos|
-        pos = get_int(pos, "Disable display", 1, @state.display.size)
-        return nil unless pos
-        @state.display[pos-1][0] = false
-      end
+      enable_disable_display("Disable", args)
     end
     
     class << self

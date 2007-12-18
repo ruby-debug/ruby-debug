@@ -619,6 +619,7 @@ Currently-active file is at the head of the list.")
         (setq buffer-read-only t)
         (let ((inhibit-read-only t)
               (setup-func (gethash name rdebug--annotation-setup-map)))
+	  (set (make-local-variable 'current-line-number) (line-number-at-pos))
           (if (string= name "output")
               (goto-char (point-max))
             (erase-buffer))
@@ -1113,9 +1114,10 @@ If the buffer doesn't exist, do nothing."
   "Detects breakpoint lines and sets up keymap and mouse navigation."
   (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
     (with-current-buffer buf
-      (let ((inhibit-read-only t) (flag))
+      (let ((inhibit-read-only t) 
+	    (old-line-number (buffer-local-value 'current-line-number buf))
+	    (flag))
         (rdebug-breakpoints-mode)
-        (set (make-local-variable 'gud-comint-buffer) comint-buffer)
         (goto-char (point-min))
         (while (not (eobp))
           (let ((b (line-beginning-position)) (e (line-end-position)))
@@ -1160,7 +1162,8 @@ If the buffer doesn't exist, do nothing."
 ;;;                      'font-lock-face compilation-error-face)))
               )
             (forward-line)
-            (beginning-of-line)))))))
+            (beginning-of-line)))
+	(goto-line old-line-number)))))
 
 (defun rdebug-goto-breakpoint-mouse (event)
   "Displays the location in a source file of the selected breakpoint."
