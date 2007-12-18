@@ -506,71 +506,51 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
 
 ;; -- The debugger
 
-(defun rdebug-goto-entry-1 ()
-  "Go to entry number 1. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 1))
+;; -- Digit keys, go to specific entry in some seconday buffers.
 
-(defun rdebug-goto-entry-2 ()
-  "Go to entry number 2. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 2))
+(defvar rdebug-goto-entry-acc "")
 
-(defun rdebug-goto-entry-3 ()
-  "Go to entry number 3. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 3))
+(defun rdebug-goto-entry-try (str)
+  (if (re-search-forward (concat "^[^0-9]+\\(" str "\\)[^0-9]") nil t)
+      (progn
+        (setq rdebug-goto-entry-acc str)
+        (goto-char (match-end 1))
+        t)
+    nil))
 
-(defun rdebug-goto-entry-4 ()
-  "Go to entry number 4. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 4))
 
-(defun rdebug-goto-entry-5 ()
-  "Go to entry number 5. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
+(defun rdebug-goto-entry-n ()
+  "Go to an entry number."
   (interactive)
-  (goto-line 5))
+  (let ((keys (this-command-keys)))
+    (if (and (stringp keys)
+             (= (length keys) 1))
+        (progn
+          (if (not (eq last-command 'rdebug-goto-entry-n))
+              (setq rdebug-goto-entry-acc ""))
+          (let ((p nil))
+            (save-excursion
+              (goto-char (point-min))
+              (if (or (rdebug-goto-entry-try (concat rdebug-goto-entry-acc keys))
+                      (rdebug-goto-entry-try keys))
+                  (setq p (point))))
+            (when p
+              (goto-char p))))
+      (message "`rdebug-goto-entry-n' must be bound to a number key"))))
 
-(defun rdebug-goto-entry-6 ()
-  "Go to entry number 6. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 6))
 
-(defun rdebug-goto-entry-7 ()
-  "Go to entry number 7. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 7))
+(defun rdebug-populate-digit-keys (map)
+  (define-key map "0" 'rdebug-goto-entry-n)
+  (define-key map "1" 'rdebug-goto-entry-n)
+  (define-key map "2" 'rdebug-goto-entry-n)
+  (define-key map "3" 'rdebug-goto-entry-n)
+  (define-key map "4" 'rdebug-goto-entry-n)
+  (define-key map "5" 'rdebug-goto-entry-n)
+  (define-key map "6" 'rdebug-goto-entry-n)
+  (define-key map "7" 'rdebug-goto-entry-n)
+  (define-key map "8" 'rdebug-goto-entry-n)
+  (define-key map "9" 'rdebug-goto-entry-n))
 
-(defun rdebug-goto-entry-8 ()
-  "Go to entry number 8. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 8))
-
-(defun rdebug-goto-entry-9 ()
-  "Go to entry number 9. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 9))
-
-(defun rdebug-goto-entry-10 ()
-  "Go to entry number 10. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 10))
-
-(defun rdebug-goto-entry-11 ()
-  "Go to entry number 11. 
-Used internally as a convenience go to this entry of a stack, display, or breakpoint buffer."
-  (interactive)
-  (goto-line 10))
 
 ;; have to bind rdebug-file-queue before installing the kill-emacs-hook
 (defvar rdebug-file-queue nil
@@ -1074,17 +1054,7 @@ The higher score the better."
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
     (define-key map "t" 'rdebug-toggle-breakpoint)
-    ; Numbers are adjusted to offset the header line.
-    (define-key map "1" 'rdebug-goto-entry-2)
-    (define-key map "2" 'rdebug-goto-entry-3)
-    (define-key map "3" 'rdebug-goto-entry-4)
-    (define-key map "4" 'rdebug-goto-entry-5)
-    (define-key map "5" 'rdebug-goto-entry-6)
-    (define-key map "6" 'rdebug-goto-entry-7)
-    (define-key map "7" 'rdebug-goto-entry-8)
-    (define-key map "8" 'rdebug-goto-entry-9)
-    (define-key map "9" 'rdebug-goto-entry-10)
-    (define-key map "0" 'rdebug-goto-entry-11)
+    (rdebug-populate-digit-keys map)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)
     (rdebug-populate-secondary-buffer-map map)
@@ -1275,19 +1245,7 @@ The higher score the better."
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-stack-frame)
-
-    ; Numbers are adjusted to offset the header line.
-    (define-key map "0" 'rdebug-goto-entry-1)
-    (define-key map "1" 'rdebug-goto-entry-2)
-    (define-key map "2" 'rdebug-goto-entry-3)
-    (define-key map "3" 'rdebug-goto-entry-4)
-    (define-key map "4" 'rdebug-goto-entry-5)
-    (define-key map "5" 'rdebug-goto-entry-6)
-    (define-key map "6" 'rdebug-goto-entry-7)
-    (define-key map "7" 'rdebug-goto-entry-8)
-    (define-key map "8" 'rdebug-goto-entry-9)
-    (define-key map "9" 'rdebug-goto-entry-10)
-
+    (rdebug-populate-digit-keys map)
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
@@ -1502,18 +1460,7 @@ This function is intended to be bound to a mouse key"
     (define-key map "d" 'rdebug-watch-delete)
     (define-key map "e" 'rdebug-watch-edit)
     (define-key map "\r" 'rdebug-watch-edit)
-
-    (define-key map "1" 'rdebug-goto-entry-1)
-    (define-key map "2" 'rdebug-goto-entry-2)
-    (define-key map "3" 'rdebug-goto-entry-3)
-    (define-key map "4" 'rdebug-goto-entry-4)
-    (define-key map "5" 'rdebug-goto-entry-5)
-    (define-key map "6" 'rdebug-goto-entry-6)
-    (define-key map "7" 'rdebug-goto-entry-7)
-    (define-key map "8" 'rdebug-goto-entry-8)
-    (define-key map "9" 'rdebug-goto-entry-9)
-    (define-key map "0" 'rdebug-goto-entry-10)
-
+    (rdebug-populate-digit-keys map)
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
