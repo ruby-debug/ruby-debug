@@ -185,6 +185,7 @@ nil means that it's never restored.
 Program-location lines look like this:
    /tmp/gcd.rb:29:  gcd
    /tmp/gcd.rb:29
+   C:/tmp/gcd.rb:29
    \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>
 ")
 
@@ -331,6 +332,11 @@ Can be `original' or `debugger'.")
 
 	 ;; Set the accumulator to the remaining text.
 	 gud-marker-acc (substring gud-marker-acc (match-end 0))))
+
+      ;; Display the source file where we want it, gud will only pick
+      ;; an arbitrary window.
+      (if gud-last-frame
+          (rdebug-pick-source-window))
 
       ;; Does the remaining text look like it might end with the
       ;; beginning of another marker?  If it does, then keep it in
@@ -1001,14 +1007,64 @@ If the buffer doesn't exist, do nothing."
                (switch-to-buffer buf))
               (t
                ;; Pick another window, preferably a secondary window.
-               (let* ((windows (window-list (selected-frame)))
-                      (candidate (selected-window)))
+               (let ((windows (window-list (selected-frame)))
+                     (candidate (selected-window)))
                  (dolist (win windows)
                    (if (buffer-local-value 'rdebug-secondary-buffer
                                            (window-buffer win))
                        (setq candidate win)))
                  (select-window candidate)
                  (switch-to-buffer buf))))))))
+
+
+;; Note: The generic `gud' framework contains special code to handle
+;; this for GDB (see `gud-display-line') which we, unfortuately can't
+;; use. Instead, we call `rdebug-pick-source-window' from
+;; `gud-rdebug-marker-filter'. When gud becomes more generic we could
+;; hopefully solve this in another way.
+;;
+;; The machanism is that `rdebug-pick-source-window' displays the
+;; source file in the window of our choice, and gud kindly re-uses
+;; that window.
+
+
+(defun rdebug-pick-source-window-categorize-window (win)
+  "Return how suiteable this window is to display the source buffer.
+The higher score the better."
+  (let ((buffer (window-buffer win)))
+    (cond ((eq buffer gud-comint-buffer)
+           0)
+          ((buffer-local-value 'rdebug-secondary-buffer buffer)
+           1)
+          ((eq (buffer-local-value 'major-mode buffer) 'ruby-mode)
+           3)                           ; Pick me! Pick me!
+          (t
+           2))))
+
+
+(defun rdebug-pick-source-window ()
+  "Display the source file pointed to by `gud-last-frame'"
+  (let* ((buffer (gud-find-file (car gud-last-frame)))
+         (window
+          (or
+           ;; Buffer is already visible, re-use the window.
+           (get-buffer-window buffer)
+           ;; Re-use the last window
+           (and gud-last-last-frame
+                (get-buffer-window (gud-find-file (car gud-last-last-frame))))
+           ;; Find a non-rdebug window.
+           (let ((candidate nil)
+                 (candidate-score -1))
+             (dolist (win (window-list (selected-frame)))
+               (let ((score (rdebug-pick-source-window-categorize-window win)))
+                 (if (> score candidate-score)
+                     (progn
+                       (setq candidate       win)
+                       (setq candidate-score score)))))
+             candidate))))
+    (save-selected-window
+      (select-window window)
+      (switch-to-buffer buffer))))
 
 
 ;; -- breakpoints
