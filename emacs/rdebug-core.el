@@ -774,20 +774,6 @@ If the buffer doesn't exists it is created."
   (message
    "Type `M-x rdebug-display-original-window-configuration RET' to restore."))
 
-(defun rdebug-set-windows (&optional name)
-  "Rename the processor buffer to correspond to script name NAME.
-
-When `rdebug-many-windows' is non-nil, the initial debugger
-window layout is used."
-  (interactive "sProgram name: ")
-  (when name
-    (setq gud-target-name name)
-    (setq gud-comint-buffer (current-buffer)))
-  (when gud-last-frame
-    (setq gud-last-last-frame gud-last-frame))
-  (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
-  (when rdebug-many-windows
-    (rdebug-setup-windows)))
 
 ;; Fontification and keymaps for secondary buffers (breakpoints, stack)
 
@@ -819,24 +805,49 @@ menu. (The common map typically contains function key bindings.)"
   "Populate the Rdebug 'Debugger' menu."
   (let ((menu (make-sparse-keymap))
         (common-map (make-sparse-keymap)))
-    ;; Use a simple common map to find the best key sequence to display in menu.
+    ;; Use a simple common map to find the best key sequence to
+    ;; display in menu.
     (rdebug-populate-common-keys common-map)
 
     (define-key map [menu-bar debugger] (cons "Debugger" menu))
 
     (define-key menu [break-delete]
-      (rdebug-menu-item common-map "Delete breakpoint" 'gud-remove))
+      (rdebug-menu-item common-map "Delete breakpoint" 'gud-remove
+                        :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key menu [break]
-      (rdebug-menu-item common-map "Set breakpoint" 'gud-break))
+      (rdebug-menu-item common-map "Set breakpoint" 'gud-break
+                        :enable '(get-buffer-process gud-comint-buffer)))
 
-    (define-key menu [finish] (rdebug-menu-item common-map "Step out" 'gud-finish))
-    (define-key menu [step]   (rdebug-menu-item common-map "Step into" 'gud-step))
-    (define-key menu [next]   (rdebug-menu-item common-map "Step over" 'gud-next))
-    (define-key menu [cont]   (rdebug-menu-item common-map "Continue" 'gud-cont))
+    (define-key menu [finish]
+      (rdebug-menu-item common-map "Step out" 'gud-finish
+                        :enable '(get-buffer-process gud-comint-buffer)))
+
+    (define-key menu [step]
+      (rdebug-menu-item common-map "Step into" 'gud-step
+                        :enable '(get-buffer-process gud-comint-buffer)))
+
+    (define-key menu [next]
+      (rdebug-menu-item common-map "Step over" 'gud-next
+                        :enable '(get-buffer-process gud-comint-buffer)))
+
+    (define-key menu [cont]
+      (rdebug-menu-item common-map "Continue" 'gud-cont
+                        :enable '(get-buffer-process gud-comint-buffer)))
+
+    (define-key map [menu-bar debugger line1] '(menu-item "--"))
+
+    (define-key menu [stop]
+      (rdebug-menu-item
+       common-map "Stop the debugger" 'rdebug-quit
+       :enable '(get-buffer-process gud-comint-buffer)))
+
     (define-key menu [start]
       (rdebug-menu-item common-map "Start the debugger" 'rdebug))
 
+    (define-key map [menu-bar debugger line2] '(menu-item "--"))
+
+    ;; Placeholder used when populating the menu of the secondary buffers.
     (define-key menu [placeholder] nil)
 
     ;; --------------------
@@ -1715,6 +1726,53 @@ etc.)."
       (kill-buffer buffer))))
 (ad-activate 'gud-reset)
 
+
+;; Common setup to `rdebug' and `rdebug-set-windows' (the shell entry point).
+(defun rdebug-common-initialization ()
+  "Common initialization to `rdebug' and `rdebug-set-windows'."
+
+  ;; This opens up "Gud" menu, which isn't used since we've got our
+  ;; own "Debugger" menu.
+
+  ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
+
+  (gud-def gud-args   "info args" "a"
+           "Show arguments of current stack.")
+  (gud-def gud-break  "break %d%f:%l""\C-b"
+           "Set breakpoint at current line.")
+  (gud-def gud-cont   "continue"   "\C-r"
+           "Continue with display.")
+  (gud-def gud-down   "down %p"     ">"
+           "Down N stack frames (numeric arg).")
+  (gud-def gud-finish "finish"      "\C-f"
+           "Finish executing current function.")
+  (gud-def gud-next   "next %p"     "\C-n"
+           "Step one line (skip functions).")
+  (gud-def gud-print  "p %e"        "\C-p"
+           "Evaluate Ruby expression at point.")
+  (gud-def gud-source-resync "up 0" "\C-l"
+           "Show current source window")
+  (gud-def gud-remove "clear %d%f:%l" "\C-d"
+           "Remove breakpoint at current line")
+  (gud-def gud-quit    "quit"       "Q"
+           "Quit debugger.")
+  (gud-def gud-run    "restart"       "R"
+           "Restart the Ruby script.")
+  (gud-def gud-statement "eval %e" "\C-e"
+           "Execute Ruby statement at point.")
+  (gud-def gud-step   "step %p"       "\C-s"
+           "Step one source line with display.")
+  (gud-def gud-step-plus "step+ %p"       "+"
+           "Step one source line with display.")
+  (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
+           "Set temporary breakpoint at current line.")
+  (gud-def gud-up     "up %p"
+           "<" "Up N stack frames (numeric arg).")
+  (gud-def gud-where   "where"
+           "T" "Show stack trace.")
+  (local-set-key "\C-i" 'gud-gdb-complete-command))
+
+
 ;;;###autoload
 (defun rdebug (command-line)
   "Run the rdebug Ruby debugger and start the Emacs user interface.
@@ -1762,7 +1820,7 @@ and options used to invoke rdebug."
            (rdebug-buffer (get-buffer rdebug-buffer-name)))
 
       ;; `gud-rdebug-massage-args' needs whole `command-line'.
-      ;; command-line is refered through dyanmic scope.
+      ;; command-line is refered through dynamic scope.
       (gud-common-init command-line 'gud-rdebug-massage-args
                        'gud-rdebug-marker-filter 'gud-rdebug-find-file)
 
@@ -1775,6 +1833,8 @@ and options used to invoke rdebug."
       (when rdebug-buffer (kill-buffer rdebug-buffer))
       (rename-buffer rdebug-buffer-name)
 
+      (rdebug-common-initialization)
+
       ;; Setup exit callback so that the original frame configuration
       ;; can be restored.
       (let ((process (get-buffer-process gud-comint-buffer)))
@@ -1783,46 +1843,6 @@ and options used to invoke rdebug."
           (set-process-sentinel process
                                 'rdebug-process-sentinel)))
 
-      ;; This opens up "Gud" menu, which isn't used since we've got our
-      ;; own "Debugger" menu.
-
-      ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
-
-      (gud-def gud-args   "info args" "a"
-               "Show arguments of current stack.")
-      (gud-def gud-break  "break %d%f:%l""\C-b"
-               "Set breakpoint at current line.")
-      (gud-def gud-cont   "continue"   "\C-r"
-               "Continue with display.")
-      (gud-def gud-down   "down %p"     ">"
-               "Down N stack frames (numeric arg).")
-      (gud-def gud-finish "finish"      "\C-f"
-               "Finish executing current function.")
-      (gud-def gud-next   "next %p"     "\C-n"
-               "Step one line (skip functions).")
-      (gud-def gud-print  "p %e"        "\C-p"
-               "Evaluate Ruby expression at point.")
-      (gud-def gud-source-resync "up 0" "\C-l"
-               "Show current source window")
-      (gud-def gud-remove "clear %d%f:%l" "\C-d"
-               "Remove breakpoint at current line")
-      (gud-def gud-quit    "quit"       "Q"
-               "Quit debugger.")
-      (gud-def gud-run    "restart"       "R"
-               "Restart the Ruby script.")
-      (gud-def gud-statement "eval %e" "\C-e"
-               "Execute Ruby statement at point.")
-      (gud-def gud-step   "step %p"       "\C-s"
-               "Step one source line with display.")
-      (gud-def gud-step-plus "step+ %p"       "+"
-               "Step one source line with display.")
-      (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
-               "Set temporary breakpoint at current line.")
-      (gud-def gud-up     "up %p"
-               "<" "Up N stack frames (numeric arg).")
-      (gud-def gud-where   "where"
-               "T" "Show stack trace.")
-      (local-set-key "\C-i" 'gud-gdb-complete-command)
 
       ;; Add the buffer-displaying commands to the Gud buffer,
       (let ((prefix-map (make-sparse-keymap)))
@@ -1837,9 +1857,32 @@ and options used to invoke rdebug."
 
       (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
               rdebug-debugger-support-minor-mode-map-when-active)
-      (when rdebug-many-windows (rdebug-setup-windows-initially))
+      (when rdebug-many-windows
+        (rdebug-setup-windows-initially))
 
       (run-hooks 'rdebug-mode-hook))))
+
+
+(defun rdebug-set-windows (&optional name)
+  "Rename the processor buffer to correspond to script name NAME.
+
+When `rdebug-many-windows' is non-nil, the initial debugger
+window layout is used."
+  (interactive "sProgram name: ")
+  (rdebug-debug-enter "rdebug-set-windows"
+    (rdebug-set-window-configuration-state 'debugger t)
+    (rdebug-common-initialization)
+    (when name
+      (setq gud-target-name name)
+      (setq gud-comint-buffer (current-buffer)))
+    (when gud-last-frame
+      (setq gud-last-last-frame gud-last-frame))
+    (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
+
+    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+            rdebug-debugger-support-minor-mode-map-when-active)
+    (when rdebug-many-windows
+      (rdebug-setup-windows))))
 
 
 (defun rdebug-quit ()
