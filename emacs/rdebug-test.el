@@ -147,15 +147,15 @@ file and line submatches."
   (let ((buf (generate-new-buffer "testing")))
     (save-excursion 
      (switch-to-buffer buf)
-     (insert "#0 at line /tmp/gcd.rb:4")
+     (insert "#0 at line /tmp/gcd.rb:4\n")
      (goto-char (point-min))
      (assert-equal t (rdebug-goto-entry-try "0"))
      (assert-equal nil (rdebug-goto-entry-try "1"))
-     (insert "  1 y   at gcd.rb:10")
+     (insert "  1 y   at gcd.rb:10\n")
      (goto-char (point-min))
      ; Don't know why this doesn't work.
      ;(assert-equal t (rdebug-goto-entry-try "1"))
-     (insert "5: 1 + 2 = 3")
+     (insert "5: 1 + 2 = 3\n")
      (goto-char (point-min))
      (assert-equal t (rdebug-goto-entry-try "5"))
      (goto-char (point-min))
