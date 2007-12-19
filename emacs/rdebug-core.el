@@ -511,7 +511,7 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
 (defvar rdebug-goto-entry-acc "")
 
 (defun rdebug-goto-entry-try (str)
-  (if (re-search-forward (concat "^[^0-9]+\\(" str "\\)[^0-9]") nil t)
+  (if (re-search-forward (concat "^[^0-9]*\\(" str "\\)[^0-9]") nil t)
       (progn
         (setq rdebug-goto-entry-acc str)
         (goto-char (match-end 1))
