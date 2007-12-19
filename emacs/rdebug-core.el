@@ -1778,10 +1778,10 @@ and options used to invoke rdebug."
       ;; Setup exit callback so that the original frame configuration
       ;; can be restored.
       (let ((process (get-buffer-process gud-comint-buffer)))
-        (if process
-	    (gud-call (format "set width %d" rdebug-line-width))
-            (set-process-sentinel process
-                                  'rdebug-process-sentinel)))
+        (when process
+          (gud-call (format "set width %d" rdebug-line-width))
+          (set-process-sentinel process
+                                'rdebug-process-sentinel)))
 
       ;; This opens up "Gud" menu, which isn't used since we've got our
       ;; own "Debugger" menu.
