@@ -511,33 +511,37 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
 (defvar rdebug-goto-entry-acc "")
 
 (defun rdebug-goto-entry-try (str)
+  (goto-char (point-min))
   (if (re-search-forward (concat "^[^0-9]*\\(" str "\\)[^0-9]") nil t)
       (progn
-        (setq rdebug-goto-entry-acc str)
         (goto-char (match-end 1))
         t)
     nil))
 
+;; The following is split two to facilitate debugging.
+(defun rdebug-goto-entry-n-internal (keys)
+  (if (and (stringp keys)
+           (= (length keys) 1))
+      (progn
+        (setq rdebug-goto-entry-acc (concat rdebug-goto-entry-acc keys))
+        ;; Try to find the longest suffix.
+        (let ((acc rdebug-goto-entry-acc)
+              (p (point)))
+          (while (not (string= acc ""))
+            (if (not (rdebug-goto-entry-try acc))
+                (setq acc (substring acc 1))
+              (setq p (point))
+              ;; Break loop.
+              (setq acc "")))
+          (goto-char p)))
+    (message "`rdebug-goto-entry-n' must be bound to a number key")))
 
 (defun rdebug-goto-entry-n ()
   "Go to an entry number."
   (interactive)
-  (let ((keys (this-command-keys)))
-    (if (and (stringp keys)
-             (= (length keys) 1))
-        (progn
-          (if (not (eq last-command 'rdebug-goto-entry-n))
-              (setq rdebug-goto-entry-acc ""))
-          (let ((p nil))
-            (save-excursion
-              (goto-char (point-min))
-              (if (or (rdebug-goto-entry-try (concat rdebug-goto-entry-acc keys))
-                      (rdebug-goto-entry-try keys))
-                  (setq p (point))))
-            (when p
-              (goto-char p))))
-      (message "`rdebug-goto-entry-n' must be bound to a number key"))))
-
+  (if (not (eq last-command 'rdebug-goto-entry-n))
+      (setq rdebug-goto-entry-acc ""))
+  (rdebug-goto-entry-n-internal (this-command-keys)))
 
 (defun rdebug-populate-digit-keys (map)
   (define-key map "0" 'rdebug-goto-entry-n)

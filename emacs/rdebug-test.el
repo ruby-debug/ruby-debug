@@ -143,9 +143,9 @@ file and line submatches."
 				"localhost" "foo" "-1")))
 )
 
-(deftest "rdebug-goto-entry-test" ()
+(deftest "rdebug-goto-entry-test"
   (let ((buf (generate-new-buffer "testing")))
-    (save-excursion 
+    (save-excursion
      (switch-to-buffer buf)
      (insert "#0 at line /tmp/gcd.rb:4\n")
      (goto-char (point-min))
@@ -162,6 +162,39 @@ file and line submatches."
      (assert-equal nil (rdebug-goto-entry-try "3")))
     (kill-buffer buf)))
 
+(defun rdebug-test-call-entry-n (str)
+  "Call `rdebug-goto-entry-n', return the line we landed on."
+  (rdebug-goto-entry-n-internal str)
+  (beginning-of-line)
+  (count-lines (point-min) (point)))
+
+;; The original implementation could not go to "10" if there was no "1" entry.
+(deftest "rdebug-goto-entry-test-2"
+  (let ((buf (generate-new-buffer "testing")))
+    (save-excursion
+     (switch-to-buffer buf)
+     (insert "#0 at line /tmp/gcd.rb:4\n")
+     (insert "#2 at line /tmp/gcd.rb:44\n")
+     (insert "#13 at line /tmp/gcd.rb:444\n")
+     (goto-char (point-min))
+     (setq rdebug-goto-entry-acc "")
+     ;; Goto "0"
+     (assert-equal 0 (rdebug-test-call-entry-n "0"))
+     ;; Goto "0"
+     (assert-equal 1 (rdebug-test-call-entry-n "2"))
+     ;; There is no "1" or "21" or "021", so stay.
+     (assert-equal 1 (rdebug-test-call-entry-n "1"))
+     ;; Goto "13"
+     (assert-equal 2 (rdebug-test-call-entry-n "3"))
+     ;; There is no "5", "35", or "135", so stay.
+     (assert-equal 2 (rdebug-test-call-entry-n "5"))
+     ;; Goto "0"
+     (assert-equal 0 (rdebug-test-call-entry-n "0"))
+     ;; Goto "2"
+     (assert-equal 1 (rdebug-test-call-entry-n "2")))
+    (kill-buffer buf)))
+
+
 (build-suite "rdebug-suite" 
 	     "rdebug-regexp-breakpoint-test" 
 	     "rdebug-regexp-file-test" 
@@ -169,7 +202,8 @@ file and line submatches."
 	     "rdebug-traceback-test"
 	     "rdebug-unittest-traceback-test" 
 	     "rdebug-marker-filter-test"
-	     "rdebug-goto-entry-test")
+	     "rdebug-goto-entry-test"
+	     "rdebug-goto-entry-test-2")
 (run-elk-test "rdebug-suite"
               "test regular expression used in tracking lines")
 
