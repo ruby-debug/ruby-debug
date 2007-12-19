@@ -5,6 +5,7 @@
 ; Would have to prepend . to load-path. 
 (load-file "./rdebug.el")
 (load-file "./rdebug-core.el")
+(load-file "./rdebug-track.el")
 
 ; Redefine functions to make them harmless for testing
 (defun rdebug-process-annotation (name contents)
@@ -70,6 +71,10 @@ ABC")))
   (regexp-file-test 
    "\032\032./hanoi.rb:3\n"
    "./hanoi.rb"
+   )
+  (regexp-file-test 
+   "\032\032C:/tmp/gcd.rb:29\n"
+   "C:/tmp/gcd.rb"
    )
 )
 
@@ -138,13 +143,33 @@ file and line submatches."
 				"localhost" "foo" "-1")))
 )
 
+(deftest "rdebug-goto-entry-test" ()
+  (let ((buf (generate-new-buffer "testing")))
+    (save-excursion 
+     (switch-to-buffer buf)
+     (insert "#0 at line /tmp/gcd.rb:4")
+     (goto-char (point-min))
+     (assert-equal t (rdebug-goto-entry-try "0"))
+     (assert-equal nil (rdebug-goto-entry-try "1"))
+     (insert "  1 y   at gcd.rb:10")
+     (goto-char (point-min))
+     ; Don't know why this doesn't work.
+     ;(assert-equal t (rdebug-goto-entry-try "1"))
+     (insert "5: 1 + 2 = 3")
+     (goto-char (point-min))
+     (assert-equal t (rdebug-goto-entry-try "5"))
+     (goto-char (point-min))
+     (assert-equal nil (rdebug-goto-entry-try "3")))
+    (kill-buffer buf)))
+
 (build-suite "rdebug-suite" 
 	     "rdebug-regexp-breakpoint-test" 
 	     "rdebug-regexp-file-test" 
 	     "rdebug-regexp-stack-test" 
 	     "rdebug-traceback-test"
 	     "rdebug-unittest-traceback-test" 
-	     "rdebug-marker-filter-test") 
+	     "rdebug-marker-filter-test"
+	     "rdebug-goto-entry-test")
 (run-elk-test "rdebug-suite"
               "test regular expression used in tracking lines")
 
