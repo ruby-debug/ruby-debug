@@ -1276,7 +1276,7 @@ The higher score the better."
   "Keymap to navigate rdebug stack frames.")
 
 (defun rdebug-frames-mode ()
- "Major mode for displaying the stack trace in the `rdebug' Ruby debugger.
+  "Major mode for displaying the stack trace in the `rdebug' Ruby debugger.
 
 \\{rdebug-frames-mode-map}"
   (interactive)
@@ -1872,7 +1872,7 @@ window layout is used."
   (rdebug-debug-enter "rdebug-set-windows"
     (rdebug-set-window-configuration-state 'debugger t)
 
-    ; from gud-common-init
+    ;; from gud-common-init
     (gud-mode)
     (set (make-local-variable 'gud-marker-filter) 'gud-rdebug-marker-filter)
     (set (make-local-variable 'gud-find-file) 'gud-rdebug-find-file)

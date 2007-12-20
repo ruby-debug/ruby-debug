@@ -75,7 +75,7 @@ and options used to invoke rdebug." t)
 
 This includes a 'Debugger' menu and special key bindings when the
 debugger is active."
- t)
+  t)
 
 
 (autoload 'turn-on-rdebug-track-mode "rdebug-track"
