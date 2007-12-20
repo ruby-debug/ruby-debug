@@ -1871,6 +1871,16 @@ window layout is used."
   (interactive "sProgram name: ")
   (rdebug-debug-enter "rdebug-set-windows"
     (rdebug-set-window-configuration-state 'debugger t)
+
+    ; from gud-common-init
+    (gud-mode)
+    (set (make-local-variable 'gud-marker-filter) 'gud-rdebug-marker-filter)
+    (set (make-local-variable 'gud-find-file) 'gud-rdebug-find-file)
+    (setq gud-last-last-frame nil)
+    (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
+    (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
+    (gud-set-buffer)
+
     (rdebug-common-initialization)
     (when name
       (setq gud-target-name name)
