@@ -147,8 +147,58 @@ http://rubyforge.org/projects/ruby-debug/
 .SH OPTIONS
 .PP
 .TP 10
+.TP
+.B \-A | \-\-annotate LEVEL
+Set gdb-style annotation to LEVEL, a number. Additional information is output
+automatically when program state is changed. This can be used by
+front-ends such as GNU Emacs to post this updated information without
+having to poll for it.
+.TP
+.B \-s | \-\-server
+Listen for remote connections. Another rdebug session accesses using the \-\-client option.
+See also the \-\-host, \-\-port and
+\-\-cport options
+.TP
+.B \-d | \-\-debug
+Set $DEBUG true.
+.TP
+.B \-\-emacs
+Activates GNU Emacs mode. Debugger prompts are prefaced with two octal
+032 characters.
+.TP
 .B \-h | \-\-help
 Show invocation help and exit.
+.TP
+.B \-w | \-\-wait
+Wait for a client connection, implies -s option.
+.TP
+.B \-\-client
+Connect to a remote debugger. Used with another rdebug invocation using \-\-server.
+See also \-\-host and \-\-cport options
+.TP
+.B \-h | \-\-host=HOST
+Host name used for remote debugging.
+.TP
+.B \-p | \-\-port=PORT
+Host name used for remote debugging.
+.TP
+.B \-\-cport=PORT
+Port used for contol commands.
+.TP
+.B \-\-no-control
+Do not automatically start control thread.
+.TP
+.B \-x | \-\-trace
+Show lines before executing them.
+.TP
+.B \-\-no\-quit
+Do not quit when script terminates. Instead rerun the program.
+.TP
+.B \-\-script FILE
+Name of the script file to run.
+.TP
+.B \-r | \-\-require SCRIPT
+Require the library, before executing your script.
 .TP
 .B \-\-version
 Show the version number and exit.
@@ -161,59 +211,23 @@ Print the version number, then turn on verbose mode if a script name
 is given. If no script name is given just exit after printing the
 version number.
 .TP
-.B \-n | \-\-nx
-Don't execute commands found in any initialization files
+.B \-I | \-\-include PATH
+Add PATH to $LOAD_PATH
 .TP
-.B \-\-client
-Connect to a remote debugger. Used with another rdebug invocation using \-\-server.
-See also \-\-host and \-\-cport options
+.B \-m | \-\-post-mortem
+Activate post-mortem mode.
 .TP
-.B \-s | \-\-server
-Listen for remote connections. Another rdebug session accesses using the \-\-client option.
-See also the \-\-host, \-\-port and
-\-\-cport options
+.B \-n | \-\-no\-stop
+Do not stop when script is loaded.
+.TP
+.B \-\-nx
+Don't execute commands found in any initialization files, e.g. .rdebugrc.
 .TP
 .B \-\-keep-frame-binding
 Keep frame bindings.
 .TP
 .B \-x | \-\-command=FILE
 Execute commands from FILE
-.TP
-.B \-\-emacs
-Activates GNU Emacs mode. Debugger prompts are pref
-.TP
-.B \-n | \-\-noquit
-Do not quit when script terminates. Instead rerun the program.
-.TP
-.B \-n | \-\-nostop
-Do not stop when script is loaded.
-.TP
-.b \-a | \-\-annotate=LEVEL
-Set gdb-style annotation to LEVEL, a number. Additional information is output
-automatically when program state is changed. This can be used by
-front-ends such as GNU Emacs to post this updated information without
-having to poll for it.
-.TP
-.B \-\-debug
-Set $DEBUG true.
-.TP
-.B \-h | \-\-host=HOST
-Host name used for remote debugging
-.TP
-.B \-p | \-\-port=PORT
-Host name used for remote debugging
-.TP
-.B \-p | \-\-cport=PORT
-Port used for contol commands
-.TP
-.B \-\-no-control
-Do not automatically start control thread
-.TP
-.B \-x | \-\-trace
-Show lines before executing them.
-.TP
-.B \-m | \-\-post-mortem
-Activate post-mortem mode.
 .PD
 .SH "SEE ALSO"
 .Sp

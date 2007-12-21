@@ -984,7 +984,7 @@ Options:
         --no-control                 Do not automatically start control thread
     -x, --trace                      turn on line tracing
         --no-quit                    Do not quit when script finishes
-    -n, --nostop                     Do not stop when script is loaded
+    -n, --no-stop                    Do not stop when script is loaded
     -m, --post-mortem                Activate post-mortem mode
     -I, --include PATH               Add PATH to $LOAD_PATH
         --script FILE                Name of the script file to run

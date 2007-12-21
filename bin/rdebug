@@ -17,6 +17,7 @@ options = OpenStruct.new(
   'wait'        => false,
   'no-quit'     => false,
   'no-stop'     => false,
+  'nx'          => false,
   'post_mortem' => false,
   'script'      => nil,
   'tracing'     => false,
@@ -24,6 +25,7 @@ options = OpenStruct.new(
   'verbose_long'=> false
 )
 
+program = File.basename($0)
 opts = OptionParser.new do |opts|
   opts.banner = <<EOB
 #{program} #{Debugger::VERSION}
@@ -34,6 +36,7 @@ EOB
   opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") {|Debugger::annotate|}
   opts.on("-s", "--server", "Listen for remote connections") {options.server = true}
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
+  opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
   opts.on("-w", "--wait", "Wait for a client connection, implies -s option") {options.wait = true}
   opts.on("-c", "--client", "Connect to remote debugger") {options.client = true}
   opts.on("-h", "--host HOST", "Host name used for remote debugging") {|options.host|}
@@ -44,10 +47,13 @@ EOB
   opts.on("--no-quit", "Do not quit when script finishes") {
     options.noquit = true
   }
-  opts.on("-n", "--no-stop", "Do not stop when script is loaded") {options.nostop = true}
-  opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
+  end
+  opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
+  opts.on("-n", "--no-stop", "Do not stop when script is loaded") {options.nostop = true}
+  opts.on("-nx", "Not run debugger initialization files (e.g. .rdebugrc") do
+    options.nx = true
   end
   opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
     unless File.exists?(options.script)
@@ -63,7 +69,6 @@ EOB
     end
   end
   opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
-  opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do
@@ -127,9 +132,10 @@ else
   
   if options.server
     # start remote mode
-    Debugger.start_remote(options.host, [options.port, options.cport], options.post_mortem) do
+    Debugger.start_remote(options.host, [options.port, options.cport], 
+                          options.post_mortem) do
       # load initrc script
-      Debugger.run_init_script(StringIO.new)
+      Debugger.run_init_script(StringIO.new) unless options.nx
     end
     # load script
     Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
@@ -139,8 +145,8 @@ else
     # start control thread
     Debugger.start_control(options.host, options.cport) if options.control
 
-    # load initrc script
-    Debugger.run_init_script(StringIO.new)
+    # load initrc script (e.g. .rdebugrc)
+    Debugger.run_init_script(StringIO.new) unless options.nx
     
     # run startup script if specified
     if options.script

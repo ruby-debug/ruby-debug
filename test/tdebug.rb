@@ -16,8 +16,9 @@ $: << File.join(TOP_SRC_DIR, "cli")
 
 options = OpenStruct.new(
   'wait'        => false,
-  'noquit'      => false,
-  'nostop'      => false,
+  'no-quit'     => false,
+  'no-stop'     => false,
+  'nx'          => false,
   'post_mortem' => false,
   'script'      => nil,
   'tracing'     => false,
@@ -42,6 +43,9 @@ EOB
     options.noquit = true
   }
   opts.on("-n", "--no-stop", "Do not stop when script is loaded") {options.nostop = true}
+  opts.on("-nx", "Not run debugger initialization files (e.g. .rdebugrc") do
+    options.nx = true
+  end
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
@@ -143,8 +147,8 @@ Debugger.start
 # start control thread
 Debugger.start_control(options.host, options.cport) if options.control
 
-# load initrc script
-Debugger.run_init_script(StringIO.new)
+# load initrc script (e.g. .rdebugrc)
+Debugger.run_init_script(StringIO.new) unless options.nx
 
 # run startup script if specified
 if options.script

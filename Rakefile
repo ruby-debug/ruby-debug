@@ -71,10 +71,12 @@ base_spec = Gem::Specification.new do |spec|
   spec.name = "ruby-debug-base"
   
   spec.homepage = "http://rubyforge.org/projects/ruby-debug/"
-  spec.summary = "Fast Ruby debugger"
+  spec.summary = "Fast Ruby debugger - core component"
   spec.description = <<-EOF
 ruby-debug is a fast implementation of the standard Ruby debugger debug.rb.
-It is implemented by utilizing a new Ruby C API hook.
+It is implemented by utilizing a new Ruby C API hook. The core component 
+provides support that front-ends can build on. It provides breakpoint 
+handling, bindings for stack frames among other things.
 EOF
 
   spec.version = RUBY_DEBUG_VERSION
