@@ -78,7 +78,7 @@ debugger is active."
   t)
 
 
-(autoload 'rdebug-track-attach "rdebug-core"
+(autoload 'rdebug-track-attach "rdebug-track"
   "Do things to make the current process buffer work like a
 rdebug command buffer." t)
 

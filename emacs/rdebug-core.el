@@ -592,6 +592,10 @@ Currently-active file is at the head of the list.")
       (puthash "help"        'rdebug--setup-secondary-window-help-buffer map)
       map)))
 
+(defvar rdebug-current-line-number 1
+  "The line number in a secondary window that you were in. We need to save
+  this value because secondary windows get recreated a lot")
+
 (defun rdebug-process-annotation (name contents)
   (rdebug-debug-enter "rdebug-process-annotation"
     ;; Ruby-debug uses the name "starting" for process output (just like
@@ -609,7 +613,8 @@ Currently-active file is at the head of the list.")
         (setq buffer-read-only t)
         (let ((inhibit-read-only t)
               (setup-func (gethash name rdebug--annotation-setup-map)))
-	  (set (make-local-variable 'current-line-number) (line-number-at-pos))
+	  (set (make-local-variable 'rdebug-current-line-number) 
+	       (line-number-at-pos))
           (if (string= name "output")
               (goto-char (point-max))
             (erase-buffer))
@@ -1124,7 +1129,8 @@ The higher score the better."
   (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
     (with-current-buffer buf
       (let ((inhibit-read-only t) 
-	    (old-line-number (buffer-local-value 'current-line-number buf))
+	    (old-line-number (buffer-local-value 'rdebug-current-line-number 
+						 buf))
 	    (flag))
         (rdebug-breakpoints-mode)
         (goto-char (point-min))

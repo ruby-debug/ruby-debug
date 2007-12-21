@@ -91,6 +91,7 @@ This is the @value{EDITION} Edition, @value{UPDATED}
 
 Indexes (nodes containing large menus)
 * Command Index::             An item for each command name.
+* Emacs Command Index::       An item for each Emacs Debugger Command.
 * General Index::             An item for each concept.
 @end menu
 
@@ -2707,10 +2708,8 @@ Returns a binding of @var{n}-th call frame.
 @menu
 * autoloaded functions::
 * Debugger Buffers:: 
+* Emacs Debugger Commands::
 * Emacs with Annotate:: A richer debugging environment
-@ifset FINISHED
-* Debugger Commands::
-@end ifset
 @end menu
 
 @cindex @value{Emacs}
@@ -2729,17 +2728,15 @@ To use this interface, you to load @code{rdebug.el}.
 @end smallexample 
 
 Once this is done, some commands become autoloaded. In particular
-@kbd{rdebug}, @kbd{rdebug-turn-on-debugger-support}, and
-@kbd{turn-on-rdebugtrack-mode}.
+@kbd{rdebug}, @kbd{rdebug-turn-on-debugger-support}, 
+@kbd{turn-on-rdebugtrack-mode} and @kbd{rdebug-track-attach}.
 
 @node autoloaded functions
 @section Autoloaded functions
 
 @menu
 * Emacs rdebug:: Invoke the ruby debugger initially
-@ifset FINISHED
-* Emacs rdebug-turn-rdebugtrack-mode::   track entering rdebug when entered in a shell
-@end ifset
+* Emacs shell tracking mode::  Entering rdebug from an existing shell buffer
 @end menu
 
 @node Emacs rdebug
@@ -2773,13 +2770,31 @@ with your script.  In particular, you can send signals the usual
 way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
 stop.
 
+@node Emacs shell tracking mode
+@subsection Entering rdebug from an existing shell buffer
+
+Many times it's not feasible to enter the debugger from the outset. Instead a call to the debugger is put inside the program. See @xref{Unit Testing Session}.
+
+It is also possible in GNU emacs to use a (``comint'') shell and set a
+mode to watch for @value{DBG} prompts and track the source code in
+another window. @xref{Interactive Shell, , Shell, Emacs, The @value{Emacs}
+Manual}.
+
+To enable, this run @kbd{M-x turn-on-rdebug-track-mode}. There is some overhead
+involved in scanning output, so if you are not debugging Ruby programs
+you probably want to turn this off which can be done via the M-x
+@code{turn-off-rdebugtrack} command.
+
+If you want to use even more integratation and tracking, run @kbd{M-x
+rdebug-track-attach} and then inside the debugger give the debugger
+command @kbd{set annotate 3}. Emacs interaction when annotate is in effect is described in @xref{Emacs with Annotate}.
+
 @node Debugger Buffers
 @section Debugger Buffers
 
 @menu
 * Debugger Command Buffer:: 
 * Emacs Source::  Commands from the source script
-* Emacs Shell::   @value{DBG} from a @value{Emacs} Shell
 @end menu
 
 @node Debugger Command Buffer
@@ -2837,16 +2852,16 @@ final keystroke. For example @code{C-c n} in a secondary window is
 @item C-h m
 Describe the features of Emacs' @value{DBG} Mode.
 
-@item C-c C-b (gud-break)
+@item C-x C-a C-b (gud-break)
 Set breakpoint at current line.
 
-@item C-c C-d (gud-remove)
+@item C-x C-a C-d (gud-remove)
 Remove breakpoint at current line.
 
-@item C-c C-e (gud-statement)
+@item C-x C-a C-e (gud-statement)
 Execute Ruby statement at point.
 
-@item C-c C-l (gud-refresh)
+@item C-x C-a C-l (gud-refresh)
 
 @item C-c RET (comint-copy-old-input)
 Insert after prompt old input at point as new input to be edited.
@@ -2855,19 +2870,19 @@ Calls `comint-get-old-input' to get old input.
 @item C-c n (gud-next)
 Step one line, skipping functions. (Step over).
 
-@item C-c C-o (comint-delete-output)
+@item C-x C-a C-o (comint-delete-output)
 comint-delete-output is an interactive compiled Lisp function in `comint.el'.
 (comint-delete-output)
 
 Delete all output from interpreter since last input.
 Does not delete the prompt.
 
-@item C-c C-p (gud-print)
+@item C-x C-a C-p (gud-print)
 
-@item C-c C-r (gud-cont)
+@item C-x C-a C-r (gud-cont)
 
 @item C-c SPC (gud-step @var{arg})
-@itemx C-c C-s (gud-step @var{arg})
+@itemx C-x C-a C-s (gud-step @var{arg})
 Step one source line. Same as @value{DBG} @code{step} command. The
 @value{Emacs} command name is @code{gud-step} and @code{C-x C-a C-s}
 is an alternate binding which can be used in the source
@@ -2878,22 +2893,22 @@ With a numeric argument, run that many times.
 Manual}.
 
 
-@item C-c C-t (gud-tbreak @var{arg})
+@item C-x C-a C-t (gud-tbreak @var{arg})
 Set temporary breakpoint at current line.
 
-@item C-c C-u (gud-until @var{arg})
+@item C-x C-a C-u (gud-until @var{arg})
 gud-until is an interactive compiled Lisp function.
 It is bound to C-x C-a C-u.
 (gud-until arg)
 
 Continue to current line or address.
 
-@item C-c C-v (gud-pv)
+@item C-x C-a C-v (gud-pv)
 Print the value of a variable.
 
-@item C-c C-w (backward-kill-word)
-@item C-c C-x (comint-get-next-from-history)
-@item C-c C-z (comint-stop-subjob)
+@item C-x C-a C-w (backward-kill-word)
+@item C-x C-a C-x (comint-get-next-from-history)
+@item C-x C-a C-z (comint-stop-subjob)
 Stop the current subjob.
 This command also kills the pending input
 between the process mark and point.
@@ -2903,7 +2918,7 @@ the top-level process running in the buffer.  If you accidentally do
 this, use M-x comint-continue-subjob to resume the process.  (This
 is not a problem with most shells, since they ignore this signal.)
 
-@item C-c C-\ (comint-quit-subjob)
+@item C-x C-a C-\ (comint-quit-subjob)
 Send quit signal to the current subjob.
 This command also kills the pending input
 between the process mark and point.
@@ -2933,7 +2948,7 @@ Manual}.
 
 @item C-c ?	(rdebug-display-secondary-window-help-buffer)
 @item C-c B	(rdebug-display-breakpoints-buffer)
-@item C-c C	(rdebug-display-cmd-buffer)
+@item C-x C-a C	(rdebug-display-cmd-buffer)
 @item C-c O	(rdebug-display-output-buffer)
 
 @item C-c R	(gud-run)
@@ -2953,7 +2968,7 @@ Display the rdebug watch buffer.
 @item C-c f	(gud-finish @var{arg})
 Finish executing current function.
 
-@itemx C-c C-f (gud-finish)
+@itemx C-x C-a C-f (gud-finish)
 Finish executing current function. The Same as @value{DBG}
 @code{finish} command. @xref{Finish}.
 
@@ -2968,7 +2983,7 @@ Manual}.
 @item C-c p	(gud print)
 @item C-c q	(gud quit)
 
-@item C-c Cl
+@item C-x C-a Cl
 Resynchronize the current position with the source window. The
 @value{Emacs} command name is @code{gud-refresh} and @code{C-x C-a
 C-l} is an alternate binding which also can be used in the source script.
@@ -3062,7 +3077,7 @@ With a numeric argument, run that many times.
 Manual}.
 
 The @value{Emacs} command name is @code{gud-step}. In the
-corresponding I/O buffer, @code{C-c C-s} is an alternate binding.
+corresponding I/O buffer, @code{C-x C-a C-s} is an alternate binding.
 
 @item C-x C-a C-e
 
@@ -3088,7 +3103,7 @@ argument, run that many times.  @xref{Arguments, , Numeric Arguments,
 Emacs, The @value{Emacs} Manual}.
 
 The @value{Emacs} command name is @code{gud-next}. In the
-corresponding I/O buffer, @code{C-c C-n} is an alternate binding.
+corresponding I/O buffer, @code{C-x C-a C-n} is an alternate binding.
 
 @item C-x C-a f	C-f
 
@@ -3097,7 +3112,7 @@ corresponding I/O buffer, @code{C-c C-n} is an alternate binding.
 @item C-x C-a C-r
 Continue execution of your script Same as @value{DBG} @code{continue}
 command. The @value{Emacs} command name is @code{gud-cont}. In the
-corresponding I/O buffer, @code{C-c C-r} is an alternate binding. See
+corresponding I/O buffer, @code{C-x C-a C-r} is an alternate binding. See
 @ref{Continue}.
 
 @item C-x C-a C-b
@@ -3116,22 +3131,80 @@ used in the source script.
 @item C-x C-a C-l
 Move to current position in this source window. The @value{Emacs}
 command name is @code{gud-refresh}. In the corresponding I/O buffer,
-@code{C-c C-l} is an alternate binding.
+@code{C-x C-a C-l} is an alternate binding.
 
 @end table
 
-@node Emacs Shell
-@subsection @value{DBG} from a @value{Emacs} Shell
+@node Emacs Debugger Commands
+@section Emacs Debugger Commands
 
-It is also possible in GNU emacs to use a (``comint'') shell
-and set a mode to watch for @value{DBG} prompts. @xref{Interactive
-Shell, , Shell, Emacs, The @value{Emacs} Manual}.
+@menu
+* Emacs Debugger Common Commands::
+* Emacs Debugger Breakpoint Buffer Commands::
+* Emacs Debugger Stack Buffer Commands::
+* Emacs Debugger Variable Buffer Commands::
+* Emacs Debugger Watch Buffer Commands::
+* Emacs GUD Commands::
+@end menu
 
-To run Ruby in a shell in Emacs but track source lines this, issue the
-command (from M-x) @code{turn-on-rdebugtrack}. There is some overhead
-involved in scanning output, so if you are not debugging Ruby programs
-you probably want to turn this off which can be done via the M-x
-@code{turn-off-rdebugtrack} command.
+@node Emacs Debugger Common Commands
+@subsection Emacs Debugger Common Commands
+
+@table @kbd
+@item rdebug-display-breakpoints-buffer
+@findex rdebug-display-breakpoints-buffer
+@item rdebug-display-cmd-buffer
+@findex rdebug-display-cmd-buffer
+@item rdebug-display-output-buffer
+@findex rdebug-display-output-buffer
+@item rdebug-display-secondary-window-help-buffer
+@findex rdebug-display-secondary-window-help-buffer
+@item rdebug-display-stack-buffer
+@findex rdebug-display-stack-buffer
+@item rdebug-display-variables-buffer
+@findex rdebug-display-variables-buffer
+@item rdebug-display-watch-buffer
+@findex rdebug-display-watch-buffer
+@end table
+
+
+@node Emacs Debugger Breakpoint Buffer Commands
+@subsection Emacs Debugger Breakpoint Buffer Commands
+
+@table @kbd
+@item rdebug-goto-breakpoint
+@findex rdebug-goto-breakpoint
+@item rdebug-goto-breakpoint-mouse
+@findex rdebug-goto-breakpoint-mouse
+@end table
+
+@node Emacs Debugger Stack Buffer Commands
+@subsection Emacs Debugger Stack Buffer Commands
+
+@table @kbd
+@item rdebug-goto-stack-frame
+@findex rdebug-goto-stack-frame
+@end table
+
+@node Emacs Debugger Variable Buffer Commands
+@subsection Emacs Debugger Variable Buffer Commands
+
+@table @kbd
+@item rdebug-variables-edit
+@findex rdebug-variables-edit
+@end table
+
+@node Emacs Debugger Watch Buffer Commands
+@subsection Emacs Debugger Watch Buffer Commands
+
+@table @kbd
+@end table
+
+@node Emacs GUD Commands
+@subsection Emacs Debugger GUD Commands
+
+@table @kbd
+@end table
 
 @node Emacs with Annotate
 @section A richer debugging environment using @code{--annotate}
@@ -3236,6 +3309,10 @@ Buffer specific commands
 @unnumbered Command Index
 @printindex ky
 
+@node Emacs Command Index
+@unnumbered Emacs Command Index
+@printindex fn
+
 @node General Index
 @unnumbered General Index
 @printindex cp
@@ -3257,3 +3334,4 @@ Buffer specific commands
 @end tex
 
 @bye
+p
