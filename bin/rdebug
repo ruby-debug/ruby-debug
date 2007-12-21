@@ -15,8 +15,8 @@ options = OpenStruct.new(
   'cport'       => Debugger::PORT + 1,
   'control'     => true,
   'wait'        => false,
-  'noquit'      => false,
-  'nostop'      => false,
+  'no-quit'     => false,
+  'no-stop'     => false,
   'post_mortem' => false,
   'script'      => nil,
   'tracing'     => false,
@@ -26,8 +26,8 @@ options = OpenStruct.new(
 
 opts = OptionParser.new do |opts|
   opts.banner = <<EOB
-ruby-debug #{Debugger::VERSION}
-Usage: rdebug [options] <script.rb> -- <script.rb parameters>
+#{program} #{Debugger::VERSION}
+Usage: #{program} [options] <script.rb> -- <script.rb parameters>
 EOB
   opts.separator ""
   opts.separator "Options:"
@@ -44,7 +44,7 @@ EOB
   opts.on("--no-quit", "Do not quit when script finishes") {
     options.noquit = true
   }
-  opts.on("-n", "--nostop", "Do not stop when script is loaded") {options.nostop = true}
+  opts.on("-n", "--no-stop", "Do not stop when script is loaded") {options.nostop = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
@@ -159,6 +159,7 @@ else
       exit $?.exitstatus 
     end
     if options.noquit
+      Debugger.stop if Debugger.started?
       while true do
         begin
           Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop

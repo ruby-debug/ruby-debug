@@ -16,6 +16,7 @@ $: << File.join(TOP_SRC_DIR, "cli")
 
 options = OpenStruct.new(
   'wait'        => false,
+  'noquit'      => false,
   'nostop'      => false,
   'post_mortem' => false,
   'script'      => nil,
@@ -34,9 +35,13 @@ Usage: #{program} [options] <script.rb> -- <script.rb parameters>
 EOB
   opts.separator ""
   opts.separator "Options:"
+  opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") {|Debugger::annotate|}
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
   opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
-  opts.on("-n", "--nostop", "Do not stop when stript is loaded") {options.nostop = true}
+  opts.on("--no-quit", "Do not quit when script finishes") {
+    options.noquit = true
+  }
+  opts.on("-n", "--no-stop", "Do not stop when script is loaded") {options.nostop = true}
   opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
@@ -133,5 +138,47 @@ if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
   puts output
   exit $?.exitstatus 
 end
-Debugger.debug_load Debugger::PROG_SCRIPT, true
+# activate debugger
+Debugger.start
+# start control thread
+Debugger.start_control(options.host, options.cport) if options.control
 
+# load initrc script
+Debugger.run_init_script(StringIO.new)
+
+# run startup script if specified
+if options.script
+  Debugger.run_script(options.script)
+end
+# activate post-mortem
+Debugger.post_mortem if options.post_mortem
+Debugger.tracing = options.nostop = true if options.tracing
+
+# Make sure Ruby script syntax checks okay.
+# Otherwise we get a load message that looks like rdebug has 
+# a problem. 
+output = `ruby -c #{Debugger::PROG_SCRIPT} 2>&1`
+if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
+  puts output
+  exit $?.exitstatus 
+end
+if options.noquit
+  while true do
+    Debugger.stop if Debugger.started?
+    begin
+      Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+    rescue
+      print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
+      print "Uncaught exception: #{$!}\n"
+    end
+    # FIXME: add status for whether we are interactive or not.
+    # if STDIN.tty? and !options.nostop
+    if !options.nostop
+      print "The program has finished and will be restarted.\n"
+    else
+      break
+    end
+  end
+else
+  Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+end

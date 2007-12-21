@@ -969,7 +969,7 @@ option.
 
 @smallexample
 $ @b{rdebug --help}
-ruby-debug 0.9.4
+ruby-debug 0.10.0
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 
 Options:
@@ -983,7 +983,8 @@ Options:
         --cport PORT                 Port used for contol commands
         --no-control                 Do not automatically start control thread
     -x, --trace                      turn on line tracing
-    -n, --nostop                     Do not stop when stript is loaded
+        --no-quit                    Do not quit when script finishes
+    -n, --nostop                     Do not stop when script is loaded
     -m, --post-mortem                Activate post-mortem mode
     -I, --include PATH               Add PATH to $LOAD_PATH
         --script FILE                Name of the script file to run
@@ -994,7 +995,8 @@ Options:
 Common options:
         --verbose                    turn on verbose mode
         --help                       Show this message
-    -v, --version                    Show version
+        --version                    print the version
+    -v                               print version number, then turn on verbose mode
 @end smallexample
 
 Options for the @code{rdebug} are shown in the following list.  
@@ -1315,7 +1317,7 @@ display a short list of named classes of commands:
 @flushleft
 @smallexample
 (rdb:1) @b{help}
-ruby-debug help v0.9.4
+ruby-debug help v0.10.0
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
@@ -1324,6 +1326,7 @@ break      display  finish  list    ps      save     thread     where
 catch      down     frame   method  putl    set      trace    
 continue   enable   help    next    quit    show     undisplay
 delete     eval     info    p       reload  source   up       
+
 @end smallexample
 @end flushleft
 @c the above line break eliminates huge line overfull...
@@ -1337,11 +1340,11 @@ information on how to use that command.
 
 @smallexample
 (rdb:1) @b{help list}
-ruby-debug help v0.9.4
-l[ist]          list forward
-l[ist] -        list backward
-l[ist] =        list current line
-l[ist] nn-mm    list given lines
+ruby-debug help v0.10.0
+l[ist]		list forward
+l[ist] -	list backward
+l[ist] =	list current line
+l[ist] nn-mm	list given lines
 * NOTE - to turn on autolist, use 'set autolist'
 (rdb:1)
 @end smallexample
