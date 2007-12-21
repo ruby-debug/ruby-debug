@@ -785,16 +785,26 @@ If the buffer doesn't exists it is created."
 ;; -- General, for all secondary buffers.
 
 
+;; Note: We want the key binding to show in the menu. However, our
+;; situation is a little bit complex:
+;;
+;; 1) We want the binding of the `common' man (i.e. the function key
+;;    the user has selected.)
+;;
+;; 2) We want this even when the menu is disabled and the key isn't
+;;    bound, typically when the debugger isn't running.
+;;
+;; This has been solved by setting up an explicit ":keys" properly.
 (defun rdebug-menu-item (common-map name cmd &rest args)
   "Return a menu item entry with the correct key bindings.
 
 A command can be bound to a number of different key sequences. If
 the rdebug common map contains a binding it is displayed in the
 menu. (The common map typically contains function key bindings.)"
-  (let ((key-binding-list (where-is-internal cmd (list common-map)))
+  (let ((key-binding (where-is-internal cmd (list common-map) t))
         (hint '()))
-    (if key-binding-list
-        (setq hint (list :key-sequence (car key-binding-list))))
+    (if key-binding
+        (setq hint (list :keys (key-description key-binding))))
     (append (list 'menu-item name cmd)
             hint
             args)))
