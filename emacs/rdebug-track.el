@@ -233,7 +233,41 @@ This function is designed to be added to hooks, for example:
   (interactive)
   (rdebug-track-mode 1))
 
-(defun turn-off-rdebug-track ()
+(defun rdebug-track-attach (&optional name)
+  "Do things to make the current process buffer work like a
+rdebug command buffer. In particular, the buffer is renamed,
+gud-mode is set, and rdebug-track-mode is turned on, among other
+things. When `rdebug-many-windows' is non-nil, the initial debugger
+window layout is used."
+  (interactive "sProgram name: ")
+  (rdebug-debug-enter "rdebug-set-windows"
+    (rdebug-set-window-configuration-state 'debugger t)
+
+    ;; from gud-common-init
+    (gud-mode)
+    (set (make-local-variable 'gud-marker-filter) 'gud-rdebug-marker-filter)
+    (set (make-local-variable 'gud-find-file) 'gud-rdebug-find-file)
+    (setq gud-last-last-frame nil)
+    (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
+    (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
+    (gud-set-buffer)
+
+    (rdebug-track-mode 1)
+    (rdebug-common-initialization)
+    (when name
+      (setq gud-target-name name)
+      (setq gud-comint-buffer (current-buffer)))
+    (when gud-last-frame
+      (setq gud-last-last-frame gud-last-frame))
+    (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
+
+    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+            rdebug-debugger-support-minor-mode-map-when-active)
+    (when rdebug-many-windows
+      (rdebug-setup-windows))))
+
+
+(defun turn-off-rdebug-track-mode ()
   "Turn off rdebug-track mode."
   (interactive)
   (setq rdebug-track-is-tracking-p nil)
