@@ -537,7 +537,16 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
     (message "`rdebug-goto-entry-n' must be bound to a number key")))
 
 (defun rdebug-goto-entry-n ()
-  "Go to an entry number."
+  "Go to an entry number.
+
+Breakpoints, Display expressions and Stack Frames all have
+numbers associated with them which are distinct from line
+numbers. In a secondary buffer, this function is usually bound to
+a numeric key. which will position you at that entry number. To
+go to an entry above 9, just keep entering the number. For
+example, if you press 1 and then 9, you should jump to entry
+1 (if it exists) and then 19 (if that exists). Entering any
+non-digit will start entry number from the beginning again."
   (interactive)
   (if (not (eq last-command 'rdebug-goto-entry-n))
       (setq rdebug-goto-entry-acc ""))
@@ -765,19 +774,24 @@ If the buffer doesn't exists it is created."
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 
-(defun rdebug-display-original-window-configuration ()
-  "Display the layout of windows prior to starting the rdebug Ruby debugger."
-  (interactive)
-  (rdebug-set-window-configuration-state 'original)
-  (message
-   "Type `M-x rdebug-display-debugger-window-configuration RET' to restore."))
-
 (defun rdebug-display-debugger-window-configuration ()
-  "Display the current layout of windows of the rdebug Ruby debugger."
+  "Display the current layout of windows of the rdebug Ruby debugger.
+See also `rdebug-display-original-window-configuration'"
   (interactive)
   (rdebug-set-window-configuration-state 'debugger)
   (message
    "Type `M-x rdebug-display-original-window-configuration RET' to restore."))
+
+(defun rdebug-display-original-window-configuration ()
+  "Display the layout of windows prior to starting the rdebug Ruby debugger.
+
+This function is called upon quitting the debugger and
+`rdebug-many-windows' is not nil. See also
+`rdebug-display-debugger-window-configuration'."
+  (interactive)
+  (rdebug-set-window-configuration-state 'original)
+  (message
+   "Type `M-x rdebug-display-debugger-window-configuration RET' to restore."))
 
 
 ;; Fontification and keymaps for secondary buffers (breakpoints, stack)
@@ -1554,7 +1568,7 @@ This function is intended to be bound to a mouse key"
       (gud-call (format "display %s" expr))))
 
 (defun rdebug-watch-delete ()
-  "Delete a watched expression in the `rdebug' Ruby debugger."
+  "Delete a display expression in the `rdebug' Ruby debugger."
   (interactive)
   (save-excursion
     (beginning-of-line)
@@ -1562,7 +1576,7 @@ This function is intended to be bound to a mouse key"
         (gud-call (format "undisplay %s" (match-string 1))))))
 
 (defun rdebug-watch-edit (number expr)
-  "Edit a watched expression in the `rdebug' Ruby debugger."
+  "Edit a display expression in the `rdebug' Ruby debugger."
   (interactive
    (let ((number nil)
          (expr nil))
@@ -1892,10 +1906,10 @@ and options used to invoke rdebug."
 
 
 (defun rdebug-quit ()
-  "Kill current debugger process.
+  "Kill the debugger process associated with the current buffer.
 
-When `rdebug-many-windows' is active, restores the original
-window layout."
+When `rdebug-many-windows' is active, the original window layout
+is restored."
   (interactive)
   (if (yes-or-no-p "Really quit? ")
       (gud-call "quit unconditionally")))

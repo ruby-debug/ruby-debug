@@ -737,7 +737,7 @@ solutions = []
 ...
     #11 Test::Unit::AutoRunner.run 
        at line /usr/lib/ruby/1.8/test/unit/autorunner.rb:200
-    #12 Test::Unit::AutoRunner.run(force_standalone#FalseClass, default_dir#NilClass,...) 
+    #12 Test::Unit::AutoRunner.run(force_standalone#FalseClass, ...
        at line /usr/lib/ruby/1.8/test/unit/autorunner.rb:13
     #13 at line /usr/lib/ruby/1.8/test/unit.rb:285
 (rdb:1) 
@@ -1633,14 +1633,25 @@ and so does the output of the @code{method} commands.
 @smallexample
 @group
 (rdb:1) ps Kernel.private_methods
-Rational                 class_variable_get    included            private                   singleton_method_removed  
-active_gem_with_options  class_variable_set    initialize          protected                 singleton_method_undefined
-alias_method             define_method         initialize_copy     public                    timeout                   
-append_features          extend_object         location_of_caller  remove_class_variable     undef_method              
-attr                     extended              method_added        remove_const              y                         
-attr_accessor            gem_original_require  method_removed      remove_instance_variable
-attr_reader              hanoi                 method_undefined    remove_method           
-attr_writer              include               module_function     singleton_method_added  
+Digest                   initialize                  y
+Pathname                 initialize_copy           
+Rational                 location_of_caller        
+active_gem_with_options  method_added              
+alias_method             method_removed            
+append_features          method_undefined          
+attr                     module_function           
+attr_accessor            private                   
+attr_reader              protected                 
+attr_writer              public                    
+class_variable_get       remove_class_variable     
+class_variable_set       remove_const              
+define_method            remove_instance_variable  
+extend_object            remove_method             
+extended                 singleton_method_added    
+gcd                      singleton_method_removed  
+gem_original_require     singleton_method_undefined
+include                  timeout                   
+included                 undef_method              
 @end group
 @end smallexample
 
@@ -2992,7 +3003,7 @@ With a numeric argument, run that many times.
 @xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
 Manual}.
 
-@item C-c q	(gud quit)
+@item C-c q	(gud-quit)
 
 @item C-x C-a C-l
 Resynchronize the current position with the source window. The
@@ -3225,6 +3236,35 @@ Display the debugger variables buffer. Bound to: @kbd{C-x C-a V},
 @findex rdebug-display-watch-buffer (@kbd{W})
 Display the debugger variables buffer. Bound to: @kbd{C-x C-a W},
 @kbd{<menu-bar> <debugger> <view> <watch>}. Secondary buffers: @kbd{V}.
+
+@item (rdebug-display-debugger-window-configuration)
+@findex rdebug-display-debugger-window-configuration
+Display the current layout of windows of the rdebug Ruby debugger.
+@item (rdebug-display-original-window-configuration)
+@findex rdebug-display-original-window-configuration
+Display the layout of windows prior to starting the rdebug Ruby
+debugger.  This function is called upon quitting the debugger and
+@var{rdebug-many-windows} is not nil.
+@item (rdebug-goto-entry-n)
+@findex rdebug-goto-entry-n
+Breakpoints, Display expressions and Stack Frames all have
+numbers associated with them which are distinct from line
+numbers. In a secondary buffer, this function is usually bound to
+a numeric key. which will position you at that entry number. To
+go to an entry above 9, just keep entering the number. For
+example, if you press 1 and then 9, you should jump to entry
+1 (if it exists) and then 19 (if that exists). Entering any
+non-digit will start entry number from the beginning again.
+@item (rdebug-quit) --- q
+@findex rdebug-quit (n)
+Kill the debugger process associated with the buffer.
+
+When @var{rdebug-many-windows} is active, the original window layout is
+restored.
+@item (rdebug-restore-windows)
+@findex rdebug-restore-windows
+Display the initial ruby debugger window layout.
+
 @end table
 
 
@@ -3236,6 +3276,10 @@ Display the debugger variables buffer. Bound to: @kbd{C-x C-a W},
 @findex rdebug-goto-breakpoint
 @item (rdebug-goto-breakpoint-mouse)
 @findex rdebug-goto-breakpoint-mouse
+@item (rdebug-breakpoints-mode)
+@findex rdebug-breakpoints-mode
+Major mode for displaying brackpoints in a secondary window. Uses
+@var{rdebug-breakpoints-mode-map}.
 @end table
 
 @node Emacs Debugger Stack Buffer Commands
@@ -3244,6 +3288,10 @@ Display the debugger variables buffer. Bound to: @kbd{C-x C-a W},
 @table @kbd
 @item (rdebug-goto-stack-frame)
 @findex rdebug-goto-stack-frame
+@item (rdebug-frames-mode)
+@findex rdebug-frames-mode
+Major mode for displaying the stack trace. Uses
+@var{rdebug-frames-mode-map}.
 @end table
 
 @node Emacs Debugger Variable Buffer Commands
@@ -3258,6 +3306,19 @@ Display the debugger variables buffer. Bound to: @kbd{C-x C-a W},
 @subsection Emacs Debugger Watch Buffer Commands
 
 @table @kbd
+@item (rdebug-watch-add)
+@findex rdebug-watch-add
+Add a display expression.
+@item (rdebug-watch-delete)
+@findex rdebug-watch-delete
+Delete a display expression.
+@item (rdebug-watch-edit)
+@findex rdebug-watch-edit
+Edit a display expression.
+@item (rdebug-watch-mode)
+@findex rdebug-watch-mode
+Major mode for displaying the display expressions. Uses
+@var{rdebug-watch-mode-map}.
 @end table
 
 @node Emacs GUD Commands
