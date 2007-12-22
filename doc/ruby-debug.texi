@@ -969,34 +969,34 @@ option.
 
 @smallexample
 $ @b{rdebug --help}
-ruby-debug 0.10.0
+rdebug 0.10.0
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 
 Options:
     -A, --annotate LEVEL             Set annotation level
-    -s, --server                     Listen for remote connections
-    -d, --debug                      Set $DEBUG=true
-    -w, --wait                       Wait for a client connection, implies -s option
     -c, --client                     Connect to remote debugger
-    -h, --host HOST                  Host name used for remote debugging
-    -p, --port PORT                  Port used for remote debugging
         --cport PORT                 Port used for contol commands
+    -d, --debug                      Set $DEBUG=true
+        --emacs                      Activates emacs mode
+    -h, --host HOST                  Host name used for remote debugging
+    -I, --include PATH               Add PATH to $LOAD_PATH
+        --keep-frame-binding         Keep frame bindings
+    -m, --post-mortem                Activate post-mortem mode
         --no-control                 Do not automatically start control thread
-    -x, --trace                      turn on line tracing
         --no-quit                    Do not quit when script finishes
     -n, --no-stop                    Do not stop when script is loaded
-    -m, --post-mortem                Activate post-mortem mode
-    -I, --include PATH               Add PATH to $LOAD_PATH
-        --script FILE                Name of the script file to run
+    -p, --port PORT                  Port used for remote debugging
     -r, --require SCRIPT             Require the library, before executing your script
-        --keep-frame-binding         Keep frame bindings
-        --emacs                      Activates emacs mode
+        --script FILE                Name of the script file to run
+    -s, --server                     Listen for remote connections
+    -w, --wait                       Wait for a client connection, implies -s option
+    -x, --trace                      Turn on line tracing
 
 Common options:
-        --verbose                    turn on verbose mode
+        --verbose                    Turn on verbose mode
         --help                       Show this message
-        --version                    print the version
-    -v                               print version number, then turn on verbose mode
+        --version                    Print the version
+    -v                               Print version number, then turn on verbose mode
 @end smallexample
 
 Options for the @code{rdebug} are shown in the following list.  
@@ -1031,7 +1031,7 @@ This option causes @ttDBG{} to print some basic help and exit.
 @cindex @code{-v}
 This option causes @ttDBG{} to print its version number and exit.
 
-@item -A | --annotation @var{level}
+@item -A | --annotate @var{level}
 @cindex @code{-A}
 @cindex @code{--annotation} @var{level}
 Set gdb-style annotation @var{level}, a number. Additional information is output
@@ -1045,67 +1045,26 @@ Connect to remote debugger. The remote debugger should have been set
 up previously our you will get a connection error and @code{rdebug}
 will terminate. 
 
-@item -s | --server
-@cindex @code{-s}
-@cindex @code{--server}
-Debug the program but listen for remote connections on the default
-port or port set up via the @code{--port} option. See also @code{--wait}.
-
-@item -w | --wait
-@cindex @code{-w}
-@cindex @code{--wait}
-Debug the program but stop waiting for a client connection first. This
-option automatically sets @code{--server} option.
-
-@item -p | --port @var{port}
-@cindex @code{-p} @var{port}
-@cindex @code{--port} @var{port}
-Port used for remote debugging.
-
 @item --cport @var{port}
 @cindex @code{--cport} @var{port}
 Port used for control commands.
 
-@item -x | --trace
-@cindex @code{-x}
-@cindex @code{--trace}
-Turn on line tracing.
-
-@item -I --include @var{PATH}
-@cindex @code{-I} @var{PATH}
-@cindex @code{--include} @var{PATH}
-Add @var{PATH} to @code{$LOAD_PATH}
-
-@item -r | --require @var{library}
-@cindex @code{-r}
-@cindex @code{--require}
-Require the library, before executing your script
+@item --debug
+@cindex @code{--debug}
+Set @code{$DEBUG} to @code{true}. This option is compatible with
+Ruby's.
 
 @item --emacs
 Activates GNU Emacs mode (@pxref{GNU Emacs}). Debugger output is tagged in
 such a way to allow GNU Emacs to track where you are in the code.
 
-@item --no-control
-@cindex @code{--no-control}
-Do not automatically start control thread.
+@item -h | --host @var{host address}
+Connect host address for remote debugging.
 
-@item --nostop
-@cindex @code{--nostop}
-Normally the @code{rdebug} stops before executing the first
-statement. If instead you want it to start running initially and will
-perhaps break it later in the running, use this options.
-
-@item --no-quit
-@cindex @code{--no-quit}
-Restart the debugger when your program terminates normally.
-
-@item -m | --post-mortem
-@cindex @code{-m}
-@cindex @code{--post-mortem}
-If your program raises an exception that isn't caught you can enter
-the debugger for inspection of what went wrong. You may also want to
-use this option in conjuctoin with @code{--no-stop}. See also 
-@ref{Post-Mortem Debugging}. 
+@item -I --include @var{PATH}
+@cindex @code{-I} @var{PATH}
+@cindex @code{--include} @var{PATH}
+Add @var{PATH} to @code{$LOAD_PATH}
 
 @item --keep-frame-binding
 @cindex @code{--keep-frame-binding}
@@ -1125,6 +1084,64 @@ constant and module name resolution.
 However it's still possible to restore the old, slower behavior by
 using this option or by setting @code{Debugger.keep_frame_binding =
 true}.
+
+@item -m | --post-mortem
+@cindex @code{-m}
+@cindex @code{--post-mortem}
+If your program raises an exception that isn't caught you can enter
+the debugger for inspection of what went wrong. You may also want to
+use this option in conjuctoin with @code{--no-stop}. See also 
+@ref{Post-Mortem Debugging}. 
+
+@item -p | --port @var{port}
+@cindex @code{-p} @var{port}
+@cindex @code{--port} @var{port}
+Port used for remote debugging.
+
+@item -r | --require @var{library}
+@cindex @code{-r}
+@cindex @code{--require}
+Require the library, before executing your script. However if the
+library happend to be @code{debug}, we'll just ignore the require
+(since we're already a debugger). This option is compatible with Ruby's.
+
+@item --script @var{file}
+@cindex @code{--script}
+Require the library, before executing your script. However if the
+library happend to be @code{debug}, we'll just ignore the require
+(since we're already a debugger). This option is compatible with Ruby's.
+
+@item -s | --server
+@cindex @code{-s}
+@cindex @code{--server}
+Debug the program but listen for remote connections on the default
+port or port set up via the @code{--port} option. See also @code{--wait}.
+
+@item -w | --wait
+@cindex @code{-w}
+@cindex @code{--wait}
+Debug the program but stop waiting for a client connection first. This
+option automatically sets @code{--server} option.
+
+@item -x | --trace
+@cindex @code{-x}
+@cindex @code{--trace}
+Turn on line tracing.
+
+@item --no-control
+@cindex @code{--no-control}
+Do not automatically start control thread.
+
+@item --no-stop
+@cindex @code{--no-stop}
+Normally the @code{rdebug} stops before executing the first
+statement. If instead you want it to start running initially and will
+perhaps break it later in the running, use this options.
+
+@item --no-quit
+@cindex @code{--no-quit}
+Restart the debugger when your program terminates normally.
+
 @end table
 
 @node Command Files
@@ -2848,7 +2865,7 @@ sequence which also can be used in the also be used in the source
 script. These are listed in @ref{Emacs Source}.
 
 In secondary buffers many commands are available the corresponding
-final keystroke. For example @code{C-c n} in a secondary window is
+final keystroke. For example @code{C-c n} in a secondary buffer is
 @code{n}.
 
 @table @kbd
@@ -2880,8 +2897,6 @@ comint-delete-output is an interactive compiled Lisp function in `comint.el'.
 Delete all output from interpreter since last input.
 Does not delete the prompt.
 
-@item C-x C-a C-p (gud-print)
-
 @item C-x C-a C-r (gud-cont)
 
 @item C-c SPC (gud-step @var{arg})
@@ -2898,16 +2913,6 @@ Manual}.
 
 @item C-x C-a C-t (gud-tbreak @var{arg})
 Set temporary breakpoint at current line.
-
-@item C-x C-a C-u (gud-until @var{arg})
-gud-until is an interactive compiled Lisp function.
-It is bound to C-x C-a C-u.
-(gud-until arg)
-
-Continue to current line or address.
-
-@item C-x C-a C-v (gud-pv)
-Print the value of a variable.
 
 @item C-x C-a C-w (backward-kill-word)
 @item C-x C-a C-x (comint-get-next-from-history)
@@ -3153,21 +3158,70 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 @node Emacs Debugger Common Commands
 @subsection Emacs Debugger Common Commands
 
+The commands in this section are used to make a secondary buffer
+visible. If the buffer doesn't exist, nothing is done.
+The way the buffer is made visible is follows the following
+rules tried in order:
+
+@enumerate
+@item
+If the buffer doesn't exist, do nothing. 
+@item 
+If the buffer is already displayed, switch to it. 
+@item 
+If the current buffer is a
+secondary buffer, bury it replacing with the requested
+buffer. 
+@item 
+If there is secondary buffer visible, that
+is replaced instead.  
+@item 
+Just pick a visible buffer to bury and replace.
+                            @end enumerate
+
+The commands are also have key bindings that end in an uppercase
+letter. This letter is given in parenthesis. When in one of the
+secondary buffers, the uppcase letter is bound to the command as well.
+
 @table @kbd
-@item rdebug-display-breakpoints-buffer
-@findex rdebug-display-breakpoints-buffer
-@item rdebug-display-cmd-buffer
-@findex rdebug-display-cmd-buffer
-@item rdebug-display-output-buffer
-@findex rdebug-display-output-buffer
-@item rdebug-display-secondary-window-help-buffer
-@findex rdebug-display-secondary-window-help-buffer
-@item rdebug-display-stack-buffer
-@findex rdebug-display-stack-buffer
-@item rdebug-display-variables-buffer
-@findex rdebug-display-variables-buffer
-@item rdebug-display-watch-buffer
-@findex rdebug-display-watch-buffer
+
+@item (rdebug-display-breakpoints-buffer) (@kbd{B})
+@findex rdebug-display-breakpoints-buffer (@kbd{B})
+Display the rdebug breakpoings buffer.  Bound to: @kbd{C-x C-a B},
+@kbd{<menu-bar> <debugger> <view> <breakpoints>}. Secondary buffers:
+@kbd{O}.
+
+@item (rdebug-display-cmd-buffer) (@kbd{C})
+@findex rdebug-display-cmd-buffer (@kbd{C})
+Display the debugger command buffer.
+
+Bound to: @kbd{C-x C-a C}, @kbd{<menu-bar> <debugger> <view> <shell>}.
+
+@item (rdebug-display-output-buffer) (@kbd{O})
+@findex rdebug-display-output-buffer (@kbd{?})
+Display the debugger output buffer.
+
+Bound to: @kbd{C-x C-a O}, @kbd{<menu-bar> <debugger> <view>
+<output>}. Secondary buffers: @kbd{O}.
+
+@item (rdebug-display-secondary-window-help-buffer) (@kbd{?})
+@findex rdebug-display-secondary-window-help-buffer (@kbd{?})
+
+@item (rdebug-display-stack-buffer) (@kbd{T})
+@findex rdebug-display-stack-buffer (@kbd{T})
+Display the debugger stack buffer. Bound to: @kbd{C-x C-a T},
+@kbd{<menu-bar> <debugger> <view> <stack>}. Secondary buffers: @kbd{T}.
+
+@item (rdebug-display-variables-buffer) (@kbd{V})
+@findex rdebug-display-variables-buffer (@kbd{V})
+Display the debugger variables buffer. Bound to: @kbd{C-x C-a V},
+@kbd{<menu-bar> <debugger> <view> <variables>}.  Secondary buffers:
+@kbd{V}.
+
+@item (rdebug-display-watch-buffer) (@kbd{W})
+@findex rdebug-display-watch-buffer (@kbd{W})
+Display the debugger variables buffer. Bound to: @kbd{C-x C-a W},
+@kbd{<menu-bar> <debugger> <view> <watch>}. Secondary buffers: @kbd{V}.
 @end table
 
 
@@ -3175,9 +3229,9 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 @subsection Emacs Debugger Breakpoint Buffer Commands
 
 @table @kbd
-@item rdebug-goto-breakpoint
+@item (rdebug-goto-breakpoint)
 @findex rdebug-goto-breakpoint
-@item rdebug-goto-breakpoint-mouse
+@item (rdebug-goto-breakpoint-mouse)
 @findex rdebug-goto-breakpoint-mouse
 @end table
 
@@ -3185,7 +3239,7 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 @subsection Emacs Debugger Stack Buffer Commands
 
 @table @kbd
-@item rdebug-goto-stack-frame
+@item (rdebug-goto-stack-frame)
 @findex rdebug-goto-stack-frame
 @end table
 
@@ -3193,7 +3247,7 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 @subsection Emacs Debugger Variable Buffer Commands
 
 @table @kbd
-@item rdebug-variables-edit
+@item (rdebug-variables-edit)
 @findex rdebug-variables-edit
 @end table
 
@@ -3207,6 +3261,39 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 @subsection Emacs Debugger GUD Commands
 
 @table @kbd
+@item (comint-copy-old-input)
+@findex comint-copy-old-input
+Insert after prompt old input at point as new input to be edited.
+Calls `comint-get-old-input' to get old input.
+@item (comint-delete-output)
+@findex comint-delete-output
+Delete all output from interpreter since last input.
+Does not delete the prompt.
+@item (gud-break)
+@findex gud-break
+Set a breakpoint on the source line point is on.
+@item (gud-cont) (c)
+@findex gud-cont (c)
+Continue execution. 
+@item (gud-next) (n)
+@findex gud-next (n)
+Step one line, skipping functions. (Step over).
+@item (gud-refresh)
+@findex gud-refresh
+Fix up a possibly garbled display, and redraw the arrow.
+@item (gud-remove)
+@findex gud-remove
+Remove breakpoint at current line.
+@item (gud-step) (s)
+@findex gud-step (s)
+Step one statement. (Step into)
+@item (gud-step-plus) (+)
+@findex gud-step-plus (+)
+Run @code{step+}---like @code{gud-step} but ensure we go to a new
+line.
+@item (gud-tbreak @var{arg})
+@findex gud-tbreak
+Set temporary breakpoint at current line.
 @end table
 
 @node Emacs with Annotate
@@ -3308,13 +3395,13 @@ Buffer specific commands
   return toggle breakpoint (enable/disable it)
 @end verbatim
 
-@node Command Index
-@unnumbered Command Index
-@printindex ky
-
 @node Emacs Command Index
 @unnumbered Emacs Command Index
 @printindex fn
+
+@node Command Index
+@unnumbered Command Index
+@printindex ky
 
 @node General Index
 @unnumbered General Index

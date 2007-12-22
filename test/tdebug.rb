@@ -15,15 +15,15 @@ $: << File.join(TOP_SRC_DIR, "lib")
 $: << File.join(TOP_SRC_DIR, "cli")
 
 options = OpenStruct.new(
-  'wait'        => false,
+  'frame_bind'  => false,
   'no-quit'     => false,
   'no-stop'     => false,
   'nx'          => false,
   'post_mortem' => false,
   'script'      => nil,
   'tracing'     => false,
-  'frame_bind'  => false,
-  'verbose_long'=> false
+  'verbose_long'=> false,
+  'wait'        => false
 )
 
 require "ruby-debug"
@@ -36,9 +36,16 @@ Usage: #{program} [options] <script.rb> -- <script.rb parameters>
 EOB
   opts.separator ""
   opts.separator "Options:"
-  opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") {|Debugger::annotate|}
+  opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") do 
+    |Debugger::annotate|
+  end
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
-  opts.on("-x", "--trace", "turn on line tracing") {options.tracing = true}
+  opts.on("--keep-frame-binding", "Keep frame bindings") do 
+    options.frame_bind = true
+  end
+  opts.on("--no-control", "Do not automatically start control thread") do 
+    options.control = false
+  end
   opts.on("--no-quit", "Do not quit when script finishes") {
     options.noquit = true
   }
@@ -50,20 +57,21 @@ EOB
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
-  opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
-    unless File.exists?(options.script)
-      puts "Script file '#{options.script}' is not found"
-      exit
-    end
-  end
-  opts.on("-r", "--require SCRIPT", String,"Require the library, before executing your script") do |name|
+  opts.on("-r", "--require SCRIPT", String,
+          "Require the library, before executing your script") do |name|
     if name == 'debug'
       puts "ruby-debug is not compatible with Ruby's 'debug' library. This option is ignored."
     else
       require name
     end
   end
-  opts.on("--keep-frame-binding", "Keep frame bindings") {options.frame_bind = true}
+  opts.on("--script FILE", String, "Name of the script file to run") do |options.script| 
+    unless File.exists?(options.script)
+      puts "Script file '#{options.script}' is not found"
+      exit
+    end
+  end
+  opts.on("-x", "--trace", "Turn on line tracing") {options.tracing = true}
   ENV['EMACS'] = nil
   opts.separator ""
   opts.separator "Common options:"
@@ -72,16 +80,16 @@ EOB
     exit
   end
   opts.on_tail("--version", 
-               "print the version") do
+               "Print the version") do
     puts "ruby-debug #{Debugger::VERSION}"
     exit
   end
-  opts.on("--verbose", "turn on verbose mode") do
+  opts.on("--verbose", "Turn on verbose mode") do
     $VERBOSE = true
     options.verbose_long = true
   end
   opts.on_tail("-v", 
-               "print version number, then turn on verbose mode") do
+               "Print version number, then turn on verbose mode") do
     puts "ruby-debug #{Debugger::VERSION}"
     $VERBOSE = true
   end

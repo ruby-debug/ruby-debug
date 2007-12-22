@@ -1005,7 +1005,12 @@ C-a)."
 
 (defun rdebug-display-secondary-buffer (name)
   "Display one of the rdebug secondary buffers.
-If the buffer doesn't exist, do nothing."
+If the buffer doesn't exist, do nothing. If the buffer is already
+displayed, switch to it. Otherwise if the current buffer is a
+secondary buffer, bury it replacing with the requested
+buffer. Failing that, if there is secondary buffer visible, that
+is replaced instead.  And finally failing all of the preceding,
+we'll just pick a visible buffer to bury and replace."
   (let* ((target-name (or (and gud-comint-buffer
                                (buffer-local-value 'gud-target-name
                                                    gud-comint-buffer))
