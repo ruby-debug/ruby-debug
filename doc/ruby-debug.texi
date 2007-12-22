@@ -57,7 +57,7 @@
 @sp 1
 @subtitle @value{EDITION} Edition
 @subtitle @value{UPDATED-MONTH}
-@author Rocky Bernstein and Kent Sibelev
+@author Rocky Bernstein and Kent Sibilev
 @page
 @ifset WHERETO
 @tex
@@ -89,9 +89,13 @@ This is the @value{EDITION} Edition, @value{UPDATED}
 * Debugger Module and Class::   ruby-debug's Debugger module and class
 * GNU Emacs::                   Using @code{ruby-debug} from GNU Emacs
 
+Appendix
+* Using from Subversion::
+
 Indexes (nodes containing large menus)
-* Command Index::             An item for each command name.
+* Emacs Key Binding Index::   An item for each Emacs Key Binding.
 * Emacs Command Index::       An item for each Emacs Debugger Command.
+* Command Index::             An item for each command name.
 * General Index::             An item for each concept.
 @end menu
 
@@ -129,7 +133,7 @@ debugger.
 
 @menu
 * First Sample Session::   A Simple Sample @code{rdebug} session
-* Second Sample Session::  Second Session Delving a little deper @code{rdebug} session
+* Second Sample Session::  Second Session Delving a little deeper @code{rdebug} session
 * Unit Testing Session::   Using the debugger in unit testing
 * Debugging Oddities::     How debugging Ruby may be different...
 @end menu
@@ -505,7 +509,7 @@ that display expression is removed.
 
 Above we also used a new comand @code{where} (@pxref{Backtrace} to
 show the call stack. In the above situation, starting from the bottom
-line we se we called the hanoi from line 35 of the file
+line we see we called the hanoi from line 35 of the file
 @code{hanoi.rb} and the hanoi method called itself two more times at
 line 5.
 
@@ -600,7 +604,7 @@ outset on this code in ``standalone'' operation, the condition needs to
 more complicated because @code{$0} will be @code{rdebug} rather than
 the program, @code{tri2.rb} here. And if you use @code{rcov} to test
 program coverage, it will show this code as being ``dead''. To get
-around thse problems here's the actual condition test I use:
+around these problems here's the actual condition test I use:
 @smallexample
 if __FILE__ == $0 or
     ($DEBUG and ['rdebug', 'rcov'].include?(File.basename($0)))
@@ -639,7 +643,7 @@ Here's the test code:
 @end smallexample
 
 If you run it will work. However if you run @code{rdebug} initially,
-you wan't get into the test, because @code{test/unit} wants to be the
+you want get into the test, because @code{test/unit} wants to be the
 main program. So here is a situation where one needs to modify the
 program to add an explicit call to the debugger.
 
@@ -750,12 +754,12 @@ bet that when @code{Test::Unit} was first called, shown above as frame
 @node Debugging Oddities
 @section How debugging Ruby may be different than debugging other Languages
 
-If you are used to debugging in other langauges like C, C++, Perl,
+If you are used to debugging in other languages like C, C++, Perl,
 Java or even Bash@footnote{this is just an excuse to put in a
 shameless plug for my bash debugger @url{http://bashdb.sf.net}}, there
 may be a number of things that seem or feel a little bit different and
 may confuse you. A number of these things aren't oddities of the
-debugger per se, so much as a difference in how Ruby works compared to
+debugger per see, so much as a difference in how Ruby works compared to
 those other languages. Because Ruby works a little differently from
 those other languages, writing a debugger has to also be a little
 different as well if it is to be useful.
@@ -975,7 +979,7 @@ Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 Options:
     -A, --annotate LEVEL             Set annotation level
     -c, --client                     Connect to remote debugger
-        --cport PORT                 Port used for contol commands
+        --cport PORT                 Port used for control commands
     -d, --debug                      Set $DEBUG=true
         --emacs                      Activates emacs mode
     -h, --host HOST                  Host name used for remote debugging
@@ -1090,7 +1094,7 @@ true}.
 @cindex @code{--post-mortem}
 If your program raises an exception that isn't caught you can enter
 the debugger for inspection of what went wrong. You may also want to
-use this option in conjuctoin with @code{--no-stop}. See also 
+use this option in conjunction with @code{--no-stop}. See also 
 @ref{Post-Mortem Debugging}. 
 
 @item -p | --port @var{port}
@@ -1102,13 +1106,13 @@ Port used for remote debugging.
 @cindex @code{-r}
 @cindex @code{--require}
 Require the library, before executing your script. However if the
-library happend to be @code{debug}, we'll just ignore the require
+library happened to be @code{debug}, we'll just ignore the require
 (since we're already a debugger). This option is compatible with Ruby's.
 
 @item --script @var{file}
 @cindex @code{--script}
 Require the library, before executing your script. However if the
-library happend to be @code{debug}, we'll just ignore the require
+library hap-pend to be @code{debug}, we'll just ignore the require
 (since we're already a debugger). This option is compatible with Ruby's.
 
 @item -s | --server
@@ -1217,7 +1221,7 @@ or slowdown until you reach the point at which you want to start
 debugging. However here you must change the script and make an
 explicit call to the debugger. Because the debugger isn't involved
 before the first call, there is no overhead and the script will run
-atDo the same speed as if there were no debugger.
+at the same speed as if there were no debugger.
 
 There are three parts to calling the debugger from inside the script,
 ``requiring'' the debugger code, telling the debugger to start
@@ -1471,7 +1475,7 @@ Execute the command file @var{filename}.
 The lines in a command file are executed sequentially.  They are not
 printed as they are executed.  If there is an error, execution
 proceeds to the next command in the file. For information about
-command files that get run automaticaly on startup, @pxref{Command Files}.
+command files that get run automatically on startup, @pxref{Command Files}.
 @end table
 
 @node DisplayCommands
@@ -1571,7 +1575,7 @@ does in @code{irb}.
 @item eval @var{expr}
 @itemx p @var{expr}
 
-Use @code{eval} or @code{p} to evaluate a Ruby expresson, @var{expr},
+Use @code{eval} or @code{p} to evaluate a Ruby expression, @var{expr},
 same as you would if you were in @code{irb}. If there are many expressions
 you want to look at, you may want to go into irb from the debugger.
 @smallexample
@@ -1614,7 +1618,7 @@ list looks nicer:
 @end group
 @end smallexample
 
-Note however that enteries are sorted to run down first rather than
+Note however that entries are sorted to run down first rather than
 across. So in the example above the second entry in the list is 
 @code{/usr/lib/ruby/site_ruby/1.8/i586-linux} and the @emph{third} entry is 
 @code{/usr/lib/ruby/site_ruby/1.8}.
@@ -1871,7 +1875,7 @@ frames in @value{DBG} commands.
 @cindex stack traces
 A backtrace is essentially the same as the call stack: a summary of
 how your script got where it is.  It shows one line per frame, for
-many frames, starting with the place that you sare stopped at (frame
+many frames, starting with the place that you are stopped at (frame
 zero), followed by its caller (frame one), and on up the stack.
 
 @table @code
@@ -1925,7 +1929,7 @@ Using zero for @var{n} does no frame adjustment, but since the current
 position is redisplayed, it may trigger a resyncronization if there is
 a front end also watching over things. 
 
-@var{n} defaults to one. You may appreviate @code{up} as @code{u}.
+@var{n} defaults to one. You may abbreviate @code{up} as @code{u}.
 
 @kindex down @ovar{n}
 @item down @ovar{n}
@@ -1964,7 +1968,7 @@ things.
 
 One important use of a debugger is to stop your program @emph{before}
 it terminates, so that if your script runs into trouble you can
-investigate and find out why. However should your script accidently
+investigate and find out why. However should your script accidentally
 continue to termination, it can be arranged for @DBG to not to leave
 the debugger without your explicit instruction. That way, you can
 restart the program using the same command arguments.
@@ -2043,7 +2047,7 @@ confirmation.  You can abbreviate this command as @code{del}.
 @cindex @code{$_} and @code{info breakpoints}
 @item info breakpoints @ovar{n}
 @itemx info break @ovar{n}
-Print a table of all breakpointsset and not deleted, with the
+Print a table of all breakpoints set and not deleted, with the
 following columns for each breakpoint:
 
 @table @emph
@@ -2165,7 +2169,7 @@ and return control to @value{DBG}. This command is abbreviated
 
 Like, the programming Lisp, Ruby tends implemented in a highly
 expression-oriented manner. Therefore things that in other languages
-that may appear to be a single statment are implemented in Ruby as
+that may appear to be a single statement are implemented in Ruby as
 several expressions. For example, in an ``if'' statement or looping
 statements a stop is made after the expression is evaluated but before
 the test on the expression is made. 
@@ -2184,7 +2188,7 @@ by a step+ command. For example, @code{step+ 3} is the
 same as @code{step; step; step+}, not @code{step+; step+; step+}}
 
 If you find yourself generally wanting to use @code{step+} rather
-than @code{step}, you may want to considier using @code{set
+than @code{step}, you may want to consider using @code{set
 forcestep}, (@pxref{Forcestep}).
 
 With a count, @code{step} will continue running as normal, but do so
@@ -2233,7 +2237,7 @@ line number to set a one-time breakpoint which is deleted when that
 breakpoint is reached.
 
 Should the program stop before that breakpoint is reached, for
-example, perhaps another breakpointis reached first, in
+example, perhaps another breakpoint is reached first, in
 a listing of the breakpoints you won't see this entry in the list of
 breakpoints.
 @end table
@@ -2253,7 +2257,7 @@ Force} are also suitable abbreviations.
 Many @code{set} commands are either ``on'' or ``off'', and you can
 indicate which way you want set by supplying the corresponding
 word. The number 1 can be used for ``on'' and 0 for ``off''. If none
-of these is given, we will assume ``on''. A depricated way of turning
+of these is given, we will assume ``on''. A deprecated way of turning
 something off is by prefacing it with ``no''.
 
 Each @code{set} command has a corresponding @code{show} command which
@@ -2266,7 +2270,7 @@ allows you to see the current value.
 * Autoirb::              Invoke IRB on every stop
 * Autoreload::           Reload source code when changed
 * Basename::             Report file basename only showing file names
-* Callstyle::            SHow Report file basename only showing file names
+* Callstyle::            Show Report file basename only showing file names
 * Forcestep::            Make sure 'next/step' commands always move to a new line
 * Fullpath::             Display full file names in frames
 * History::              Generic command for showing command history parameters.
@@ -2434,7 +2438,7 @@ Show saving of the history record on exit.
 Set the maximum number of commands to save in the history.
 @kindex show history size
 @item show history size
-Show the size of the command history, ie. the number of previous
+Show the size of the command history, i.e. the number of previous
 commands to keep a record of.
 @end table
 
@@ -2557,7 +2561,7 @@ a continuation of running code will no longer work.
 To set up post-mortem debugging you need to call
 @code{Debugger.post_mortem} and it works in two ways. Called without a
 block, it installs a global @code{at_exit} hook that intercepts
-exceptions unhandled by your Ruby script.
+exceptions not handled by your Ruby script.
 
 If however you know that a particular block of code raises an
 exception you can enable post-mortem mode by wrapping this block
@@ -2628,7 +2632,7 @@ as many times as you called the @code{Debugger.start} method.}
 @item Debugger.started?
 Boolean. Return @code{true} if debugger has been started.
 @item Debugger.run_script(@var{debugger-command-file}, out = handler.interface)
-Reads/runs the given file contaiing debugger commands. @code{.rdebugrc} is run this way.
+Reads/runs the given file containing debugger commands. @code{.rdebugrc} is run this way.
 @end table
 
 @node Debugger.context
@@ -2805,7 +2809,7 @@ involved in scanning output, so if you are not debugging Ruby programs
 you probably want to turn this off which can be done via the M-x
 @code{turn-off-rdebugtrack} command.
 
-If you want to use even more integratation and tracking, run @kbd{M-x
+If you want to use even more integration and tracking, run @kbd{M-x
 rdebug-track-attach} and then inside the debugger give the debugger
 command @kbd{set annotate 3}. Emacs interaction when annotate is in effect is described in @xref{Emacs with Annotate}.
 
@@ -2819,11 +2823,6 @@ command @kbd{set annotate 3}. Emacs interaction when annotate is in effect is de
 
 @node Debugger Command Buffer
 @subsection Emacs Debugger Command buffer
-
-@itemize @bullet
-@item
-@value{DBG} displays source code through Emacs.
-@end itemize
 
 Each time @value{DBG} displays a stack frame, Emacs automatically finds the
 source file for that frame and puts an arrow (@samp{=>}) at the
@@ -2873,34 +2872,37 @@ final keystroke. For example @code{C-c n} in a secondary buffer is
 Describe the features of Emacs' @value{DBG} Mode.
 
 @item C-x C-a C-b (gud-break)
+@pindex C-x C-a C-b (gud-break)
 Set breakpoint at current line.
 
 @item C-x C-a C-d (gud-remove)
+@pindex C-x C-a C-d (gud-remove)
 Remove breakpoint at current line.
 
-@item C-x C-a C-e (gud-statement)
-Execute Ruby statement at point.
-
 @item C-x C-a C-l (gud-refresh)
+@pindex C-x C-a C-d (gud-refresh)
+Fix up a possibly garbled display, and redraw the arrow.
 
 @item C-c RET (comint-copy-old-input)
+@pindex C-c RET (comint-copy-old-input)
 Insert after prompt old input at point as new input to be edited.
 Calls `comint-get-old-input' to get old input.
 
 @item C-c n (gud-next)
+@pindex C-c n (gud-next)
 Step one line, skipping functions. (Step over).
 
 @item C-x C-a C-o (comint-delete-output)
-comint-delete-output is an interactive compiled Lisp function in `comint.el'.
-(comint-delete-output)
-
-Delete all output from interpreter since last input.
-Does not delete the prompt.
+@pindex C-c n (comint-delete-output)
+Delete all output from interpreter since last input. Does not delete
+the prompt.
 
 @item C-x C-a C-r (gud-cont)
 
 @item C-c SPC (gud-step @var{arg})
+@pindex C-c SPC (gud-step @var{arg})
 @itemx C-x C-a C-s (gud-step @var{arg})
+@pindex C-x C-a C-s (gud-step @var{arg})
 Step one source line. Same as @value{DBG} @code{step} command. The
 @value{Emacs} command name is @code{gud-step} and @code{C-x C-a C-s}
 is an alternate binding which can be used in the source
@@ -2972,15 +2974,17 @@ Display the rdebug variables buffer.
 @item C-c W	(rdebug-display-watch-buffer)
 Display the rdebug watch buffer.
 
-@item C-c a	(gud-args)
 @item C-c f	(gud-finish @var{arg})
+@pindex C-c f	(gud-finish @var{arg})
 Finish executing current function.
 
 @itemx C-x C-a C-f (gud-finish)
-Finish executing current function. The Same as @value{DBG}
+@pindex C-x C-a C-f (gud-finish)
+Finish executing current function. The same as @value{DBG}
 @code{finish} command. @xref{Finish}.
 
-@item C-c n	(gud next)
+@item C-c n	(gud-next)
+@pindex C-c n	(gud-next)
 Execute to next source line in this function, skipping all function
 calls. Same as @value{DBG} @code{next} command.  @xref{Next}.
 
@@ -2988,10 +2992,9 @@ With a numeric argument, run that many times.
 @xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
 Manual}.
 
-@item C-c p	(gud print)
 @item C-c q	(gud quit)
 
-@item C-x C-a Cl
+@item C-x C-a C-l
 Resynchronize the current position with the source window. The
 @value{Emacs} command name is @code{gud-refresh} and @code{C-x C-a
 C-l} is an alternate binding which also can be used in the source script.
@@ -3181,13 +3184,13 @@ Just pick a visible buffer to bury and replace.
 
 The commands are also have key bindings that end in an uppercase
 letter. This letter is given in parenthesis. When in one of the
-secondary buffers, the uppcase letter is bound to the command as well.
+secondary buffers, the uppercase letter is bound to the command as well.
 
 @table @kbd
 
 @item (rdebug-display-breakpoints-buffer) (@kbd{B})
 @findex rdebug-display-breakpoints-buffer (@kbd{B})
-Display the rdebug breakpoings buffer.  Bound to: @kbd{C-x C-a B},
+Display the rdebug breakpoints buffer.  Bound to: @kbd{C-x C-a B},
 @kbd{<menu-bar> <debugger> <view> <breakpoints>}. Secondary buffers:
 @kbd{O}.
 
@@ -3272,10 +3275,10 @@ Does not delete the prompt.
 @item (gud-break)
 @findex gud-break
 Set a breakpoint on the source line point is on.
-@item (gud-cont) (c)
+@item (gud-cont) --- c
 @findex gud-cont (c)
 Continue execution. 
-@item (gud-next) (n)
+@item (gud-next) --- n
 @findex gud-next (n)
 Step one line, skipping functions. (Step over).
 @item (gud-refresh)
@@ -3284,10 +3287,10 @@ Fix up a possibly garbled display, and redraw the arrow.
 @item (gud-remove)
 @findex gud-remove
 Remove breakpoint at current line.
-@item (gud-step) (s)
+@item (gud-step) --- s
 @findex gud-step (s)
 Step one statement. (Step into)
-@item (gud-step-plus) (+)
+@item (gud-step-plus) --- + 
 @findex gud-step-plus (+)
 Run @code{step+}---like @code{gud-step} but ensure we go to a new
 line.
@@ -3316,7 +3319,7 @@ A buffer containing breakpoint information.
 A buffer containing display expressions (@pxref{DisplayCommands}).
 @item @code{*rdebug-output-@emph{program-name}*}
 
-A buffer containing output producted in running the program so far.
+A buffer containing output produced in running the program so far.
 @item @code{*rdebug-stack-@emph{program-name}*}
 
 The call stack for the current thread
@@ -3329,8 +3332,8 @@ instance variables (@code{instance_variables}).
 These are called @emph{secondary buffers}.
 
 Because screen real-estate is limited, some of these buffers may be
-visable in a frame and some not. There are commands to switch to these
-buffers moving to the visible frame if the buffer is visable, or
+visible in a frame and some not. There are commands to switch to these
+buffers moving to the visible frame if the buffer is visible, or
 replacing the secondary buffer that the command was issued from with
 the desired secondary buffer.
 
@@ -3395,6 +3398,160 @@ Buffer specific commands
   return toggle breakpoint (enable/disable it)
 @end verbatim
 
+@node Using from Subversion
+@appendix Building and Installing from rubyforge's Subversion Repository
+
+Here are Unix-centric instructions. If you have Microsoft Windows or
+OSX some of the below may need adjusting.
+
+@menu
+* Prerequisites::
+* Package Checkout::
+* Trying Out::
+* Running Regression Tests::
+* Building the documentation and Emacs files::
+@end menu
+
+@node Prerequisites
+@section Prerequisites: To build the package you'll need at a minimum:
+
+@itemize @bullet
+@item 
+Ruby (of course). Currently only version 1.8.6 and above but not 
+version 1.9.@emph{x} work.
+@item
+Ruby development headers. This typically includes a file called @file{ruby.h}
+@item 
+A C compiler like GNU C (@code{gcc})
+@item
+Rake
+@item
+Subversion (@code{svn}).
+@end itemize
+
+If you want to build the documentation and install Emacs files, you'll
+also need:
+
+@itemize @bullet
+@item 
+ a POSIX shell like bash
+@item
+ autoconf
+@item
+ automake
+@item
+ GNU Make
+@item
+ texinfo
+@end itemize
+
+@node Package Checkout
+@section Basic package checkout and installation 
+
+Check out the trunk of repository following the instructions at 
+@url{http://rubyforge.org/scm/?group_id=1900}  For example on a Unixy system,
+this may work:
+
+@smallexample
+  mkdir ruby-debug
+  cd ruby-debug
+  svn checkout svn://rubyforge.org/var/svn/ruby-debug/trunk trunk
+@end smallexample
+
+In order to make the Ruby gems, ruby-debug and ruby-debug-base, get
+yourself into the trunk directory after the code has been checked out and run:
+
+@smallexample
+  cd trunk # This is the same trunk checked out above.
+  rake package
+@end smallexample
+
+If all goes well you should have some gem files put in the directory
+pkg. Use the gem command to install that. 
+
+@smallexample
+  sudo gem install ruby-debug-*.gem   # See gem help for other possibilities
+@end smallexample
+
+If all goes well the rdebug script has been installed ruby-debug is
+now ready to run. But if everything goes well you might want to run
+the built-in regression tests to make sure everything is okay.
+See step 3 below.
+
+If the gem install didn't work,'t there may be a problem with your C
+compiler or the Ruby headers are not installed.
+
+@node Trying Out
+@section Trying out without installing
+
+You don't have to build a gem file to try out ruby debug. In fact when
+developing new features for ruby-debug, developers often you want to
+try it out *before* installing.  If you have a problem in the latter
+part of step 1 you may want to try this approach since we go into a
+little more detail as to what happens under the covers when you do the
+gem install.
+
+Run (from trunk)
+@smallexample
+  rake lib
+@end smallexample
+
+This creates a Makefile and builds the ruby-debug shared library. (On
+Unix the name is ruby_debug.so).
+
+Once this is done you can run the debugger as you would rdebug using the
+script runner.sh. For example (again from trunk)
+
+@smallexample
+  ./runner.sh ~/my-ruby-program.rb
+@end smallexample
+
+@node Running Regression Tests
+@section Running the Regression Tests
+  
+We've put together some basic tests to make sure ruby-debug is doing
+what we think it should do. To run these (from trunk):
+
+@smallexample
+  rake test
+@end smallexample
+
+If you didn't build the ruby-debug shared library and skipped step 2,
+don't worry "rake test" will do step 2 for you. You should see a line that
+ends something like:
+
+@smallexample
+  Finished in 2.767579 seconds.
+
+  12 tests, 35 assertions, 0 failures, 0 errors
+@end smallexample
+
+The number of seconds, tests, and assertions may be different from the
+above. However you @emph{should} see exactly "0 failures, 0 errors".
+
+@node Building the documentation and Emacs files
+@section Building the documentation and testing/installing Emacs files
+
+Of course, I recommend you read the ruby-debug manual that comes with
+the package. If you have the prerequisites described above, run this
+once:
+@smallexample
+  sh ./autogen.sh
+@end smallexample
+
+Then run:
+@smallexample
+  ./configure
+  make
+  make test           # Runs Emacs regression tests
+  sudo make install   # Or arrange to do this as root
+@end smallexample
+
+
+@node Emacs Key Binding Index
+@unnumbered Emacs Key Binding Index
+@printindex pg
+
 @node Emacs Command Index
 @unnumbered Emacs Command Index
 @printindex fn
@@ -3424,4 +3581,3 @@ Buffer specific commands
 @end tex
 
 @bye
-p

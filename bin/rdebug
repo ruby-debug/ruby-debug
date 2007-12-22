@@ -39,7 +39,7 @@ EOB
   opts.on("-c", "--client", "Connect to remote debugger") do 
     options.client = true
   end
-  opts.on("--cport PORT", Integer, "Port used for contol commands") do 
+  opts.on("--cport PORT", Integer, "Port used for control commands") do 
     |options.cport|
   end
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}

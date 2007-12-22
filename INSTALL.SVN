@@ -5,13 +5,15 @@ OSX some of the below may need adjusting.
 
 0. Prerequisites: To build the package you'll need at a minimum:
 
- - Ruby (of course),
+ - Ruby (of course). Currently only version 1.8.6 and above but not 
+   version 1.9.x work.
  - Ruby development headers. This typically includes a file called "ruby.h"
  - A C compiler like GNU C (gcc)
  - Rake
  - Subversion (svn)
 
-If you want to build the documentation and install Emacs files you'll need:
+If you want to build the documentation and install Emacs files, you'll
+also need:
 
  - a POSIX shell
  - autoconf
