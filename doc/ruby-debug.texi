@@ -3256,7 +3256,7 @@ example, if you press 1 and then 9, you should jump to entry
 1 (if it exists) and then 19 (if that exists). Entering any
 non-digit will start entry number from the beginning again.
 @item (rdebug-quit) --- q
-@findex rdebug-quit (n)
+@findex rdebug-quit (q)
 Kill the debugger process associated with the buffer.
 
 When @var{rdebug-many-windows} is active, the original window layout is

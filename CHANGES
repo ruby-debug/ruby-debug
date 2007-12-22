@@ -1,4 +1,4 @@
-0.9.4
+0.10.0
 - '-r' option can be used to require additional libraries.
 - --noquit option added to stay in debugger when the program exits
 - gdb-like --annotate option added. Can be used by front-ends to get information
