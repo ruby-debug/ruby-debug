@@ -952,7 +952,7 @@ This does not menus or prefix keys."
   (define-key map "s" 'gud-step)
   (define-key map "\C-s" 'gud-step)
   (define-key map "\C-p" 'gud-print)
-)
+  )
 
 
 (defun rdebug-populate-secondary-buffer-map (map)
