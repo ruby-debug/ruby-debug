@@ -22,8 +22,6 @@ CLI_FILES = COMMON_FILES + FileList[
   'ChangeLog',
   'bin/*',
   'doc/rdebug.1',
-  'doc/ruby-debug.html',
-  'doc/ruby-debug.pdf',
   'test/**/*.cmd',
   'test/**/*.right',
   'test/**/helper.rb',
