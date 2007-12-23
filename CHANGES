@@ -8,6 +8,7 @@
 - Better error reporting for commands that require a numeric argument.
 - Fixed Kernel#binding_n method
 - Add option -d ($DEBUG = true) and --verbose. Make -v work like ruby.
+- Remove debugger messages caused when warnings are turned on.
 - "info" and "show" commands added. "set" made more like gdb's
   set. subcommands can be abbreviated and are case insensitive.
 - restart program if it terminates normally and we've got a tty and 

@@ -15,23 +15,29 @@ COMMON_FILES = FileList[
   'LICENSE',
   'CHANGES',
   'AUTHORS',
-  'doc/*',
 ]                        
 
 CLI_FILES = COMMON_FILES + FileList[
-  'bin/*',
   "cli/**/*",
-  'emacs/**/*.el',
-  'test/**/helper.rb',
+  'ChangeLog',
+  'bin/*',
+  'doc/rdebug.1',
+  'doc/ruby-debug.html',
+  'doc/ruby-debug.pdf',
   'test/**/*.cmd',
   'test/**/*.right',
-  'test/**/test-*.cmd',
+  'test/**/helper.rb',
   'test/**/tdebug.rb',
+  'test/**/test-*.cmd',
 ]
 
-FILES = COMMON_FILES + FileList[
+BASE_FILES = COMMON_FILES + FileList[
   'lib/**/*',
-  'ext/*',
+  'ext/ChangeLog',
+  'ext/ruby_debug.c',
+  'ext/extconf.rb',
+  'ext/win32/*',
+  'test/test-ruby-debug-base.rb',
 ]
 
 desc "Test everything."
@@ -63,7 +69,9 @@ end
 
 desc "Create a GNU-style ChangeLog via svn2cl"
 task :ChangeLog do
-  system("svn2cl")
+  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/ruby-debug/trunk")
+  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/ruby-debug/trunk/ext -o ext/ChangeLog")
+  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/ruby-debug/trunk/lib -o lib/ChangeLog")
 end
 
 # Base GEM Specification
@@ -87,7 +95,7 @@ EOF
   spec.require_path = "lib"
   spec.extensions = ["ext/extconf.rb"]
   spec.autorequire = "ruby-debug-base"
-  spec.files = FILES.to_a  
+  spec.files = BASE_FILES.to_a  
 
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = Time.now
