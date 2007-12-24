@@ -785,6 +785,7 @@ debugging in them.
 @menu
 * Stack Shows Scope Nesting::
 * More Frequent Evaluations per Line::
+* Bouncing Around with Interators::
 @end menu
 
 @node Stack Shows Scope Nesting
@@ -827,25 +828,25 @@ Because a new scope was entered, it appears as a stack frame. Probably
 Consider this simple program to compute the Greatest Common Divisor of
 two numbers:
 @smallexample
-#!/usr/bin/env ruby
-
-# GCD. We assume positive numbers
-def gcd(a, b)
-  # Make: a <= b
-  if a > b
-    a, b = [b, a]
-  end
-
-  return nil if a <= 0
-
-  if a == 1 or b-a == 0
-    return a
-  end
-  return gcd(b-a, a)
-end
-
-a, b = ARGV[0..1].map @{|arg| arg.to_i@}
-puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
+ 1 #!/usr/bin/env ruby
+ 2 # GCD. We assume positive numbers
+ 3
+ 4 def gcd(a, b)
+ 5   # Make: a <= b
+ 6  if a > b
+ 7     a, b = [b, a]
+ 8  end
+ 9
+10  return nil if a <= 0
+11 
+12  if a == 1 or b-a == 0
+13    return a
+14   end
+15   return gcd(b-a, a)
+16 end
+17
+18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+19 puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
 @end smallexample
 
 Now let's try stepping through the program to see what we get.
@@ -964,10 +965,75 @@ generally put this in my startup file @code{.rdebugrc}.
 Similar to the difference between @code{step+} and @code{step} is
 @code{set linetrace+}. This removes duplicate consecutive line tracing.
 
+
+@node Bouncing Around with Interators
+@subsection Bouncing Around with Interators
+
+When debugging languages with coroutines like Python and Ruby, a
+method call may not necessarily go to the first statement after the
+method header. It's possible the call will continue after a
+@code{yield} statement from a prior call. 
+
+@smallexample
+ 1 #!/usr/bin/env ruby
+ 2 # Enumerator for primes
+ 3 class SievePrime
+ 4   @@@@odd_primes = []
+ 5   def self.next_prime(&block)
+ 6     candidate = 2
+ 7     yield candidate
+ 8     not_prime = false
+ 9     candidate += 1
+10     while true do
+11       @@@@odd_primes.each do |p|
+12         not_prime = (0 == (candidate % p))
+13         break if not_prime
+14       end
+15       unless not_prime
+16         @@@@odd_primes << candidate
+17         yield candidate 
+18       end
+19       candidate += 2
+20     end
+21   end
+22 end
+23 SievePrime.next_prime do |prime|
+24   puts prime
+25   break if prime > 10
+26 end
+@end smallexample
+
+@smallexample
+$ @b{rdebug primes.rb}
+primes.rb:3
+class SievePrime
+(rdb:1) @b{set linetrace on}
+line tracing is on.
+(rdb:1) @b{step 10}
+Tracing(1):primes.rb:4 @@odd_primes = []
+Tracing(1):primes.rb:5 def self.next_prime(&block)
+Tracing(1):primes.rb:23 SievePrime.next_prime do |prime|
+Tracing(1):primes.rb:6 candidate = 2
+Tracing(1):primes.rb:7 yield candidate
+Tracing(1):primes.rb:24 puts prime
+2
+Tracing(1):primes.rb:25 break if prime > 10
+Tracing(1):primes.rb:25 break if prime > 10
+Tracing(1):primes.rb:8 not_prime = false
+Tracing(1):primes.rb:9 candidate += 1
+primes.rb:9
+candidate += 1
+(rdb:1) 
+@end smallexample
+
+The loop between lines 23--26 gets interleaved between those of
+@code{Sieve::next_prime}, lines 6--19 above. 
+
+A similar kind of thing can occur in debugging programs with many threads. 
+
 To be continued...
 
 @itemize @bullet
-@item iterators
 @item show breakpoints including use of main.fn
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.

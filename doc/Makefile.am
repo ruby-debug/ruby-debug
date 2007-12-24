@@ -20,6 +20,7 @@ EXT=1
 man1_MANS = rdebug.$(EXT)
 
 EXTRA_DIST = $(man1_MANS)  \
+        hanoi.rb primes.rb test-tri2.rb tri3.rb triangle.rb \
 	ruby-debug.info ruby-debug.html ruby-debug.pdf
 
 info_TEXINFOS = ruby-debug.texi 
