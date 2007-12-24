@@ -106,7 +106,7 @@ Indexes (nodes containing large menus)
 @node Summary
 @chapter Summary of @code{ruby-debug}
 
-The purpose of a debugger such as @DBG is to allow you to see what is
+The purpose of a debugger such as @DBG{} is to allow you to see what is
 going on ``inside'' a Ruby program while it executes.
 
 @ttDBG{} can do four main kinds of things (plus other things in support of
@@ -507,7 +507,7 @@ the expression after it is evaluated. To remove a display expression
 we used @code{undisplay} is used. If we give a display number, just
 that display expression is removed.
 
-Above we also used a new comand @code{where} (@pxref{Backtrace} to
+Above we also used a new command @code{where} (@pxref{Backtrace} to
 show the call stack. In the above situation, starting from the bottom
 line we see we called the hanoi from line 35 of the file
 @code{hanoi.rb} and the hanoi method called itself two more times at
@@ -782,7 +782,48 @@ In this section we'll consider some other things that might throw
 off new users to Ruby who are familiar with other languages and
 debugging in them.
 
-@subsection More Frequent Evaluations per line
+@menu
+* Stack Shows Scope Nesting::
+* More Frequent Evaluations per Line::
+@end menu
+
+@node Stack Shows Scope Nesting
+@subsection Stack Shows Scope Nesting
+In a backtrace, you will find more stack frames than you might in say
+C.
+
+Consider another way to write the triangle program of @xref{First
+Sample Session}.
+
+@smallexample
+#!/usr/bin/env ruby
+  1 def triangle(n) 
+  2   (0..n).inject do |sum, i| 
+  3    sum +=i 
+  4   end
+  5 end
+  6 puts triangle(3)
+@end smallexample
+
+Let's stop inside the @code{inject} block:
+
+@smallexample
+$ @b{rdebug tri3.rb}
+(rdb:1) @b{c 4}
+tri3.rb:4
+sum +=i 
+(rdb:1) @b{where}
+--> #0 Range.triangle at line tri3.rb:4
+    #1 Enumerable.inject at line tri3.rb:3
+    #2 Object.triangle(n#Fixnum) at line tri3.rb:3
+    #3 at line tri3.rb:7
+(rdb:1)
+@end smallexample
+Because a new scope was entered, it appears as a stack frame. Probably
+``scope'' frame would be a more appropriate name.
+
+@node More Frequent Evaluations per Line
+@subsection More Frequent Evaluations per Line
 Consider this simple program to compute the Greatest Common Divisor of
 two numbers:
 @smallexample
@@ -926,7 +967,7 @@ Similar to the difference between @code{step+} and @code{step} is
 To be continued...
 
 @itemize @bullet
-@item next, where nesting inside blocks, iterators
+@item iterators
 @item show breakpoints including use of main.fn
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.
@@ -1062,7 +1103,7 @@ Ruby's.
 Activates GNU Emacs mode (@pxref{GNU Emacs}). Debugger output is tagged in
 such a way to allow GNU Emacs to track where you are in the code.
 
-@item -h | --host @var{host address}
+@item -h | --host @var{host-address}
 Connect host address for remote debugging.
 
 @item -I --include @var{PATH}
@@ -1934,10 +1975,10 @@ description of the stack frame just selected.
 @item up @ovar{n}
 Move @var{n} frames up the stack.  For positive numbers @var{n}, this
 advances toward the outermost frame, to higher frame numbers, to
-frames that have existed longer.  Using a negative @var{n} is the same
+frames that have existed longer.  Using a negative @var{n} is the sameruby
 as issuing a @code{down} command of the absolute value of the @var{n}.
 Using zero for @var{n} does no frame adjustment, but since the current
-position is redisplayed, it may trigger a resyncronization if there is
+position is redisplayed, it may trigger a resynchronization if there is
 a front end also watching over things. 
 
 @var{n} defaults to one. You may abbreviate @code{up} as @code{u}.
@@ -2395,14 +2436,23 @@ Shows the whether filename display shows just the file basename or not.
 @subsection Set/Show call style
 
 @table @code
+@ifset FINISHED
 @kindex set callstyle @r{[} short | last | tracked @r{]}
 @item set forcestep @r{[} short | last | tracked @r{]}
+@else
+@kindex set callstyle @r{[} short | last 
+@item set forcestep @r{[} short | last 
+@end ifset
 
 Sets how you want call parameters displayed; @code{short} shows just
-the parameter names; @code{last} shows the parameter names and the
+the parameter names; 
+@ifset FINISHED
+@code{last} shows the parameter names and the
 class of these variables as they currently exist. Note the type could
 have changed between when the call and its current
-values. @code{tracked} is the most accurate but this adds
+values.
+@end ifset
+@code{tracked} is the most accurate but this adds
 overhead. On every call, scalar values of the parameters get
 saved. For non-scalar values the class is saved. 
 @end table
@@ -2678,7 +2728,7 @@ and not finished when the @code{Debugger.start} was issued.
 @end table
 
 @node Debugger.settings
-@subsection Debugger.settings
+@subsection @code{Debugger.settings}
 Symbols listed here are keys into the Array @code{Debugger.settings}.
 These can be set any time after the @code{ruby-debug} is loaded. For example:
 @smallexample
@@ -2719,9 +2769,9 @@ Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
 @end table
 
 @node Debugger Class
-@section The Debugger Class
+@section The @code{Debugger} Class
 @node Kernel routines
-@section Additions to Kernel 
+@section Additions to @code{Kernel}
 
 @table @code
 
@@ -3255,7 +3305,7 @@ go to an entry above 9, just keep entering the number. For
 example, if you press 1 and then 9, you should jump to entry
 1 (if it exists) and then 19 (if that exists). Entering any
 non-digit will start entry number from the beginning again.
-@item (rdebug-quit) --- q
+@item (rdebug-quit) - q
 @findex rdebug-quit (q)
 Kill the debugger process associated with the buffer.
 
@@ -3278,7 +3328,7 @@ Display the initial ruby debugger window layout.
 @findex rdebug-goto-breakpoint-mouse
 @item (rdebug-breakpoints-mode)
 @findex rdebug-breakpoints-mode
-Major mode for displaying brackpoints in a secondary window. Uses
+Major mode for displaying breakpoints in a secondary window. Uses
 @var{rdebug-breakpoints-mode-map}.
 @end table
 
@@ -3336,10 +3386,10 @@ Does not delete the prompt.
 @item (gud-break)
 @findex gud-break
 Set a breakpoint on the source line point is on.
-@item (gud-cont) --- c
+@item (gud-cont) - c
 @findex gud-cont (c)
 Continue execution. 
-@item (gud-next) --- n
+@item (gud-next) - n
 @findex gud-next (n)
 Step one line, skipping functions. (Step over).
 @item (gud-refresh)
@@ -3348,10 +3398,10 @@ Fix up a possibly garbled display, and redraw the arrow.
 @item (gud-remove)
 @findex gud-remove
 Remove breakpoint at current line.
-@item (gud-step) --- s
+@item (gud-step) - s
 @findex gud-step (s)
 Step one statement. (Step into)
-@item (gud-step-plus) --- + 
+@item (gud-step-plus) - + 
 @findex gud-step-plus (+)
 Run @code{step+}---like @code{gud-step} but ensure we go to a new
 line.
@@ -3507,7 +3557,7 @@ also need:
 @end itemize
 
 @node Package Checkout
-@section Basic package checkout and installation 
+@section Basic Package Checkout and Installation 
 
 Check out the trunk of repository following the instructions at 
 @url{http://rubyforge.org/scm/?group_id=1900}  For example on a Unixy system,
@@ -3543,7 +3593,7 @@ If the gem install didn't work,'t there may be a problem with your C
 compiler or the Ruby headers are not installed.
 
 @node Trying Out
-@section Trying out without installing
+@section Trying Out without Installing
 
 You don't have to build a gem file to try out ruby debug. In fact when
 developing new features for ruby-debug, developers often you want to
@@ -3591,7 +3641,7 @@ The number of seconds, tests, and assertions may be different from the
 above. However you @emph{should} see exactly "0 failures, 0 errors".
 
 @node Building the documentation and Emacs files
-@section Building the documentation and testing/installing Emacs files
+@section Building the Documentation and Testing/Installing Emacs Files
 
 Of course, I recommend you read the ruby-debug manual that comes with
 the package. If you have the prerequisites described above, run this
