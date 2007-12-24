@@ -5,6 +5,7 @@
 # ********************************************************
 set debuggertesting on
 set callstyle last
+set autoeval off
 break 6
 break 10
 continue

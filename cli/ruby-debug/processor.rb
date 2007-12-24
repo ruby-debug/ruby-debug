@@ -78,9 +78,9 @@ module Debugger
       end
 
       n = Debugger.breakpoints.index(breakpoint) + 1
-      print "\032\032%s:%d\n", 
-      CommandProcessor.canonic_file(breakpoint.source), 
-      breakpoint.pos if ENV['EMACS']
+      print("\032\032%s:%s\n", 
+            CommandProcessor.canonic_file(breakpoint.source), 
+            breakpoint.pos) if ENV['EMACS']
       print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
     end
     protect :at_breakpoint

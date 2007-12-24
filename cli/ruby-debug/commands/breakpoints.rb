@@ -35,11 +35,12 @@ module Debugger
       elsif line !~ /^\d+$/
         # See if "line" is a method/function name
         klass = debug_silent_eval(file)
-        if klass && !klass.kind_of?(Module)
-          print "Unknown class #{file}\n"
+        if klass && klass.kind_of?(Module)
+          class_name = klass.name if klass
+        else
+          print "Unknown class #{file}.\n"
           throw :debug_error
         end
-        class_name = klass.name if klass
       else
         file = File.expand_path(file) if file.index(File::SEPARATOR) || \
         File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)

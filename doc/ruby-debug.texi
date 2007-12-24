@@ -154,15 +154,10 @@ Below is Ruby code to compute a triangle number of a given
 length.@footnote{There are of course shorter ways to define @code{triangle}
 such as:
 @smallexample
-def triangle(n) (0..n).inject@{|sum, i| sum +=i@} end
-@end smallexample
-or even:
-@smallexample
   def triangle(n) (n * (n+1)) / 2 end
 @end smallexample
 The code we use in this example and the next is more for pedagogical
-purposes than how to write short Ruby code. Stepping through the
-@code{inject} version given above leads to some interesting behavior.}
+purposes than how to write short Ruby code.}
 
 
 @smallexample
@@ -797,13 +792,13 @@ Consider another way to write the triangle program of @xref{First
 Sample Session}.
 
 @smallexample
-#!/usr/bin/env ruby
-  1 def triangle(n) 
-  2   (0..n).inject do |sum, i| 
-  3    sum +=i 
-  4   end
-  5 end
-  6 puts triangle(3)
+  1 #!/usr/bin/env ruby
+  2 def triangle(n) 
+  3   (0..n).inject do |sum, i| 
+  4    sum +=i 
+  5   end
+  6 end
+  7 puts triangle(3)
 @end smallexample
 
 Let's stop inside the @code{inject} block:
@@ -849,7 +844,7 @@ two numbers:
 19 puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
 @end smallexample
 
-Now let's try stepping through the program to see what we get.
+Now let's try tracing a portion of the program to see what we get.
 @smallexample
 $ @b{rdebug gcd.rb 3 5}
 gcd.rb:4
@@ -863,10 +858,16 @@ a, b = ARGV[0..1].map @{|arg| arg.to_i@}
 (rdb:1) @b{step}
 gcd.rb:18
 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
+(rdb:1) @b{step}
+(rdb:1) @b{break Object.gcd}
+Breakpoint 1 at Object::gcd
+(rdb:1) @b{continue}
+Breakpoint 1 at Object:gcd
+gcd.rb:4
+def gcd(a, b)
 (rdb:1) @b{set linetrace on}
 line tracing is on.
-(rdb:1) @b{step 17}
-Tracing(1):gcd.rb:19 puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
+(rdb:1) @b{continue}
 Tracing(1):gcd.rb:6 if a > b
 Tracing(1):gcd.rb:6 if a > b
 Tracing(1):gcd.rb:10 return nil if a <= 0
@@ -874,22 +875,9 @@ Tracing(1):gcd.rb:10 return nil if a <= 0
 Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
 Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
 Tracing(1):gcd.rb:15 return gcd(b-a, a)
-Tracing(1):gcd.rb:6 if a > b
-Tracing(1):gcd.rb:6 if a > b
-Tracing(1):gcd.rb:10 return nil if a <= 0
-Tracing(1):gcd.rb:10 return nil if a <= 0
-Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
-Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
-Tracing(1):gcd.rb:15 return gcd(b-a, a)
-Tracing(1):gcd.rb:6 if a > b
-Tracing(1):gcd.rb:6 if a > b
-gcd.rb:6
-if a > b
-(rdb:1) @b{where}
---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
-    #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #2 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #3 at line gcd.rb:19
+Breakpoint 1 at Object:gcd
+gcd.rb:4
+def gcd(a, b)
 (rdb:1) 
 @end smallexample
 
@@ -908,12 +896,13 @@ end
 we would find one stop at the first line before running @code{map} and
 two listings of @code{arg.to_i}, once for each value of arg which here
 is 0 and then 1. Perhaps this is is not surprising because we have a
-loop here which gets run in this situation 3 times. There is another
-command described later, @code{next}, which can also be used to skip
-over loops.
+loop here which gets run in this situation 3 times. A similar command
+@code{next}, can also be used to skip over loops and method
+calls.
 
-But what about those @code{if} statements? Each one is listed twice
-whether or not we put the @code{if} at the beginning or the end.
+But what about all the duplicated @code{if} statements in @code{gcd}? Each
+one is listed twice whether or not we put the @code{if} at the
+beginning or the end.
 
 Each @code{if} statement appears twice because we stop once before the
 expression is evaluated and once after the expression is evaluated but
@@ -935,27 +924,24 @@ a, b = ARGV[0..1].map @{|arg| arg.to_i@}
 (rdb:1) @b{step+}
 gcd.rb:19
 puts "The GCD of %d and %d is %d" % [a, b, gcd(a, b)]
-(rdb:1) @b{step+}
-gcd.rb:6
-if a > b
-(rdb:1) @b{step+}
-gcd.rb:10
-return nil if a <= 0
-(rdb:1) @b{step+}
-gcd.rb:12
-if a == 1 or b-a == 0
+(rdb:1) @b{break Object.gcd}
+Breakpoint 1 at Object:gcd
+(rdb:1) @b{c}
+Breakpoint 1 at Object:gcd
+gcd.rb:4
+def gcd(a, b)
 (rdb:1) @b{set linetrace+}
 line tracing style is different consecutive lines.
 (rdb:1) @b{set linetrace on}
 line tracing is on.
-(rdb:1) @b{step 10}
-Tracing(1):gcd.rb:10 return nil if a <= 0
-Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
-Tracing(1):gcd.rb:15 return gcd(b-a, a)
+(rdb:1) @b{c}
 Tracing(1):gcd.rb:6 if a > b
 Tracing(1):gcd.rb:10 return nil if a <= 0
 Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
-gcd.rb:12
+Tracing(1):gcd.rb:15 return gcd(b-a, a)
+Breakpoint 1 at Object:gcd
+gcd.rb:4
+def gcd(a, b)
 @end smallexample
 
 If you want @code{step+} to be the default behavior when stepping,
@@ -965,6 +951,10 @@ generally put this in my startup file @code{.rdebugrc}.
 Similar to the difference between @code{step+} and @code{step} is
 @code{set linetrace+}. This removes duplicate consecutive line tracing.
 
+One last thing to note above is the use of a method name to set a
+breakpoint position, rather than a file and line number. Because
+method @code{gcd} is in the outermost scope, we use @code{Object} as the
+class name.
 
 @node Bouncing Around with Interators
 @subsection Bouncing Around with Interators
@@ -1031,18 +1021,18 @@ The loop between lines 23--26 gets interleaved between those of
 
 A similar kind of thing can occur in debugging programs with many threads. 
 
+@ifset FINISHED
 To be continued...
 
 @itemize @bullet
-@item show breakpoints including use of main.fn
 @item more complex example with objects, pretty printing and irb.
 @item line tracing and non-interactive tracing.
 @item mixing in Debugger.debug with rdebug
 @item post-mortem debugging and setting up for that
-@item setting a breakpoint by modifying the program.
 @item threading?
 @item references to videos
 @end itemize
+@end ifset
 
 @node Invocation
 @chapter Getting in and out
@@ -2142,10 +2132,11 @@ Set a breakpoint at line @var{linenum} in source file @var{filename}.
 
 @item break @var{class}:@var{method}
 Set a breakpoint in class @var{class} method @var{method}. You can
-also use a period @code{.} instead of a colon @code{:}. Note however
-that a class must be specified here. If the method you want to stop in
-is in the main class (i.e. the class that @code{self} belongs to at
-the start of the program), then use the name @code{main}. 
+also use a period @code{.} instead of a colon @code{:}. Note that two
+colons @code{::} are not used. Also note a class @emph{must} be
+specified here. If the method you want to stop in is in the main class
+(i.e. the class that @code{self} belongs to at the start of the
+program), then use the name @code{Object}.
 
 @kindex catch @ovar{exception}
 @kindex cat @r{(@code{catch})}

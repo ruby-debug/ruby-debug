@@ -9,6 +9,8 @@ def gcd(a, b)
 Currently testing the debugger is on.
 # set callstyle last
 Frame call-display style is last.
+# set autoeval off
+autoeval is off.
 # break 6
 Breakpoint 1 file gcd.rb, line 6
 # break 10
@@ -21,12 +23,12 @@ if a > b
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 at line gcd.rb:18
 # break main.gcd
-Breakpoint 3 at ::gcd
+Breakpoint 3 at Object::gcd
 # info break
 Num Enb What
   1 y   at gcd.rb:6
   2 y   at gcd.rb:10
-  3 y   at :gcd
+  3 y   at Object:gcd
 # continue
 Breakpoint 2 at gcd.rb:10
 gcd.rb:10
@@ -37,27 +39,27 @@ return nil if a <= 0
 # info program
 Program stopped. It stopped at a breakpoint.
 # c 10
-Breakpoint 1 at gcd.rb:6
-gcd.rb:6
-if a > b
+Breakpoint 3 at Object:gcd
+gcd.rb:4
+def gcd(a, b)
 # info break
 Num Enb What
   1 y   at gcd.rb:6
   2 y   at gcd.rb:10
-  3 y   at :gcd
+  3 y   at Object:gcd
 # break foo
 Unknown command
 # info break
 Num Enb What
   1 y   at gcd.rb:6
   2 y   at gcd.rb:10
-  3 y   at :gcd
+  3 y   at Object:gcd
 # disable  1
 # info break
 Num Enb What
   1 n   at gcd.rb:6
   2 y   at gcd.rb:10
-  3 y   at :gcd
+  3 y   at Object:gcd
 # enable breakpoint 1
 # enable br 10
 Enable breakpoints argument '10' needs to at most 3.
@@ -66,7 +68,7 @@ Enable breakpoints argument '10' needs to at most 3.
 # info break
 Num Enb What
   2 y   at gcd.rb:10
-  3 y   at :gcd
+  3 y   at Object:gcd
 # # We should still be able to access 2
 # disable 2
 # enable
