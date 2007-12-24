@@ -1,3 +1,26 @@
+2007-12-23 22:19  Rocky Bernstein
+
+	* Rakefile, emacs/rdebug-core.el: Rakefile: don't add html or pdf
+	  to gem. Have to get from ruby-debug-extra.
+	  Since we can't build it, it will cause problems when rake is run.
+	  rdebug-core.el: remove gud control keys from secondary buffers.
+	  C-P, C-N, C-F
+	  should have their normal motion meanings.
+
+2007-12-23 17:33  Rocky Bernstein
+
+	* CHANGES, ChangeLog, Makefile.am, Rakefile, doc, ext/ChangeLog,
+	  lib/ChangeLog, svn2cl_usermap, test/test-columnize.rb,
+	  test/test-ruby-debug-base.rb, test/test-ruby-debug.rb: Go over
+	  packaging:
+	  ChangeLogs for ruby-debug-base (in ext and lib) separate from CLI
+	  ChangeLog
+	  ChangeLogs now map userid to names
+	  ruby-debug-base regression test included in ruby-debug-base
+	  Columnize test separated. (It will disappear when ruby-debug
+	  requires it
+	  as an external)
+
 2007-12-22 17:07  Rocky Bernstein
 
 	* CHANGES, doc/ruby-debug.texi: More typos.

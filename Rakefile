@@ -11,12 +11,14 @@ SO_NAME = "ruby_debug.so"
 RUBY_DEBUG_VERSION = open("ext/ruby_debug.c"){|f| f.grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]}
 
 COMMON_FILES = FileList[
-  'README',
-  'LICENSE',
-  'CHANGES',
   'AUTHORS',
+  'CHANGES',
+  'LICENSE',
+  'README',
+  'Rakefile',
 ]                        
 
+CLI_TEST_FILE_LIST = 'test/**/*test-*.rb'
 CLI_FILES = COMMON_FILES + FileList[
   "cli/**/*",
   'ChangeLog',
@@ -24,25 +26,30 @@ CLI_FILES = COMMON_FILES + FileList[
   'doc/rdebug.1',
   'test/**/*.cmd',
   'test/**/*.right',
+  'test/**/gcd.rb',
   'test/**/helper.rb',
+  'test/**/info-var-bug.rb',
   'test/**/tdebug.rb',
   'test/**/test-*.cmd',
+  'runner.sh',
+   CLI_TEST_FILE_LIST,                                    
 ]
 
+BASE_TEST_FILE_LIST = 'test/test-ruby-debug-base.rb'
 BASE_FILES = COMMON_FILES + FileList[
   'lib/**/*',
   'ext/ChangeLog',
   'ext/ruby_debug.c',
   'ext/extconf.rb',
   'ext/win32/*',
-  'test/test-ruby-debug-base.rb',
+  BASE_TEST_FILE_LIST,
 ]
 
 desc "Test everything."
 test_task = task :test => :lib do 
   Rake::TestTask.new(:test) do |t|
     t.libs << ['./ext', './lib', './cli']
-    t.pattern = 'test/**/*test-*.rb'
+    t.pattern = CLI_TEST_FILE_LIST
     t.verbose = true
   end
 end
@@ -99,6 +106,8 @@ EOF
   spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
   
+  spec.test_files = FileList[BASE_TEST_FILE_LIST]
+  
   # rdoc
   spec.has_rdoc = true
   spec.extra_rdoc_files = ['README', 'ext/ruby_debug.c']
@@ -129,6 +138,9 @@ EOF
   spec.rubyforge_project = 'ruby-debug'
   spec.add_dependency('ruby-debug-base', RUBY_DEBUG_VERSION)
   
+  # FIXME: work out operational logistics for this
+  # spec.test_files = FileList[CLI_TEST_FILE_LIST]
+
   # rdoc
   spec.has_rdoc = true
   spec.extra_rdoc_files = ['README']

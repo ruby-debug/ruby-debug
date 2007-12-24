@@ -1,3 +1,18 @@
+2007-12-23 17:33  Rocky Bernstein
+
+	* trunk/CHANGES, trunk/ChangeLog, trunk/Makefile.am,
+	  trunk/Rakefile, trunk/doc, trunk/ext/ChangeLog, ChangeLog,
+	  trunk/svn2cl_usermap, trunk/test/test-columnize.rb,
+	  trunk/test/test-ruby-debug-base.rb,
+	  trunk/test/test-ruby-debug.rb: Go over packaging:
+	  ChangeLogs for ruby-debug-base (in ext and lib) separate from CLI
+	  ChangeLog
+	  ChangeLogs now map userid to names
+	  ruby-debug-base regression test included in ruby-debug-base
+	  Columnize test separated. (It will disappear when ruby-debug
+	  requires it
+	  as an external)
+
 2007-12-16 21:31  Rocky Bernstein
 
 	* trunk, trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
