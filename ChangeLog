@@ -1,3 +1,11 @@
+2007-12-25 02:51  Rocky Bernstein
+
+	* AUTHORS, ChangeLog, README, ext/ChangeLog, lib/ChangeLog,
+	  test/breakpoints.cmd, test/breakpoints.right: breakpoints.*: main
+	  -> Object. Add bad Class name test
+	  AUTHOR: Add Anders
+	  README: note ruby-debug-extra. More precise (I think)
+
 2007-12-24 21:02  Rocky Bernstein
 
 	* cli/ruby-debug/commands/breakpoints.rb,

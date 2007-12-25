@@ -1,3 +1,12 @@
+2007-12-25 02:51  Rocky Bernstein
+
+	* trunk/AUTHORS, trunk/ChangeLog, trunk/README,
+	  trunk/ext/ChangeLog, ChangeLog, trunk/test/breakpoints.cmd,
+	  trunk/test/breakpoints.right: breakpoints.*: main -> Object. Add
+	  bad Class name test
+	  AUTHOR: Add Anders
+	  README: note ruby-debug-extra. More precise (I think)
+
 2007-12-24 00:25  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, trunk/ext/ChangeLog, ChangeLog:
