@@ -1439,11 +1439,11 @@ ruby-debug help v0.10.0
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-backtrace  disable  exit    irb     pp      restart  step       var  
-break      display  finish  list    ps      save     thread     where
-catch      down     frame   method  putl    set      trace    
-continue   enable   help    next    quit    show     undisplay
-delete     eval     info    p       reload  source   up       
+backtrace  disable  exit    irb     pp      restart  step       up   
+break      display  finish  list    ps      save     thread     var  
+catch      down     frame   method  putl    set      toggle     where
+continue   enable   help    next    quit    show     trace    
+delete     eval     info    p       reload  source   undisplay
 
 @end smallexample
 @end flushleft
@@ -1650,6 +1650,10 @@ enabled again later.
 @item enable display @var{dnums}@dots{}
 Enable display of item numbers @var{dnums}.  It becomes effective once
 again in auto display of its expression, until you specify otherwise.
+
+@kindex toggle display
+@item toggle display @var{dnums}@dots{}
+Change the state of the display from enabled to disabled or vice versa.
 
 @end table
 
@@ -2237,6 +2241,12 @@ case the breakpoint is enabled again later.  You may abbreviate
 @item enable @var{breakpoints}
 Enable the specified breakpoints (or all defined breakpoints).  They
 become effective once again in stopping your program.
+
+@kindex toggle breakpoints
+@item toggle breakpoints @var{dnums}@dots{}
+Change the state of the breakpoint from enabled to disabled or vice versa.
+
+
 @end table
 
 Breakpoints that you set are initially enabled; subsequently, they
@@ -2276,7 +2286,7 @@ your script may stop even sooner, due to a breakpoint or a signal.
 @table @code
 @kindex step @r{[}+@r{]} @ovar{count}
 @kindex s @r{(@code{step})}
-@item step @r{[}+@r{]} @ovar{count}
+@item step @r{[}+-@r{]} @ovar{count}
 Continue running your program until the next logical stopping point
 and return control to @value{DBG}. This command is abbreviated
 @code{s}.
@@ -2305,6 +2315,9 @@ If you find yourself generally wanting to use @code{step+} rather
 than @code{step}, you may want to consider using @code{set
 forcestep}, (@pxref{Forcestep}).
 
+If you have @code{forcestep} set on but want to temporarily disable it
+for the next step command, append a minus, or @code{step-}.
+
 With a count, @code{step} will continue running as normal, but do so
 @var{count} times.  If a breakpoint is reached, or a signal not
 related to stepping occurs before @var{count} steps, stepping stops
@@ -2314,13 +2327,14 @@ right away.
 @node Next
 @subsubsection Next (@samp{next})
 @table @code
-@kindex next @r{[}+@r{]} @ovar{count}
+@kindex next @r{[}+-@r{]} @ovar{count}
 @kindex n @r{(@code{next})}
 @item next @r{[}+@r{]} @ovar{count}
 This is similar to @code{step}, but function or method calls that
 appear within the line of code are executed without stopping. As with
 step, if you want to make sure that on a step you go to a
-@emph{different} position, add a plus sign (@samp{+}).  Similarly, an
+@emph{different} position, add a plus sign (@samp{+}).  Similarly,
+appending a minus disables a @code{forcestep} temporarily, and an
 argument @var{count} is a repeat count, as for @code{step}.
 @end table
 

@@ -6,12 +6,17 @@ set callstyle last
 next
 where
 step a
-step 2
+set forcestep on
+step-
+step-
+set forcestep off
 where
 n 2
 step
 where
 step 3
+step+
 where
+next+
 # finish
 quit

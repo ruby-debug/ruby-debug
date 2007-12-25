@@ -1,14 +1,27 @@
 module Debugger
+  # Mix-in module to assist in command parsing.
+  module SteppingFunctions # :nodoc:
+    def parse_stepping_args(command_name, match)
+      if match[1].nil? 
+          force = Command.settings[:force_stepping]
+      elsif match[1] == '+' 
+        force = true
+      elsif match[1] == '-' 
+        force = false
+      end
+      steps = get_int(match[2], command_name, 1)
+      return [steps, force]
+    end
+  end
   class NextCommand < Command # :nodoc:
     self.need_context = true
     
     def regexp
-      /^\s*n(?:ext)?([+])?(?:\s+(.*))?$/
+      /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/
     end
 
     def execute
-      force = @match[1] == '+' || (@match[1].nil? && Command.settings[:force_stepping])
-      steps = get_int(@match[2], "Next", 1)
+      steps, force = parse_stepping_args("Next", @match)
       return unless steps
       @state.context.step_over steps, @state.frame_pos, force
       @state.proceed
@@ -21,8 +34,9 @@ module Debugger
 
       def help(cmd)
         %{
-          n[ext][+]?[ nnn]\tstep over once or nnn times, 
-          \t\t'+' forces to move to another line
+          n[ext][+-]?[ nnn]\tstep over once or nnn times, 
+          \t\t'+' forces to move to another line.
+          \t\t'-' is the opposite of '+' and disables the force_stepping setting.
         }
       end
     end
@@ -32,13 +46,11 @@ module Debugger
     self.need_context = true
     
     def regexp
-      /^\s*s(?:tep)?([+])?(?:\s+(.*))?$/
+      /^\s*s(?:tep)?([+-])?(?:\s+(.*))?$/
     end
 
     def execute
-      force = @match[1] == '+' || (@match[1].nil? && Command.settings[:force_stepping])
-      steps = get_int(@match[2], "Step", 1)
-      return unless steps
+      steps, force = parse_stepping_args("Step", @match)
       @state.context.step(steps, force)
       @state.proceed
     end
@@ -50,8 +62,9 @@ module Debugger
 
       def help(cmd)
         %{
-          s[tep][+]?[ nnn]\tstep (into methods) once or nnn times
-          \t\t'+' forces to move to another line
+          s[tep][+-]?[ nnn]\tstep (into methods) once or nnn times
+          \t\t'+' forces to move to another line.
+          \t\t'-' is the opposite of '+' and disables the force_stepping setting.
         }
       end
     end
