@@ -14,7 +14,7 @@ module Debugger
         breakpoints.each do |b|
           if b.id == pos 
             b.enabled = ("Enable" == is_enable)
-            return
+            break
           end
         end
       end
@@ -150,6 +150,87 @@ module Debugger
         }
         for subcmd in Subcommands do
           s += "disable #{subcmd.name} -- #{subcmd.short_help}\n"
+        end
+        return s
+      end
+    end
+  end
+
+  class ToggleCommand < Command # :nodoc:
+    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
+      defined?(SubcmdStruct)
+    Subcommands = 
+      [
+       ['breakpoints', 2, "Toggle specified breakpoints"],
+       ['display', 2, "Toggle displaying expressions"],
+      ].map do |name, min, short_help| 
+      SubcmdStruct.new(name, min, short_help)
+    end unless defined?(Subcommands)
+
+    def regexp
+      /^\s* to(?:ggle)? (?:\s+(.*))?$/ix
+    end
+    
+    def execute
+      if not @match[1]
+        print "\"toggle\" must be followed \"display\", \"breakpoints\"" +
+          " or breakpoint numbers.\n"
+      else
+        args = @match[1].split(/[ \t]+/)
+        subcmd = args.shift.downcase
+        for try_subcmd in Subcommands do
+          if (subcmd.size >= try_subcmd.min) and
+              (try_subcmd.name[0..subcmd.size-1] == subcmd)
+            send("toggle_#{try_subcmd.name}", args)
+            return
+          end
+        end
+        send("toggle_breakpoints", args.unshift(subcmd))
+      end
+    end
+    
+    def toggle_breakpoints(args)
+      breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
+      largest = breakpoints.inject(0){|largest, b| largest = b.id if b.id > largest}
+      if 0 == largest
+        print "No breakpoints have been set.\n"
+        return
+      end
+      args.each do |pos|
+        pos = get_int(pos, "toggle breakpoints", 1, largest)
+        return nil unless pos
+        breakpoints.each do |b|
+          if b.id == pos 
+            b.enabled = ! b.enabled?
+            break
+          end
+        end
+      end
+    end
+    
+    def toggle_display(args)
+      args.each do |pos|
+        pos = get_int(pos, "toggle display", 1, @state.display.size)
+        return nil unless pos
+        @state.display[pos-1][0] = ! @state.display[pos-1][0]
+      end
+    end
+    
+    class << self
+      def help_command
+        'toggle'
+      end
+
+      def help(cmd)
+        s = %{
+          Toggle some things.
+          This is used to 'enable' or 'disable' that thing.
+          -- 
+          List of enable subcommands:
+          --  
+        }
+        for subcmd in Subcommands do
+          s += "toggle #{subcmd.name} -- #{subcmd.short_help}\n"
         end
         return s
       end
