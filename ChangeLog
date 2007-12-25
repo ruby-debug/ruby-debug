@@ -1,3 +1,32 @@
+2007-12-24 21:02  Rocky Bernstein
+
+	* cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/processor.rb, doc/ruby-debug.texi,
+	  test/breakpoints.cmd, test/breakpoints.right: Fix bug in stopping
+	  on a method name. Use this in the examples.
+
+2007-12-24 09:24  Rocky Bernstein
+
+	* doc/Makefile.am, doc/primes.rb, doc/ruby-debug.texi: Add iterator
+	  example.
+
+2007-12-24 04:12  Rocky Bernstein
+
+	* doc/hanoi.rb, doc/ruby-debug.texi, doc/test-tri2.rb, doc/tri3.rb:
+	  More work on reference guide. Correct spelling, add example
+	  showing
+	  scope frame (for Enumerable). Other small corrections.
+	  
+	  Check in programs used in documentation.
+
+2007-12-24 00:25  Rocky Bernstein
+
+	* ChangeLog, Rakefile, ext/ChangeLog, lib/ChangeLog: Rakefile: set
+	  up gem unit test for ruby-debug-base. Add file in test/
+	  so we could do the same for ruby-debug were it not for other
+	  mysterious
+	  problems.
+
 2007-12-23 22:19  Rocky Bernstein
 
 	* Rakefile, emacs/rdebug-core.el: Rakefile: don't add html or pdf

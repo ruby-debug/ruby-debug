@@ -9,15 +9,28 @@ The faster execution speed is achieved by utilizing a new hook Ruby C API.
 
 ruby-debug requires Ruby 1.8.4 or higher.
 
-If you are running Linux or Unix you'll need a C compiler so the extension
-can be compiled when it is installed.
-
+Unless you get the packages as a binary (Microsoft Windows binaries
+are sometimes available), you'll need a C compiler and Ruby
+development headers, and a Make program so the extension in
+ruby-debug-base can be compiled when it is installed.
 
 == Install
 
 ruby-debug is provided as a RubyGem.  To install:
 
 <tt>gem install ruby-debug</tt>
+
+This should also pull in <tt>ruby-debug-base</tt> as a dependency.
+
+For Emacs support and the Reference Manual, get
+<tt>ruby-debug-extra</tt>.  This is not a RubyGem, you'll need a Make
+program and a POSIX shell. With this installed, run:
+
+<pre>
+  sh ./configure
+  make
+  make install
+</pre>
 
 == Usage
 
@@ -34,9 +47,9 @@ to set up your breakpoints.
 === ruby-debug API
 
 The second way is to use the ruby-debug API to interrupt your
-code execution at runtime.
+code execution at run time.
 
-  require 'ruby-debug'
+  require 'ruby-debug' ; Debugger.start
   ...
   def your_method
     ...
@@ -49,14 +62,15 @@ and you will be able to inspect and step through your code.
 
 == Performance
 
-The debug.rb script that comes with the standard library uses 
-Kernel#set_trace_func API. This way it is possible to implement
-the debugger in pure Ruby, but has a negative effect on the speed 
-of your program execution. For each trace call Ruby interpreter 
-creates a Binding object, even though it is not being used most
-of the time. ruby-debug library moves most of the functionality 
-of debug.rb to a native extension, this way significantly improving
-the execution of your program.
+The debug.rb script that comes with the standard Ruby library uses
+Kernel#set_trace_func API. Implementing the debugger in pure Ruby has
+a negative impact on the speed of your program execution. This is
+because the Ruby interpreter creates a Binding object each trace call,
+even though it is not being used most of the time. ruby-debug moves
+most of the functionality for Binding access and for breakpoint
+testing to a native extension. Because this code is in C and because
+and can be selectively enabled or disabled, the overhead in running
+your program can be minimized.
 
 == License
 

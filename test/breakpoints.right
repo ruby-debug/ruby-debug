@@ -22,7 +22,9 @@ if a > b
 # where
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 at line gcd.rb:18
-# break main.gcd
+# break Foo.bar
+Unknown class Foo.
+# break Object.gcd
 Breakpoint 3 at Object::gcd
 # info break
 Num Enb What

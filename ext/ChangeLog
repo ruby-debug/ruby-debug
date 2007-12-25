@@ -1,3 +1,12 @@
+2007-12-24 00:25  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, ChangeLog, trunk/lib/ChangeLog:
+	  Rakefile: set up gem unit test for ruby-debug-base. Add file in
+	  test/
+	  so we could do the same for ruby-debug were it not for other
+	  mysterious
+	  problems.
+
 2007-12-23 17:33  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog, trunk/Makefile.am,

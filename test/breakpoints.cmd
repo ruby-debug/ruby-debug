@@ -10,7 +10,8 @@ break 6
 break 10
 continue
 where
-break main.gcd
+break Foo.bar
+break Object.gcd
 info break
 continue
 where
