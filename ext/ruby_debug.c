@@ -1092,11 +1092,13 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 
         expn_class = rb_obj_class(ruby_errinfo);
+#ifdef NORMAL_CODE
         if( !NIL_P(rb_class_inherited_p(expn_class, rb_eSystemExit)) )
         {
             debug_stop(mDebugger);
             break;
         }
+#endif
 
         if(catchpoint == Qnil)
             break;
@@ -1116,6 +1118,14 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                 break;
             }
         }
+
+#ifndef NORMAL_CODE
+        if( !NIL_P(rb_class_inherited_p(expn_class, rb_eSystemExit)) )
+        {
+            debug_stop(mDebugger);
+            break;
+        }
+#endif
 
         break;
     }
