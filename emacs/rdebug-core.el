@@ -1006,7 +1006,7 @@ C-a)."
   (rdebug-display-secondary-buffer "stack"))
 
 (defun rdebug-display-secondary-window-help-buffer ()
-  "Display the rdebug stack buffer."
+  "Display the rdebug help buffer."
   (interactive)
   (rdebug-display-secondary-buffer "help"))
 

@@ -3,7 +3,7 @@ module Debugger
     self.need_context = true
     
     def regexp
-      /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/
+      /^\s*n(?:ext)?([+])?(?:\s+(.*))?$/
     end
 
     def execute
@@ -21,7 +21,7 @@ module Debugger
 
       def help(cmd)
         %{
-          n[ext][+][ nnn]\tstep over once or nnn times, 
+          n[ext][+]?[ nnn]\tstep over once or nnn times, 
           \t\t'+' forces to move to another line
         }
       end
@@ -32,7 +32,7 @@ module Debugger
     self.need_context = true
     
     def regexp
-      /^\s*s(?:tep)?([+-])?(?:\s+(.*))?$/
+      /^\s*s(?:tep)?([+])?(?:\s+(.*))?$/
     end
 
     def execute
@@ -50,7 +50,8 @@ module Debugger
 
       def help(cmd)
         %{
-          s[tep][ nnn]\tstep (into methods) once or nnn times
+          s[tep][+]?[ nnn]\tstep (into methods) once or nnn times
+          \t\t'+' forces to move to another line
         }
       end
     end

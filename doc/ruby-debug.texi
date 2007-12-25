@@ -1518,7 +1518,7 @@ info variables -- local and instance variables
 @node Quit
 @subsection Quit (@samp{quit})
 @table @code
-@kindex quit 
+@kindex quit @r{[}unconditionally@r{]}
 @kindex q @r{(@code{quit})}
 @item quit 
 @item exit
@@ -1528,6 +1528,11 @@ To exit @value{DBG}, use the @code{quit} command (abbreviated
 @code{q}), or alias @code{exit}.
 
 A simple @code{quit} tries to terminate all threads in effect.
+
+Normally if you are in an interactive session, this command will
+prompt to ask if you really want to quit. If you don't want any
+questions asked, enter the ``unconditionally''.
+
 @end table
 
 @node Restart
@@ -3052,6 +3057,7 @@ This command also kills the pending input
 between the process mark and point.
 
 @item C-c +   (gud-step-plus)
+Run @code{step+}.
 
 @item C-c .   (comint-insert-previous-argument @var{index})
 Insert the indexth argument from the previous Comint command-line at point.
@@ -3075,9 +3081,16 @@ With a numeric argument, go down that many stack frames.
 Manual}.
 
 @item C-c ?	(rdebug-display-secondary-window-help-buffer)
+Display the rdebug help buffer.
+
 @item C-c B	(rdebug-display-breakpoints-buffer)
+Display the rdebug breakpoints buffer.
+
 @item C-x C-a C	(rdebug-display-cmd-buffer)
+Display the rdebug command buffer.
+
 @item C-c O	(rdebug-display-output-buffer)
+Display the rdebug output buffer.
 
 @item C-c R	(gud-run)
 @itemx C-c r	(gud run)
