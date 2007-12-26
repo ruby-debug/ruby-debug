@@ -22,6 +22,10 @@ ruby-debug is provided as a RubyGem.  To install:
 
 This should also pull in <tt>ruby-debug-base</tt> as a dependency.
 
+(If you install ruby-debug-base explicitly, you can add in the secret
+--test option after "install" to have the regression test run before
+installing.)
+
 For Emacs support and the Reference Manual, get
 <tt>ruby-debug-extra</tt>.  This is not a RubyGem, you'll need a Make
 program and a POSIX shell. With this installed, run:
@@ -29,7 +33,8 @@ program and a POSIX shell. With this installed, run:
 <pre>
   sh ./configure
   make
-  make install
+  make test # optional, but a good idea
+  sudo make install
 </pre>
 
 == Usage
