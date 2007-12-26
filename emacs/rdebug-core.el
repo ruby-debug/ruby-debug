@@ -518,7 +518,7 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
         t)
     nil))
 
-;; The following is split two to facilitate debugging.
+;; The following is split in two to facilitate debugging.
 (defun rdebug-goto-entry-n-internal (keys)
   (if (and (stringp keys)
            (= (length keys) 1))
@@ -542,7 +542,7 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
 Breakpoints, Display expressions and Stack Frames all have
 numbers associated with them which are distinct from line
 numbers. In a secondary buffer, this function is usually bound to
-a numeric key. which will position you at that entry number. To
+a numeric key which will position you at that entry number. To
 go to an entry above 9, just keep entering the number. For
 example, if you press 1 and then 9, you should jump to entry
 1 (if it exists) and then 19 (if that exists). Entering any
@@ -1290,13 +1290,55 @@ The higher score the better."
 
 ;; -- stack
 
+;; The following is split in two to facilitate debugging.
+(defun rdebug-goto-frame-n-internal (keys)
+  (if (and (stringp keys)
+           (= (length keys) 1))
+      (progn
+        (setq rdebug-goto-entry-acc (concat rdebug-goto-entry-acc keys))
+        ;; Try to find the longest suffix.
+        (let ((acc rdebug-goto-entry-acc)
+              (p (point)))
+          (while (not (string= acc ""))
+            (if (not (gud-call (format "frame %s" acc)))
+                (setq acc (substring acc 1))
+              (setq p (point))
+              ;; Break loop.
+              (setq acc "")))
+          (goto-char p)))
+    (message "`rdebug-goto-frame-n' must be bound to a number key")))
+
+(defun rdebug-goto-frame-n ()
+  "Go to an frame number.
+
+Go to the frame n. This function is usually bound to a numeric
+key in in the frame buffer. To go to an entry above 9, just keep
+entering the number. For example, if you press 1 and then 9, you
+should jump to entry 1 (if it exists) and then 19 (if that
+exists). Entering any non-digit will start entry number from the
+beginning again."
+  (interactive)
+  (if (not (eq last-command 'rdebug-goto-entry-n))
+      (setq rdebug-goto-entry-acc ""))
+  (rdebug-goto-frame-n-internal (this-command-keys)))
+
+
 (defvar rdebug-frames-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map [mouse-1] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
     (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-stack-frame)
-    (rdebug-populate-digit-keys map)
+    (define-key map "0" 'rdebug-goto-frame-n)
+    (define-key map "1" 'rdebug-goto-frame-n)
+    (define-key map "2" 'rdebug-goto-frame-n)
+    (define-key map "3" 'rdebug-goto-frame-n)
+    (define-key map "4" 'rdebug-goto-frame-n)
+    (define-key map "5" 'rdebug-goto-frame-n)
+    (define-key map "6" 'rdebug-goto-frame-n)
+    (define-key map "7" 'rdebug-goto-frame-n)
+    (define-key map "8" 'rdebug-goto-frame-n)
+    (define-key map "9" 'rdebug-goto-frame-n)
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
