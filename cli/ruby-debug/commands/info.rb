@@ -183,6 +183,7 @@ module Debugger
         if s.size > self.class.settings[:width]
           s[self.class.settings[:width]-3 .. -1] = "..."
         end
+        s.gsub!('%', '%%')  # protect against printf format strings
         print "#{s}\n"
       end
       var_list(obj.instance_variables, obj.instance_eval{binding()})
