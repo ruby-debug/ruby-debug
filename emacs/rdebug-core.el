@@ -1297,15 +1297,13 @@ The higher score the better."
       (progn
         (setq rdebug-goto-entry-acc (concat rdebug-goto-entry-acc keys))
         ;; Try to find the longest suffix.
-        (let ((acc rdebug-goto-entry-acc)
-              (p (point)))
+        (let ((acc rdebug-goto-entry-acc))
           (while (not (string= acc ""))
-            (if (not (gud-call (format "frame %s" acc)))
+            (if (not (rdebug-goto-entry-try acc))
                 (setq acc (substring acc 1))
-              (setq p (point))
+              (gud-call (format "frame %s" acc))
               ;; Break loop.
-              (setq acc "")))
-          (goto-char p)))
+              (setq acc "")))))
     (message "`rdebug-goto-frame-n' must be bound to a number key")))
 
 (defun rdebug-goto-frame-n ()
@@ -1314,10 +1312,10 @@ The higher score the better."
 This function is usually bound to a numeric key in a 'frame'
 secondary buffer. To go to an entry above 9, just keep entering
 the number. For example, if you press 1 and then 9, frame 1 is selected
-(if it exists) and then frame 19 (if that exists). Entering any
+\(if it exists) and then frame 19 (if that exists). Entering any
 non-digit will start entry number from the beginning again."
   (interactive)
-  (if (not (eq last-command 'rdebug-goto-entry-n))
+  (if (not (eq last-command 'rdebug-goto-frame-n))
       (setq rdebug-goto-entry-acc ""))
   (rdebug-goto-frame-n-internal (this-command-keys)))
 
