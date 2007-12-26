@@ -1,3 +1,74 @@
+2007-12-26 18:18  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Number keys should move the frame, not just
+	  position the cursor there.
+
+2007-12-26 10:41  Rocky Bernstein
+
+	* cli/ruby-debug/commands/info.rb, test/info-var-bug2.cmd,
+	  test/info-var-bug2.rb, test/test-info-var.rb: Need to escape
+	  escape (% -> %%) in "info variables"
+
+2007-12-26 00:04  Rocky Bernstein
+
+	* ext/ruby_debug.c: 2nd attempt to deal with *both* problems Timur
+	  reported.
+	  
+	  1. Catchpoint is never called when program raises an object of
+	  type
+	  Exception. So, my exceptional breakpoints doesn't work for
+	  Exception
+	  class.
+	  
+	  
+	  2. When SystemExit exception is raised debugger become stopped
+	  and
+	  stop method is called as many times, as a number of threads
+	  running in
+	  application. For example, in next code debugger become stopped in
+	  rescue block, but program continues its execution.
+
+2007-12-25 23:40  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/stepping.rb,
+	  doc/ruby-debug.texi, ext/ChangeLog, lib/ChangeLog,
+	  test/stepping.cmd, test/stepping.right: Add step- and step+.
+	  Document as well as the new toggle command.
+
+2007-12-25 23:39  Rocky Bernstein
+
+	* cli/ruby-debug/commands/enable.rb: Add toggle requested by Anders
+	  Lindgren.
+
+2007-12-25 23:36  Rocky Bernstein
+
+	* ext/ruby_debug.c: Expermimental patch to address a problems
+	  reported by Timur Shipilov,
+	  Software engineer, Xored Software Inc.:
+	  
+	  When SystemExit exception is raised debugger become stopped and
+	  stop method is called as many times, as a number of threads
+	  running in
+	  application. For example, in next code debugger become stopped in
+	  rescue block, but program continues its execution.
+	  
+	  Example:
+	  
+	  # Stuff to set up debugger
+	  begin
+	  # if you throw another Exception here, all will be fine
+	  exit
+	  sleep 20
+	  rescue Exception
+	  puts 'This line is not traced'
+	  end
+	  puts 'And this too'
+	  
+	  # Debugger.stop was implicitly called when SystemExit exception
+	  was thrown
+	  # So, there will be an runtime error
+	  Debugger.stop
+
 2007-12-25 09:55  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/commands/stepping.rb,

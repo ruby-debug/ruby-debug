@@ -1,3 +1,10 @@
+2007-12-25 23:40  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/stepping.rb,
+	  trunk/doc/ruby-debug.texi, trunk/ext/ChangeLog, ChangeLog,
+	  trunk/test/stepping.cmd, trunk/test/stepping.right: Add step- and
+	  step+. Document as well as the new toggle command.
+
 2007-12-25 09:55  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/stepping.rb,

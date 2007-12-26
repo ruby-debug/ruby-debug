@@ -1,3 +1,58 @@
+2007-12-26 00:04  Rocky Bernstein
+
+	* ruby_debug.c: 2nd attempt to deal with *both* problems Timur
+	  reported.
+	  
+	  1. Catchpoint is never called when program raises an object of
+	  type
+	  Exception. So, my exceptional breakpoints doesn't work for
+	  Exception
+	  class.
+	  
+	  
+	  2. When SystemExit exception is raised debugger become stopped
+	  and
+	  stop method is called as many times, as a number of threads
+	  running in
+	  application. For example, in next code debugger become stopped in
+	  rescue block, but program continues its execution.
+
+2007-12-25 23:40  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/stepping.rb,
+	  trunk/doc/ruby-debug.texi, ChangeLog, trunk/lib/ChangeLog,
+	  trunk/test/stepping.cmd, trunk/test/stepping.right: Add step- and
+	  step+. Document as well as the new toggle command.
+
+2007-12-25 23:36  Rocky Bernstein
+
+	* ruby_debug.c: Expermimental patch to address a problems reported
+	  by Timur Shipilov,
+	  Software engineer, Xored Software Inc.:
+	  
+	  When SystemExit exception is raised debugger become stopped and
+	  stop method is called as many times, as a number of threads
+	  running in
+	  application. For example, in next code debugger become stopped in
+	  rescue block, but program continues its execution.
+	  
+	  Example:
+	  
+	  # Stuff to set up debugger
+	  begin
+	  # if you throw another Exception here, all will be fine
+	  exit
+	  sleep 20
+	  rescue Exception
+	  puts 'This line is not traced'
+	  end
+	  puts 'And this too'
+	  
+	  # Debugger.stop was implicitly called when SystemExit exception
+	  was thrown
+	  # So, there will be an runtime error
+	  Debugger.stop
+
 2007-12-25 09:55  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/stepping.rb,
