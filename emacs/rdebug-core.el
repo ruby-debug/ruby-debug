@@ -1309,14 +1309,13 @@ The higher score the better."
     (message "`rdebug-goto-frame-n' must be bound to a number key")))
 
 (defun rdebug-goto-frame-n ()
-  "Go to an frame number.
+  "Go to the frame number indicated by the accumulated numeric keys just entered.
 
-Go to the frame n. This function is usually bound to a numeric
-key in in the frame buffer. To go to an entry above 9, just keep
-entering the number. For example, if you press 1 and then 9, you
-should jump to entry 1 (if it exists) and then 19 (if that
-exists). Entering any non-digit will start entry number from the
-beginning again."
+This function is usually bound to a numeric key in a 'frame'
+secondary buffer. To go to an entry above 9, just keep entering
+the number. For example, if you press 1 and then 9, frame 1 is selected
+(if it exists) and then frame 19 (if that exists). Entering any
+non-digit will start entry number from the beginning again."
   (interactive)
   (if (not (eq last-command 'rdebug-goto-entry-n))
       (setq rdebug-goto-entry-acc ""))
