@@ -5,7 +5,7 @@
 #include <st.h>
 #include <version.h>
 
-#define DEBUG_VERSION "0.10.0"
+#define DEBUG_VERSION "0.11.0"
 
 #ifdef _WIN32
 struct FRAME {
@@ -1092,6 +1092,17 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 
         expn_class = rb_obj_class(ruby_errinfo);
+
+	/* This code goes back to the earliest days of ruby-debug. It
+	   tends to disallow catching an exception via the
+	   "catchpoint" command. To address this one possiblilty is to
+	   move this after testing for catchponts. Kent however thinks
+	   there may be a misfeature in Ruby's eval.c: the problem was
+	   in the fact that Ruby doesn't reset exception flag on the
+	   current thread before it calls a notification handler.
+
+	   See also the #ifdef'd code below as well.
+	 */
 #ifdef NORMAL_CODE
         if( !NIL_P(rb_class_inherited_p(expn_class, rb_eSystemExit)) )
         {
@@ -1119,7 +1130,10 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             }
         }
 
-#ifndef NORMAL_CODE
+	/* If we stop the debugger, we may not be able to trace into code that has 
+	   an exception handler wrapped around it. So the alternative is to force the user
+	   to do his own Debugger.stop. */
+#ifdef NORMAL_CODE_MOVING_AFTER_
         if( !NIL_P(rb_class_inherited_p(expn_class, rb_eSystemExit)) )
         {
             debug_stop(mDebugger);
