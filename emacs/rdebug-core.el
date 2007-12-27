@@ -441,7 +441,8 @@ example when the debugger starts."
 \\{rdebug-example-map-standard}"
   (define-key map [f5]    'gud-cont)
   (define-key map [S-f5]  'rdebug-quit)
-  (define-key map [f9]    'gud-break)   ; TODO: Should be "toggle"
+  (define-key map [f9]    'rdebug-toggle-source-breakpoint)
+  (define-key map [C-f9]  'rdebug-toggle-source-breakpoint-enabled)
   (define-key map [f10]   'gud-next)
   (define-key map [f11]   'gud-step)
   (define-key map [S-f11] 'gud-finish))
@@ -454,10 +455,10 @@ example when the debugger starts."
 \\{rdebug-example-map-eclipse}"
   ;;(define-key map []  'gud-cont)
   ;;(define-key map []  'rdebug-quit)
-  (define-key map [S-C-b]    'gud-break) ; TODO: Should be "toggle"
-  (define-key map [f6]   'gud-next)
-  (define-key map [f5]   'gud-step)
-  (define-key map [f7] 'gud-finish))
+  (define-key map [S-C-b] 'rdebug-toggle-source-breakpoint)
+  (define-key map [f6]    'gud-next)
+  (define-key map [f5]    'gud-step)
+  (define-key map [f7]    'gud-finish))
 
 
 ;; TODO: Verify and complement.
@@ -468,7 +469,7 @@ example when the debugger starts."
   ;;(define-key map []  'gud-cont)
   ;;(define-key map []  'rdebug-quit)
   ;; F4 - Run to cursor.
-  (define-key map [S-f8]   'gud-break)  ; TODO: Should be "toggle"
+  (define-key map [S-f8]   'rdebug-toggle-source-breakpoint)
   (define-key map [f8]     'gud-next)
   (define-key map [f7]     'gud-step)
   (define-key map [M-S-f7] 'gud-finish))
@@ -841,11 +842,13 @@ menu. (The common map typically contains function key bindings.)"
     (define-key map [menu-bar debugger] (cons "Debugger" menu))
 
     (define-key menu [break-delete]
-      (rdebug-menu-item common-map "Delete breakpoint" 'gud-remove
+      (rdebug-menu-item common-map "Enable/disable breakpoint"
+                        'rdebug-toggle-source-breakpoint-enabled
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key menu [break]
-      (rdebug-menu-item common-map "Set breakpoint" 'gud-break
+      (rdebug-menu-item common-map "Toggle breakpoint"
+                        'rdebug-toggle-source-breakpoint
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key menu [finish]
@@ -1946,6 +1949,89 @@ is restored."
   (interactive)
   (if (yes-or-no-p "Really quit? ")
       (gud-call "quit unconditionally")))
+
+
+;; Implementation note: If Emacs could talk directly to the Ruby
+;; debugger, this would be rougly "Debugger.breakpoints". Since we
+;; currently can't do that we parse the content of the breakpoints
+;; window.
+;;
+;; Note: The :function kind is not yet implemented.
+(defun rdebug-all-breakpoints ()
+  "Return a list of all breakpoints.
+
+Each entry in the list is on the form:
+
+    (:file number enabled file line)
+
+or
+
+    (:function number enabled class function)"
+  (let* ((target-name (or (and gud-comint-buffer
+                               (buffer-local-value 'gud-target-name
+                                                   gud-comint-buffer))
+                          gud-target-name))
+         (buf (rdebug-get-buffer "breakpoints" target-name)))
+    (and buf
+         (save-current-buffer
+           (set-buffer buf)
+           (save-excursion
+             (let ((res '()))
+               (goto-char (point-min))
+               (while (not (eobp))
+                 (when (looking-at rdebug--breakpoint-regexp)
+                   (push (list :file
+                               ;; Break point number
+                               (string-to-number (match-string 1))
+                               ;; Enabled
+                               (string= (match-string 2) "y")
+                               ;; File name
+                               (file-truename
+                                (match-string-no-properties 3))
+                               ;; Line number
+                               (string-to-number (match-string 4)))
+                         res))
+                 (forward-line 1))
+               (nreverse res)))))))
+
+
+(defun rdebug-breakpoints-on-line (file line)
+  "Return a list of the breakpoint on the current source line."
+  (let ((res '()))
+    (dolist (entry (rdebug-all-breakpoints))
+      (if (and (eq (nth 0 entry) :file)
+               (string= (nth 3 entry) file)
+               (equal (nth 4 entry) line))
+          (push entry res)))
+    res))
+
+
+(defun rdebug-file-and-line-arg ()
+  (save-excursion
+    (beginning-of-line)
+    (list (buffer-file-name) (+ 1 (count-lines (point-min) (point))))))
+
+(defun rdebug-toggle-source-breakpoint (file line)
+  "Toggle break point on current source line."
+  (interactive (rdebug-file-and-line-arg))
+  (let ((bps (rdebug-breakpoints-on-line file line)))
+    (if bps
+        (gud-call (format "delete %s" (nth 1 (car bps))))
+      (gud-call (format "break %s:%d" file line)))))
+
+
+(defun rdebug-toggle-source-breakpoint-enabled (file line)
+  "Enable or disable a break point on the current source line."
+  (interactive (rdebug-file-and-line-arg))
+  (let ((bps (rdebug-breakpoints-on-line file line)))
+    (if bps
+        ;; Note: If the line contains more than one simply use the
+        ;; first one.
+        (let ((entry (car bps)))
+          (if (nth 2 entry)
+              (gud-call (format "disable %s" (nth 1 entry)))
+            (gud-call (format "enable %s" (nth 1 entry)))))
+      (gud-call (format "break %s:%d" file line)))))
 
 
 (provide 'rdebug-core)
