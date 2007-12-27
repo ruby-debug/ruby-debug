@@ -1,3 +1,39 @@
+2007-12-27 03:11  Rocky Bernstein
+
+	* Rakefile, cli/ruby-debug/command.rb,
+	  cli/ruby-debug/commands/enable.rb, cli/ruby-debug/helper.rb,
+	  doc/ruby-debug.texi, emacs/rdebug-test-frame.el,
+	  test/test-columnize.rb: Use columnize gem from rubyforge.
+	  Remove toggle since Anders can't use - easy come, easy go.
+	  rdebug-test-frame.el was broken.
+
+2007-12-26 22:31  Anders Lindgren
+
+	* emacs/rdebug-core.el: Fix for broken 'rdebug-goto-frame-n'.
+
+2007-12-26 21:20  Rocky Bernstein
+
+	* README: Note we (may) need "sudo" before installing. Also note
+	  the test options.
+
+2007-12-26 20:29  Rocky Bernstein
+
+	* CHANGES: *** empty log message ***
+
+2007-12-26 19:10  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-test-frame.el: Add regression
+	  tests for new code.
+
+2007-12-26 18:42  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Doc fixes.
+
+2007-12-26 18:35  Rocky Bernstein
+
+	* ChangeLog, ext/ChangeLog, ext/ruby_debug.c, lib/ChangeLog:
+	  Version number games - maybe 0.10.1 is better.
+
 2007-12-26 18:18  Rocky Bernstein
 
 	* emacs/rdebug-core.el: Number keys should move the frame, not just

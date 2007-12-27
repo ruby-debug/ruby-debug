@@ -231,6 +231,8 @@ problem as best as we can determine."
 This function is designed to be added to hooks, for example:
   (add-hook 'comint-mode-hook 'turn-on-rdebug-track-mode)"
   (interactive)
+  (set (make-local-variable 'gud-last-last-frame) nil)
+  (set (make-local-variable 'gud-last-frame) nil)
   (rdebug-track-mode 1))
 
 (defun rdebug-track-attach (&optional name)
@@ -251,7 +253,10 @@ window layout is used."
     (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
     (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
     (gud-set-buffer)
+    ;;   
 
+    (set (make-local-variable 'gud-last-last-frame) nil)
+    (set (make-local-variable 'gud-last-frame) nil)
     (rdebug-track-mode 1)
     (rdebug-common-initialization)
     (when name
@@ -271,7 +276,10 @@ window layout is used."
   "Turn off rdebug-track mode."
   (interactive)
   (setq rdebug-track-is-tracking-p nil)
+
   (rdebug-track-toggle-stack-tracking 0)
+  (if (local-variable-p 'gud-last-frame)
+      (setq 'gud-last-frame nil))
   (remove-hook 'comint-output-filter-functions
 	       'rdebug-track-track-stack-file))
 

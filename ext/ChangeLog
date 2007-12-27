@@ -1,3 +1,8 @@
+2007-12-26 18:35  Rocky Bernstein
+
+	* trunk/ChangeLog, ChangeLog, ruby_debug.c, trunk/lib/ChangeLog:
+	  Version number games - maybe 0.10.1 is better.
+
 2007-12-26 00:04  Rocky Bernstein
 
 	* ruby_debug.c: 2nd attempt to deal with *both* problems Timur
