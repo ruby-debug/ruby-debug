@@ -136,6 +136,7 @@ EOF
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
+  spec.add_dependency('columnize', '>= 0.1')
   spec.add_dependency('ruby-debug-base', RUBY_DEBUG_VERSION)
   
   # FIXME: work out operational logistics for this

@@ -1444,7 +1444,6 @@ break      display  finish  list    ps      save     thread     var
 catch      down     frame   method  putl    set      toggle     where
 continue   enable   help    next    quit    show     trace    
 delete     eval     info    p       reload  source   undisplay
-
 @end smallexample
 @end flushleft
 @c the above line break eliminates huge line overfull...
@@ -1650,10 +1649,6 @@ enabled again later.
 @item enable display @var{dnums}@dots{}
 Enable display of item numbers @var{dnums}.  It becomes effective once
 again in auto display of its expression, until you specify otherwise.
-
-@kindex toggle display
-@item toggle display @var{dnums}@dots{}
-Change the state of the display from enabled to disabled or vice versa.
 
 @end table
 
@@ -2241,11 +2236,6 @@ case the breakpoint is enabled again later.  You may abbreviate
 @item enable @var{breakpoints}
 Enable the specified breakpoints (or all defined breakpoints).  They
 become effective once again in stopping your program.
-
-@kindex toggle breakpoints
-@item toggle breakpoints @var{dnums}@dots{}
-Change the state of the breakpoint from enabled to disabled or vice versa.
-
 
 @end table
 

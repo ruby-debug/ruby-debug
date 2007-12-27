@@ -1,8 +1,11 @@
+require 'rubygems'
+require 'columnize'
 require 'ruby-debug/helper'
 
 module Debugger
 
   class Command # :nodoc:
+    include Columnize
     class << self
       def commands
         @commands ||= []
