@@ -279,7 +279,7 @@ window layout is used."
 
   (rdebug-track-toggle-stack-tracking 0)
   (if (local-variable-p 'gud-last-frame)
-      (setq 'gud-last-frame nil))
+      (setq gud-last-frame nil))
   (remove-hook 'comint-output-filter-functions
 	       'rdebug-track-track-stack-file))
 
