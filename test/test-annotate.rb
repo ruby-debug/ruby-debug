@@ -16,7 +16,6 @@ include TestHelper
 class TestAnnotate < Test::Unit::TestCase
   require 'stringio'
 
-  # Test commands in stepping.rb
   def test_basic
     Dir.chdir(SRC_DIR) do 
       assert_equal(true, 
