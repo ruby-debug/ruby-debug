@@ -8,11 +8,27 @@ module Debugger
   class CommandProcessor # :nodoc:
     attr_accessor :interface
     attr_reader   :display
-    
-    @@Show_breakpoints_postcmd = ["break", "tbreak", "disable", "enable",
-                                  "condition", "clear", "delete"]
-    @@Show_annotations_preloop = ["step", "continue", "next", "finish"]
-    @@Show_annotations_postcmd = ["down", "frame", "up"]
+
+    # FIXME: get from Command regexp method.
+    @@Show_breakpoints_postcmd = [
+                                  /^\s*b(?:reak)?/, 
+                                  /^\s*del(?:ete)?(?:\s+(.*))?$/ix,
+                                  /^\s* dis(?:able)? (?:\s+(.*))?$/ix,
+                                  /^\s* en(?:able)? (?:\s+(.*))?$/ix,
+                                  # "tbreak", "condition", "clear", 
+                                 ]
+    @@Show_annotations_preloop = [
+                                  /^\s*c(?:ont(?:inue)?)?(?:\s+(.*))?$/,
+                                  /^\s*fin(?:ish)?$/,
+                                  /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/,
+                                  /^\s*s(?:tep)?([+-])?(?:\s+(.*))?$/
+                                ]
+
+    @@Show_annotations_postcmd = [
+                                  /^\s* down (?:\s+(.*))? .*$/x,
+                                  /^\s* f(?:rame)? (?:\s+ (.*))? \s*$/x,
+                                  /^\s* u(?:p)? (?:\s+(.*))?$/x
+                                 ]
     
     def initialize(interface = LocalInterface.new)
       @interface = interface
@@ -24,6 +40,7 @@ module Debugger
       @last_file = nil   # Filename the last time we stopped
       @last_line = nil   # line number the last time we stopped
       @output_annotation_in_progress = false
+      @debugger_breakpoints_were_empty = false
     end
     
     def interface=(interface)
@@ -238,21 +255,15 @@ module Debugger
     
     def postcmd(commands, context, cmd)
       if Debugger.annotate and Debugger.annotate > 0
-        # FIXME: need to cannonicalize command names 
-        # e.g. b vs. break
-        # and break out the command name "break 10"
-        # until then we'll refresh always
-        # cmd = @last_cmd unless cmd
-        #if @@Show_breakpoints_postcmd.member?(cmd)
-        annotation('breakpoints', commands, context, "info breakpoints") unless
-          Debugger.breakpoints.empty?
+        cmd = @last_cmd unless cmd
+        breakpoint_annotations(commands, context) if
+          @@Show_breakpoints_postcmd.find{|pat| cmd =~ pat}
         annotation('display', commands, context, "display")
-        # end
-        # if @@Show_annotations_postcmd.member?(cmd)
-        annotation('stack', commands, context, "where") if 
-          context.stack_size > 0
+        if @@Show_annotations_postcmd.find{|pat| cmd =~ pat}
+          annotation('stack', commands, context, "where") if 
+            context.stack_size > 0
           annotation('variables', commands, context, "info variables")
-        # end
+        end
       end
     end
 
@@ -261,10 +272,17 @@ module Debugger
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
-        annotation('breakpoints', commands, context, "info breakpoints")
+        breakpoint_annotations(commands, context)
         annotation('stack', commands, context, "where")
         annotation('variables', commands, context, "info variables")
         annotation('display', commands, context, "display")
+      end
+    end
+    
+    def breakpoint_annotations(commands, context)
+      unless Debugger.breakpoints.empty? and @debugger_breakpoints_were_empty
+        annotation('breakpoints', commands, context, "info breakpoints") 
+        @debugger_breakpoints_were_empty = Debugger.breakpoints.empty?
       end
     end
 

@@ -84,7 +84,7 @@ module Debugger
     self.control = true
 
     def regexp
-      /^\s*del(?:ete)?(?:\s+(.*))?$/
+      /^\s *del(?:ete)? (?:\s+(.*))?$/ix
     end
 
     def execute
