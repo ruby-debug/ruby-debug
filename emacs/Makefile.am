@@ -16,7 +16,7 @@
 #$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
 
 lisp_files = rdebug.el rdebug-core.el rdebug-track.el 
-check_DATA = rdebug-test.el rdebug-test-frame.el elk-test.el
+check_DATA = elk-test.el rdebug-test.el rdebug-test-frame.el rdebug-test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc rdebug-core.elc rdebug-track.elc
 if INSTALL_EMACS_LISP
@@ -30,5 +30,6 @@ test: check
 check:
 	(cd $(srcdir) && \
 	$(EMACS) -batch -q -l rdebug-test.el elk-test.el ; \
-	$(EMACS) -batch -q -l rdebug-test-frame.el elk-test.el )
+	$(EMACS) -batch -q -l rdebug-test-frame.el elk-test.el ; \ 
+	$(EMACS) -batch -q -l rdebug-test-regexp.el elk-test.el )
 
