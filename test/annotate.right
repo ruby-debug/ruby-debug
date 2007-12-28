@@ -76,6 +76,8 @@ Num Enb What
 Num Enb What
   2 y   at gcd.rb:14
 
+display
+
 stack
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
     #1 at line gcd.rb:18
@@ -83,8 +85,6 @@ Num Enb What
 variables
 a = 3
 b = 5
-
-display
 
 gcd.rb:10
 return nil if a <= 0

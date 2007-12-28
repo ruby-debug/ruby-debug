@@ -95,7 +95,7 @@ module Debugger
         if @state.display[pos-1]
           @state.display[pos-1][0] = nil
         else
-          print "Display expression %d is not defined\n", pos
+          print "Display expression %d is not defined.\n", pos
         end
       end
     end

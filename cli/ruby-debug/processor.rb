@@ -40,7 +40,8 @@ module Debugger
       @last_file = nil   # Filename the last time we stopped
       @last_line = nil   # line number the last time we stopped
       @output_annotation_in_progress = false
-      @debugger_breakpoints_were_empty = false
+      @debugger_breakpoints_were_empty = false # Show breakpoints 1st time
+      @debugger_displays_were_empty = true # No display 1st time
     end
     
     def interface=(interface)
@@ -258,8 +259,7 @@ module Debugger
         cmd = @last_cmd unless cmd
         breakpoint_annotations(commands, context) if
           @@Show_breakpoints_postcmd.find{|pat| cmd =~ pat}
-        annotation('display', commands, context, "display") unless
-          display.empty?
+        display_annotations(commands, context)
         if @@Show_annotations_postcmd.find{|pat| cmd =~ pat}
           annotation('stack', commands, context, "where") if 
             context.stack_size > 0
@@ -274,9 +274,9 @@ module Debugger
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
         breakpoint_annotations(commands, context)
+        display_annotations(commands, context)
         annotation('stack', commands, context, "where")
         annotation('variables', commands, context, "info variables")
-        annotation('display', commands, context, "display") unless display.empty?
       end
     end
     
@@ -285,6 +285,14 @@ module Debugger
         annotation('breakpoints', commands, context, "info breakpoints") 
         @debugger_breakpoints_were_empty = Debugger.breakpoints.empty?
       end
+    end
+
+    def display_annotations(commands, context)
+      return if display.empty?
+#       have_display = display.find{|d| d[0]} 
+#       return unless have_display and @debugger_displays_were_empty
+#       @debugger_displays_were_empty = have_display
+      annotation('display', commands, context, "display")
     end
 
     def annotation(label, commands, context, cmd)

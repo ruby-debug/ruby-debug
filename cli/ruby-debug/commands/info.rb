@@ -75,7 +75,7 @@ module Debugger
     end
     
     def info_display(*args)
-      if @state.display.size > 0
+      if @state.display.find{|d| d[0]}
         print "Auto-display expressions now in effect:\n"
         print "Num Enb Expression\n"
         n = 1

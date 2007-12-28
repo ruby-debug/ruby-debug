@@ -11,6 +11,9 @@ Breakpoint 1 file gcd.rb, line 6
 Breakpoint 1 at gcd.rb:6
 gcd.rb:6
 if a > b
+# # Should be no display expression yet.
+# info display
+There are no auto-display expressions now.
 # display a
 1: a = 3
 # display b 
@@ -29,9 +32,13 @@ Enable display argument 'b' needs to be a number.
 # undisplay a
 Undisplay argument 'a' needs to be a number.
 # undisplay 2
-# c
-Breakpoint 1 at gcd.rb:6
-1: a = 1
-gcd.rb:6
-if a > b
+# # Should have only one display expression.
+# info display
+Auto-display expressions now in effect:
+Num Enb Expression
+  1: y  a
+# undisplay 1
+# # Now we have no more display expressions.
+# info display
+There are no auto-display expressions now.
 # q

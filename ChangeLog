@@ -1,3 +1,65 @@
+2007-12-28 15:04  Rocky Bernstein
+
+	* test/annotate.right, test/info-var-bug2.right: Forgot to check in
+	  these files when adding new tests
+
+2007-12-28 13:48  Rocky Bernstein
+
+	* cli/ruby-debug/processor.rb, test/annotate.cmd: Reduce
+	  unneccessary display annotation output.
+
+2007-12-28 11:27  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-test-regexp.el,
+	  emacs/rdebug-test.el: Split off Emacs test which are regular
+	  expression oriented.
+
+2007-12-28 10:54  Rocky Bernstein
+
+	* test/test-annotate.rb: *** empty log message ***
+
+2007-12-28 10:54  Rocky Bernstein
+
+	* test/test-annotate.rb: Doc bug.
+
+2007-12-28 10:53  Rocky Bernstein
+
+	* test/test-annotate.rb: My old cut-and-paste error. Gotta get in
+	  my "method redefined" patch into rake's test/unit.
+
+2007-12-28 10:47  Rocky Bernstein
+
+	* cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/processor.rb, test/annotate.cmd,
+	  test/test-annotate.rb: Reduce unnecesary breakpoint, stack, and
+	  variable post-command annotations.
+	  Fix bug in not showing empty breakpoints when last one is
+	  deleted.
+
+2007-12-28 10:12  Anders Lindgren
+
+	* emacs/rdebug-test-frame.el, emacs/rdebug-test.el: Test cases for
+	  new source buffer breakpoint commands.
+
+2007-12-27 23:20  Anders Lindgren
+
+	* emacs/rdebug-core.el: Two new breakpoint commands for source
+	  buffers: toggle break point and toggle enable/disable. (The
+	  commands corresponds to F9 and C-F9 in common debuggers
+	  interfaces.)
+
+2007-12-27 21:05  Rocky Bernstein
+
+	* emacs/rdebug-track.el: Lacking a quote in the last commit.
+
+2007-12-27 21:03  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-track.el, ext/ChangeLog, lib/ChangeLog:
+	  Be more agressive about resetting gud-last-frame and
+	  gud-last-last-frame. These foul up tracking when debugging is
+	  interrupted.
+	  We probably need a special "reset" command.
+
 2007-12-27 03:11  Rocky Bernstein
 
 	* Rakefile, cli/ruby-debug/command.rb,
