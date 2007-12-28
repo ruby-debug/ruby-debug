@@ -3643,8 +3643,9 @@ this may work:
   svn checkout svn://rubyforge.org/var/svn/ruby-debug/trunk trunk
 @end smallexample
 
-In order to make the Ruby gems, ruby-debug and ruby-debug-base, get
-yourself into the trunk directory after the code has been checked out and run:
+In order to make the Ruby gems, @code{ruby-debug} and
+@code{ruby-debug-base}, get yourself into the trunk directory after
+the code has been checked out and run:
 
 @smallexample
   cd trunk # This is the same trunk checked out above.
@@ -3652,7 +3653,7 @@ yourself into the trunk directory after the code has been checked out and run:
 @end smallexample
 
 If all goes well you should have some gem files put in the directory
-pkg. Use the gem command to install that. 
+@code{pkg}. Use the gem command to install that. 
 
 @smallexample
   sudo gem install ruby-debug-*.gem   # See gem help for other possibilities
@@ -3671,7 +3672,7 @@ compiler or the Ruby headers are not installed.
 
 You don't have to build a gem file to try out ruby debug. In fact when
 developing new features for ruby-debug, developers often you want to
-try it out *before* installing.  If you have a problem in the latter
+try it out @emph{before} installing.  If you have a problem in the latter
 part of step 1 you may want to try this approach since we go into a
 little more detail as to what happens under the covers when you do the
 gem install.
@@ -3682,10 +3683,10 @@ Run (from trunk)
 @end smallexample
 
 This creates a Makefile and builds the ruby-debug shared library. (On
-Unix the name is ruby_debug.so).
+Unix the name is @code{ruby_debug.so}).
 
 Once this is done you can run the debugger as you would rdebug using the
-script runner.sh. For example (again from trunk)
+script @code{runner.sh}. For example (again from trunk)
 
 @smallexample
   ./runner.sh ~/my-ruby-program.rb
@@ -3695,15 +3696,15 @@ script runner.sh. For example (again from trunk)
 @section Running the Regression Tests
   
 We've put together some basic tests to make sure ruby-debug is doing
-what we think it should do. To run these (from trunk):
+what we think it should do. To run these (from @code{trunk}):
 
 @smallexample
   rake test
 @end smallexample
 
 If you didn't build the ruby-debug shared library and skipped step 2,
-don't worry "rake test" will do step 2 for you. You should see a line that
-ends something like:
+don't worry @code{rake test} will do step 2 for you. You should see a
+line that ends something like:
 
 @smallexample
   Finished in 2.767579 seconds.
@@ -3712,7 +3713,7 @@ ends something like:
 @end smallexample
 
 The number of seconds, tests, and assertions may be different from the
-above. However you @emph{should} see exactly "0 failures, 0 errors".
+above. However you @emph{should} see exactly ``0 failures, 0 errors.''
 
 @node Building the documentation and Emacs files
 @section Building the Documentation and Testing/Installing Emacs Files
