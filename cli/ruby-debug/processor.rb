@@ -258,7 +258,8 @@ module Debugger
         cmd = @last_cmd unless cmd
         breakpoint_annotations(commands, context) if
           @@Show_breakpoints_postcmd.find{|pat| cmd =~ pat}
-        annotation('display', commands, context, "display")
+        annotation('display', commands, context, "display") unless
+          display.empty?
         if @@Show_annotations_postcmd.find{|pat| cmd =~ pat}
           annotation('stack', commands, context, "where") if 
             context.stack_size > 0
@@ -275,7 +276,7 @@ module Debugger
         breakpoint_annotations(commands, context)
         annotation('stack', commands, context, "where")
         annotation('variables', commands, context, "info variables")
-        annotation('display', commands, context, "display")
+        annotation('display', commands, context, "display") unless display.empty?
       end
     end
     

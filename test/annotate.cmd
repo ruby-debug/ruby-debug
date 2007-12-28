@@ -16,4 +16,9 @@ p a
 up
 # "b" should trigger like "break"
 b 14
+# "display" should trigger display annotation
+display 1+2
+# undisplay should trigger display annotation
+undisplay 1
+step
 quit
