@@ -780,7 +780,7 @@ debugging in them.
 @menu
 * Stack Shows Scope Nesting::
 * More Frequent Evaluations per Line::
-* Bouncing Around with Interators::
+* Bouncing Around with Iterators::
 @end menu
 
 @node Stack Shows Scope Nesting
@@ -956,8 +956,8 @@ breakpoint position, rather than a file and line number. Because
 method @code{gcd} is in the outermost scope, we use @code{Object} as the
 class name.
 
-@node Bouncing Around with Interators
-@subsection Bouncing Around with Interators
+@node Bouncing Around with Iterators
+@subsection Bouncing Around with Iterators
 
 When debugging languages with coroutines like Python and Ruby, a
 method call may not necessarily go to the first statement after the
