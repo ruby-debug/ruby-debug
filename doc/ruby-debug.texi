@@ -788,7 +788,7 @@ debugging in them.
 In a backtrace, you will find more stack frames than you might in say
 C.
 
-Consider another way to write the triangle program of @xref{First
+Consider another way to write the triangle program of @pxref{First
 Sample Session}.
 
 @smallexample
