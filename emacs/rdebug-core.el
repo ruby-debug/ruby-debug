@@ -338,6 +338,8 @@ Can be `original' or `debugger'.")
       (if gud-last-frame
           (rdebug-pick-source-window))
 
+      (rdebug-local-short-key-mode-on)
+
       ;; Does the remaining text look like it might end with the
       ;; beginning of another marker?  If it does, then keep it in
       ;; gud-marker-acc until we receive the rest of it.  Since we
@@ -879,11 +881,28 @@ menu. (The common map typically contains function key bindings.)"
 
     (define-key map [menu-bar debugger line2] '(menu-item "--"))
 
+    ;; --------------------
+    ;; The "Options" submenu.
+
+    (let ((submenu (make-sparse-keymap)))
+      (define-key menu [options] (cons "Options" submenu)))
+
+    (define-key map [menu-bar debugger options short-key-mode]
+      (rdebug-menu-item common-map
+                        "Short keys in source" 'rdebug-short-key-mode
+                        :button
+                        '(:toggle
+                          . rdebug-short-key-mode)))
+
+    ;; --------------------
+    ;; The optional secondary windows submenu.
+
+
     ;; Placeholder used when populating the menu of the secondary buffers.
     (define-key menu [placeholder] nil)
 
     ;; --------------------
-    ;; The "Window Layout" submeny.
+    ;; The "Window Layout" submenu.
     (let ((submenu (make-sparse-keymap)))
       (define-key menu [layout] (cons "Window Layout" submenu)))
 
@@ -908,7 +927,7 @@ menu. (The common map typically contains function key bindings.)"
                           . (eq rdebug-window-configuration-state 'original))))
 
     ;; --------------------
-    ;; The "View" submeny.
+    ;; The "View" submenu.
     (let ((submenu (make-sparse-keymap)))
       (define-key menu [view] (cons "View" submenu)))
 
@@ -1113,7 +1132,7 @@ The higher score the better."
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
-    ;; The "Breakpoints window" submeny.
+    ;; The "Breakpoints window" submenu.
     (let ((submenu (make-sparse-keymap)))
       (define-key-after map [menu-bar debugger breakpoints]
         (cons "Breakpoints window" submenu)
@@ -1342,7 +1361,7 @@ non-digit will start entry number from the beginning again."
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
-    ;; The "Stack window" submeny.
+    ;; The "Stack window" submenu.
     (let ((submenu (make-sparse-keymap)))
       (define-key-after map [menu-bar debugger stack]
         (cons "Stack window" submenu)
@@ -1475,7 +1494,7 @@ non-digit will start entry number from the beginning again."
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
-    ;; The "Variables window" submeny.
+    ;; The "Variables window" submenu.
 
     (let ((submenu (make-sparse-keymap)))
       (define-key-after map [menu-bar debugger variables]
@@ -1557,7 +1576,7 @@ This function is intended to be bound to a mouse key"
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
-    ;; The "Watch window" submeny.
+    ;; The "Watch window" submenu.
     (let ((submenu (make-sparse-keymap)))
       (define-key-after map [menu-bar debugger watch]
         (cons "Watch window" submenu)
@@ -1759,6 +1778,79 @@ debugger is active."
   (rdebug-debugger-support-minor-mode 1))
 
 
+;; -- Minor mode for source buffers, makes buffer read-only and bind short keys
+
+(defvar rdebug-local-short-key-mode-map
+  (let ((map (make-sparse-keymap)))
+    (rdebug-populate-secondary-buffer-map-plain map)
+    map)
+  "Keymap used in `rdebug-local-short-key-mode'.")
+
+
+;; Implementation node: This is the mode that does all the work, it's
+;; local to the buffer that is affected.
+(define-minor-mode rdebug-local-short-key-mode
+  "Minor mode with short keys for source buffers for the `rdebug' debugger.
+The buffer is read-only when the minor mode is active.
+
+Please use the global `rdebug-short-key-mode' to automatically
+activate this mode when the `rdebug' debugger is used.
+
+\\{rdebug-local-short-key-mode-map}"
+  :group 'rdebug
+  :global nil
+  :init-value nil
+  :keymap rdebug-local-short-key-mode-map
+  (if rdebug-local-short-key-mode
+      (setq buffer-read-only t)
+    (setq buffer-read-only nil)))
+
+
+;; Implementation note: This is the user-level command. It only
+;; controls if `rdebug-local-short-key-mode' should be activated or
+;; not.
+(define-minor-mode rdebug-short-key-mode
+  "When enabled, short keys can be used in source buffers in `rdebug'."
+  :group 'rdebug
+  :global t
+  :init-value nil
+  (rdebug-short-key-mode-maybe-activate))
+
+
+(defun rdebug-short-key-mode-maybe-activate ()
+  (if rdebug-short-key-mode
+      (rdebug-local-short-key-mode-on)
+    (rdebug-local-short-key-mode-off)))
+
+
+(defun rdebug-local-short-key-mode-off ()
+  "Turn off `rdebug-local-short-key-mode' in all buffers."
+  (rdebug-debug-enter "rdebug-local-short-key-mode-off"
+    (save-current-buffer
+      (dolist (buf (buffer-list))
+        (set-buffer buf)
+        (if rdebug-local-short-key-mode
+            (rdebug-local-short-key-mode -1))))))
+
+
+(defun rdebug-local-short-key-mode-on ()
+  "Turn on `rdebug-local-short-key-mode' in the current debugger frame."
+  (rdebug-debug-enter "rdebug-local-short-key-mode-off"
+    (save-current-buffer
+      (if gud-comint-buffer
+          (set-buffer gud-comint-buffer))
+      (let ((frame (or gud-last-frame
+                       gud-last-last-frame)))
+        (if (and frame
+                 rdebug-short-key-mode)
+            (ignore-errors
+              ;; `gud-find-file' calls `error' if it doesn't find the file.
+              (let ((buffer (gud-find-file (car frame))))
+                (save-current-buffer
+                  (set-buffer buffer)
+                  (rdebug-local-short-key-mode 1)))))))))
+
+
 ;; -- The `rdebug' command and support functions.
 
 (defun rdebug-process-sentinel (process event)
@@ -1785,10 +1877,11 @@ debugger is active."
                    (eq process (get-buffer-process gud-comint-buffer)))
                (eq rdebug-window-configuration-state 'debugger)
                (not (eq (process-status process) 'run)))
-      (rdebug-set-window-configuration-state 'original))
-    ;; This unbinds the special debugger keys of the source buffers.
-    (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
-            rdebug-debugger-support-minor-mode-map-when-deactive)))
+      (rdebug-local-short-key-mode-off)
+      (rdebug-set-window-configuration-state 'original)
+      ;; This unbinds the special debugger keys of the source buffers.
+      (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+              rdebug-debugger-support-minor-mode-map-when-deactive))))
 
 
 ;; -- Reset support
