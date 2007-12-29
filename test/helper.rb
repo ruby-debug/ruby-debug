@@ -6,7 +6,8 @@ require "fileutils"
 
 module TestHelper
   
-  def run_debugger(testname, args='', outfile=nil, filter=nil)
+  def run_debugger(testname, args='', outfile=nil, filter=nil,
+                   debugger=File.join(SRC_DIR, 'tdebug.rb'))
     rightfile = File.join(SRC_DIR, "#{testname}.right")
     
     outfile = File.join(SRC_DIR, "#{testname}.out") unless outfile
@@ -15,7 +16,7 @@ module TestHelper
       FileUtils.rm(outfile)
     end
     
-    ENV['RDEBUG'] = "#{SRC_DIR}tdebug.rb"
+    ENV['RDEBUG'] = debugger
     cmd = "/bin/sh #{File.join(SRC_DIR, '../runner.sh')} #{args} >#{outfile}"
     output = `#{cmd}`
     

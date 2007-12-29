@@ -60,9 +60,11 @@ EOB
     options.control = false
   end
   opts.on("--no-quit", "Do not quit when script finishes") do
+    print "The program has finished and will be restarted.\n"
+    The_End = File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'theend.rb')
     options.noquit = true
   end
-  opts.on("-n", "--no-stop", "Do not stop when script is loaded") do 
+  opts.on("--no-stop", "Do not stop when script is loaded") do 
     options.nostop = true
   end
   opts.on("-nx", "Not run debugger initialization files (e.g. .rdebugrc") do
@@ -190,27 +192,17 @@ else
     end
     if options.noquit
       Debugger.stop if Debugger.started?
-      while true do
-        begin
-          Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
-        rescue
-          print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
-          print "Uncaught exception: #{$!}\n"
-        end
-        # FIXME: add status for whether we are interactive or not.
-        # if STDIN.tty? and !options.nostop
-        print "The program has finished and will be restarted.\n"
-
-        # This ensures that we get an extra step point before the
-        # program is resterted. Note, if the user program is empty
-        # the debugger will go into an infinite loop without
-        # something like this.
-        Debugger.debug_load File.join(File.dirname(__FILE__),
-                                      "..",
-                                      "cli",
-                                      "ruby-debug",
-                                      "theend.rb"), true
+      begin
+        Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+      rescue
+        print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
+        print "Uncaught exception: #{$!}\n"
       end
+      # This ensures that we get an extra step point before the
+      # program is resterted. Note, if the user program is empty
+      # the debugger will go into an infinite loop without
+      # something like this.
+      Debugger.debug_load(The_End, true)
     else
       Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
     end

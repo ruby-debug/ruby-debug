@@ -1,3 +1,85 @@
+2007-12-29 12:27  Rocky Bernstein
+
+	* emacs/rdebug-core.el: -(require 'cl) needed for ignore-errors.
+	  -Short key bindings added: "b" for break "t" for toggle.
+	  -Common key bindings added/changed
+	  R (along with r) is restart. Restart prompts, like quit does.
+	  +, - and _ are now modifiers to step and next; _ takes the
+	  default.
+	  - Numeric argument on "continue" goes to that line, e.g. M-10
+	  continue is
+	  "continue 10", not "continue" 10 times.
+
+2007-12-29 10:50  Anders Lindgren
+
+	* bin/rdebug, cli/ruby-debug/theend.rb: * The 'theend.rb' script is
+	  now always loaded with the 'stop' flag.
+	  
+	  * The 'theend.rb' script is now loaded after the restarted print
+	  statement.
+	  
+	  * Removed an 'if' statement preventing restart when the no-stop
+	  flag
+	  was used.
+	  
+	  * Added end-of-line comment in 'theend.rb' on the same line as
+	  the
+	  single statement. This helps people that use the command-line
+	  debugger.
+
+2007-12-29 09:29  Anders Lindgren
+
+	* bin/rdebug, cli/ruby-debug/theend.rb: When the end of the program
+	  is reached and the --no-quit option is
+	  used, the user now steps into the file 'theend.rb'. This file
+	  contains
+	  a message telling the user that the end of the application has
+	  been
+	  reached. For a normal debug session this feels better. However,
+	  if the
+	  user file is empty, this prevents the debugger from going into an
+	  infinite loop.
+	  
+	  Note, an alternative implementation would be if the debugger
+	  itself
+	  would create an artificial step point at the of the the user
+	  program.
+
+2007-12-29 08:49  Anders Lindgren
+
+	* emacs/rdebug-core.el: New feature requested by Rocky: Source
+	  short key mode, in the source buffer that corresponds to the
+	  current frame read-only is activated and the plain secondary
+	  buffer keys are bound.
+
+2007-12-29 00:50  Rocky Bernstein
+
+	* emacs/rdebug-test-frame.el: Remove c: as that's not OS
+	  independent.
+
+2007-12-28 20:06  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Another misspelling.
+
+2007-12-28 20:04  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Another typo.
+
+2007-12-28 20:01  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Tag code/directory sections better.
+
+2007-12-28 15:33  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/display.rb,
+	  cli/ruby-debug/commands/info.rb, cli/ruby-debug/processor.rb,
+	  ext/ChangeLog, lib/ChangeLog, test/annotate.right,
+	  test/display.cmd, test/display.right: info.rb: Incorrect test for
+	  no display expressions.
+	  display.rb: Grammar thing.
+	  processor.rb: Slightly cleaner code
+	  test/* more/better tests.
+
 2007-12-28 15:04  Rocky Bernstein
 
 	* test/annotate.right, test/info-var-bug2.right: Forgot to check in

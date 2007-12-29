@@ -3,6 +3,7 @@ require 'columnize'
 require 'ruby-debug/helper'
 
 module Debugger
+  RUBY_DEBUG_DIR = File.expand_path(File.dirname(__FILE__))
 
   class Command # :nodoc:
     include Columnize
@@ -27,8 +28,7 @@ module Debugger
       end 
 
       def load_commands
-        dir = File.dirname(__FILE__)
-        Dir[File.join(dir, 'commands', '*')].each do |file|
+        Dir[File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'commands', '*')].each do |file|
           require file if file =~ /\.rb$/
         end
         Debugger.constants.grep(/Functions$/).map { |name| Debugger.const_get(name) }.each do |mod|

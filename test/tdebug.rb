@@ -47,9 +47,10 @@ EOB
     options.control = false
   end
   opts.on("--no-quit", "Do not quit when script finishes") {
+    The_End = File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'theend.rb')
     options.noquit = true
   }
-  opts.on("-n", "--no-stop", "Do not stop when script is loaded") {options.nostop = true}
+  opts.on("--no-stop", "Do not stop when script is loaded") {options.nostop = true}
   opts.on("-nx", "Not run debugger initialization files (e.g. .rdebugrc") do
     options.nx = true
   end
@@ -175,22 +176,18 @@ if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
   exit $?.exitstatus 
 end
 if options.noquit
-  while true do
-    Debugger.stop if Debugger.started?
-    begin
-      Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
-    rescue
-      print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
-      print "Uncaught exception: #{$!}\n"
-    end
-    # FIXME: add status for whether we are interactive or not.
-    # if STDIN.tty? and !options.nostop
-    if !options.nostop
-      print "The program has finished and will be restarted.\n"
-    else
-      break
-    end
+  Debugger.stop if Debugger.started?
+  begin
+    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+  rescue
+    print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
+    print "Uncaught exception: #{$!}\n"
   end
+  # This ensures that we get an extra step point before the
+  # program is resterted. Note, if the user program is empty
+  # the debugger will go into an infinite loop without
+  # something like this.
+  Debugger.debug_load(The_End, true)
 else
   Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
 end

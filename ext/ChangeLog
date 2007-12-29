@@ -1,3 +1,15 @@
+2007-12-28 15:33  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/display.rb,
+	  trunk/cli/ruby-debug/commands/info.rb,
+	  trunk/cli/ruby-debug/processor.rb, ChangeLog,
+	  trunk/lib/ChangeLog, trunk/test/annotate.right,
+	  trunk/test/display.cmd, trunk/test/display.right: info.rb:
+	  Incorrect test for no display expressions.
+	  display.rb: Grammar thing.
+	  processor.rb: Slightly cleaner code
+	  test/* more/better tests.
+
 2007-12-27 21:03  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/rdebug-track.el, ChangeLog,
