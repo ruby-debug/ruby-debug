@@ -193,6 +193,15 @@ else
       while true do
         begin
           Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+          # This ensures that we get an extra step point before the
+          # program is resterted. Note, if the user program is empty
+          # the debugger will go into an infinite loop without
+          # something like this.
+          Debugger.debug_load File.join(File.dirname(__FILE__),
+                                        "..",
+                                        "cli",
+                                        "ruby-debug",
+                                        "theend.rb"), !options.nostop
         rescue
           print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
           print "Uncaught exception: #{$!}\n"
