@@ -193,26 +193,23 @@ else
       while true do
         begin
           Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
-          # This ensures that we get an extra step point before the
-          # program is resterted. Note, if the user program is empty
-          # the debugger will go into an infinite loop without
-          # something like this.
-          Debugger.debug_load File.join(File.dirname(__FILE__),
-                                        "..",
-                                        "cli",
-                                        "ruby-debug",
-                                        "theend.rb"), !options.nostop
         rescue
           print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
           print "Uncaught exception: #{$!}\n"
         end
         # FIXME: add status for whether we are interactive or not.
         # if STDIN.tty? and !options.nostop
-        if !options.nostop
-          print "The program has finished and will be restarted.\n"
-        else
-          break
-        end
+        print "The program has finished and will be restarted.\n"
+
+        # This ensures that we get an extra step point before the
+        # program is resterted. Note, if the user program is empty
+        # the debugger will go into an infinite loop without
+        # something like this.
+        Debugger.debug_load File.join(File.dirname(__FILE__),
+                                      "..",
+                                      "cli",
+                                      "ruby-debug",
+                                      "theend.rb"), true
       end
     else
       Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop

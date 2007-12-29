@@ -10,4 +10,4 @@
 # The next ruby debugger step or run command will restart the program.
 #
 
-nil
+nil                    # The end of the program has been reached.
