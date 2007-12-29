@@ -76,6 +76,7 @@
      "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
      emacs-major-version))
 (require 'gud)
+(require 'cl)
 
 
 ;; user definable variables
@@ -386,6 +387,37 @@ Initially annotate should be set to nil."
      ;; found script name (or nil
      (t (list arg annotate-p)))))
 
+(defvar rdebug-stepping-prefix "")
+(defun rdebug-set-stepping-prefix ()
+  "Set the granularity of stepping on the subsequent 'next' or 'step' command.
+As long as repeated next or step commands are given, they inherit this setting.
+"
+  (interactive)
+  (setq rdebug-stepping-prefix (this-command-keys)))
+
+
+(defun rdebug-stepping (step-or-next &optional arg)
+  (or arg (setq arg 1))
+					;(if (not (member '('rdebug-next 'rdebug-step 'digit-argument) last-command))
+					;    (setq rdebug-stepping-prefix ""))
+  (unless (member rdebug-stepping-prefix '("" "+" "-"))
+    (setq rdebug-stepping-prefix ""))
+  (gud-call (format "%s%s %d" step-or-next rdebug-stepping-prefix arg)))
+
+(defun rdebug-step (&optional arg)
+  (interactive "p")
+  (rdebug-stepping "step" arg))
+
+(defun rdebug-next (&optional arg)
+  (interactive "p")
+  (rdebug-stepping "next" arg))
+
+(defun rdebug-continue (&optional arg)
+  (interactive "p")
+  (if arg 
+      (gud-call (format "continue %d" arg))
+    (gud-call (format "continue"))))
+
 ;; From Emacs 23
 (unless (fboundp 'split-string-and-unquote)
   (defun split-string-and-unquote (string &optional separator)
@@ -445,8 +477,8 @@ example when the debugger starts."
   (define-key map [S-f5]  'rdebug-quit)
   (define-key map [f9]    'rdebug-toggle-source-breakpoint)
   (define-key map [C-f9]  'rdebug-toggle-source-breakpoint-enabled)
-  (define-key map [f10]   'gud-next)
-  (define-key map [f11]   'gud-step)
+  (define-key map [f10]   'rdebug-next)
+  (define-key map [f11]   'rdebug-step)
   (define-key map [S-f11] 'gud-finish))
 
 
@@ -458,8 +490,8 @@ example when the debugger starts."
   ;;(define-key map []  'gud-cont)
   ;;(define-key map []  'rdebug-quit)
   (define-key map [S-C-b] 'rdebug-toggle-source-breakpoint)
-  (define-key map [f6]    'gud-next)
-  (define-key map [f5]    'gud-step)
+  (define-key map [f6]    'rdebug-next)
+  (define-key map [f5]    'rdebug-step)
   (define-key map [f7]    'gud-finish))
 
 
@@ -472,8 +504,8 @@ example when the debugger starts."
   ;;(define-key map []  'rdebug-quit)
   ;; F4 - Run to cursor.
   (define-key map [S-f8]   'rdebug-toggle-source-breakpoint)
-  (define-key map [f8]     'gud-next)
-  (define-key map [f7]     'gud-step)
+  (define-key map [f8]     'rdebug-next)
+  (define-key map [f7]     'rdebug-step)
   (define-key map [M-S-f7] 'gud-finish))
 
 
@@ -858,15 +890,15 @@ menu. (The common map typically contains function key bindings.)"
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key menu [step]
-      (rdebug-menu-item common-map "Step into" 'gud-step
+      (rdebug-menu-item common-map "Step into" 'rdebug-step
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key menu [next]
-      (rdebug-menu-item common-map "Step over" 'gud-next
+      (rdebug-menu-item common-map "Step over" 'rdebug-next
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key menu [cont]
-      (rdebug-menu-item common-map "Continue" 'gud-cont
+      (rdebug-menu-item common-map "Continue" 'rdebug-continue
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key map [menu-bar debugger line1] '(menu-item "--"))
@@ -968,20 +1000,23 @@ This does not menus or prefix keys."
   (define-key map "V" 'rdebug-display-variables-buffer)
   (define-key map "W" 'rdebug-display-watch-buffer)
   ;; Common debugger commands.
-  (define-key map " " 'gud-step)
-  (define-key map "+" 'gud-step-plus)
+  (define-key map " " 'rdebug-step)
+  (define-key map "_" 'rdebug-set-stepping-prefix)
+  (define-key map "+" 'rdebug-set-stepping-prefix)
+  (define-key map "-" 'rdebug-set-stepping-prefix)
   (define-key map "<" 'gud-up)
   (define-key map ">" 'gud-down)
   ;; (define-key map "a" 'gud-args)
   ;; (define-key map "b" 'gud-break)
-  (define-key map "c" 'gud-cont)
+  (define-key map "c" 'rdebug-continue)
   ;; (define-key map "d" 'gud-remove)
   (define-key map "f" 'gud-finish)
-  (define-key map "n" 'gud-next)
+  (define-key map "n" 'rdebug-next)
   (define-key map "p" 'gud-print)
   (define-key map "q" 'rdebug-quit)
-  (define-key map "r" 'gud-run)
-  (define-key map "s" 'gud-step)
+  (define-key map "r" 'rdebug-restart)
+  (define-key map "R" 'rdebug-restart)
+  (define-key map "s" 'rdebug-step)
   )
 
 
@@ -1720,7 +1755,9 @@ Press `C-h m' for more help, when the individual buffers are visible.
  W - Watch buffer
 
  SPC - step (into)
- +   - step+
+ +   - set for step+ and next+
+ -   - set for step- and next-
+ _   - set to remove +/-
  c   - continue
  f   - finish (step out)
  n   - next (step over)
@@ -1782,6 +1819,9 @@ debugger is active."
 
 (defvar rdebug-local-short-key-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "b" 'gud-break)
+    (define-key map "t" 'rdebug-toggle-source-breakpoint-enabled)
+    (define-key map "p" 'gud-print)
     (rdebug-populate-secondary-buffer-map-plain map)
     map)
   "Keymap used in `rdebug-local-short-key-mode'.")
@@ -1917,8 +1957,6 @@ etc.)."
            "Down N stack frames (numeric arg).")
   (gud-def gud-finish "finish"      "\C-f"
            "Finish executing current function.")
-  (gud-def gud-next   "next %p"     "\C-n"
-           "Step one line (skip functions).")
   (gud-def gud-print  "p %e"        "\C-p"
            "Evaluate Ruby expression at point.")
   (gud-def gud-source-resync "up 0" "\C-l"
@@ -1927,14 +1965,9 @@ etc.)."
            "Remove breakpoint at current line")
   (gud-def gud-quit    "quit"       "Q"
            "Quit debugger.")
-  (gud-def gud-run    "restart"       "R"
-           "Restart the Ruby script.")
+
   (gud-def gud-statement "eval %e" "\C-e"
            "Execute Ruby statement at point.")
-  (gud-def gud-step   "step %p"       "\C-s"
-           "Step one source line with display.")
-  (gud-def gud-step-plus "step+ %p"       "+"
-           "Step one source line with display.")
   (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
            "Set temporary breakpoint at current line.")
   (gud-def gud-up     "up %p"
@@ -2033,6 +2066,14 @@ and options used to invoke rdebug."
 
       (run-hooks 'rdebug-mode-hook))))
 
+
+(defun rdebug-restart ()
+  "Restart the debugged Ruby script.
+
+An exec restart is used."
+  (interactive)
+  (if (yes-or-no-p "Restart? ")
+      (gud-call "restart")))
 
 (defun rdebug-quit ()
   "Kill the debugger process associated with the current buffer.
