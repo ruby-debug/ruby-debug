@@ -1085,7 +1085,7 @@ Options:
     -m, --post-mortem                Activate post-mortem mode
         --no-control                 Do not automatically start control thread
         --no-quit                    Do not quit when script finishes
-    -n, --no-stop                    Do not stop when script is loaded
+        --no-stop                    Do not stop when script is loaded
     -p, --port PORT                  Port used for remote debugging
     -r, --require SCRIPT             Require the library, before executing your script
         --script FILE                Name of the script file to run
