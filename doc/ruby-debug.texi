@@ -781,6 +781,7 @@ debugging in them.
 * Stack Shows Scope Nesting::
 * More Frequent Evaluations per Line::
 * Bouncing Around with Iterators::
+* No Parameter Values in a Call Stack::
 @end menu
 
 @node Stack Shows Scope Nesting
@@ -1020,6 +1021,27 @@ The loop between lines 23--26 gets interleaved between those of
 @code{Sieve::next_prime}, lines 6--19 above. 
 
 A similar kind of thing can occur in debugging programs with many threads. 
+
+@node No Parameter Values in a Call Stack
+@subsection No Parameter Values in a Call Stack
+In traditional debuggers in a call stack you can generally see the
+names of the parameters and the values that were passed in.
+
+Ruby is a very dynamic language and it tries to be efficient within
+the confines of the language definition. Values generally aren't taken
+out of a variable or expression and pushed onto a stack. Instead a new
+scope created and the parameters are given intial values. Parameter
+passing is by @emph{reference}, not by value as it is say Algol, C, or
+Perl. During the execution of a method, parameter values can
+change---and often do. In fact even the @emph{class} of the object can
+change.
+
+So at present, the name of the parameter shown. The call-style setting
+@pxref{Callstyle} can be used to set whether the name is shown or the
+name and the @emph{current} class of the object. 
+
+It has been contemplated that a style might be added which saves on
+call shorter ``scalar'' types of values and the class name. 
 
 @ifset FINISHED
 To be continued...
