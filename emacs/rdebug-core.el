@@ -919,6 +919,12 @@ menu. (The common map typically contains function key bindings.)"
     (let ((submenu (make-sparse-keymap)))
       (define-key menu [options] (cons "Options" submenu)))
 
+    (define-key map [menu-bar debugger options customize]
+      (rdebug-menu-item common-map
+                        "Customize Rdebug" 'rdebug-customize))
+
+    (define-key map [menu-bar debugger options line1] '(menu-item "--"))
+
     (define-key map [menu-bar debugger options short-key-mode]
       (rdebug-menu-item common-map
                         "Short keys in source" 'rdebug-short-key-mode
@@ -2166,6 +2172,12 @@ or
               (gud-call (format "disable %s" (nth 1 entry)))
             (gud-call (format "enable %s" (nth 1 entry)))))
       (gud-call (format "break %s:%d" file line)))))
+
+
+(defun rdebug-customize ()
+  "Use `customize' to edit the settings of the `rdebug' debugger."
+  (interactive)
+  (customize-group 'rdebug))
 
 
 (provide 'rdebug-core)
