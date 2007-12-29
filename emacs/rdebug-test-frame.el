@@ -46,10 +46,10 @@
     (save-excursion
       (switch-to-buffer buf)
       (insert "Num Enb What\n")
-      (insert "  1 y   at c:/test.rb:10\n")
-      (insert "  2 n   at c:/test.rb:11\n")
-      (insert "  3 y   at c:/test.rb:12\n")
-      (insert "  4 y   at c:/test.rb:13\n"))
+      (insert "  1 y   at /test.rb:10\n")
+      (insert "  2 n   at /test.rb:11\n")
+      (insert "  3 y   at /test.rb:12\n")
+      (insert "  4 y   at /test.rb:13\n"))
     (setq gud-target-name "test.rb")
 
     ;; ----------
@@ -60,27 +60,27 @@
     ;; Toggle break point
 
     ;; Add new.
-    (rdebug-toggle-source-breakpoint "c:/test.rb" 20)
-    (assert-equal "break c:/test.rb:20" last-gud-call)
+    (rdebug-toggle-source-breakpoint "/test.rb" 20)
+    (assert-equal "break /test.rb:20" last-gud-call)
     ;; Delete enabled.
-    (rdebug-toggle-source-breakpoint "c:/test.rb" 10)
+    (rdebug-toggle-source-breakpoint "/test.rb" 10)
     (assert-equal "delete 1" last-gud-call)
     ;; Delete disabled.
-    (rdebug-toggle-source-breakpoint "c:/test.rb" 11)
+    (rdebug-toggle-source-breakpoint "/test.rb" 11)
     (assert-equal "delete 2" last-gud-call)
 
     ;; ----------
     ;; Toggle enable/disable.
 
     ;; Add new.
-    (rdebug-toggle-source-breakpoint-enabled "c:/test.rb" 30)
-    (assert-equal "break c:/test.rb:30" last-gud-call)
+    (rdebug-toggle-source-breakpoint-enabled "/test.rb" 30)
+    (assert-equal "break /test.rb:30" last-gud-call)
 
     ;; Toggle enabled.
-    (rdebug-toggle-source-breakpoint-enabled "c:/test.rb" 10)
+    (rdebug-toggle-source-breakpoint-enabled "/test.rb" 10)
     (assert-equal "disable 1" last-gud-call)
     ;; Toggle disabled.
-    (rdebug-toggle-source-breakpoint-enabled "c:/test.rb" 11)
+    (rdebug-toggle-source-breakpoint-enabled "/test.rb" 11)
     (assert-equal "enable 2" last-gud-call)))
 
 
