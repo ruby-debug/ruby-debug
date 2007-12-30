@@ -535,6 +535,7 @@ example when the debugger starts."
   "Define the keys that are used by all debugger windows, even by the source.
 
 The variable `rdebug-populate-common-keys-function' controls the layout."
+  (define-key map "\C-x\C-a\C-q" 'rdebug-short-key-mode)
   (if rdebug-populate-common-keys-function
       (funcall rdebug-populate-common-keys-function map)))
 
