@@ -1864,6 +1864,16 @@ activate this mode when the `rdebug' debugger is used.
   (rdebug-short-key-mode-maybe-activate))
 
 
+(defun rdebug-turn-on-short-key-mode ()
+  "Turn on `rdebug-short-key-mode'.
+
+This function is designed to be used in a user hook, for example:
+
+    (add-hook 'rdebug-mode-hook 'rdebug-turn-on-short-key-mode)"
+  (interactive)
+  (rdebug-short-key-mode 1))
+
+
 (defun rdebug-short-key-mode-maybe-activate ()
   (if rdebug-short-key-mode
       (rdebug-local-short-key-mode-on)
