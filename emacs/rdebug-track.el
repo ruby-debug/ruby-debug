@@ -168,7 +168,7 @@ with the same name or having having the named function.
 If we're unable find the source code we return a string describing the
 problem as best as we can determine."
 
-  (if (not (string-match rdebug-position-re block-str))
+  (if (not (string-match rdebug-position-regexp block-str))
       "line number cue not found"
     ;;else
     (let* ((filename (match-string rdebug-marker-regexp-file-group block-str))
