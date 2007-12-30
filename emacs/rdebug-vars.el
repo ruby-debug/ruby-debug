@@ -1,4 +1,4 @@
-;;; rdebug-core.el --- Ruby debugger user interface.
+;;; rdebug-var.el --- Ruby debugger variables (other than regexps)
 
 ;; Copyright (C) 2007 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007 Anders Lindgren
