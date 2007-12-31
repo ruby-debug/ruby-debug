@@ -1092,7 +1092,7 @@ option.
 
 @smallexample
 $ @b{rdebug --help}
-rdebug 0.10.0
+rdebug 0.10.1
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 
 Options:
@@ -1100,7 +1100,8 @@ Options:
     -c, --client                     Connect to remote debugger
         --cport PORT                 Port used for control commands
     -d, --debug                      Set $DEBUG=true
-        --emacs                      Activates emacs mode
+        --emacs                      Activates full Emacs support
+        --emacs-basic                Activates basic Emacs mode
     -h, --host HOST                  Host name used for remote debugging
     -I, --include PATH               Add PATH to $LOAD_PATH
         --keep-frame-binding         Keep frame bindings
@@ -1180,6 +1181,11 @@ Ruby's.
 @item --emacs
 Activates GNU Emacs mode (@pxref{GNU Emacs}). Debugger output is tagged in
 such a way to allow GNU Emacs to track where you are in the code.
+
+@item --emacs-basic
+Activates full GNU Emacs mode (@pxref{GNU Emacs}). Is the equivalent
+of setting the options @code{--emacs-basic}, @code{annotate=3},
+@code{--no-stop}, @code{-no-control} and @code{--post-mortem}.
 
 @item -h | --host @var{host-address}
 Connect host address for remote debugging.
@@ -1457,7 +1463,7 @@ display a short list of named classes of commands:
 @flushleft
 @smallexample
 (rdb:1) @b{help}
-ruby-debug help v0.10.0
+ruby-debug help v0.10.1
 Type 'help <command-name>' for help on a specific command
 
 Available commands:

@@ -34,7 +34,7 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") do 
-    |Debugger::annotate|
+    |Debugger.annotate|
   end
   opts.on("-c", "--client", "Connect to remote debugger") do 
     options.client = true
@@ -43,7 +43,16 @@ EOB
     |options.cport|
   end
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
-  opts.on("--emacs", "Activates emacs mode") {ENV['EMACS'] = '1'}
+  opts.on("--emacs", "Activates full Emacs support") do 
+    ENV['EMACS'] = '1'
+    options.control = false
+    options.noquit = true
+    options.post_mortem = true
+    Debugger.annotate = 3
+  end
+  opts.on("--emacs-basic", "Activates basic Emacs mode") do 
+    ENV['EMACS'] = '1'
+  end
   opts.on("-h", "--host HOST", "Host name used for remote debugging") do
     |options.host|
   end
@@ -199,7 +208,7 @@ else
         print "Uncaught exception: #{$!}\n"
       end
       # This ensures that we get an extra step point before the
-      # program is resterted. Note, if the user program is empty
+      # program is restarted. Note, if the user program is empty
       # the debugger will go into an infinite loop without
       # something like this.
       Debugger.debug_load(The_End, true)

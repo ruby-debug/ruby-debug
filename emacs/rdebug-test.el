@@ -104,7 +104,7 @@
   (assert-nil (rdebug-test-reindent-one-file "rdebug-core.el"))
   (assert-nil (rdebug-test-reindent-one-file "rdebug-track.el"))
   (assert-nil (rdebug-test-reindent-one-file "rdebug-test.el"))
-  (assert-nil (rdebug-test-reindent-one-file "rdebug-test-frame.el")))
+  (assert-nil (rdebug-test-reindent-one-file "rdebug-test-cmd.el")))
 
 
 ;; -------------------------------------------------------------------

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 #-*- Ruby -*-
 debug_opt = '-d ' if $DEBUG or 'd' == ARGV[0]
-for file in Dir.glob("*.rb")  do 
+for file in Dir.glob("test-*.rb")  do 
   puts "=" * 50
   puts "== running #{file}..."
   system("ruby #{file}");

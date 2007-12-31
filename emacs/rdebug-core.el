@@ -89,8 +89,8 @@
 ;; vvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvvv
 
 (defcustom gud-rdebug-command-name
-  "rdebug --emacs --no-control --no-quit --post-mortem --annotate=3"
-  "File name for executing the Ruby debugger.
+  "rdebug --emacs"
+  "File name for executing the Ruby debugger and command options.
 This should be an executable on your path, or an absolute file name."
   :type 'string
   :group 'gud)

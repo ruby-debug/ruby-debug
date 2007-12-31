@@ -1,10 +1,9 @@
 ;; -*- emacs-lisp -*-
 (load-file "./elk-test.el")
 
-;; FIXME? Should we use "require 'rdebug" here.
-;; Would have to prepend . to load-path. 
-(load-file "./rdebug.el")
-(load-file "./rdebug-core.el")
+(setq load-path (cons "." load-path))
+(require 'rdebug-cmd)
+(setq load-path (cdr load-path))
 
 (defvar last-gud-call nil
   "Value of the last gud-call")
@@ -85,11 +84,24 @@
 
 
 ;; -------------------------------------------------------------------
+;; Check rdebug-next with prefix toggling commands
+;;
+(deftest "rdebug-stepping-test"
+  (setq rdebug-stepping-prefix "")
+  (assert-equal "next 1" (rdebug-next))
+  (setq rdebug-stepping-prefix "-")
+  (assert-equal "next- 2" (rdebug-next 2))
+  (setq rdebug-stepping-prefix "+")
+  (assert-equal "step+ 1" (rdebug-step))
+)
+
+;; -------------------------------------------------------------------
 ;; Build and run the test suite.
 ;;
 
-(build-suite "rdebug-core-suite"
+(build-suite "rdebug-cmd-suite"
 	     "rdebug-goto-frame-test"
+	     "rdebug-stepping-test"
 	     "rdebug-toggle-breakpoints")
-(run-elk-test "rdebug-core-suite"
+(run-elk-test "rdebug-cmd-suite"
               "test some rdebug-core code")

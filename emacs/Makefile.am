@@ -25,13 +25,21 @@ if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 endif
 
-PHONY = test check
+PHONY = test check check-cmd check-core check-regexp
 
 test: check
 
-check:
+check: check-core check-cmd check-regexp
+
+check-core:
 	(cd $(srcdir) && \
-	$(EMACS) -batch -q -l rdebug-test.el elk-test.el ; \
-	$(EMACS) -batch -q -l rdebug-test-cmd.el elk-test.el ; \
+	$(EMACS) -batch -q -l rdebug-test.el elk-test.el )
+
+check-cmd:
+	(cd $(srcdir) && \
+	$(EMACS) -batch -q -l rdebug-test-cmd.el elk-test.el )
+
+check-regexp:
+	(cd $(srcdir) && \
 	$(EMACS) -batch -q -l rdebug-test-regexp.el elk-test.el )
 
