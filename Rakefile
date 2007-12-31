@@ -37,11 +37,13 @@ CLI_FILES = COMMON_FILES + FileList[
 
 BASE_TEST_FILE_LIST = 'test/test-ruby-debug-base.rb'
 BASE_FILES = COMMON_FILES + FileList[
-  'lib/**/*',
   'ext/ChangeLog',
-  'ext/ruby_debug.c',
+  'ext/breakpoint.c',
   'ext/extconf.rb',
+  'ext/ruby_debug.c',
+  'ext/ruby_debug.h',
   'ext/win32/*',
+  'lib/**/*',
   BASE_TEST_FILE_LIST,
 ]
 

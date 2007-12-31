@@ -1,3 +1,8 @@
+2007-12-31 06:23  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-test-cmd.el, ext/ChangeLog,
+	  lib/ChangeLog: rdebug-test-cmd.el: Indentation
+
 2007-12-31 06:20  Rocky Bernstein
 
 	* ext/breakpoint.c: Was missing check_breakpoint_expression().

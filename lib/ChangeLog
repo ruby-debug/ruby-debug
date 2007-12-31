@@ -1,3 +1,8 @@
+2007-12-31 06:23  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-test-cmd.el,
+	  trunk/ext/ChangeLog, ChangeLog: rdebug-test-cmd.el: Indentation
+
 2007-12-31 06:08  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog, ChangeLog: Changes and more
