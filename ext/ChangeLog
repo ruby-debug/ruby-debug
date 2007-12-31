@@ -1,3 +1,12 @@
+2007-12-29 13:31  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug,
+	  trunk/cli/ruby-debug/command.rb, ChangeLog, trunk/lib/ChangeLog,
+	  trunk/test/helper.rb, trunk/test/noquit.right,
+	  trunk/test/null.rb, trunk/test/quit.cmd, trunk/test/quit.right,
+	  trunk/test/tdebug.rb: Remove looping on quit. "-n" is broken so
+	  remove it for now.
+
 2007-12-28 15:33  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/display.rb,

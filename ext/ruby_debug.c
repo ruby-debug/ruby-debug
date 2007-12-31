@@ -1,11 +1,13 @@
+#include "ruby_debug.h"
+
 #include <stdio.h>
-#include <ruby.h>
 #include <node.h>
 #include <rubysig.h>
 #include <st.h>
 #include <version.h>
 
 #define DEBUG_VERSION "0.10.1"
+
 
 #ifdef _WIN32
 struct FRAME {
@@ -43,21 +45,6 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #include <env.h>
 #endif
 
-#define CTX_FL_SUSPEND      (1<<1)
-#define CTX_FL_TRACING      (1<<2)
-#define CTX_FL_SKIPPED      (1<<3)
-#define CTX_FL_IGNORE       (1<<4)
-#define CTX_FL_DEAD         (1<<5)
-#define CTX_FL_WAS_RUNNING  (1<<6)
-#define CTX_FL_ENABLE_BKPT  (1<<7)
-#define CTX_FL_STEPPED      (1<<8)
-#define CTX_FL_FORCE_MOVE   (1<<9)
-
-#define CTX_FL_TEST(c,f)  ((c)->flags & (f))
-#define CTX_FL_SET(c,f)   do { (c)->flags |= (f); } while (0)
-#define CTX_FL_UNSET(c,f) do { (c)->flags &= ~(f); } while (0)
-
-#define IS_STARTED  (threads_tbl != Qnil)
 #define FRAME_N(n)  (&debug_context->frames[debug_context->stack_size-(n)-1])
 #define GET_FRAME   (FRAME_N(check_frame_number(debug_context, frame)))
 
@@ -68,74 +55,9 @@ RUBY_EXTERN struct RVarmap *ruby_dyna_vars;
 #define STACK_SIZE_INCREMENT 128
 
 typedef struct {
-    int argc;         /* Number of arguments a frame should have. */
-    VALUE binding;
-    ID id;
-    ID orig_id;
-    int line;
-    const char * file;
-    short dead;
-    VALUE self;
-    VALUE arg_ary;
-    union {
-        struct {
-            struct FRAME *frame;
-            struct SCOPE *scope;
-            struct RVarmap *dyna_vars;
-        } runtime;
-        struct {
-            VALUE args;
-            VALUE locals;
-	    VALUE arg_ary;
-        } copy;
-    } info;
-} debug_frame_t;
-
-enum ctx_stop_reason {CTX_STOP_NONE, CTX_STOP_STEP, CTX_STOP_BREAKPOINT, CTX_STOP_CATCHPOINT};
-
-typedef struct {
-    VALUE thread_id;
-    int thnum;
-    int flags;
-    enum ctx_stop_reason stop_reason;
-    int stop_next;
-    int dest_frame;
-    int stop_line;
-    int stop_frame;
-    int stack_size;
-    int stack_len;
-    debug_frame_t *frames;
-    const char * last_file;
-    int last_line;
-    VALUE breakpoint;
-} debug_context_t;
-
-enum bp_type {BP_POS_TYPE, BP_METHOD_TYPE};
-enum hit_condition {HIT_COND_NONE, HIT_COND_GE, HIT_COND_EQ, HIT_COND_MOD};
-
-typedef struct {
-    int   id;
-    enum bp_type type;
-    VALUE source;
-    union
-    {
-        int line;
-        ID  mid;
-    } pos;
-    VALUE expr;
-    VALUE enabled;
-    int hit_count;
-    int hit_value;
-    enum hit_condition hit_condition;
-} debug_breakpoint_t;
-
-typedef struct {
     st_table *tbl;
 } threads_table_t;
 
-static VALUE threads_tbl        = Qnil;
-static VALUE breakpoints        = Qnil;
-static VALUE catchpoint         = Qnil;
 static VALUE tracing            = Qfalse;
 static VALUE locker             = Qnil;
 static VALUE post_mortem        = Qfalse;
@@ -147,10 +69,11 @@ static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
 static debug_context_t *last_debug_context = NULL;
 
-static VALUE mDebugger;
+VALUE rdebug_threads_tbl = Qnil;
+VALUE mDebugger;
+
 static VALUE cThreadsTable;
 static VALUE cContext;
-static VALUE cBreakpoint;
 static VALUE cDebugThread;
 
 static VALUE rb_mObjectSpace;
@@ -160,7 +83,6 @@ static ID idAtBreakpoint;
 static ID idAtCatchpoint;
 static ID idAtTracing;
 static ID idList;
-static ID idEval;
 
 static int start_count = 0;
 static int thnum_max = 0;
@@ -379,7 +301,7 @@ check_thread_contexts()
 {
     threads_table_t *threads_table;
 
-    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    Data_Get_Struct(rdebug_threads_tbl, threads_table_t, threads_table);
     st_foreach(threads_table->tbl, threads_table_check_i, 0);
 }
 
@@ -393,15 +315,6 @@ static VALUE
 debug_is_started(VALUE self)
 {
     return IS_STARTED ? Qtrue : Qfalse;
-}
-
-static void
-debug_check_started()
-{
-    if(!IS_STARTED)
-    {
-        rb_raise(rb_eRuntimeError, "Debugger.start is not called yet.");
-    }
 }
 
 static void
@@ -505,7 +418,7 @@ thread_context_lookup(VALUE thread, VALUE *context, debug_context_t **debug_cont
         return;
     }
     thread_id = ref2id(thread);
-    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    Data_Get_Struct(rdebug_threads_tbl, threads_table_t, threads_table);
     if(!st_lookup(threads_table->tbl, thread_id, context))
     {
         *context = debug_context_create(thread);
@@ -579,7 +492,7 @@ save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debu
 #define isdirsep(x) ((x) == '/')
 #endif
 
-static int
+int
 filename_cmp(VALUE source, char *file)
 {
     char *source_ptr, *file_ptr;
@@ -606,133 +519,6 @@ filename_cmp(VALUE source, char *file)
     return 1;
 }
 
-inline static int
-classname_cmp(VALUE name, VALUE klass)
-{
-    VALUE class_name = (Qnil == name) ? rb_str_new2("main") : name;
-    return (klass != Qnil 
-	    && rb_str_cmp(class_name, rb_mod_name(klass)) == 0);
-}
-
-static int
-check_breakpoint_hit_condition(VALUE breakpoint)
-{
-    debug_breakpoint_t *debug_breakpoint;
-    
-    if(breakpoint == Qnil)
-        return 0;
-    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-
-    debug_breakpoint->hit_count++;
-    if (!Qtrue == debug_breakpoint->enabled) return 0;
-    switch(debug_breakpoint->hit_condition)
-    {
-        case HIT_COND_NONE:
-            return 1;
-        case HIT_COND_GE:
-        {
-            if(debug_breakpoint->hit_count >= debug_breakpoint->hit_value)
-                return 1;
-            break;
-        }
-        case HIT_COND_EQ:
-        {
-            if(debug_breakpoint->hit_count == debug_breakpoint->hit_value)
-                return 1;
-            break;
-        }
-        case HIT_COND_MOD:
-        {
-            if(debug_breakpoint->hit_count % debug_breakpoint->hit_value == 0)
-                return 1;
-            break;
-        }
-    }
-    return 0;
-}
-
-static int
-check_breakpoint_by_pos(VALUE breakpoint, char *file, int line)
-{
-    debug_breakpoint_t *debug_breakpoint;
-
-    if(breakpoint == Qnil)
-        return 0;
-    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-    if (!Qtrue == debug_breakpoint->enabled) return 0;
-    if(debug_breakpoint->type != BP_POS_TYPE)
-        return 0;
-    if(debug_breakpoint->pos.line != line)
-        return 0;
-    if(filename_cmp(debug_breakpoint->source, file))
-        return 1;
-    return 0;
-}
-
-static int
-check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid)
-{
-    debug_breakpoint_t *debug_breakpoint;
-
-    if(breakpoint == Qnil)
-        return 0;
-    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-    if (!Qtrue == debug_breakpoint->enabled) return 0;
-    if(debug_breakpoint->type != BP_METHOD_TYPE)
-        return 0;
-    if(debug_breakpoint->pos.mid != mid)
-        return 0;
-    if(classname_cmp(debug_breakpoint->source, klass))
-        return 1;
-    return 0;
-}
-
-static VALUE
-check_breakpoints_by_pos(debug_context_t *debug_context, char *file, int line)
-{
-    VALUE breakpoint;
-    int i;
-
-    if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
-        return Qnil;
-    
-    if(check_breakpoint_by_pos(debug_context->breakpoint, file, line))
-        return debug_context->breakpoint;
-
-    if(RARRAY(breakpoints)->len == 0)
-        return Qnil;
-    for(i = 0; i < RARRAY(breakpoints)->len; i++)
-    {
-        breakpoint = rb_ary_entry(breakpoints, i);
-        if(check_breakpoint_by_pos(breakpoint, file, line))
-            return breakpoint;
-    }
-    return Qnil;
-}
-
-static VALUE
-check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
-{
-    VALUE breakpoint;
-    int i;
-
-    if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
-        return Qnil;
-        
-    if(check_breakpoint_by_method(debug_context->breakpoint, klass, mid))
-        return debug_context->breakpoint;
-
-    if(RARRAY(breakpoints)->len == 0)
-        return Qnil;
-    for(i = 0; i < RARRAY(breakpoints)->len; i++)
-    {
-        breakpoint = rb_ary_entry(breakpoints, i);
-        if(check_breakpoint_by_method(breakpoint, klass, mid))
-            return breakpoint;
-    }
-    return Qnil;
-}
-
 /*
  * This is a NASTY HACK. For some reasons rb_f_binding is declared
  * static in eval.c. So we create a cons up call to binding in C.
@@ -748,27 +534,6 @@ create_binding(VALUE self)
         f_binding = (bind_func_t)ruby_method_ptr(rb_mKernel, rb_intern("binding"));
     }
     return f_binding(self);
-}
-
-static VALUE
-eval_expression(VALUE args)
-{
-    return rb_funcall2(rb_mKernel, idEval, 2, RARRAY(args)->ptr);
-}
-
-inline static int
-check_breakpoint_expression(VALUE breakpoint, VALUE binding)
-{
-    debug_breakpoint_t *debug_breakpoint;
-    VALUE args, expr_result;
-
-    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-    if(NIL_P(debug_breakpoint->expr))
-        return 1;
-
-    args = rb_ary_new3(2, debug_breakpoint->expr, binding);
-    expr_result = rb_protect(eval_expression, args, 0);
-    return RTEST(expr_result);
 }
 
 inline static debug_frame_t *
@@ -1111,14 +876,14 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 #endif
 
-        if(catchpoint == Qnil)
+        if(rdebug_catchpoint == Qnil)
             break;
 
         ancestors = rb_mod_ancestors(expn_class);
         for(i = 0; i < RARRAY(ancestors)->len; i++)
         {
             aclass = rb_ary_entry(ancestors, i);
-            if(rb_str_cmp(rb_mod_name(aclass), catchpoint) == 0)
+            if(rb_str_cmp(rb_mod_name(aclass), rdebug_catchpoint) == 0)
             {
                 debug_context->stop_reason = CTX_STOP_CATCHPOINT;
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
@@ -1195,9 +960,9 @@ debug_start(VALUE self)
         result = Qfalse;
     else
     {
-        breakpoints = rb_ary_new();
-        locker      = Qnil;
-        threads_tbl = threads_table_create();
+        rdebug_breakpoints = rb_ary_new();
+        locker             = Qnil;
+        rdebug_threads_tbl = threads_table_create();
 
         rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
         result = Qtrue;
@@ -1230,154 +995,11 @@ debug_stop(VALUE self)
 
     rb_remove_event_hook(debug_event_hook);
 
-    locker      = Qnil;
-    breakpoints = Qnil;
-    threads_tbl = Qnil;
+    locker             = Qnil;
+    rdebug_breakpoints = Qnil;
+    rdebug_threads_tbl = Qnil;
 
     return Qtrue;
-}
-
-static void
-breakpoint_mark(void *data)
-{
-    debug_breakpoint_t *breakpoint;
-    breakpoint = (debug_breakpoint_t *)data;
-    rb_gc_mark(breakpoint->source);
-    rb_gc_mark(breakpoint->expr);
-}
-
-static VALUE
-create_breakpoint_from_args(int argc, VALUE *argv, int id)
-{
-    VALUE source, pos, expr;
-    debug_breakpoint_t *breakpoint;
-    int type;
-
-    if(rb_scan_args(argc, argv, "21", &source, &pos, &expr) == 2)
-    {
-        expr = Qnil;
-    }
-    type = FIXNUM_P(pos) ? BP_POS_TYPE : BP_METHOD_TYPE;
-    if(type == BP_POS_TYPE)
-        source = StringValue(source);
-    else
-        pos = StringValue(pos);
-    breakpoint = ALLOC(debug_breakpoint_t);
-    breakpoint->id = id;
-    breakpoint->source = source;
-    breakpoint->type = type;
-    if(type == BP_POS_TYPE)
-        breakpoint->pos.line = FIX2INT(pos);
-    else
-        breakpoint->pos.mid = rb_intern(RSTRING(pos)->ptr);
-    breakpoint->enabled = Qtrue;
-    breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
-    breakpoint->hit_count = 0;
-    breakpoint->hit_value = 0;
-    breakpoint->hit_condition = HIT_COND_NONE;
-    return Data_Wrap_Struct(cBreakpoint, breakpoint_mark, xfree, breakpoint);
-}
-
-/*
- *   call-seq:
- *      Debugger.add_breakpoint(source, pos, condition = nil) -> breakpoint
- *
- *   Adds a new breakpoint.
- *   <i>source</i> is a name of a file or a class.
- *   <i>pos</i> is a line number or a method name if <i>source</i> is a class name.
- *   <i>condition</i> is a string which is evaluated to +true+ when this breakpoint
- *   is activated.
- */
-static VALUE
-debug_add_breakpoint(int argc, VALUE *argv, VALUE self)
-{
-    VALUE result;
-
-    debug_check_started();
-
-    result = create_breakpoint_from_args(argc, argv, ++bkp_count);
-    rb_ary_push(breakpoints, result);
-    return result;
-}
-
-/*
- *   call-seq:
- *      Debugger.remove_breakpoint(id) -> breakpoint
- *
- *   Removes breakpoint by its id.
- *   <i>id</i> is an identificator of a breakpoint.
- */
-static VALUE
-debug_remove_breakpoint(VALUE self, VALUE id_value)
-{
-    int i;
-    int id;
-    VALUE breakpoint;
-    debug_breakpoint_t *debug_breakpoint;
-
-    id = FIX2INT(id_value);
-
-    for( i = 0; i < RARRAY(breakpoints)->len; i += 1 )
-    {
-        breakpoint = rb_ary_entry(breakpoints, i);
-        Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
-        if(debug_breakpoint->id == id)
-        {
-            rb_ary_delete_at(breakpoints, i);
-            return breakpoint;
-        }
-    }
-    return Qnil;
-}
-
-/*
- *   call-seq:
- *      Debugger.breakpoints -> array
- *
- *   Returns an array of breakpoints.
- */
-static VALUE
-debug_breakpoints(VALUE self)
-{
-    debug_check_started();
-
-    return breakpoints;
-}
-
-/*
- *   call-seq:
- *      Debugger.checkpoint -> string
- *
- *   Returns a current checkpoint, which is a name of exception that will
- *   trigger a debugger when raised.
- */
-static VALUE
-debug_catchpoint(VALUE self)
-{
-    debug_check_started();
-
-    return catchpoint;
-}
-
-/*
- *   call-seq:
- *      Debugger.checkpoint = string -> string
- *
- *   Sets checkpoint.
- */
-static VALUE
-debug_set_catchpoint(VALUE self, VALUE value)
-{
-    debug_check_started();
-
-    if (!NIL_P(value) && TYPE(value) != T_STRING) {
-        rb_raise(rb_eTypeError, "value of checkpoint must be String");
-    }
-    if(NIL_P(value))
-    catchpoint = Qnil;
-    else
-    catchpoint = rb_str_dup(value);
-    return value;
 }
 
 static int
@@ -1407,7 +1029,7 @@ debug_last_interrupted(VALUE self)
 
     debug_check_started();
 
-    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    Data_Get_Struct(rdebug_threads_tbl, threads_table_t, threads_table);
 
     st_foreach(threads_table->tbl, find_last_context_func, (st_data_t)&result);
     return result;
@@ -1475,8 +1097,8 @@ debug_contexts(VALUE self)
         thread_context_lookup(thread, &context, NULL);
         rb_ary_push(new_list, context);
     }
-    threads_table_clear(threads_tbl);
-    Data_Get_Struct(threads_tbl, threads_table_t, threads_table);
+    threads_table_clear(rdebug_threads_tbl);
+    Data_Get_Struct(rdebug_threads_tbl, threads_table_t, threads_table);
     for(i = 0; i < RARRAY(new_list)->len; i++)
     {
         context = rb_ary_entry(new_list, i);
@@ -2421,50 +2043,6 @@ context_dead(VALUE self)
 
 /*
  *   call-seq:
- *      context.breakpoint -> breakpoint
- *
- *   Returns a context-specific temporary Breakpoint object.
- */
-static VALUE
-context_breakpoint(VALUE self)
-{
-    debug_context_t *debug_context;
-
-    debug_check_started();
-
-    Data_Get_Struct(self, debug_context_t, debug_context);
-    return debug_context->breakpoint;
-}
-
-/*
- *   call-seq:
- *      context.set_breakpoint(source, pos, condition = nil) -> breakpoint
- *
- *   Sets a context-specific temporary breakpoint, which can be used to implement
- *   'Run to Cursor' debugger function. When this breakpoint is reached, it will be
- *   cleared out.
- *
- *   <i>source</i> is a name of a file or a class.
- *   <i>pos</i> is a line number or a method name if <i>source</i> is a class name.
- *   <i>condition</i> is a string which is evaluated to +true+ when this breakpoint
- *   is activated.
- */
-static VALUE
-context_set_breakpoint(int argc, VALUE *argv, VALUE self)
-{
-    VALUE result;
-    debug_context_t *debug_context;
-
-    debug_check_started();
-
-    Data_Get_Struct(self, debug_context_t, debug_context);
-    result = create_breakpoint_from_args(argc, argv, 0);
-    debug_context->breakpoint = result;
-    return result;
-}
-
-/*
- *   call-seq:
  *      context.stop_reason -> sym
  *   
  *   Returns the reason for the stop. It maybe of the following values:
@@ -2501,256 +2079,6 @@ context_stop_reason(VALUE self)
     return ID2SYM(rb_intern(sym_name));
 }
 
-
-/*
- *   call-seq:
- *      breakpoint.enabled?
- *
- *   Returns whether breakpoint is enabled or not.
- */
-static VALUE
-breakpoint_enabled(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return breakpoint->enabled;
-}
-
-/*
- *   call-seq:
- *      breakpoint.enabled = bool
- *
- *   Enables or disables breakpoint.
- */
-static VALUE
-breakpoint_set_enabled(VALUE self, VALUE bool)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return breakpoint->enabled = bool;
-}
-
-/*
- *   call-seq:
- *      breakpoint.source -> string
- *
- *   Returns a source of the breakpoint.
- */
-static VALUE
-breakpoint_source(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return breakpoint->source;
-}
-
-/*
- *   call-seq:
- *      breakpoint.source = string
- *
- *   Sets the source of the breakpoint.
- */
-static VALUE
-breakpoint_set_source(VALUE self, VALUE value)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    breakpoint->source = StringValue(value);
-    return value;
-}
-
-/*
- *   call-seq:
- *      breakpoint.pos -> string or int
- *
- *   Returns a position of this breakpoint.
- */
-static VALUE
-breakpoint_pos(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    if(breakpoint->type == BP_METHOD_TYPE)
-        return rb_str_new2(rb_id2name(breakpoint->pos.mid));
-    else
-        return INT2FIX(breakpoint->pos.line);
-}
-
-/*
- *   call-seq:
- *      breakpoint.pos = string or int
- *
- *   Sets the position of this breakpoint.
- */
-static VALUE
-breakpoint_set_pos(VALUE self, VALUE value)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    if(breakpoint->type == BP_METHOD_TYPE)
-    {
-        breakpoint->pos.mid = rb_to_id(StringValue(value));
-    }
-    else
-        breakpoint->pos.line = FIX2INT(value);
-    return value;
-}
-
-/*
- *   call-seq:
- *      breakpoint.expr -> string
- *
- *   Returns a codition expression when this breakpoint should be activated.
- */
-static VALUE
-breakpoint_expr(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return breakpoint->expr;
-}
-
-/*
- *   call-seq:
- *      breakpoint.expr = string
- *
- *   Sets the codition expression when this breakpoint should be activated.
- */
-static VALUE
-breakpoint_set_expr(VALUE self, VALUE value)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    breakpoint->expr = StringValue(value);
-    return value;
-}
-
-/*
- *   call-seq:
- *      breakpoint.id -> int
- *
- *   Returns id of the breakpoint.
- */
-static VALUE
-breakpoint_id(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return INT2FIX(breakpoint->id);
-}
-
-/*
- *   call-seq:
- *      breakpoint.hit_count -> int
- *
- *   Returns the hit count of the breakpoint.
- */
-static VALUE
-breakpoint_hit_count(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return INT2FIX(breakpoint->hit_count);
-}
-
-/*
- *   call-seq:
- *      breakpoint.hit_value -> int
- *
- *   Returns the hit value of the breakpoint.
- */
-static VALUE
-breakpoint_hit_value(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    return INT2FIX(breakpoint->hit_value);
-}
-
-/*
- *   call-seq:
- *      breakpoint.hit_value = int
- *
- *   Sets the hit value of the breakpoint.
- */
-static VALUE
-breakpoint_set_hit_value(VALUE self, VALUE value)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    breakpoint->hit_value = FIX2INT(value);
-    return value;
-}
-
-/*
- *   call-seq:
- *      breakpoint.hit_condition -> symbol
- *
- *   Returns the hit condition of the breakpoint:
- *
- *   +nil+ if it is an unconditional breakpoint, or
- *   :greater_or_equal, :equal, :modulo
- */
-static VALUE
-breakpoint_hit_condition(VALUE self)
-{
-    debug_breakpoint_t *breakpoint;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    switch(breakpoint->hit_condition)
-    {
-        case HIT_COND_GE:
-            return ID2SYM(rb_intern("greater_or_equal"));
-        case HIT_COND_EQ:
-            return ID2SYM(rb_intern("equal"));
-        case HIT_COND_MOD:
-            return ID2SYM(rb_intern("modulo"));
-        case HIT_COND_NONE:
-        default:
-            return Qnil;
-    }
-}
-
-/*
- *   call-seq:
- *      breakpoint.hit_condition = symbol
- *
- *   Sets the hit condition of the breakpoint which must be one of the following values:
- *
- *   +nil+ if it is an unconditional breakpoint, or
- *   :greater_or_equal(:ge), :equal(:eq), :modulo(:mod)
- */
-static VALUE
-breakpoint_set_hit_condition(VALUE self, VALUE value)
-{
-    debug_breakpoint_t *breakpoint;
-    ID id_value;
-
-    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    id_value = rb_to_id(value);
-    
-    if(rb_intern("greater_or_equal") == id_value || rb_intern("ge") == id_value)
-        breakpoint->hit_condition = HIT_COND_GE;
-    else if(rb_intern("equal") == id_value || rb_intern("eq") == id_value)
-        breakpoint->hit_condition = HIT_COND_EQ;
-    else if(rb_intern("modulo") == id_value || rb_intern("mod") == id_value)
-        breakpoint->hit_condition = HIT_COND_MOD;
-    else
-        rb_raise(rb_eArgError, "Invalid condition parameter");
-    return value;
-}
 
 /*
  *   Document-class: Context
@@ -2793,33 +2121,40 @@ Init_context()
 }
 
 /*
- *   Document-class: Breakpoint
+ *   call-seq:
+ *      Debugger.breakpoints -> array
  *
- *   == Summary
- *
- *   This class represents a breakpoint. It defines position of the breakpoint and
- *   condition when this breakpoint should be triggered.
+ *   Returns an array of breakpoints.
  */
-static void
-Init_breakpoint()
+static VALUE
+debug_breakpoints(VALUE self)
 {
-    cBreakpoint = rb_define_class_under(mDebugger, "Breakpoint", rb_cObject);
-    rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
-    rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
-    rb_define_method(cBreakpoint, "source=", breakpoint_set_source, 1);
-    rb_define_method(cBreakpoint, "enabled?", breakpoint_enabled, 0);
-    rb_define_method(cBreakpoint, "enabled=", breakpoint_set_enabled, 1);
-    rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
-    rb_define_method(cBreakpoint, "pos=", breakpoint_set_pos, 1);
-    rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
-    rb_define_method(cBreakpoint, "expr=", breakpoint_set_expr, 1);
-    rb_define_method(cBreakpoint, "hit_count", breakpoint_hit_count, 0);
-    rb_define_method(cBreakpoint, "hit_value", breakpoint_hit_value, 0);
-    rb_define_method(cBreakpoint, "hit_value=", breakpoint_set_hit_value, 1);
-    rb_define_method(cBreakpoint, "hit_condition", breakpoint_hit_condition, 0);
-    rb_define_method(cBreakpoint, "hit_condition=", breakpoint_set_hit_condition, 1);
+    debug_check_started();
+
+    return rdebug_breakpoints;
 }
 
+/*
+ *   call-seq:
+ *      Debugger.add_breakpoint(source, pos, condition = nil) -> breakpoint
+ *
+ *   Adds a new breakpoint.
+ *   <i>source</i> is a name of a file or a class.
+ *   <i>pos</i> is a line number or a method name if <i>source</i> is a class name.
+ *   <i>condition</i> is a string which is evaluated to +true+ when this breakpoint
+ *   is activated.
+ */
+static VALUE
+debug_add_breakpoint(int argc, VALUE *argv, VALUE self)
+{
+    VALUE result;
+
+    debug_check_started();
+
+    result = create_breakpoint_from_args(argc, argv, ++bkp_count);
+    rb_ary_push(rdebug_breakpoints, result);
+    return result;
+}
 
 /*
  *   Document-class: Debugger
@@ -2880,14 +2215,13 @@ Init_ruby_debug()
     idAtBreakpoint = rb_intern("at_breakpoint");
     idAtCatchpoint = rb_intern("at_catchpoint");
     idAtTracing    = rb_intern("at_tracing");
-    idEval         = rb_intern("eval");
     idList         = rb_intern("list");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
-    rb_global_variable(&threads_tbl);
-    rb_global_variable(&breakpoints);
-    rb_global_variable(&catchpoint);
+    rb_global_variable(&rdebug_threads_tbl);
+    rb_global_variable(&rdebug_breakpoints);
+    rb_global_variable(&rdebug_catchpoint);
     rb_global_variable(&locker);
     rb_global_variable(&last_context);
     rb_global_variable(&last_thread);
