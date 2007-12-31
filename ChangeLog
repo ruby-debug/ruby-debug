@@ -1,3 +1,62 @@
+2007-12-31 05:55  Rocky Bernstein
+
+	* bin/rdebug, doc/rdebug.1, doc/ruby-debug.texi, emacs/Makefile.am,
+	  emacs/rdebug-core.el, emacs/rdebug-test-cmd.el,
+	  emacs/rdebug-test.el, test/runall: rdebug, emacs/* doc/*: --emacs
+	  is now --emacs-basic while --emacs now implies
+	  --emacs-basic --annotate=3 --post-mortem --no-control --no-start
+	  --no-quit
+	  runall: test-*.rb are tests
+	  rdebug-test-cmd.el: use 'require and add tests of
+	  rdebug-{step,next}.
+	  emacs/Makefile.am: break out individual test as separate targets.
+
+2007-12-30 10:54  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-test-cmd.el,
+	  emacs/rdebug-test-frame.el, emacs/rdebug-vars.el: rdebug-vars.el:
+	  remove cut-and-paste artifact
+	  rest: rdebug-test-frame.el -> rdebug-test-cmd.el
+
+2007-12-30 10:26  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-cmd.el, emacs/rdebug-core.el,
+	  emacs/rdebug-regexp.el, emacs/rdebug-track.el,
+	  emacs/rdebug-vars.el: Break up rdebug-core.el. Split out
+	  variables, regexps, and debugger commands.
+
+2007-12-30 10:13  Anders Lindgren
+
+	* emacs/rdebug-core.el: New function
+	  'rdebug-turn-on-short-key-mode', designed to be used in user
+	  hooks.
+
+2007-12-30 10:08  Anders Lindgren
+
+	* emacs/rdebug-core.el: C-x C-a C-q now toggles short key mode
+
+2007-12-29 23:04  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Add subsection as to why no parameter values
+	  in a call stack.
+
+2007-12-29 22:05  Rocky Bernstein
+
+	* doc/rdebug.1, doc/ruby-debug.texi: Remove short -n option;
+	  --no-stop remains.
+
+2007-12-29 15:19  Anders Lindgren
+
+	* emacs/rdebug-core.el: Added 'Customize Rdebug' to the Options
+	  submenu.
+
+2007-12-29 13:31  Rocky Bernstein
+
+	* ChangeLog, bin/rdebug, cli/ruby-debug/command.rb, ext/ChangeLog,
+	  lib/ChangeLog, test/helper.rb, test/noquit.right, test/null.rb,
+	  test/quit.cmd, test/quit.right, test/tdebug.rb: Remove looping on
+	  quit. "-n" is broken so remove it for now.
+
 2007-12-29 12:27  Rocky Bernstein
 
 	* emacs/rdebug-core.el: -(require 'cl) needed for ignore-errors.

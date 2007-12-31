@@ -5,7 +5,10 @@
 - add "toggle" command
 - fix bug in "info variables" when string had embedded %s'
 - Number keys move stack position in Emacs stack secondary buffer.
-
+- --emacs is now --emacs-basic while --emacs now implies
+  --emacs-basic --annotate=3 --post-mortem --no-control --no-start --no-quit
+- split off breakpoint code in ruby_debug.c; preface ruby_debug global 
+  Ruby variables with rdebug_.
 0.10.0
 - '-r' option can be used to require additional libraries.
 - --noquit option added to stay in debugger when the program exits
