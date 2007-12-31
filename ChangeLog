@@ -1,3 +1,22 @@
+2007-12-31 06:20  Rocky Bernstein
+
+	* ext/breakpoint.c: Was missing check_breakpoint_expression().
+
+2007-12-31 06:08  Rocky Bernstein
+
+	* CHANGES, ChangeLog, lib/ChangeLog: Changes and more changes.
+
+2007-12-31 06:06  Rocky Bernstein
+
+	* ext/ChangeLog, ext/breakpoint.c, ext/ruby_debug.c,
+	  ext/ruby_debug.h: Split off breakpoint code from ruby_debug.c;
+	  add common ruby_debug.h
+	  header Alas this means some statics are now externs and one
+	  inline was
+	  dropped. In some cases though moving static to extern might be
+	  desirable for other packages that want to hook into ruby_debug.
+	  Start to preface the global ruby_debug variables with rdebug.
+
 2007-12-31 05:55  Rocky Bernstein
 
 	* bin/rdebug, doc/rdebug.1, doc/ruby-debug.texi, emacs/Makefile.am,

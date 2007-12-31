@@ -93,7 +93,7 @@
   (assert-equal "next- 2" (rdebug-next 2))
   (setq rdebug-stepping-prefix "+")
   (assert-equal "step+ 1" (rdebug-step))
-)
+  )
 
 ;; -------------------------------------------------------------------
 ;; Build and run the test suite.
