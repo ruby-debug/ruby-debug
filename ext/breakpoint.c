@@ -131,6 +131,21 @@ check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
     return Qnil;
 }
 
+int
+check_breakpoint_expression(VALUE breakpoint, VALUE binding)
+{
+    debug_breakpoint_t *debug_breakpoint;
+    VALUE args, expr_result;
+
+    Data_Get_Struct(breakpoint, debug_breakpoint_t, debug_breakpoint);
+    if(NIL_P(debug_breakpoint->expr))
+        return 1;
+
+    args = rb_ary_new3(2, debug_breakpoint->expr, binding);
+    expr_result = rb_protect(eval_expression, args, 0);
+    return RTEST(expr_result);
+}
+
 static void
 breakpoint_mark(void *data)
 {
