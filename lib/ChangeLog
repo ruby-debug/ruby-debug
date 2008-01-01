@@ -1,3 +1,8 @@
+2007-12-31 06:26  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, trunk/ext/ChangeLog, ChangeLog:
+	  Rakefile: add spit-off C files to ruby-debug-base gem.
+
 2007-12-31 06:23  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/rdebug-test-cmd.el,

@@ -24,10 +24,12 @@
 
 (deftest "rdebug-indent-files"
   (assert-nil (rdebug-test-reindent-one-file "../rdebug.el"))
-  ; (assert-nil (rdebug-test-reindent-one-file "../rdebug-core.el"))
-  ; (assert-nil (rdebug-test-reindent-one-file "../rdebug-track.el"))
+					; don't know why these erroneously fail.
+					; (assert-nil (rdebug-test-reindent-one-file "../rdebug-core.el"))
+					; (assert-nil (rdebug-test-reindent-one-file "../rdebug-track.el"))
   (assert-nil (rdebug-test-reindent-one-file "./test-cmd.el"))
   (assert-nil (rdebug-test-reindent-one-file "./test-core.el"))
+  (assert-nil (rdebug-test-reindent-one-file "./test-indent.el"))
   (assert-nil (rdebug-test-reindent-one-file "./test-regexp.el")))
 
 (run-elk-test "rdebug-indent-files"

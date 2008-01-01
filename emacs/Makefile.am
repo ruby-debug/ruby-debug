@@ -1,4 +1,4 @@
-#   Copyright (C) 2007 Rocky Bernstein rocky@gnu.org
+#   Copyright (C) 2007, 2008 Rocky Bernstein rocky@gnu.org
 #
 #   This program is free software; you can redistribute it and/or modify it under
 #   the terms of the GNU General Public License as published by the Free
@@ -17,10 +17,10 @@
 
 lisp_files = rdebug.el rdebug-cmd.el rdebug-core.el \
              rdebug-regexp.el rdebug-track.el rdebug-vars.el
-check_DATA = test/elk-test.el 
-	test/test-cmd.el \
-	test/test-core.el \
-	test/test-reindent.el \
+check_DATA = test/elk-test.el \
+	test/test-cmd.el    \
+	test/test-core.el   \
+	test/test-indent.el \
 	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc rdebug-cmd.elc rdebug-core.elc \
@@ -45,7 +45,7 @@ check-core:
 
 check-indent:
 	(cd $(srcdir)/test && \
-	$(EMACS) -batch -q -l test-reindent.el )
+	$(EMACS) -batch -q -l test-indent.el )
 
 check-regexp:
 	(cd $(srcdir)/test && \
