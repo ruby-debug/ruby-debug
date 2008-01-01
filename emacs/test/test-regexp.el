@@ -1,15 +1,16 @@
 ;; -*- emacs-lisp -*-
+;; This program has to be run from the directory it is currently in and
+;; the rdebug code has to be in the parent directory
 (load-file "./elk-test.el")
 
 ;; FIXME? Should we use "require 'rdebug" here.
 ;; Would have to prepend . to load-path. 
-(load-file "./rdebug.el")
-(load-file "./rdebug-core.el")
+(load-file "../rdebug.el")
+(load-file "../rdebug-core.el")
 
 ;; Redefine functions to make them harmless for testing
 (defun rdebug-process-annotation (name contents)
-  (message name)
-  )
+  (message name))
 
 (make-variable-buffer-local 'gud-rdebug-marker-acc)
 

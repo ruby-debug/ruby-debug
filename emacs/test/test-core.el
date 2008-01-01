@@ -1,11 +1,12 @@
 ;; -*- emacs-lisp -*-
+;; This program has to be run from the directory it is currently in and
+;; the rdebug code has to be in the parent directory
 (load-file "./elk-test.el")
 
 ;; FIXME? Should we use "require 'rdebug" here.
 ;; Would have to prepend . to load-path. 
-(load-file "./rdebug.el")
-(load-file "./rdebug-core.el")
-(load-file "./rdebug-track.el")
+(load-file "../rdebug.el")
+(load-file "../rdebug-core.el")
 
 ;; Redefine functions to make them harmless for testing
 (defun rdebug-process-annotation (name contents)
@@ -81,41 +82,13 @@
 
 
 ;; -------------------------------------------------------------------
-;; Check source code indentation
-;;
-
-(defun rdebug-test-reindent-one-file (file)
-  (let ((buf (generate-new-buffer "testing"))
-        (res nil))
-    (save-excursion
-      (switch-to-buffer buf)
-      (insert-file file)
-      (emacs-lisp-mode)
-      (set-buffer-modified-p nil)
-      (undo-boundary)
-      (indent-region (point-min) (point-max))
-      (if (buffer-modified-p)
-          (setq res "Reindentation failed")))
-    (kill-buffer buf)
-    res))
-
-(deftest "rdebug-reindent-files"
-  (assert-nil (rdebug-test-reindent-one-file "rdebug.el"))
-  (assert-nil (rdebug-test-reindent-one-file "rdebug-core.el"))
-  (assert-nil (rdebug-test-reindent-one-file "rdebug-track.el"))
-  (assert-nil (rdebug-test-reindent-one-file "rdebug-test.el"))
-  (assert-nil (rdebug-test-reindent-one-file "rdebug-test-cmd.el")))
-
-
-;; -------------------------------------------------------------------
 ;; Build and run the test suite.
 ;;
 
 (build-suite "rdebug-suite" 
 	     "rdebug-get-script-name-test"
 	     "rdebug-goto-entry-test"
-	     "rdebug-goto-entry-test-2"
-	     "rdebug-reindent-files")
+	     "rdebug-goto-entry-test-2")
 (run-elk-test "rdebug-suite"
-              "test regular expression used in tracking lines")
+              "test things in rdebug-core.el")
 

@@ -17,7 +17,11 @@
 
 lisp_files = rdebug.el rdebug-cmd.el rdebug-core.el \
              rdebug-regexp.el rdebug-track.el rdebug-vars.el
-check_DATA = elk-test.el rdebug-test.el rdebug-test-cmd.el rdebug-test-regexp.el
+check_DATA = test/elk-test.el 
+	test/test-cmd.el \
+	test/test-core.el \
+	test/test-reindent.el \
+	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc rdebug-cmd.elc rdebug-core.elc \
              rdebug-regexp.el rdebug-track.elc rdebug-vars.elc
@@ -25,21 +29,25 @@ if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 endif
 
-PHONY = test check check-cmd check-core check-regexp
+PHONY = test check check-cmd check-core check-indent check-regexp
 
 test: check
 
-check: check-core check-cmd check-regexp
-
-check-core:
-	(cd $(srcdir) && \
-	$(EMACS) -batch -q -l rdebug-test.el elk-test.el )
+check: check-cmd check-core check-indent check-regexp
 
 check-cmd:
-	(cd $(srcdir) && \
-	$(EMACS) -batch -q -l rdebug-test-cmd.el elk-test.el )
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-cmd.el )
+
+check-core:
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-core.el )
+
+check-indent:
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-reindent.el )
 
 check-regexp:
-	(cd $(srcdir) && \
-	$(EMACS) -batch -q -l rdebug-test-regexp.el elk-test.el )
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-regexp.el )
 
