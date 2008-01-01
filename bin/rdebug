@@ -46,6 +46,7 @@ EOB
   opts.on("--emacs", "Activates full Emacs support") do 
     ENV['EMACS'] = '1'
     options.control = false
+    The_End = File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'theend.rb')
     options.noquit = true
     options.post_mortem = true
     Debugger.annotate = 3
@@ -69,7 +70,6 @@ EOB
     options.control = false
   end
   opts.on("--no-quit", "Do not quit when script finishes") do
-    print "The program has finished and will be restarted.\n"
     The_End = File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'theend.rb')
     options.noquit = true
   end

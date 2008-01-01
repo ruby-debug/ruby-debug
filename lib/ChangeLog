@@ -1,3 +1,9 @@
+2008-01-01 09:00  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/ext/ChangeLog, trunk/ext/breakpoint.c,
+	  trunk/ext/ruby_debug.c, trunk/ext/ruby_debug.h, ChangeLog: Remove
+	  RDoc warnings caused because C files have been split up.
+
 2008-01-01 05:51  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/Makefile.am,

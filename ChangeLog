@@ -1,3 +1,9 @@
+2008-01-01 09:00  Rocky Bernstein
+
+	* ChangeLog, ext/ChangeLog, ext/breakpoint.c, ext/ruby_debug.c,
+	  ext/ruby_debug.h, lib/ChangeLog: Remove RDoc warnings caused
+	  because C files have been split up.
+
 2008-01-01 08:18  Rocky Bernstein
 
 	* emacs/rdebug-core.el, emacs/rdebug.el: Add
