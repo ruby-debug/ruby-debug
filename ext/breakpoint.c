@@ -195,7 +195,7 @@ create_breakpoint_from_args(int argc, VALUE *argv, int id)
  *   <i>id</i> is an identificator of a breakpoint.
  */
 VALUE
-debug_remove_breakpoint(VALUE self, VALUE id_value)
+rdebug_remove_breakpoint(VALUE self, VALUE id_value)
 {
     int i;
     int id;
@@ -236,15 +236,15 @@ debug_catchpoint(VALUE self)
  *   call-seq:
  *      Debugger.checkpoint = string -> string
  *
- *   Sets checkpoint.
+ *   Sets catchpoint.
  */
 VALUE
-debug_set_catchpoint(VALUE self, VALUE value)
+rdebug_set_catchpoint(VALUE self, VALUE value)
 {
     debug_check_started();
 
     if (!NIL_P(value) && TYPE(value) != T_STRING) {
-        rb_raise(rb_eTypeError, "value of checkpoint must be String");
+        rb_raise(rb_eTypeError, "value of chatchpoint must be String");
     }
     if(NIL_P(value))
       rdebug_catchpoint = Qnil;

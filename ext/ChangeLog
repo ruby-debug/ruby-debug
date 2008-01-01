@@ -1,3 +1,11 @@
+2008-01-01 05:51  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/Makefile.am,
+	  trunk/emacs/test/test-indent.el,
+	  trunk/emacs/test/test-reindent.el, ChangeLog,
+	  trunk/lib/ChangeLog: reindent -> indent. Makefile.am: wasn't
+	  including all test files.
+
 2007-12-31 06:26  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, ChangeLog, trunk/lib/ChangeLog:

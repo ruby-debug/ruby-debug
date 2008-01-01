@@ -2116,8 +2116,10 @@ Init_context()
     rb_define_method(cContext, "frame_self", context_frame_self, -1);
     rb_define_method(cContext, "stack_size", context_stack_size, 0);
     rb_define_method(cContext, "dead?", context_dead, 0);
-    rb_define_method(cContext, "breakpoint", context_breakpoint, 0);
-    rb_define_method(cContext, "set_breakpoint", context_set_breakpoint, -1);
+    rb_define_method(cContext, "breakpoint", 
+		     context_breakpoint, 0);      /* in breakpoint.c */
+    rb_define_method(cContext, "set_breakpoint", 
+		     context_set_breakpoint, -1); /* in breakpoint.c */
 }
 
 /*
@@ -2178,9 +2180,12 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "breakpoints", debug_breakpoints, 0);
     rb_define_module_function(mDebugger, "add_breakpoint", debug_add_breakpoint, -1);
     rb_define_module_function(mDebugger, "remove_breakpoint", 
-			      debug_remove_breakpoint, 1);
-    rb_define_module_function(mDebugger, "catchpoint", debug_catchpoint, 0);
-    rb_define_module_function(mDebugger, "catchpoint=", debug_set_catchpoint, 1);
+			      rdebug_remove_breakpoint, 
+			      1);                        /* in breakpoint.c */
+    rb_define_module_function(mDebugger, "catchpoint", 
+			      debug_catchpoint, 0);      /* in breakpoint.c */
+    rb_define_module_function(mDebugger, "catchpoint=", 
+			      rdebug_set_catchpoint, 1); /* in breakpoint.c */
     rb_define_module_function(mDebugger, "last_context", debug_last_interrupted, 0);
     rb_define_module_function(mDebugger, "contexts", debug_contexts, 0);
     rb_define_module_function(mDebugger, "current_context", debug_current_context, 0);

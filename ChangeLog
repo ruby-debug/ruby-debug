@@ -1,3 +1,34 @@
+2008-01-01 08:18  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug.el: Add
+	  rdebug-user-separate-io-buffer to let folks decide where output
+	  should appear - similar to gdb-ui's
+	  rdebug-user-separate-io-buffer.
+	  Move customizable variables from rdebug-core.el to rdebug.el.
+
+2008-01-01 05:51  Rocky Bernstein
+
+	* ChangeLog, emacs/Makefile.am, emacs/test/test-indent.el,
+	  emacs/test/test-reindent.el, ext/ChangeLog, lib/ChangeLog:
+	  reindent -> indent. Makefile.am: wasn't including all test files.
+
+2008-01-01 05:45  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/elk-test.el, emacs/rdebug-test-cmd.el,
+	  emacs/rdebug-test-regexp.el, emacs/rdebug-test.el, emacs/test,
+	  emacs/test/elk-test.el, emacs/test/test-cmd.el,
+	  emacs/test/test-core.el, emacs/test/test-regexp.el,
+	  emacs/test/test-reindent.el: Create test directory and put
+	  regression tests in that.
+
+2007-12-31 15:38  Rocky Bernstein
+
+	* configure.ac: Now in 0.10.1
+
+2007-12-31 15:37  Rocky Bernstein
+
+	* doc/triangle.rb: Another example program used in documentation.
+
 2007-12-31 06:26  Rocky Bernstein
 
 	* ChangeLog, Rakefile, ext/ChangeLog, lib/ChangeLog: Rakefile: add
