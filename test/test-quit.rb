@@ -22,7 +22,7 @@ class TestQuit < Test::Unit::TestCase
     Dir.chdir(SRC_DIR) do 
       assert_equal(true, 
                    run_debugger("quit", 
-                                "--script quit.cmd --no-quit -- gcd.rb 3 5"))
+                                "--script quit.cmd --no-quit -- null.rb"))
     end
   end
 end

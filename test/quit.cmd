@@ -1,6 +1,6 @@
 # ***************************************************
-# This tests display expressions.
+# This tests the quit.
 # ***************************************************
 set debuggertesting on
-c
+# FIXME need to test --no-quit.
 quit

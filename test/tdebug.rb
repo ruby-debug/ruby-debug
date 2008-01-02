@@ -47,7 +47,6 @@ EOB
     options.control = false
   end
   opts.on("--no-quit", "Do not quit when script finishes") {
-    The_End = File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'theend.rb')
     options.noquit = true
   }
   opts.on("--no-stop", "Do not stop when script is loaded") {options.nostop = true}
@@ -183,11 +182,10 @@ if options.noquit
     print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
     print "Uncaught exception: #{$!}\n"
   end
-  # This ensures that we get an extra step point before the
-  # program is resterted. Note, if the user program is empty
-  # the debugger will go into an infinite loop without
-  # something like this.
-  Debugger.debug_load(The_End, true)
+  print "The program finished.\n"
+  interface = Debugger::LocalInterface.new
+  processor = Debugger::ControlCommandProcessor.new(interface)
+  processor.process_commands
 else
   Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
 end

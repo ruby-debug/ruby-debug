@@ -1,11 +1,9 @@
-gcd.rb:4
-def gcd(a, b)
+tdebug.rb:185
+print "The program finished.\n"
 # # ***************************************************
-# # This tests display expressions.
+# # This tests the quit.
 # # ***************************************************
 # set debuggertesting on
 Currently testing the debugger is on.
-# c
-theend.rb:13
-nil                    # The end of the program has been reached.
+# # FIXME need to test --no-quit.
 # quit
