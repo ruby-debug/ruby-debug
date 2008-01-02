@@ -42,6 +42,7 @@ module Debugger
       @output_annotation_in_progress = false
       @debugger_breakpoints_were_empty = false # Show breakpoints 1st time
       @debugger_displays_were_empty = true # No display 1st time
+      @debugger_context_was_dead = true # Assume we haven't started.
     end
     
     def interface=(interface)
@@ -163,9 +164,19 @@ module Debugger
     
     def prompt(context)
       if context.dead?
-        "(rdb:post-mortem) "
+        if Debugger.annotate and Debugger.annotate > 2 and
+            not @debugger_context_was_dead
+          print "\032\032exited\n" 
+          @debugger_context_was_dead = true
+        end
+        return "(rdb:post-mortem) "
       else
-        "(rdb:%d) " % context.thnum
+        if Debugger.annotate and Debugger.annotate > 2 and
+            @debugger_context_was_dead
+          print "\032\032starting\n" 
+          @debugger_context_was_dead = false
+        end
+        return "(rdb:%d) " % context.thnum
       end
     end
 
@@ -232,7 +243,6 @@ module Debugger
       end
 
       if Debugger.annotate and Debugger.annotate > 2
-        print "\032\032starting\n" 
         @output_annotation_in_progress = true
       end
     end # process_commands
@@ -344,7 +354,12 @@ module Debugger
       control_cmds = Command.commands.select{|cmd| cmd.control }
       state = State.new(@interface, control_cmds)
       commands = control_cmds.map{|cmd| cmd.new(state) }
-      
+
+      if Debugger.annotate and Debugger.annotate > 2 and
+          not @debugger_context_was_dead
+        print "\032\032exited\n" 
+      end
+
       while input = @interface.read_command("(rdb:ctrl) ")
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }

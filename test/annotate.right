@@ -9,9 +9,9 @@ Currently testing the debugger is on.
 Frame call-display style is last.
 # set annotate 3
 Annotation level is 3
+starting
 # # Get into gcd
 # step 2
-starting
 
 breakpoints
 No breakpoints.
@@ -70,7 +70,6 @@ Num Enb What
 # step
 display
 
-starting
 
 breakpoints
 Num Enb What

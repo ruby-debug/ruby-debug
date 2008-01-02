@@ -1,5 +1,6 @@
 module Debugger
   class InfoCommand < Command # :nodoc:
+    self.control = true
     SubcmdStruct=Struct.new(:name, :min, :short_help) unless
       defined?(SubcmdStruct)
     Subcommands = 
@@ -46,6 +47,10 @@ module Debugger
     end
     
     def info_args(*args)
+      unless @state.context
+        print "No frame selected.\n"
+        return 
+      end
       locals = @state.context.frame_locals(@state.frame_pos)
       args = @state.context.frame_args(@state.frame_pos)
       args.each do |name|
@@ -58,6 +63,10 @@ module Debugger
     end
     
     def info_breakpoints(*args)
+      unless @state.context
+        print "info breakpoints not available here.\n"
+        return 
+      end
       unless Debugger.breakpoints.empty?
         print "Num Enb What\n"
         Debugger.breakpoints.sort_by{|b| b.id }.each do |b|
@@ -75,6 +84,10 @@ module Debugger
     end
     
     def info_display(*args)
+      unless @state.context
+        print "info display not available here.\n"
+        return 
+      end
       if @state.display.find{|d| d[0]}
         print "Auto-display expressions now in effect:\n"
         print "Num Enb Expression\n"
@@ -96,15 +109,27 @@ module Debugger
     end
     
     def info_instance_variables(*args)
+      unless @state.context
+        print "info instance_variables not available here.\n"
+        return 
+      end
       obj = debug_eval('self')
       var_list(obj.instance_variables)
     end
     
     def info_line(*args)
+      unless @state.context
+        print "info line not available here.\n"
+        return 
+      end
       print "Line %d of \"%s\"\n",  @state.line, @state.file
     end
     
     def info_locals(*args)
+      unless @state.context
+        print "info line not available here.\n"
+        return 
+      end
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|
         ### FIXME: make a common routine
@@ -125,7 +150,7 @@ module Debugger
     end
     
     def info_program(*args)
-      if @state.context.dead? 
+      if not @state.context or @state.context.dead? 
         print "The program being debugged is not being run.\n"
         return
       end
@@ -145,6 +170,10 @@ module Debugger
     end
     
     def info_stack(*args)
+      if not @state.context
+        print "info stack not available here.\n"
+        return
+      end
       (0...@state.context.stack_size).each do |idx|
         if idx == @state.frame_pos
           print "--> "
@@ -156,16 +185,28 @@ module Debugger
     end
     
     def info_threads(*args)
+      if not @state.context
+        print "info threads not available here.\n"
+        return
+      end
       threads = Debugger.contexts.sort_by{|c| c.thnum}.each do |c|
         display_context(c)
       end
     end
     
     def info_global_variables(*args)
+      unless @state.context
+        print "info global_variables not available here.\n"
+        return 
+      end
       var_list(global_variables)
     end
     
     def info_variables(*args)
+      if not @state.context
+        print "info variables not available here.\n"
+        return
+      end
       obj = debug_eval('self')
       locals = @state.context.frame_locals(@state.frame_pos)
       locals.keys.sort.each do |name|

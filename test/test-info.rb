@@ -17,7 +17,7 @@ include TestHelper
 class TestInfo < Test::Unit::TestCase
   require 'stringio'
 
-  # Test commands in stepping.rb
+  # Test commands in info.rb
   def test_basic
     Dir.chdir(SRC_DIR) do 
       assert_equal(true, 
