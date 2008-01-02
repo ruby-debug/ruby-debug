@@ -1,3 +1,11 @@
+2008-01-02 14:41  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,
+	  trunk/emacs/rdebug.el, trunk/ext/ChangeLog, ChangeLog,
+	  trunk/test/annotate.right: processor.rb: Redo where
+	  starting/exiting annotations are done.
+	  rdebug.el: back off on setting output command for now.
+
 2008-01-01 15:23  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/bin/rdebug, trunk/ext/ChangeLog,

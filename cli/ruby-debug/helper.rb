@@ -1,6 +1,8 @@
 module Debugger
 
   module ParseFunctions
+    Position_regexp = '(?:(\d+)|(.+?)[:.#]([^.:\s]+)))?'
+
     # Parse 'str' of command 'cmd' as an integer between
     # min and max. If either min or max is nil, that
     # value has no bound.

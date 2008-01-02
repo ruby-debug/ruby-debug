@@ -1,3 +1,14 @@
+2008-01-02 17:31  Rocky Bernstein
+
+	* test/test-ruby-debug-base.rb: A little more robust.
+
+2008-01-02 14:41  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/processor.rb, emacs/rdebug.el,
+	  ext/ChangeLog, lib/ChangeLog, test/annotate.right: processor.rb:
+	  Redo where starting/exiting annotations are done.
+	  rdebug.el: back off on setting output command for now.
+
 2008-01-02 04:17  Rocky Bernstein
 
 	* test/quit.cmd, test/quit.right, test/tdebug.rb,
