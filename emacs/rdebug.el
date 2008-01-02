@@ -33,10 +33,20 @@
 
 ;;; Code:
 
+
+;; -------------------------------------------------------------------
+;; Consistency checks.
+;;
+
 (if (< emacs-major-version 22)
     (error
      "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
      emacs-major-version))
+
+
+;; -------------------------------------------------------------------
+;; Autoloads
+;;
 
 (autoload 'rdebug "rdebug-core"
   "Run the rdebug Ruby debugger and start the Emacs user interface.
@@ -92,9 +102,9 @@ This function is designed to be added to hooks, for example:
 
 (add-hook 'ruby-mode-hook 'rdebug-turn-on-debugger-support)
 
-
+
 ;; -------------------------------------------------------------------
-;; user definable variables
+;; User definable variables
 ;;
 
 (defcustom gud-rdebug-command-name
@@ -194,7 +204,10 @@ Rdebug provides the following predefined layout functions:
   :group 'rdebug)
 
 
-
+;; -------------------------------------------------------------------
+;; The end.
+;;
+
 (provide 'rdebug)
 
 ;;; rdebug.el ends here

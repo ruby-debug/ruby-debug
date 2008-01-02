@@ -20,15 +20,22 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
+
 ;;  `rdebug-track-mode' allows access to full debugger user interface
 ;;   for Ruby debugger sessions started in a standard shell window.
 ;;   `turn-on-rdebug-track-mode' turns the mode on and
 ;;   `turn-off-rdebug-track-mode' turns it off.
-;; 
+;;
 ;;; Customization:
 ;;  `rdebug-track' sets whether file tracking is done by the shell prompt.
 ;;  `rdebug-track-minor-mode-string' sets the mode indicator to show that
 ;;  tracking is in effect.
+;;
+
+;;; Code:
+
+;; -------------------------------------------------------------------
+;; Customizable variables.
 ;;
 
 (defgroup rdebug-track nil
@@ -52,8 +59,10 @@ as gud-mode does for debugging C programs with gdb."
   :type 'string
   :group 'rdebug)
 
-;; ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-;; NO USER DEFINABLE VARIABLES BEYOND THIS POINT
+
+;; -------------------------------------------------------------------
+;; Variables.
+;;
 
 (defvar gud-rdebug-history nil
   "History of argument lists passed to rdebug.")
@@ -69,8 +78,10 @@ as gud-mode does for debugging C programs with gdb."
 (defconst rdebug-track-track-range 10000
   "Max number of characters from end of buffer to search for stack entry.")
 
-
-;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;; -------------------------------------------------------------------
+;; Dependencies.
+;;
 
 (require 'comint)
 (require 'custom)
@@ -78,6 +89,12 @@ as gud-mode does for debugging C programs with gdb."
 (require 'compile)
 (require 'shell)
 (require 'rdebug-core)
+
+
+;; -------------------------------------------------------------------
+;; Rdebug track -- support for attaching the `rdebug' ruby debugger to
+;; a process running in a shell buffer.
+;;
 
 (defvar rdebug-track-is-tracking-p t)
 
@@ -184,8 +201,13 @@ problem as best as we can determine."
 
             (t (format "Not found: %s" filename))))))
 
-
-;; rdebug-track
+
+
+;; -----------------------------------------------
+;; Rdebug track mode
+;;
+
+
 (defcustom rdebug-track-mode-text " rdebug"
   "*String to display in the mode line when rdebug-track mode is active.
 
@@ -235,6 +257,23 @@ This function is designed to be added to hooks, for example:
   (set (make-local-variable 'gud-last-frame) nil)
   (rdebug-track-mode 1))
 
+
+(defun turn-off-rdebug-track-mode ()
+  "Turn off rdebug-track mode."
+  (interactive)
+  (setq rdebug-track-is-tracking-p nil)
+
+  (rdebug-track-toggle-stack-tracking 0)
+  (if (local-variable-p 'gud-last-frame)
+      (setq gud-last-frame nil))
+  (remove-hook 'comint-output-filter-functions
+	       'rdebug-track-track-stack-file))
+
+
+;; -----------------------------------------------
+;; The `attach' function.
+;;
+
 (defun rdebug-track-attach (&optional name)
   "Do things to make the current process buffer work like a
 rdebug command buffer. In particular, the buffer is renamed,
@@ -253,7 +292,7 @@ window layout is used."
     (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
     (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
     (gud-set-buffer)
-    ;;   
+    ;;
 
     (set (make-local-variable 'gud-last-last-frame) nil)
     (set (make-local-variable 'gud-last-frame) nil)
@@ -272,17 +311,14 @@ window layout is used."
       (rdebug-setup-windows))))
 
 
-(defun turn-off-rdebug-track-mode ()
-  "Turn off rdebug-track mode."
-  (interactive)
-  (setq rdebug-track-is-tracking-p nil)
+;; -------------------------------------------------------------------
+;; The end.
+;;
 
-  (rdebug-track-toggle-stack-tracking 0)
-  (if (local-variable-p 'gud-last-frame)
-      (setq gud-last-frame nil))
-  (remove-hook 'comint-output-filter-functions
-	       'rdebug-track-track-stack-file))
-
-
 (provide 'rdebug-track)
-;; rdebug-track
+
+;;; Local variables:
+;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
+;;; End:
+
+;;; rdebug-track.el ends here

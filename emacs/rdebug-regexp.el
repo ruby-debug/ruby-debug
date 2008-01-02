@@ -28,6 +28,13 @@
 ;; Here we have regular expressions and names for matched patterns
 ;; of those regular expressions.
 ;;
+
+;;; Code:
+
+;; -------------------------------------------------------------------
+;; Variables defining regular expressions (regexp:s).
+;;
+
 (defconst rdebug-annotation-start-regexp
   "\\([a-z]+\\)\n"
   "Regular expression to match the start of an annotation.
@@ -84,7 +91,10 @@ Program-location lines look like this:
   "Regexp to recognize a stack frame line in rdebug stack buffers.")
 
 
-
+;; -------------------------------------------------------------------
+;; The end.
+;;
+
 (provide 'rdebug-regexp)
 
 ;;; Local variables:

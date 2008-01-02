@@ -71,10 +71,20 @@
 
 ;;; Code:
 
+;; -------------------------------------------------------------------
+;; Consistency checks.
+;;
+
 (if (< emacs-major-version 22)
     (error
      "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
      emacs-major-version))
+
+
+;; -------------------------------------------------------------------
+;; Dependencies.
+;;
+
 (require 'gud)
 (require 'cl)
 
@@ -84,6 +94,11 @@
 (require 'rdebug-regexp)
 (require 'rdebug-cmd)
 (setq load-path (cdr load-path))
+
+
+;; -------------------------------------------------------------------
+;; Internal debug trace support.
+;;
 
 (defun rdebug-debug-message (&rest args)
   (if rdebug-debug-active
@@ -109,7 +124,9 @@
        (rdebug-debug-message "<-- %s" ,str))))
 
 
+;; -------------------------------------------------------------------
 ;; Interface to gud.
+;;
 
 (defun gud-rdebug-massage-args (file args)
   args)
@@ -250,6 +267,10 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
   )
 
 
+;; -------------------------------------------------------------------
+;; Window configuration state support.
+;;
+
 (defun rdebug-set-window-configuration-state (state &optional dont-restore)
   "Change window configuration state.
 
@@ -280,7 +301,9 @@ example when the debugger starts."
     (setq rdebug-window-configuration-state state)))
 
 
-;; -- Common key support.
+;; -------------------------------------------------------------------
+;; Key bindings
+;;
 
 (defun rdebug-populate-common-keys-standard (map)
   "Bind the basic debugger key layout used by many debuggers.
@@ -353,44 +376,6 @@ The variable `rdebug-populate-common-keys-function' controls the layout."
       (funcall rdebug-populate-common-keys-function map)))
 
 
-;; -- The debugger
-
-;; -- Digit keys, go to specific entry in some seconday buffers.
-
-;; The following is split in two to facilitate debugging.
-(defun rdebug-goto-entry-n-internal (keys)
-  (if (and (stringp keys)
-           (= (length keys) 1))
-      (progn
-        (setq rdebug-goto-entry-acc (concat rdebug-goto-entry-acc keys))
-        ;; Try to find the longest suffix.
-        (let ((acc rdebug-goto-entry-acc)
-              (p (point)))
-          (while (not (string= acc ""))
-            (if (not (rdebug-goto-entry-try acc))
-                (setq acc (substring acc 1))
-              (setq p (point))
-              ;; Break loop.
-              (setq acc "")))
-          (goto-char p)))
-    (message "`rdebug-goto-entry-n' must be bound to a number key")))
-
-(defun rdebug-goto-entry-n ()
-  "Go to an entry number.
-
-Breakpoints, Display expressions and Stack Frames all have
-numbers associated with them which are distinct from line
-numbers. In a secondary buffer, this function is usually bound to
-a numeric key which will position you at that entry number. To
-go to an entry above 9, just keep entering the number. For
-example, if you press 1 and then 9, you should jump to entry
-1 (if it exists) and then 19 (if that exists). Entering any
-non-digit will start entry number from the beginning again."
-  (interactive)
-  (if (not (eq last-command 'rdebug-goto-entry-n))
-      (setq rdebug-goto-entry-acc ""))
-  (rdebug-goto-entry-n-internal (this-command-keys)))
-
 (defun rdebug-populate-digit-keys (map)
   (define-key map "0" 'rdebug-goto-entry-n)
   (define-key map "1" 'rdebug-goto-entry-n)
@@ -409,12 +394,10 @@ non-digit will start entry number from the beginning again."
   "Queue of Makefile temp files awaiting execution.
 Currently-active file is at the head of the list.")
 
-
-;; Constants
 
-;;-----------------------------------------------------------------------------
-;; ALB - annotations support
-;;-----------------------------------------------------------------------------
+;; -------------------------------------------------------------------
+;; Annotation and secondary buffers.
+;;
 
 (defvar rdebug--annotation-setup-map
   (progn
@@ -459,11 +442,12 @@ Currently-active file is at the head of the list.")
 	      (erase-buffer))
 	    (insert contents)
 	    (when setup-func (funcall setup-func buf comint-buffer))))))))
-  
 
+
+;; -------------------------------------------------------------------
+;; Window layout.
 ;;
-;; Window layout
-;;
+
 
 (defun rdebug-window-layout-standard (src-buf name)
   "The default rdebug window layout, see `rdebug' for more information."
@@ -624,9 +608,9 @@ This function is called upon quitting the debugger and
    "Type `M-x rdebug-display-debugger-window-configuration RET' to restore."))
 
 
-;; Fontification and keymaps for secondary buffers (breakpoints, stack)
-
-;; -- General, for all secondary buffers.
+;; -------------------------------------------------------------------
+;; Menu support.
+;;
 
 
 ;; Note: We want the key binding to show in the menu. However, our
@@ -785,7 +769,9 @@ menu. (The common map typically contains function key bindings.)"
     menu))
 
 
-;; -- Secondary buffer support.
+;; -----------------------------------------------
+;; Key bindings and menu for secondary buffers.
+;;
 
 (defun rdebug-populate-secondary-buffer-map-plain (map)
   "Bind the plain keys used in rdebug secondary buffers.
@@ -955,7 +941,13 @@ The higher score the better."
       (switch-to-buffer buffer))))
 
 
-;; -- breakpoints
+;; -------------------------------------------------------------------
+;; Secondary buffers.
+;;
+
+;; -----------------------------------------------
+;; The breakpoints buffer.
+;;
 
 (defvar rdebug-breakpoints-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1091,7 +1083,10 @@ The higher score the better."
          (string-to-number (substring s (match-beginning 2) (match-end 2))))
         ))))
 
-;; -- stack
+
+;; -----------------------------------------------
+;; The stack frame buffer.
+;;
 
 (defvar rdebug-frames-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1221,7 +1216,10 @@ The higher score the better."
   (with-current-buffer (window-buffer (posn-window (event-end event)))
     (rdebug-goto-stack-frame (posn-point (event-end event)))))
 
-;; -- variables
+
+;; -----------------------------------------------
+;; The variables buffer.
+;;
 
 (defvar rdebug-variables-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1277,7 +1275,10 @@ The higher score the better."
       (rdebug-variables-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
-;; -- watch (the "display" annotation)
+
+;; -----------------------------------------------
+;; The watch (a.k.a display) buffer.
+;;
 
 (defvar rdebug-watch-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1331,7 +1332,10 @@ The higher score the better."
       (rdebug-watch-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
-;; -- output
+
+;; -----------------------------------------------
+;; The output buffer.
+;;
 
 (defvar rdebug-output-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1359,7 +1363,10 @@ The higher score the better."
       (rdebug-output-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
-;; -- help
+
+;; -----------------------------------------------
+;; The secondary window help buffer.
+;;
 
 (defvar rdebug-secondary-window-help-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1424,7 +1431,12 @@ Press `C-h m' for more help, when the individual buffers are visible.
 "))))
 
 
-;; -- Ruby debugger support for other modes.
+;; -------------------------------------------------------------------
+;; The source buffer rdebug support mode.
+;;
+;; This is a minor mode that is active in Ruby source buffers. It
+;; provides the menu and, when the debugger is active, the debugger
+;; key bindings.
 
 (defvar rdebug-debugger-support-minor-mode-map-when-deactive
   (let ((map (make-sparse-keymap))
@@ -1464,7 +1476,20 @@ debugger is active."
   (rdebug-debugger-support-minor-mode 1))
 
 
-;; -- Minor mode for source buffers, makes buffer read-only and bind short keys
+;; -------------------------------------------------------------------
+;; Source short key mode.
+;;
+;; When this minor mode is active and the debugger is running, the
+;; source window displaying the current debugger frame is marked as
+;; read-only and the short keys of the secondary windows can be used,
+;; for example, you can use the space-bar to single-step the program.
+
+;; Implementation note:
+;;
+;; This is presented to the user as one global minor mode. However,
+;; under the surface the real work is done by another, non-global,
+;; minor mode named "local short key mode". This is activated and
+;; deactivated appropriately by the Rdebug filter functions.
 
 (defvar rdebug-local-short-key-mode-map
   (let ((map (make-sparse-keymap)))
@@ -1550,7 +1575,9 @@ This function is designed to be used in a user hook, for example:
                   (rdebug-local-short-key-mode 1)))))))))
 
 
-;; -- The `rdebug' command and support functions.
+;; -------------------------------------------------------------------
+;; The `rdebug' command and support functions.
+;;
 
 (defun rdebug-process-sentinel (process event)
   "Restore the original window configuration when the debugger process exits."
@@ -1814,7 +1841,11 @@ or
   (interactive)
   (customize-group 'rdebug))
 
-
+
+;; -------------------------------------------------------------------
+;; The end.
+;;
+
 (provide 'rdebug-core)
 
 ;;; Local variables:
