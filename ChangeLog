@@ -1,3 +1,29 @@
+2008-01-02 04:17  Rocky Bernstein
+
+	* test/quit.cmd, test/quit.right, test/tdebug.rb,
+	  test/test-quit.rb: --no-quit bug fixed. But we don't know how to
+	  test it properly yet.
+
+2008-01-02 04:04  Rocky Bernstein
+
+	* bin/rdebug, cli/ruby-debug/commands/info.rb,
+	  cli/ruby-debug/processor.rb, cli/ruby-debug/theend.rb,
+	  test/annotate.right, test/ctrl.cmd, test/ctrl.right,
+	  test/test-ctrl.rb, test/test-help.rb, test/test-info.rb: Redo how
+	  --no-quit is handled. We now go into a control state with
+	  limited commands.
+	  
+	  Add annotation for "exiting"
+	  
+	  Add regression test for ctrl debugger state. "info" commands are
+	  allowed this state although most don't do anything. Some tests
+	  comments corrected.
+
+2008-01-01 15:23  Rocky Bernstein
+
+	* ChangeLog, bin/rdebug, ext/ChangeLog, lib/ChangeLog: Fix --emacs
+	  to do --no-quit properly.
+
 2008-01-01 09:00  Rocky Bernstein
 
 	* ChangeLog, ext/ChangeLog, ext/breakpoint.c, ext/ruby_debug.c,

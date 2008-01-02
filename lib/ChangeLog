@@ -1,3 +1,8 @@
+2008-01-01 15:23  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug, trunk/ext/ChangeLog,
+	  ChangeLog: Fix --emacs to do --no-quit properly.
+
 2008-01-01 09:00  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/ext/ChangeLog, trunk/ext/breakpoint.c,

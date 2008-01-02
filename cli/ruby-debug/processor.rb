@@ -163,21 +163,8 @@ module Debugger
     end
     
     def prompt(context)
-      if context.dead?
-        if Debugger.annotate and Debugger.annotate > 2 and
-            not @debugger_context_was_dead
-          print "\032\032exited\n" 
-          @debugger_context_was_dead = true
-        end
-        return "(rdb:post-mortem) "
-      else
-        if Debugger.annotate and Debugger.annotate > 2 and
-            @debugger_context_was_dead
-          print "\032\032starting\n" 
-          @debugger_context_was_dead = false
-        end
-        return "(rdb:%d) " % context.thnum
-      end
+      fmt = prefix='(rdb:%s) '
+      return fmt % (context.dead? ? 'post-mortem' : context.thnum)
     end
 
     # Run these commands, for example display commands or possibly
@@ -224,7 +211,7 @@ module Debugger
           m
         end
       end
-
+      
       preloop(commands, context)
       CommandProcessor.print_location_and_text(file, line)
       while !state.proceed? and input = @interface.read_command(prompt(context))
@@ -279,10 +266,20 @@ module Debugger
     end
 
     def preloop(commands, context)
-      if Debugger.annotate and Debugger.annotate > 0
+      if Debugger.annotate and Debugger.annotate > 2
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
+        if context.dead?
+          print "\032\032exited\n\032\032\n" unless
+            @debugger_context_was_dead
+          @debugger_context_was_dead = true
+        else
+          print "\032\032starting\n\032\032\n" if 
+            @debugger_context_was_dead
+          @debugger_context_was_dead = false
+        end
+
         breakpoint_annotations(commands, context)
         display_annotations(commands, context)
         annotation('stack', commands, context, "where")

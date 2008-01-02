@@ -160,7 +160,7 @@ nil means that it's never restored.
 		 (const :tag "Restore in many windows mode" :many))
   :group 'rdebug)
 
-(defcustom rdebug-use-separate-io-buffer nil
+(defcustom rdebug-use-separate-io-buffer t
   "Non-nil means display output from the debugged program in a separate buffer."
   :type 'boolean
   :group 'gud)
