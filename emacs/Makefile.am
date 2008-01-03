@@ -24,7 +24,7 @@ check_DATA = test/elk-test.el \
 	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc rdebug-cmd.elc rdebug-core.elc \
-             rdebug-regexp.el rdebug-track.elc rdebug-vars.elc
+             rdebug-regexp.elc rdebug-track.elc rdebug-vars.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 endif
