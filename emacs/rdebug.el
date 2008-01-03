@@ -63,8 +63,13 @@
   ;;  1) file-truename ensures that the file has got the correct case,
   ;;     and that "..":s in the path are eliminated.
   ;;  2) file-name-as-directory ensures "/foo" and "/foo/" becomes equal.
-  (setq f1 (file-name-as-directory (file-truename f1)))
-  (setq f2 (file-name-as-directory (file-truename f2)))
+
+  ;; Note: for some reason, when the `comp-elisp' external program is
+  ;; used, `nil' is part of `load-path'.
+  (if f1
+      (setq f1 (file-name-as-directory (file-truename f1))))
+  (if f2
+      (setq f2 (file-name-as-directory (file-truename f2))))
   (equal f1 f2))
 
 
