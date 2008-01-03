@@ -577,6 +577,16 @@ This is called when the debugger starts."
             (erase-buffer)))))
   (rdebug-setup-windows))
 
+
+;; This function is intended for the Options submenu.
+(defun rdebug-set-window-layout (func)
+  "Set and, if the debugger is running, display the window layout."
+  (interactive "aWindow layout function: ")
+  (setq rdebug-window-layout-function func)
+  (if gud-comint-buffer
+      (rdebug-setup-windows)))
+
+
 (defun rdebug-get-buffer (name script-name)
   "Return a rdebug buffer for displaying NAME when debugging SCRIPT-NAME.
 If the buffer doesn't exists it is created."
@@ -703,6 +713,84 @@ menu. (The common map typically contains function key bindings.)"
                         "Customize Rdebug" 'rdebug-customize))
 
     (define-key map [menu-bar debugger options line1] '(menu-item "--"))
+
+
+    ;; ----------------
+    ;; The "Window Layout" submenu.
+
+
+    ;; TODO: The following is a somewhat clumsy implementation. Maybe we can
+    ;; automatically generate the entries, or use the `dynamic' menu kind?
+    ;;
+    ;; Also, there might be other situations where the list might be
+    ;; handy, e.g. completion.
+    (let ((subsubmenu (make-sparse-keymap)))
+      (define-key menu [options layout] (cons "Window Layout" subsubmenu)))
+
+    (let ((predefined '(rdebug-window-layout-standard
+                        rdebug-window-layout-conservative
+                        rdebug-window-layout-stack-of-windows
+                        rdebug-window-layout-rocky)))
+
+      (define-key map [menu-bar debugger options layout other]
+        (rdebug-menu-item
+         common-map
+         "Other"
+         'rdebug-set-window-layout
+         :button
+         `(:radio
+           . (not (memq rdebug-window-layout-function (quote ,predefined))))))
+
+      (define-key map [menu-bar debugger options layout rocky]
+        (rdebug-menu-item
+         common-map
+         "Rocky's Own"
+         (lambda ()
+           (interactive)
+           (rdebug-set-window-layout 'rdebug-window-layout-rocky))
+         :button
+         '(:radio
+           . (eq rdebug-window-layout-function
+                 'rdebug-window-layout-rocky))))
+
+      (define-key map [menu-bar debugger options layout stack]
+        (rdebug-menu-item
+         common-map
+         "Stack of Windows"
+         (lambda ()
+           (interactive)
+           (rdebug-set-window-layout 'rdebug-window-layout-stack-of-windows))
+         :button
+         '(:radio
+           . (eq rdebug-window-layout-function
+                 'rdebug-window-layout-stack-of-windows))))
+
+      (define-key map [menu-bar debugger options layout conservative]
+        (rdebug-menu-item
+         common-map
+         "Conservative"
+         (lambda ()
+           (interactive)
+           (rdebug-set-window-layout 'rdebug-window-layout-conservative))
+                  :button
+         '(:radio
+           . (eq rdebug-window-layout-function
+                 'rdebug-window-layout-conservative))))
+
+      (define-key map [menu-bar debugger options layout standard]
+        (rdebug-menu-item
+         common-map
+         "Standard"
+         (lambda ()
+           (interactive)
+           (rdebug-set-window-layout 'rdebug-window-layout-standard))
+         :button
+         '(:radio
+           . (eq rdebug-window-layout-function
+                 'rdebug-window-layout-standard)))))
+
+    ;; ----------------
+    ;; The "short key" toggle.
 
     (define-key map [menu-bar debugger options short-key-mode]
       (rdebug-menu-item common-map
