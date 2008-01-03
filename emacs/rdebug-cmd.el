@@ -33,10 +33,8 @@
 ;;
 
 (require 'gud)
-(setq load-path (cons "." load-path))
 (require 'rdebug-vars)
 (require 'rdebug-regexp)
-(setq load-path (cdr load-path))
 
 
 ;; -------------------------------------------------------------------

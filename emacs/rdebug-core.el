@@ -88,12 +88,10 @@
 (require 'gud)
 (require 'cl)
 
-(setq load-path (cons "." load-path))
 (require 'rdebug)
 (require 'rdebug-vars)
 (require 'rdebug-regexp)
 (require 'rdebug-cmd)
-(setq load-path (cdr load-path))
 
 
 ;; -------------------------------------------------------------------

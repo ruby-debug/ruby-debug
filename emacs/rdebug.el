@@ -45,7 +45,38 @@
 
 
 ;; -------------------------------------------------------------------
-;; Autoloads
+;; Support functions.
+;;
+
+(defun rdebug-directory ()
+  "The directory of this file, or nil."
+  (let ((file-name (or load-file-name
+                       (symbol-file 'rdebug-directory))))
+    (if file-name
+        (file-name-directory file-name)
+      nil)))
+
+
+(defun rdebug-compare-filenames (f1 f2)
+  "Canonicalize and compare file names."
+  ;; Canonicalize by:
+  ;;  1) file-truename ensures that the file has got the correct case,
+  ;;     and that "..":s in the path are eliminated.
+  ;;  2) file-name-as-directory ensures "/foo" and "/foo/" becomes equal.
+  (setq f1 (file-name-as-directory (file-truename f1)))
+  (setq f2 (file-name-as-directory (file-truename f2)))
+  (equal f1 f2))
+
+
+;; Add the directory of `rdebug.el' to the load-path. This ensures
+;; that all the user have do to use this package is to load this file.
+(let ((dir (rdebug-directory)))
+  (if dir
+      (add-to-list 'load-path dir nil 'rdebug-compare-filenames)))
+
+
+;; -------------------------------------------------------------------
+;; Autoloads.
 ;;
 
 (autoload 'rdebug "rdebug-core"
