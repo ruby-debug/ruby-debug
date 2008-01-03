@@ -1642,12 +1642,15 @@ This function is designed to be used in a user hook, for example:
         (if rdebug-local-short-key-mode
             (rdebug-local-short-key-mode -1))))))
 
+(defun buffer-killed-p (buffer)
+       "Return t if BUFFER is killed."
+       (not (buffer-name buffer)))
 
 (defun rdebug-local-short-key-mode-on ()
   "Turn on `rdebug-local-short-key-mode' in the current debugger frame."
   (rdebug-debug-enter "rdebug-local-short-key-mode-off"
     (save-current-buffer
-      (if gud-comint-buffer
+      (if (and gud-comint-buffer (not (buffer-killed-p gud-comint-buffer)))
           (set-buffer gud-comint-buffer))
       (let ((frame (or gud-last-frame
                        gud-last-last-frame)))
