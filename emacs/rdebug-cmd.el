@@ -48,7 +48,7 @@ With a numeric argument, continue to that line number of the current file."
   (interactive "p")
   (if arg
       (gud-call (format "continue %d" arg))
-      (gud-call (format "continue"))))
+    (gud-call (format "continue"))))
 
 
 (defun rdebug-next (&optional arg)
@@ -98,8 +98,8 @@ With a numeric argument, continue to that line number of the current file."
 
 (defun rdebug-stepping (step-or-next &optional arg)
   (or arg (setq arg 1))
-  ;(if (not (member '('rdebug-next 'rdebug-step 'digit-argument) last-command))
-  ;    (setq rdebug-stepping-prefix ""))
+  ;;(if (not (member '('rdebug-next 'rdebug-step 'digit-argument) last-command))
+  ;; (setq rdebug-stepping-prefix ""))
   (unless (member rdebug-stepping-prefix '("" "+" "-"))
     (setq rdebug-stepping-prefix ""))
   (gud-call (format "%s%s %d" step-or-next rdebug-stepping-prefix arg)))
@@ -206,7 +206,7 @@ non-digit will start entry number from the beginning again."
     (rdebug-goto-breakpoint (posn-point (event-end event)))))
 
 
- (defun rdebug-toggle-breakpoint (pt)
+(defun rdebug-toggle-breakpoint (pt)
   "Toggles the breakpoint at PT in the breakpoints buffer."
   (interactive "d")
   (save-excursion

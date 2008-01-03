@@ -428,7 +428,7 @@ Currently-active file is at the head of the list.")
           (comint-buffer gud-comint-buffer))
       (if (and (string= name "output") (not rdebug-use-separate-io-buffer))
 	  (insert contents)
-	;else
+        ;;else
 	(with-current-buffer buf
 	  (setq buffer-read-only t)
 	  (let ((inhibit-read-only t)
@@ -770,7 +770,7 @@ menu. (The common map typically contains function key bindings.)"
          (lambda ()
            (interactive)
            (rdebug-set-window-layout 'rdebug-window-layout-conservative))
-                  :button
+         :button
          '(:radio
            . (eq rdebug-window-layout-function
                  'rdebug-window-layout-conservative))))

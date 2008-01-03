@@ -7,6 +7,8 @@
 ;; Check source code indentation
 ;;
 
+(put 'rdebug-debug-enter 'lisp-indent-hook 1)
+
 (defun rdebug-test-reindent-one-file (file)
   (let ((buf (generate-new-buffer "testing"))
         (res nil))
@@ -24,9 +26,11 @@
 
 (deftest "rdebug-indent-files"
   (assert-nil (rdebug-test-reindent-one-file "../rdebug.el"))
-					; don't know why these erroneously fail.
-					; (assert-nil (rdebug-test-reindent-one-file "../rdebug-core.el"))
-					; (assert-nil (rdebug-test-reindent-one-file "../rdebug-track.el"))
+  (assert-nil (rdebug-test-reindent-one-file "../rdebug-cmd.el"))
+  (assert-nil (rdebug-test-reindent-one-file "../rdebug-core.el"))
+  (assert-nil (rdebug-test-reindent-one-file "../rdebug-track.el"))
+  (assert-nil (rdebug-test-reindent-one-file "../rdebug-regexp.el"))
+  (assert-nil (rdebug-test-reindent-one-file "../rdebug-vars.el"))
   (assert-nil (rdebug-test-reindent-one-file "./test-cmd.el"))
   (assert-nil (rdebug-test-reindent-one-file "./test-core.el"))
   (assert-nil (rdebug-test-reindent-one-file "./test-indent.el"))
