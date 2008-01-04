@@ -47,7 +47,7 @@ module Debugger
           open(@histfile, 'w') do |file|
             Readline::HISTORY.to_a.last(@history_length).each do |line|
               file.puts line unless line.strip.empty?
-            end if @history_save
+            end if defined?(@history_save) and @history_save
           end rescue nil
         end
         public :save_history 
