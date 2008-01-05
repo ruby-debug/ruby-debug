@@ -941,6 +941,37 @@ C-a)."
   (rdebug-display-secondary-buffer "help"))
 
 
+
+(defun rdebug-pick-secondary-window-categorize (win name orig-win)
+  "Return how suiteable this window is to display the a secondary buffer.
+The higher score the better."
+  (let ((buffer (window-buffer win)))
+    (save-current-buffer
+      (set-buffer buffer)
+      (cond (rdebug-secondary-buffer
+             (cond ((eq win orig-win)
+                    ;; If the user issued the command inside a
+                    ;; secondary window, use that window.
+                    5)
+                   ((and (member name '("variables" "watch"))
+                         (memq major-mode '(rdebug-variables-mode
+                                            rdebug-watch-mode)))
+                    ;; Let "Watch" and "Variables" switch content.
+                    4)
+                   (t
+                    ;; Any other secondary window.
+                    3)))
+            ((eq major-mode 'ruby-mode)
+             ;; Avoid source windows.
+             0)
+            ((eq major-mode 'gud-mode)
+             ;; Avoid the debugger shell window.
+             1)
+            (t
+             ;; Just any other window.
+             2)))))
+
+
 (defun rdebug-display-secondary-buffer (name)
   "Display one of the rdebug secondary buffers.
 If the buffer doesn't exist, do nothing. If the buffer is already
@@ -954,27 +985,27 @@ we'll just pick a visible buffer to bury and replace."
                                                    gud-comint-buffer))
                           gud-target-name))
          (buf-name (format "*rdebug-%s-%s*" name target-name))
-         (buf (get-buffer buf-name)))
+         (buf (get-buffer buf-name))
+         (orig-win (selected-window)))
     (if (null buf)
         (message "Buffer %s not found" buf-name)
       ;; Find a suitable window to display the buffer in.
       (let ((win (get-buffer-window buf (selected-frame))))
-        (cond (win
-               ;; Buffer already displayed, switch to it.
-               (select-window win))
-              (rdebug-secondary-buffer
-               ;; This is a secondary window, let's reuse it.
-               (switch-to-buffer buf))
-              (t
-               ;; Pick another window, preferably a secondary window.
-               (let ((windows (window-list (selected-frame)))
-                     (candidate (selected-window)))
-                 (dolist (win windows)
-                   (if (buffer-local-value 'rdebug-secondary-buffer
-                                           (window-buffer win))
-                       (setq candidate win)))
-                 (select-window candidate)
-                 (switch-to-buffer buf))))))))
+        (if win
+            ;; Buffer already displayed, switch to it.
+            (select-window win)
+          ;;
+          (let ((candidate nil)
+                (candidate-score -1))
+            (dolist (win (window-list (selected-frame)))
+              (let ((score (rdebug-pick-secondary-window-categorize
+                            win name orig-win)))
+                (if (> score candidate-score)
+                    (progn
+                      (setq candidate       win)
+                      (setq candidate-score score)))))
+            (select-window candidate)))))
+    (switch-to-buffer buf)))
 
 
 ;; Note: The generic `gud' framework contains special code to handle
