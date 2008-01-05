@@ -11,21 +11,19 @@ Frame call-display style is last.
 Annotation level is 3
 # # Get into gcd
 # step 2
-
 starting
-
+
+stopped
+
 breakpoints
 No breakpoints.
-
 stack
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 at line gcd.rb:18
-
 variables
 a = 3
 b = 5
-
-gcd.rb:6
+source gcd.rb:6
 if a > b
 # # "break" should trigger break annotation
 # break 10
@@ -33,12 +31,10 @@ Breakpoint 1 file gcd.rb, line 10
 breakpoints
 Num Enb What
   1 y   at gcd.rb:10
-
 # # "delete" should trigger break annotation
 # delete 1
 breakpoints
 No breakpoints.
-
 # # p should not trigger a breakpoint annotation
 # p a
 3
@@ -48,44 +44,37 @@ No breakpoints.
 stack
     #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 --> #1 at line gcd.rb:18
-
 variables
-
 # # "b" should trigger like "break"
 # b 14
 Breakpoint 2 file gcd.rb, line 14
 breakpoints
 Num Enb What
   2 y   at gcd.rb:14
-
 # # "display" should trigger display annotation
 # display 1+2
 1: 1+2 = 3
 display
 1: 1+2 = 3
-
 # # undisplay should trigger display annotation
 # undisplay 1
 display
-
 # step
 display
-
-
+starting
+
+stopped
+
 breakpoints
 Num Enb What
   2 y   at gcd.rb:14
-
 display
-
 stack
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
     #1 at line gcd.rb:18
-
 variables
 a = 3
 b = 5
-
-gcd.rb:10
+source gcd.rb:10
 return nil if a <= 0
 # quit

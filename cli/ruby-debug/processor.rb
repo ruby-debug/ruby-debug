@@ -17,7 +17,7 @@ module Debugger
                                   /^\s* en(?:able)? (?:\s+(.*))?$/ix,
                                   # "tbreak", "condition", "clear", 
                                  ]
-    @@Show_annotations_preloop = [
+    @@Show_annotations_run     = [
                                   /^\s*c(?:ont(?:inue)?)?(?:\s+(.*))?$/,
                                   /^\s*fin(?:ish)?$/,
                                   /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/,
@@ -39,7 +39,6 @@ module Debugger
       @actions = []
       @last_file = nil   # Filename the last time we stopped
       @last_line = nil   # line number the last time we stopped
-      @output_annotation_in_progress = false
       @debugger_breakpoints_were_empty = false # Show breakpoints 1st time
       @debugger_displays_were_empty = true # No display 1st time
       @debugger_context_was_dead = true # Assume we haven't started.
@@ -69,8 +68,15 @@ module Debugger
     end
 
     def self.print_location_and_text(file, line)
-      print "#{"\032\032" if ENV['EMACS']}#{canonic_file(file)}:#{line}\n" +
-        "#{Debugger.line_at(file, line)}"
+      file_line = "%s:%s\n%s" % [canonic_file(file), line, 
+                                 Debugger.line_at(file, line)]
+      # FIXME ANNOTATE: remove false below
+      if Debugger.annotate and Debugger.annotate > 2 and false
+        file_line = "\032\032source #{file_line}"
+      elsif ENV['EMACS']
+        file_line = "\032\032#{file_line}"
+      end
+      print file_line
     end
   
     def self.protect(mname)
@@ -91,11 +97,6 @@ module Debugger
     end
     
     def at_breakpoint(context, breakpoint)
-      if @output_annotation_in_progress
-        print "\032\032\n"
-        @output_annotation_in_progress = false
-      end
-
       n = Debugger.breakpoints.index(breakpoint) + 1
       print("\032\032%s:%s\n", 
             CommandProcessor.canonic_file(breakpoint.source), 
@@ -105,11 +106,6 @@ module Debugger
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      if @output_annotation_in_progress
-        print "\032\032\n"
-        @output_annotation_in_progress = false
-      end
-
       print "\032\032%s:%d\n", 
       CommandProcessor.canonic_file(context.frame_file(1)), 
       context.frame_line(1) if ENV['EMACS']
@@ -127,11 +123,6 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      if @output_annotation_in_progress
-        print "\032\032\n"
-        @output_annotation_in_progress = false
-      end
-
       @last_file = CommandProcessor.canonic_file(file)
       file = CommandProcessor.canonic_file(file)
       unless file == @last_file and @last_line == line and 
@@ -162,9 +153,13 @@ module Debugger
       @interface.print(*args)
     end
     
+    # The prompt shown before reading a command.
     def prompt(context)
-      fmt = prefix='(rdb:%s) '
-      return fmt % (context.dead? ? 'post-mortem' : context.thnum)
+      p = '(rdb:%s) ' % (context.dead?  ? 'port-mortem' : context.thnum)
+      # FIXME ANNOTATE: reinstate preprompt
+      # p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
+      #  Debugger.annotate and Debugger.annotate > 2
+      return p
     end
 
     # Run these commands, for example display commands or possibly
@@ -189,11 +184,6 @@ module Debugger
 
     # Handle debugger commands
     def process_commands(context, file, line)
-      if @output_annotation_in_progress
-        print "\032\032\n"
-        @output_annotation_in_progress = false
-      end
-
       state, commands = always_run(context, file, line, 1)
       
       splitter = lambda do |str|
@@ -228,10 +218,7 @@ module Debugger
           end
         end
       end
-
-      if Debugger.annotate and Debugger.annotate > 2
-        @output_annotation_in_progress = true
-      end
+      postloop(commands, context)
     end # process_commands
     
     def one_cmd(commands, context, input)
@@ -251,6 +238,25 @@ module Debugger
       end
     end
     
+    def preloop(commands, context)
+      if Debugger.annotate and Debugger.annotate > 2
+        # if we are here, the stack frames have changed outside the
+        # command loop (e.g. after a "continue" command), so we show
+        # the annotations again
+        if context.dead?
+          print "\032\032exited\n\n" unless
+            @debugger_context_was_dead
+          @debugger_context_was_dead = true
+        end
+        print "\032\032stopped\n\n"
+
+        breakpoint_annotations(commands, context)
+        display_annotations(commands, context)
+        annotation('stack', commands, context, "where")
+        annotation('variables', commands, context, "info variables")
+      end
+    end
+    
     def postcmd(commands, context, cmd)
       if Debugger.annotate and Debugger.annotate > 0
         cmd = @last_cmd unless cmd
@@ -262,31 +268,23 @@ module Debugger
             context.stack_size > 0
           annotation('variables', commands, context, "info variables")
         end
-      end
-    end
-
-    def preloop(commands, context)
-      if Debugger.annotate and Debugger.annotate > 2
-        # if we are here, the stack frames have changed outside the
-        # command loop (e.g. after a "continue" command), so we show
-        # the annotations again
-        if context.dead?
-          print "\032\032exited\n\032\032\n" unless
-            @debugger_context_was_dead
-          @debugger_context_was_dead = true
-        else
-          print "\032\032starting\n\032\032\n" if 
-            @debugger_context_was_dead
+        if not context.dead? and @@Show_annotations_run.find{|pat| cmd =~ pat}
+          print "\032\032starting\n\n"
           @debugger_context_was_dead = false
         end
-
-        breakpoint_annotations(commands, context)
-        display_annotations(commands, context)
-        annotation('stack', commands, context, "where")
-        annotation('variables', commands, context, "info variables")
       end
     end
-    
+
+    def postloop(commands, context)
+    end
+
+    def annotation(label, commands, context, cmd)
+      print "\032\032#{label}\n"
+      one_cmd(commands, context, cmd)
+      ### FIXME ANNOTATE: the following line should be deleted
+      print "\032\032\n"
+    end
+
     def breakpoint_annotations(commands, context)
       unless Debugger.breakpoints.empty? and @debugger_breakpoints_were_empty
         annotation('breakpoints', commands, context, "info breakpoints") 
@@ -300,12 +298,6 @@ module Debugger
 #       return unless have_display and @debugger_displays_were_empty
 #       @debugger_displays_were_empty = have_display
       annotation('display', commands, context, "display")
-    end
-
-    def annotation(label, commands, context, cmd)
-      print "\032\032#{label}\n"
-      one_cmd(commands, context, cmd)
-      print "\032\032\n"
     end
 
     class State # :nodoc:
@@ -355,9 +347,10 @@ module Debugger
       if Debugger.annotate and Debugger.annotate > 2 and
           not @debugger_context_was_dead
         print "\032\032exited\n" 
+        @debugger_context_was_dead = true
       end
 
-      while input = @interface.read_command("(rdb:ctrl) ")
+      while input = @interface.read_command(prompt(nil))
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }
             cmd.execute
@@ -373,7 +366,16 @@ module Debugger
     ensure
       @interface.close
     end
-    
+
+    # The prompt shown before reading a command.
+    # Note: have an unused 'context' parameter to match the local interface.
+    def prompt(context)
+      p = '(rdb:ctrl) '
+      p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
+        Debugger.annotate and Debugger.annotate > 2
+      return p
+    end
+
     class State # :nodoc:
       attr_reader :commands, :interface
       

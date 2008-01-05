@@ -1,3 +1,11 @@
+2008-01-02 20:35  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  trunk/cli/ruby-debug/helper.rb, ChangeLog, trunk/lib/ChangeLog:
+	  helper.rb: add regexp for a position. TODO: add parsing routine
+	  and use in
+	  various commands
+
 2008-01-02 14:41  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,

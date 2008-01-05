@@ -1,3 +1,101 @@
+2008-01-05 16:32  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug-source.el, emacs/rdebug.el,
+	  emacs/test/test-indent.el: rdebug-source.el now spawned off from
+	  rdebug-core.el.
+
+2008-01-05 15:46  Anders Lindgren
+
+	* emacs/rdebug-source.el: Initial commit of split of
+	  rdebug-code.el. (Currently, rdebug-source.el is straight copy of
+	  rdebug-core.el.)
+
+2008-01-05 15:05  Anders Lindgren
+
+	* emacs/rdebug-core.el: New commands for displaying to the source
+	  buffer 'rdebug-display-source-buffer' and ...-resync'. The former
+	  is bound to S in the secondary buffers. Added View->Source to the
+	  menu bar.
+
+2008-01-05 13:46  Rocky Bernstein
+
+	* cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/commands/edit.rb, cli/ruby-debug/helper.rb,
+	  doc/ruby-debug.texi, test/ctrl.right, test/edit.cmd,
+	  test/edit.right, test/test-edit.rb: Add edit command.
+	  breakpoints.rb/helper.rb: bad regular-expression separation.
+
+2008-01-05 13:24  Anders Lindgren
+
+	* test/output.cmd, test/output.rb, test/output.right,
+	  test/test-output.rb: Added test case for the 'starting'
+	  annotation. (It currently fails since the annotation is broken.)
+
+2008-01-05 10:40  Anders Lindgren
+
+	* emacs/rdebug-core.el: New selection algorithm for picking the
+	  best secondary window, as suggested in rubyforge issue 1950.
+
+2008-01-05 10:36  Rocky Bernstein
+
+	* cli/ruby-debug/commands/breakpoints.rb: Catch places were we
+	  can't set breakpoints or delete breakpoints because
+	  we don't have context set.
+
+2008-01-04 07:43  Rocky Bernstein
+
+	* cli/ruby-debug/interface.rb: @history_save can sometimes be
+	  undefined. Test for it so we don't get a warning
+	  when $DEBUG/$WARING is true.
+
+2008-01-03 18:54  Anders Lindgren
+
+	* emacs/rdebug.el: When running 'make' (comp-elisp) an error was
+	  triggered. This is probably a problem in comp-elisp since nil is
+	  part of the initial load-path. A work-around was added in
+	  'rdebug-compare-directories'.
+
+2008-01-03 15:44  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Deal with a killed gud-comint-buffer.
+
+2008-01-03 10:34  Anders Lindgren
+
+	* emacs/rdebug-cmd.el, emacs/rdebug-core.el,
+	  emacs/test/test-indent.el: Indentation: fixed problem with test
+	  case and some real minor indentation issues.
+
+2008-01-03 10:34  Rocky Bernstein
+
+	* emacs/Makefile.am: Filename typo.
+
+2008-01-03 07:33  Anders Lindgren
+
+	* emacs/rdebug-cmd.el, emacs/rdebug-core.el, emacs/rdebug.el: The
+	  directory of rdebug.el is added to the load-path. (The trick to
+	  add . doesn't work since it referes to the current directory of
+	  the current user buffer, not the file being loaded.)
+
+2008-01-03 07:11  Anders Lindgren
+
+	* emacs/rdebug-core.el: Added a Options->Window Layout submenu. It
+	  sets and redisplays the window layout, so that the user can try
+	  out the available window layouts.
+
+2008-01-02 20:35  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/helper.rb, ext/ChangeLog, lib/ChangeLog:
+	  helper.rb: add regexp for a position. TODO: add parsing routine
+	  and use in
+	  various commands
+
+2008-01-02 17:39  Anders Lindgren
+
+	* emacs/rdebug-cmd.el, emacs/rdebug-core.el,
+	  emacs/rdebug-regexp.el, emacs/rdebug-track.el, emacs/rdebug.el:
+	  New comment headers added. Minor rearrangement of functions.
+
 2008-01-02 17:31  Rocky Bernstein
 
 	* test/test-ruby-debug-base.rb: A little more robust.

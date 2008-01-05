@@ -52,7 +52,12 @@ module Debugger
         end
         public :save_history 
       end
-      Debugger.debug_at_exit { Debugger.save_history }
+      Debugger.debug_at_exit do 
+        if Debugger.annotate and Debugger.annotate > 2
+          print "\032\032exited\n\n" 
+        end
+        Debugger.save_history 
+      end
       
       def readline(prompt, hist)
         Readline::readline(prompt, hist)

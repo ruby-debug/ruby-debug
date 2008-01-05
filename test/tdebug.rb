@@ -174,6 +174,7 @@ if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
   puts output
   exit $?.exitstatus 
 end
+print "\032\032starting\n\n" if Debugger.annotate and Debugger.annotate > 2
 if options.noquit
   Debugger.stop if Debugger.started?
   begin

@@ -12,15 +12,15 @@ require File.join(SRC_DIR, "helper.rb")
 
 include TestHelper
 
-# Test annotate handling.
-class TestAnnotate < Test::Unit::TestCase
+# Test "starting" annotation.
+class TestStartingAnnotate < Test::Unit::TestCase
   require 'stringio'
 
   def test_basic
     Dir.chdir(SRC_DIR) do 
       assert_equal(true, 
                    run_debugger("output", 
-                                "--script output.cmd -- output.rb"))
+                                "-A 3 --script output.cmd -- output.rb"))
     end
   end
 end
