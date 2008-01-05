@@ -23,6 +23,10 @@ module Debugger
 
       full_file = nil
       if file.nil?
+        unless @state.context
+          print "We are not in a state that has an associated file.\n"
+          return 
+        end
         full_file = @state.file
         file = File.basename(@state.file)
         if line.nil? 
@@ -52,6 +56,10 @@ module Debugger
         elsif lines.size < line
           print "No line %d in file \"%s\"\n", line, file
         else
+          unless @state.context
+            print "We are not in a state we can add breakpoints.\n"
+            return 
+          end
           b = Debugger.add_breakpoint file, line, expr
           print "Breakpoint %d file %s, line %s\n", b.id, file, line.to_s
         end
@@ -85,6 +93,10 @@ module Debugger
     end
 
     def execute
+      unless @state.context
+        print "No frame selected.\n"
+        return 
+      end
       brkpts = @match[1]
       unless brkpts
         if confirm("Delete all breakpoints? (y or n) ")
