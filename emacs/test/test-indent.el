@@ -28,6 +28,7 @@
   (assert-nil (rdebug-test-reindent-one-file "../rdebug.el"))
   (assert-nil (rdebug-test-reindent-one-file "../rdebug-cmd.el"))
   (assert-nil (rdebug-test-reindent-one-file "../rdebug-core.el"))
+  (assert-nil (rdebug-test-reindent-one-file "../rdebug-source.el"))
   (assert-nil (rdebug-test-reindent-one-file "../rdebug-track.el"))
   (assert-nil (rdebug-test-reindent-one-file "../rdebug-regexp.el"))
   (assert-nil (rdebug-test-reindent-one-file "../rdebug-vars.el"))

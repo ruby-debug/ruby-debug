@@ -89,6 +89,7 @@
 (require 'cl)
 
 (require 'rdebug)
+(require 'rdebug-source)
 (require 'rdebug-vars)
 (require 'rdebug-regexp)
 (require 'rdebug-cmd)
@@ -299,94 +300,6 @@ example when the debugger starts."
     (setq rdebug-window-configuration-state state)))
 
 
-;; -------------------------------------------------------------------
-;; Key bindings
-;;
-
-(defun rdebug-populate-common-keys-standard (map)
-  "Bind the basic debugger key layout used by many debuggers.
-
-\\{rdebug-example-map-standard}"
-  (define-key map [f5]    'gud-cont)
-  (define-key map [S-f5]  'rdebug-quit)
-  (define-key map [f9]    'rdebug-toggle-source-breakpoint)
-  (define-key map [C-f9]  'rdebug-toggle-source-breakpoint-enabled)
-  (define-key map [f10]   'rdebug-next)
-  (define-key map [f11]   'rdebug-step)
-  (define-key map [S-f11] 'gud-finish))
-
-
-;; TODO: Verify and complement.
-(defun rdebug-populate-common-keys-eclipse (map)
-  "Bind the basic debugger key layout used by Eclipse.
-
-\\{rdebug-example-map-eclipse}"
-  ;;(define-key map []  'gud-cont)
-  ;;(define-key map []  'rdebug-quit)
-  (define-key map [S-C-b] 'rdebug-toggle-source-breakpoint)
-  (define-key map [f6]    'rdebug-next)
-  (define-key map [f5]    'rdebug-step)
-  (define-key map [f7]    'gud-finish))
-
-
-;; TODO: Verify and complement.
-(defun rdebug-populate-common-keys-netbeans (map)
-  "Bind the basic debugger key layout used by NetBeans.
-
-\\{rdebug-example-map-netbeans}"
-  ;;(define-key map []  'gud-cont)
-  ;;(define-key map []  'rdebug-quit)
-  ;; F4 - Run to cursor.
-  (define-key map [S-f8]   'rdebug-toggle-source-breakpoint)
-  (define-key map [f8]     'rdebug-next)
-  (define-key map [f7]     'rdebug-step)
-  (define-key map [M-S-f7] 'gud-finish))
-
-
-;; Note: This is only used in doc-strings.
-(defvar rdebug-example-map-standard
-  (let ((map (make-sparse-keymap)))
-    (rdebug-populate-common-keys-standard map)
-    map)
-  "Rdebug Standard common keymap used only in doc-string.")
-
-
-(defvar rdebug-example-map-eclipse
-  (let ((map (make-sparse-keymap)))
-    (rdebug-populate-common-keys-eclipse map)
-    map)
-  "Rdebug Eclipse compatibility common keymap used only in doc-string.")
-
-
-(defvar rdebug-example-map-netbeans
-  (let ((map (make-sparse-keymap)))
-    (rdebug-populate-common-keys-netbeans map)
-    map)
-  "Rdebug NetBeans compatibility common keymap used only in doc-string.")
-
-
-(defun rdebug-populate-common-keys (map)
-  "Define the keys that are used by all debugger windows, even by the source.
-
-The variable `rdebug-populate-common-keys-function' controls the layout."
-  (define-key map "\C-x\C-a\C-q" 'rdebug-short-key-mode)
-  (if rdebug-populate-common-keys-function
-      (funcall rdebug-populate-common-keys-function map)))
-
-
-(defun rdebug-populate-digit-keys (map)
-  (define-key map "0" 'rdebug-goto-entry-n)
-  (define-key map "1" 'rdebug-goto-entry-n)
-  (define-key map "2" 'rdebug-goto-entry-n)
-  (define-key map "3" 'rdebug-goto-entry-n)
-  (define-key map "4" 'rdebug-goto-entry-n)
-  (define-key map "5" 'rdebug-goto-entry-n)
-  (define-key map "6" 'rdebug-goto-entry-n)
-  (define-key map "7" 'rdebug-goto-entry-n)
-  (define-key map "8" 'rdebug-goto-entry-n)
-  (define-key map "9" 'rdebug-goto-entry-n))
-
-
 ;; have to bind rdebug-file-queue before installing the kill-emacs-hook
 (defvar rdebug-file-queue nil
   "Queue of Makefile temp files awaiting execution.
@@ -576,15 +489,6 @@ This is called when the debugger starts."
   (rdebug-setup-windows))
 
 
-;; This function is intended for the Options submenu.
-(defun rdebug-set-window-layout (func)
-  "Set and, if the debugger is running, display the window layout."
-  (interactive "aWindow layout function: ")
-  (setq rdebug-window-layout-function func)
-  (if gud-comint-buffer
-      (rdebug-setup-windows)))
-
-
 (defun rdebug-get-buffer (name script-name)
   "Return a rdebug buffer for displaying NAME when debugging SCRIPT-NAME.
 If the buffer doesn't exists it is created."
@@ -616,285 +520,9 @@ This function is called upon quitting the debugger and
    "Type `M-x rdebug-display-debugger-window-configuration RET' to restore."))
 
 
-;; -------------------------------------------------------------------
-;; Menu support.
-;;
-
-
-;; Note: We want the key binding to show in the menu. However, our
-;; situation is a little bit complex:
-;;
-;; 1) We want the binding of the `common' man (i.e. the function key
-;;    the user has selected.)
-;;
-;; 2) We want this even when the menu is disabled and the key isn't
-;;    bound, typically when the debugger isn't running.
-;;
-;; This has been solved by setting up an explicit ":keys" properly.
-(defun rdebug-menu-item (common-map name cmd &rest args)
-  "Return a menu item entry with the correct key bindings.
-
-A command can be bound to a number of different key sequences. If
-the rdebug common map contains a binding it is displayed in the
-menu. (The common map typically contains function key bindings.)"
-  (let ((key-binding (where-is-internal cmd (list common-map) t))
-        (hint '()))
-    (if key-binding
-        (setq hint (list :keys (key-description key-binding))))
-    (append (list 'menu-item name cmd)
-            hint
-            args)))
-
-
-;; Note, we re-populate the menus of the different minor and major
-;; modes. The reason is that Emacs caches the key bindings, which
-;; means that wrong ones are shown when buffers are changed.
-
-;; Remember, all menu items are added in the reverse order!
-
-(defun rdebug-populate-debugger-menu (map)
-  "Populate the Rdebug 'Debugger' menu."
-  (let ((menu (make-sparse-keymap))
-        (common-map (make-sparse-keymap)))
-    ;; Use a simple common map to find the best key sequence to
-    ;; display in menu.
-    (rdebug-populate-common-keys common-map)
-
-    (define-key map [menu-bar debugger] (cons "Debugger" menu))
-
-    (define-key menu [break-delete]
-      (rdebug-menu-item common-map "Enable/disable breakpoint"
-                        'rdebug-toggle-source-breakpoint-enabled
-                        :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key menu [break]
-      (rdebug-menu-item common-map "Toggle breakpoint"
-                        'rdebug-toggle-source-breakpoint
-                        :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key menu [finish]
-      (rdebug-menu-item common-map "Step out" 'gud-finish
-                        :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key menu [step]
-      (rdebug-menu-item common-map "Step into" 'rdebug-step
-                        :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key menu [next]
-      (rdebug-menu-item common-map "Step over" 'rdebug-next
-                        :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key menu [cont]
-      (rdebug-menu-item common-map "Continue" 'rdebug-continue
-                        :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key map [menu-bar debugger line1] '(menu-item "--"))
-
-    (define-key menu [stop]
-      (rdebug-menu-item
-       common-map "Stop the debugger" 'rdebug-quit
-       :enable '(get-buffer-process gud-comint-buffer)))
-
-    (define-key menu [start]
-      (rdebug-menu-item common-map "Start the debugger" 'rdebug))
-
-    (define-key map [menu-bar debugger line2] '(menu-item "--"))
-
-    ;; --------------------
-    ;; The "Options" submenu.
-
-    (let ((submenu (make-sparse-keymap)))
-      (define-key menu [options] (cons "Options" submenu)))
-
-    (define-key map [menu-bar debugger options customize]
-      (rdebug-menu-item common-map
-                        "Customize Rdebug" 'rdebug-customize))
-
-    (define-key map [menu-bar debugger options line1] '(menu-item "--"))
-
-
-    ;; ----------------
-    ;; The "Window Layout" submenu.
-
-
-    ;; TODO: The following is a somewhat clumsy implementation. Maybe we can
-    ;; automatically generate the entries, or use the `dynamic' menu kind?
-    ;;
-    ;; Also, there might be other situations where the list might be
-    ;; handy, e.g. completion.
-    (let ((subsubmenu (make-sparse-keymap)))
-      (define-key menu [options layout] (cons "Window Layout" subsubmenu)))
-
-    (let ((predefined '(rdebug-window-layout-standard
-                        rdebug-window-layout-conservative
-                        rdebug-window-layout-stack-of-windows
-                        rdebug-window-layout-rocky)))
-
-      (define-key map [menu-bar debugger options layout other]
-        (rdebug-menu-item
-         common-map
-         "Other"
-         'rdebug-set-window-layout
-         :button
-         `(:radio
-           . (not (memq rdebug-window-layout-function (quote ,predefined))))))
-
-      (define-key map [menu-bar debugger options layout rocky]
-        (rdebug-menu-item
-         common-map
-         "Rocky's Own"
-         (lambda ()
-           (interactive)
-           (rdebug-set-window-layout 'rdebug-window-layout-rocky))
-         :button
-         '(:radio
-           . (eq rdebug-window-layout-function
-                 'rdebug-window-layout-rocky))))
-
-      (define-key map [menu-bar debugger options layout stack]
-        (rdebug-menu-item
-         common-map
-         "Stack of Windows"
-         (lambda ()
-           (interactive)
-           (rdebug-set-window-layout 'rdebug-window-layout-stack-of-windows))
-         :button
-         '(:radio
-           . (eq rdebug-window-layout-function
-                 'rdebug-window-layout-stack-of-windows))))
-
-      (define-key map [menu-bar debugger options layout conservative]
-        (rdebug-menu-item
-         common-map
-         "Conservative"
-         (lambda ()
-           (interactive)
-           (rdebug-set-window-layout 'rdebug-window-layout-conservative))
-         :button
-         '(:radio
-           . (eq rdebug-window-layout-function
-                 'rdebug-window-layout-conservative))))
-
-      (define-key map [menu-bar debugger options layout standard]
-        (rdebug-menu-item
-         common-map
-         "Standard"
-         (lambda ()
-           (interactive)
-           (rdebug-set-window-layout 'rdebug-window-layout-standard))
-         :button
-         '(:radio
-           . (eq rdebug-window-layout-function
-                 'rdebug-window-layout-standard)))))
-
-    ;; ----------------
-    ;; The "short key" toggle.
-
-    (define-key map [menu-bar debugger options short-key-mode]
-      (rdebug-menu-item common-map
-                        "Short keys in source" 'rdebug-short-key-mode
-                        :button
-                        '(:toggle
-                          . rdebug-short-key-mode)))
-
-    ;; --------------------
-    ;; The optional secondary windows submenu.
-
-
-    ;; Placeholder used when populating the menu of the secondary buffers.
-    (define-key menu [placeholder] nil)
-
-    ;; --------------------
-    ;; The "Window Layout" submenu.
-    (let ((submenu (make-sparse-keymap)))
-      (define-key menu [layout] (cons "Window Layout" submenu)))
-
-    (define-key map [menu-bar debugger layout initial]
-      (rdebug-menu-item common-map
-                        "Initial Debugger Layout" 'rdebug-restore-windows))
-
-    (define-key map [menu-bar debugger layout line1] '(menu-item "--"))
-
-    (define-key map [menu-bar debugger layout debugger]
-      (rdebug-menu-item common-map "Current Debugger Layout"
-                        'rdebug-display-debugger-window-configuration
-                        :button
-                        '(:radio
-                          . (eq rdebug-window-configuration-state 'debugger))))
-
-    (define-key map [menu-bar debugger layout original]
-      (rdebug-menu-item common-map "Original Layout"
-                        'rdebug-display-original-window-configuration
-                        :button
-                        '(:radio
-                          . (eq rdebug-window-configuration-state 'original))))
-
-    ;; --------------------
-    ;; The "View" submenu.
-    (let ((submenu (make-sparse-keymap)))
-      (define-key menu [view] (cons "View" submenu)))
-
-    (define-key map [menu-bar debugger view output]
-      (rdebug-menu-item common-map "Output" 'rdebug-display-output-buffer))
-
-    (define-key map [menu-bar debugger view watch]
-      (rdebug-menu-item common-map "Watch" 'rdebug-display-watch-buffer))
-
-    (define-key map [menu-bar debugger view stack]
-      (rdebug-menu-item common-map "Stack trace" 'rdebug-display-stack-buffer))
-
-    (define-key map [menu-bar debugger view shell]
-      (rdebug-menu-item common-map "Debugger Shell" 'rdebug-display-cmd-buffer))
-
-    (define-key map [menu-bar debugger view variables]
-      (rdebug-menu-item common-map "Variables" 'rdebug-display-variables-buffer))
-
-    (define-key map [menu-bar debugger view breakpoints]
-      (rdebug-menu-item common-map
-                        "Breakpoints" 'rdebug-display-breakpoints-buffer))
-
-    (define-key map [menu-bar debugger view source]
-      (rdebug-menu-item common-map
-                        "Source" 'rdebug-display-source-buffer))
-    menu))
-
-
 ;; -----------------------------------------------
 ;; Key bindings and menu for secondary buffers.
 ;;
-
-(defun rdebug-populate-secondary-buffer-map-plain (map)
-  "Bind the plain keys used in rdebug secondary buffers.
-
-This does not menus or prefix keys."
-  ;; Keys to view other buffers.
-  (define-key map "?" 'rdebug-display-secondary-window-help-buffer)
-  (define-key map "B" 'rdebug-display-breakpoints-buffer)
-  (define-key map "C" 'rdebug-display-cmd-buffer)
-  (define-key map "O" 'rdebug-display-output-buffer)
-  (define-key map "S" 'rdebug-display-source-buffer)
-  (define-key map "T" 'rdebug-display-stack-buffer)
-  (define-key map "V" 'rdebug-display-variables-buffer)
-  (define-key map "W" 'rdebug-display-watch-buffer)
-  ;; Common debugger commands.
-  (define-key map " " 'rdebug-step)
-  (define-key map "_" 'rdebug-set-stepping-prefix)
-  (define-key map "+" 'rdebug-set-stepping-prefix)
-  (define-key map "-" 'rdebug-set-stepping-prefix)
-  (define-key map "<" 'gud-up)
-  (define-key map ">" 'gud-down)
-  ;; (define-key map "a" 'gud-args)
-  ;; (define-key map "b" 'gud-break)
-  (define-key map "c" 'rdebug-continue)
-  ;; (define-key map "d" 'gud-remove)
-  (define-key map "f" 'gud-finish)
-  (define-key map "n" 'rdebug-next)
-  (define-key map "p" 'gud-print)
-  (define-key map "q" 'rdebug-quit)
-  (define-key map "r" 'rdebug-restart)
-  (define-key map "R" 'rdebug-restart)
-  (define-key map "s" 'rdebug-step)
-  )
 
 
 (defun rdebug-populate-secondary-buffer-map (map)
@@ -1583,51 +1211,6 @@ Press `C-h m' for more help, when the individual buffers are visible.
 
 
 ;; -------------------------------------------------------------------
-;; The source buffer rdebug support mode.
-;;
-;; This is a minor mode that is active in Ruby source buffers. It
-;; provides the menu and, when the debugger is active, the debugger
-;; key bindings.
-
-(defvar rdebug-debugger-support-minor-mode-map-when-deactive
-  (let ((map (make-sparse-keymap))
-        (prefix-map (make-sparse-keymap)))
-    (rdebug-populate-debugger-menu map)
-    (rdebug-populate-secondary-buffer-map-plain prefix-map)
-    (define-key map gud-key-prefix prefix-map)
-    map)
-  "Keymap used by rdebugs support minor mode when the debugger is active.")
-
-(defvar rdebug-debugger-support-minor-mode-map-when-active
-  (let ((map (make-sparse-keymap))
-        (prefix-map (make-sparse-keymap)))
-    (rdebug-populate-debugger-menu map)
-    (rdebug-populate-secondary-buffer-map-plain prefix-map)
-    (define-key map gud-key-prefix prefix-map)
-    (rdebug-populate-common-keys map)
-    map)
-  "Keymap used by rdebugs support minor mode when the debugger not active.")
-
-
-(define-minor-mode rdebug-debugger-support-minor-mode
-  "Minor mode active in source buffers that use the `rdebug' Ruby debugger."
-  :group rdebug
-  :global nil
-  :init-value nil
-  :keymap rdebug-debugger-support-minor-mode-map-when-deactive
-  ())
-
-
-;;;###autoload
-(defun rdebug-turn-on-debugger-support ()
-  "Enable extra source buffer support for the `rdebug' Ruby debugger.
-
-This includes a 'Debugger' menu and special key bindings when the
-debugger is active."
-  (rdebug-debugger-support-minor-mode 1))
-
-
-;; -------------------------------------------------------------------
 ;; Source short key mode.
 ;;
 ;; When this minor mode is active and the debugger is running, the
@@ -1671,17 +1254,6 @@ activate this mode when the `rdebug' debugger is used.
     (setq buffer-read-only nil)))
 
 
-;; Implementation note: This is the user-level command. It only
-;; controls if `rdebug-local-short-key-mode' should be activated or
-;; not.
-(define-minor-mode rdebug-short-key-mode
-  "When enabled, short keys can be used in source buffers in `rdebug'."
-  :group 'rdebug
-  :global t
-  :init-value nil
-  (rdebug-short-key-mode-maybe-activate))
-
-
 (defun rdebug-turn-on-short-key-mode ()
   "Turn on `rdebug-short-key-mode'.
 
@@ -1707,15 +1279,16 @@ This function is designed to be used in a user hook, for example:
         (if rdebug-local-short-key-mode
             (rdebug-local-short-key-mode -1))))))
 
-(defun buffer-killed-p (buffer)
-       "Return t if BUFFER is killed."
-       (not (buffer-name buffer)))
+(defun rdebug-buffer-killed-p (buffer)
+  "Return t if BUFFER is killed."
+  (not (buffer-name buffer)))
 
 (defun rdebug-local-short-key-mode-on ()
   "Turn on `rdebug-local-short-key-mode' in the current debugger frame."
   (rdebug-debug-enter "rdebug-local-short-key-mode-off"
     (save-current-buffer
-      (if (and gud-comint-buffer (not (buffer-killed-p gud-comint-buffer)))
+      (if (and gud-comint-buffer
+               (not (rdebug-buffer-killed-p gud-comint-buffer)))
           (set-buffer gud-comint-buffer))
       (let ((frame (or gud-last-frame
                        gud-last-last-frame)))

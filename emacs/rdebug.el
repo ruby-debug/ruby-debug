@@ -116,7 +116,7 @@ The custom variable `gud-rdebug-command-name' sets the command
 and options used to invoke rdebug." t)
 
 
-(autoload 'rdebug-turn-on-debugger-support "rdebug-core"
+(autoload 'rdebug-turn-on-debugger-support "rdebug-source"
   "Enable extra source buffer support for the `rdebug' Ruby debugger.
 
 This includes a 'Debugger' menu and special key bindings when the
