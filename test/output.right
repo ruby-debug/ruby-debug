@@ -1,0 +1,32 @@
+starting
+
+breakpoints
+No breakpoints.
+
+stack
+--> #0 at line output.rb:1
+
+variables
+
+output.rb:1
+puts "one"
+# # ********************************************************
+# # This tests the "starting" annotation
+# # ********************************************************
+# set annotate 3
+Annotation level is 3
+# step
+starting
+one
+
+stack
+--> #0 at line output.rb:2
+
+variables
+
+output.rb:2
+puts "two"
+# step
+starting
+two
+
