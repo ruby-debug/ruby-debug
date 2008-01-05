@@ -852,6 +852,10 @@ menu. (The common map typically contains function key bindings.)"
     (define-key map [menu-bar debugger view breakpoints]
       (rdebug-menu-item common-map
                         "Breakpoints" 'rdebug-display-breakpoints-buffer))
+
+    (define-key map [menu-bar debugger view source]
+      (rdebug-menu-item common-map
+                        "Source" 'rdebug-display-source-buffer))
     menu))
 
 
@@ -868,7 +872,7 @@ This does not menus or prefix keys."
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
   (define-key map "O" 'rdebug-display-output-buffer)
-  (define-key map "S" 'gud-source-resync)
+  (define-key map "S" 'rdebug-display-source-buffer)
   (define-key map "T" 'rdebug-display-stack-buffer)
   (define-key map "V" 'rdebug-display-variables-buffer)
   (define-key map "W" 'rdebug-display-watch-buffer)
@@ -1019,7 +1023,7 @@ we'll just pick a visible buffer to bury and replace."
 ;; that window.
 
 
-(defun rdebug-pick-source-window-categorize-window (win)
+(defun rdebug-display-source-window-categorize (win)
   "Return how suiteable this window is to display the source buffer.
 The higher score the better."
   (let ((buffer (window-buffer win)))
@@ -1032,30 +1036,60 @@ The higher score the better."
           (t
            2))))
 
+(defun rdebug-frame-source-buffer (frame)
+  "Return the buffer corresponding to guds frame, or nil"
+  (and frame
+       gud-comint-buffer
+       (save-current-buffer
+         (set-buffer gud-comint-buffer)
+         (gud-find-file (car frame)))))
+
+
+(defun rdebug-current-source-buffer ()
+  "Return the latest source buffer, or nil"
+  (or (rdebug-frame-source-buffer gud-last-frame)
+      (rdebug-frame-source-buffer gud-last-last-frame)))
+
+
+(defun rdebug-display-source-buffer ()
+  "Display the current source buffer."
+  (interactive)
+  (let ((buffer (rdebug-current-source-buffer))
+        (last-buffer (rdebug-frame-source-buffer gud-last-last-frame)))
+    (if buffer
+        (let ((window
+               (or
+                ;; Buffer is already visible, re-use the window.
+                (get-buffer-window buffer)
+                ;; Re-use the last window
+                (and last-buffer
+                     (get-buffer-window last-buffer))
+                ;; Find a non-rdebug window.
+                (let ((candidate nil)
+                      (candidate-score -1))
+                  (dolist (win (window-list (selected-frame)))
+                    (let ((score
+                           (rdebug-display-source-window-categorize win)))
+                      (if (> score candidate-score)
+                          (progn
+                            (setq candidate       win)
+                            (setq candidate-score score)))))
+                  candidate))))
+          (select-window window)
+          (switch-to-buffer buffer)))))
+
 
 (defun rdebug-pick-source-window ()
-  "Display the source file pointed to by `gud-last-frame'"
-  (let* ((buffer (gud-find-file (car gud-last-frame)))
-         (window
-          (or
-           ;; Buffer is already visible, re-use the window.
-           (get-buffer-window buffer)
-           ;; Re-use the last window
-           (and gud-last-last-frame
-                (get-buffer-window (gud-find-file (car gud-last-last-frame))))
-           ;; Find a non-rdebug window.
-           (let ((candidate nil)
-                 (candidate-score -1))
-             (dolist (win (window-list (selected-frame)))
-               (let ((score (rdebug-pick-source-window-categorize-window win)))
-                 (if (> score candidate-score)
-                     (progn
-                       (setq candidate       win)
-                       (setq candidate-score score)))))
-             candidate))))
-    (save-selected-window
-      (select-window window)
-      (switch-to-buffer buffer))))
+  "Display the source file, but do not switch window."
+  (save-selected-window
+    (rdebug-display-source-buffer)))
+
+
+(defun rdebug-display-source-buffer-resync ()
+  "Resync output and display the source buffer."
+  (interactive)
+  (call-interactively 'gud-source-resync)
+  (rdebug-display-source-buffer))
 
 
 ;; -------------------------------------------------------------------
