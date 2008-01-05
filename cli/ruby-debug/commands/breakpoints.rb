@@ -5,11 +5,8 @@ module Debugger
     def regexp
       / ^\s*
         b(?:reak)?
-        (?: \s+
-        #{Position_regexp}
-        (?:\s+
-          if\s+(.+)
-        )?
+        (?: \s+ #{Position_regexp})?
+        (?:\s+ if\s+(.+))?
         $
       /x
     end

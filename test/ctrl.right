@@ -2,8 +2,8 @@ Currently testing the debugger is on.
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-break  delete  exit  info       p   ps    quit    restart  set   source
-catch  eval    help  interrupt  pp  putl  reload  save     show  thread
+break  delete  eval  help  interrupt  pp  putl  reload   save  show    thread
+catch  edit    exit  info  p          ps  quit  restart  set   source
 
 Generic command for showing things about the program being debugged.
 -- 
