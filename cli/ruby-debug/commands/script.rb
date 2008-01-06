@@ -12,7 +12,11 @@ module Debugger
         print "Command file '#{file}' is not found\n"
         return
       end
-      Debugger.run_script(file, @state)
+      if @state and @state.interface
+        @state.interface.command_queue += File.open(file).readlines
+      else
+        Debugger.run_script(file, @state)
+      end
     end
     
     class << self

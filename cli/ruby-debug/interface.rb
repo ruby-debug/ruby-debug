@@ -1,5 +1,7 @@
 module Debugger  
+  # FIXME: create parent Interface and have Local, Remote subclass.
   class LocalInterface # :nodoc:
+    attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
@@ -9,6 +11,7 @@ module Debugger
       FILE_HISTORY = ".rdebug_hist"
     end
     def initialize()
+      @command_queue = []
       @history_save = true
       # take gdb's default
       @history_length = ENV["HISTSIZE"] ? ENV["HISTSIZE"].to_i : 256  
@@ -83,12 +86,14 @@ module Debugger
   end
 
   class RemoteInterface # :nodoc:
+    attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
     attr_accessor :restart_file
 
     def initialize(socket)
+      @command_queue = []
       @socket = socket
       @history_save = false
       @history_length = 256
@@ -134,10 +139,12 @@ module Debugger
   end
   
   class ScriptInterface # :nodoc:
+    attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
     def initialize(file, out, verbose=false)
+      @command_queue = []
       @file = file.respond_to?(:gets) ? file : open(file)
       @out = out
       @verbose = verbose

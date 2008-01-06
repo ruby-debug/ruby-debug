@@ -32,10 +32,14 @@ module Debugger
     end
     
     def save_settings(file)
-      %w(autolist autoeval autoirb basename debuggertesting full_path 
-         reload_source_on_change 
-         stack_trace_on_error).each do |setting|
-        file.puts "set #{setting} = #{Command.settings[setting.to_sym]}"
+      # FIXME put routine in set
+      %w(autoeval basename debuggertesting).each do |setting|
+        on_off = show_onoff(Command.settings[setting.to_sym])
+        file.puts "set #{setting} #{on_off}"
+      end
+      %w(autolist autoirb).each do |setting|
+        on_off = show_onoff(Command.settings[setting.to_sym] > 0)
+        file.puts "set #{setting} #{on_off}"
       end
     end
     
@@ -50,7 +54,7 @@ module Debugger
         file = open(@match[1], 'w')
       end
       save_breakpoints(file)
-      save_displays(file)
+      # save_displays(file)
       save_settings(file)
       print "Saved to '#{file.path}'\n"
       if @state and @state.interface

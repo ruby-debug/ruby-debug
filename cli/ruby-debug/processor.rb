@@ -3,8 +3,6 @@ require 'ruby-debug/command'
 
 module Debugger
 
-  annotate = 0
-  
   class CommandProcessor # :nodoc:
     attr_accessor :interface
     attr_reader   :display
@@ -36,7 +34,6 @@ module Debugger
       
       @mutex = Mutex.new
       @last_cmd = nil
-      @actions = []
       @last_file = nil   # Filename the last time we stopped
       @last_line = nil   # line number the last time we stopped
       @debugger_breakpoints_were_empty = false # Show breakpoints 1st time
@@ -204,7 +201,13 @@ module Debugger
       
       preloop(commands, context)
       CommandProcessor.print_location_and_text(file, line)
-      while !state.proceed? and input = @interface.read_command(prompt(context))
+      while !state.proceed? 
+        input = if @interface.command_queue.empty?
+                  @interface.read_command(prompt(context))
+                else
+                  @interface.command_queue.shift
+                end
+        break unless input
         catch(:debug_error) do
           if input == ""
             next unless @last_cmd
