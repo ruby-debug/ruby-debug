@@ -131,6 +131,28 @@
   args)
 
 
+
+;; Examples of annotations:
+;; ^Z^Zfoo\n
+;; ^Z^Zpre-prompt\n
+;; ^Z^Zsource foo.rb:10\n
+
+(defconst rdebug-annotation-start-regexp
+  "\\(\\([a-z][-a-z]+\\)\n\\|source \\)"
+  "Regular expression to match the start of an annotation.")
+
+(defconst gud-rdebug-marker-regexp
+  "source \\(\\(?:[a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\).*\n"
+  "Regular expression used to find a file location given by rdebug.
+
+Program-location lines look like this:
+   source /tmp/gcd.rb:29:  gcd
+   source /tmp/gcd.rb:29
+   source C:/tmp/gcd.rb:29
+   source \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>
+")
+
+
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
 ;; might even receive a big chunk with several markers in it.  If we
@@ -142,57 +164,63 @@
   (rdebug-debug-enter "gud-rdebug-marker-filter"
     (rdebug-debug-message "GOT: %S" string)
     (setq gud-marker-acc (concat gud-marker-acc string))
-    (let ((output "") s s2 (tmp ""))
+    (rdebug-debug-message "TOT: %S" string)
+    (let ((output "")                   ; Output to debugger shell window.
+          (tmp ""))
 
-      ;; ALB first we process the annotations (if any)
-      (while (setq s (string-match rdebug-annotation-start-regexp
-				   gud-marker-acc))
-	(rdebug-debug-message "ACC: %S" gud-marker-acc)
-	(let ((name (substring gud-marker-acc
-                               (match-beginning 1) (match-end 1)))
-	      (end (match-end 0)))
-	  (if (setq s2 (string-match rdebug-annotation-end-regexp
-				     gud-marker-acc end))
-	      ;; ok, annotation complete, process it and remove it
-	      (let ((contents (substring gud-marker-acc end s2))
-		    (end2 (match-end 0)))
-		(rdebug-process-annotation name contents)
-		(setq gud-marker-acc
-		      (concat (substring gud-marker-acc 0 s)
-			      (substring gud-marker-acc end2))))
-	    ;; otherwise, save the partial annotation to a temporary,
-	    ;; and re-add it to gud-marker-acc after normal output has
-	    ;; been processed
-	    (setq tmp (substring gud-marker-acc s))
-	    (setq gud-marker-acc (substring gud-marker-acc 0 s)))))
+      (while (string-match rdebug-annotation-start-regexp gud-marker-acc)
+        (rdebug-debug-message "ACC: %S" gud-marker-acc)
+        (if (not (equal (match-beginning 0) 0))
+            ;; Spawn off plain text going to the debugger shell window.
+            (progn
+              (setq output (concat output (substring gud-marker-acc
+                                                     0 (match-beginning 0))))
+              (setq gud-marker-acc (substring gud-marker-acc
+                                              (match-beginning 0))))
+          (let* ((s (match-beginning 0))
+                 (end (match-end 0))
+                 (name (or (match-string 2 gud-marker-acc)
+                           "source"))
+                 (end-regexp (cond ((string= name "starting")
+                                    "\\(stopped\\|exited\\)\n")
+                                   ((string= name "pre-prompt")
+                                    ;; TODO: The extra "\n" is probably
+                                    ;; a bug in processor.rb.
+                                    "\nprompt\n")
+                                   ((string= name "source")
+                                    "\n")
+                                   (t rdebug-annotation-end-regexp))))
+            (if (string-match end-regexp gud-marker-acc end)
+                ;; ok, annotation complete, process it and remove it
+                (let ((contents (substring
+                                 gud-marker-acc end (match-beginning 0)))
+                      (end2 (match-end 0)))
+                  (cond ((string= name "pre-prompt")
+                         (setq output (concat output contents)))
+                        ((string= name "source")
+                         (if (string-match gud-rdebug-marker-regexp
+                                           gud-marker-acc)
+                             ;; Extract the frame position from the marker.
+                             (setq gud-last-frame
+                                   (cons (match-string 1 gud-marker-acc)
+                                         (string-to-number
+                                          (match-string 2 gud-marker-acc))))))
+                        (t (rdebug-process-annotation name contents)))
+                  (setq gud-marker-acc
+                        (concat (substring gud-marker-acc 0 s)
+                                (substring gud-marker-acc end2))))
+              ;; otherwise, save the partial annotation to a temporary,
+              ;; and re-add it to gud-marker-acc after normal output has
+              ;; been processed
+              (setq tmp (substring gud-marker-acc s))
+              (setq gud-marker-acc (substring gud-marker-acc 0 s))))))
 
-      (when (setq s (string-match rdebug-annotation-end-regexp gud-marker-acc))
+      ;; TODO: end -> start?
+      (when (string-match rdebug-annotation-end-regexp gud-marker-acc)
 	;; save the beginning of gud-marker-acc to tmp, remove it and
 	;; restore it after normal output has been processed
-	(setq tmp (substring gud-marker-acc 0 s))
-	(setq gud-marker-acc (substring gud-marker-acc s)))
-
-      ;; Process all the complete markers in this chunk.
-      ;; Format of line looks like this:
-      ;;   /etc/init.d/ntp.init:16:
-      (while (string-match gud-rdebug-marker-regexp gud-marker-acc)
-	(setq
-
-	 ;; Extract the frame position from the marker.
-	 gud-last-frame
-	 (cons (substring gud-marker-acc
-			  (match-beginning 1) (match-end 1))
-	       (string-to-number
-		(substring gud-marker-acc
-			   (match-beginning 2) (match-end 2))))
-
-	 ;; Append any text before the marker to the output we're going
-	 ;; to return - we don't include the marker in this text.
-	 output (concat output
-			(substring gud-marker-acc 0 (match-beginning 0)))
-
-	 ;; Set the accumulator to the remaining text.
-	 gud-marker-acc (substring gud-marker-acc (match-end 0))))
+	(setq tmp (substring gud-marker-acc 0 (match-beginning 0)))
+	(setq gud-marker-acc (substring gud-marker-acc (match-beginning 0))))
 
       ;; Display the source file where we want it, gud will only pick
       ;; an arbitrary window.
@@ -215,8 +243,11 @@
 	    ;; Everything after, we save, to combine with later input.
 	    (setq gud-marker-acc
 		  (concat tmp (substring gud-marker-acc (match-beginning 0)))))
-	(setq output (concat output gud-marker-acc)
-	      gud-marker-acc tmp))
+	(setq output (concat output gud-marker-acc))
+        (setq gud-marker-acc tmp))
+
+      (rdebug-debug-message "REM: %S" gud-marker-acc)
+
       output)))
 
 (defun gud-rdebug-find-file (f)
@@ -779,6 +810,19 @@ The higher score the better."
   ;;    'gdb-invalidate-breakpoints
   ;;  'gdbmi-invalidate-breakpoints)
   )
+
+;; Work in progress...
+(defvar rdebug-breakpoints-font-lock-keywords
+  '(("\\([0-9]+\\) +[ny] +at +\\(\\(.*\\):\\([0-9]+\\)\\|\\(.*\\):\\([a-zA-Z_][a-zA-Z0-9_]\\)$")
+    (1 font-lock-constant-face)
+    (2 font-lock-warning-face)))
+
+;;  '(("@[a-zA-Z0-9_]+" 0 font-lock-variable-name-face)
+;;    ("\\<\\(nil\\|true\\|false\\)\\>" 0 font-lock-constant-face)
+;;    ("#<\\([a-zA-Z0-9_]+\\):\\([0-9a-fx]*\\)"
+;;     (1 font-lock-type-face)
+;;     (2 font-lock-constant-face)))
+;;  "Font-lock rules for the variables and watch windows in `rdebug'.")
 
 (defun rdebug--setup-breakpoints-buffer (buf comint-buffer)
   "Detects breakpoint lines and sets up keymap and mouse navigation."

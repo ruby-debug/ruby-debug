@@ -67,8 +67,8 @@ module Debugger
     def self.print_location_and_text(file, line)
       file_line = "%s:%s\n%s" % [canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
-      # FIXME ANNOTATE: remove false below
-      if Debugger.annotate.to_i > 2 and false
+      # FIXME ANNOTATE: remove false below [DONE]
+      if Debugger.annotate.to_i > 2
         file_line = "\032\032source #{file_line}"
       elsif ENV['EMACS']
         file_line = "\032\032#{file_line}"
@@ -94,8 +94,9 @@ module Debugger
     end
     
     def at_breakpoint(context, breakpoint)
+      print "\032\032stopped\n"
       n = Debugger.breakpoints.index(breakpoint) + 1
-      print("\032\032%s:%s\n", 
+      print("\032\032source %s:%s\n", 
             CommandProcessor.canonic_file(breakpoint.source), 
             breakpoint.pos) if ENV['EMACS']
       print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
@@ -153,9 +154,9 @@ module Debugger
     # The prompt shown before reading a command.
     def prompt(context)
       p = '(rdb:%s) ' % (context.dead?  ? 'port-mortem' : context.thnum)
-      # FIXME ANNOTATE: reinstate preprompt
-      # p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
-      #  Debugger.annotate.to_i > 2
+      # FIXME ANNOTATE: reinstate preprompt [DONE]
+      p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
+        Debugger.annotate.to_i > 2
       return p
     end
 
@@ -243,15 +244,16 @@ module Debugger
     
     def preloop(commands, context)
       if Debugger.annotate.to_i > 2
+        print "\032\032stopped\n"
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
         if context.dead?
-          print "\032\032exited\n\n" unless
+          print "\032\032exited\n" unless
             @debugger_context_was_dead
+          print "The program finished.\n"
           @debugger_context_was_dead = true
         end
-        print "\032\032stopped\n\n"
 
         breakpoint_annotations(commands, context)
         display_annotations(commands, context)
@@ -272,7 +274,7 @@ module Debugger
           annotation('variables', commands, context, "info variables")
         end
         if not context.dead? and @@Show_annotations_run.find{|pat| cmd =~ pat}
-          print "\032\032starting\n\n"
+          print "\032\032starting\n"
           @debugger_context_was_dead = false
         end
       end
@@ -350,6 +352,7 @@ module Debugger
       if Debugger.annotate.to_i > 2 and
           not @debugger_context_was_dead
         print "\032\032exited\n" 
+        print "The program finished.\n"
         @debugger_context_was_dead = true
       end
 

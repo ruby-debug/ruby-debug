@@ -35,12 +35,6 @@
 ;; Variables defining regular expressions (regexp:s).
 ;;
 
-(defconst rdebug-annotation-start-regexp
-  "\\([a-z]+\\)\n"
-  "Regular expression to match the start of an annotation.
-Note that in contrast to gud-rdebug-marker-regexp, we don't allow a colon.
-That's what distinguishes the two." )
-
 (defconst rdebug-annotation-end-regexp
   "\n"
   "Regular expression to match the end of an annotation.")
@@ -48,17 +42,6 @@ That's what distinguishes the two." )
 (defconst rdebug--breakpoint-regexp
   "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
-
-(defconst gud-rdebug-marker-regexp
-  "^\\(\\(?:[a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\).*\n"
-  "Regular expression used to find a file location given by rdebug.
-
-Program-location lines look like this:
-   /tmp/gcd.rb:29:  gcd
-   /tmp/gcd.rb:29
-   C:/tmp/gcd.rb:29
-   \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>
-")
 
 (defconst rdebug-marker-regexp-file-group 2
   "Group position in `rdebug-position-regexp' that matches the file name.")
