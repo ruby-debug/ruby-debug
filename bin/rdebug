@@ -224,7 +224,7 @@ else
         print "Uncaught exception: #{$!}\n"
       end
       print "The program finished.\n" unless 
-        if Debugger.annotate.to_i > 2 # annotate has its own way
+        Debugger.annotate.to_i > 2 # annotate has its own way
       interface = Debugger::LocalInterface.new
       processor = Debugger::ControlCommandProcessor.new(interface)
       processor.process_commands
