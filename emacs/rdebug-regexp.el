@@ -1,7 +1,7 @@
 ;;; rdebug-regexp.el --- Ruby debugger regular expressions
 
-;; Copyright (C) 2007 Rocky Bernstein (rocky@gnu.org)
-;; Copyright (C) 2007 Anders Lindgren
+;; Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2007, 2008 Anders Lindgren
 
 ;; $Id$
 
@@ -34,6 +34,18 @@
 ;; -------------------------------------------------------------------
 ;; Variables defining regular expressions (regexp:s).
 ;;
+
+(defconst gud-rdebug-marker-regexp
+  "\\(?:source \\)?\\(\\(?:[a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\).*\n"
+  "Regular expression used to find a file location given by rdebug.
+
+Program-location lines look like this:
+   source /tmp/gcd.rb:29:  gcd
+   /tmp/gcd.rb:29:  gcd
+   source /tmp/gcd.rb:29
+   source C:/tmp/gcd.rb:29
+   source \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>
+")
 
 (defconst rdebug-annotation-end-regexp
   "\n"

@@ -47,8 +47,16 @@
    "./hanoi.rb"
    )
   (regexp-file-test 
+   "\032\032source ./hanoi.rb:3\n"
+   "./hanoi.rb"
+   )
+  (regexp-file-test 
    "\032\032C:/tmp/gcd.rb:29\n"
    "C:/tmp/gcd.rb"
+   )
+  (regexp-file-test 
+   "\032\032source \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>\n"
+   "\\sources\\capfilterscanner\\capanalyzer.rb"
    )
   )
 

@@ -15,6 +15,8 @@ $: << File.join(TOP_SRC_DIR, "lib")
 $: << File.join(TOP_SRC_DIR, "cli")
 
 options = OpenStruct.new(
+  'annotate'    => false,
+  'emacs'       => false,
   'frame_bind'  => false,
   'no-quit'     => false,
   'no-stop'     => false,
@@ -37,23 +39,31 @@ EOB
   opts.separator ""
   opts.separator "Options:"
   opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") do 
-    |Debugger::annotate|
+    |Debugger.annotate|
   end
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
+  opts.on("--emacs-basic", "Activates basic Emacs mode") do 
+    ENV['EMACS'] = '1'
+    options.emacs = true
+  end
   opts.on("--keep-frame-binding", "Keep frame bindings") do 
     options.frame_bind = true
+  end
+  opts.on("-m", "--post-mortem", "Activate post-mortem mode") do 
+    options.post_mortem = true
   end
   opts.on("--no-control", "Do not automatically start control thread") do 
     options.control = false
   end
-  opts.on("--no-quit", "Do not quit when script finishes") {
+  opts.on("--no-quit", "Do not quit when script finishes") do
     options.noquit = true
-  }
-  opts.on("--no-stop", "Do not stop when script is loaded") {options.nostop = true}
+  end
+  opts.on("--no-stop", "Do not stop when script is loaded") do 
+    options.nostop = true
+  end
   opts.on("-nx", "Not run debugger initialization files (e.g. .rdebugrc") do
     options.nx = true
   end
-  opts.on("-m", "--post-mortem", "Activate post-mortem mode") {options.post_mortem = true}
   opts.on("-I", "--include PATH", String, "Add PATH to $LOAD_PATH") do |path|
     $LOAD_PATH.unshift(path)
   end
@@ -72,7 +82,7 @@ EOB
     end
   end
   opts.on("-x", "--trace", "Turn on line tracing") {options.tracing = true}
-  ENV['EMACS'] = nil
+  ENV['EMACS'] = nil unless options.emacs
   opts.separator ""
   opts.separator "Common options:"
   opts.on_tail("--help", "Show this message") do

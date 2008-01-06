@@ -1,3 +1,17 @@
+2008-01-06 18:55  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,
+	  trunk/emacs/Makefile.am, trunk/emacs/rdebug-core.el,
+	  trunk/emacs/test/test-indent.el, trunk/ext/ChangeLog, ChangeLog,
+	  trunk/test/annotate.right, trunk/test/output.right: Create
+	  Processor class and subclass that. Perhaps a mixin would be good.
+	  Remove annotation output bleanding when annotate is off.
+	  Try to reduce the mess annotations is adding to processor.rb
+	  rdebug-core.el: fix indentation to pass the regression test
+	  Anders added
+	  Makefile.am: Add rdebug-source.el to distribution.
+	  Make sure "rake test"
+
 2008-01-06 02:15  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/bin/rdebug,

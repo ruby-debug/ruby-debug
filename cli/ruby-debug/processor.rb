@@ -13,7 +13,7 @@ module Debugger
     end
     
     def aprint(msg)
-      print afmt(msg) if Debugger.annotate.to_i > 2      
+      print afmt(msg) if Debugger.annotate.to_i > 2
     end
     
     # Callers of this routine should make sure to use comma to
@@ -122,7 +122,9 @@ module Debugger
       n = Debugger.breakpoints.index(breakpoint) + 1
       file = CommandProcessor.canonic_file(breakpoint.source)
       line = breakpoint.pos
-      print afmt("source %s:%s" % [file, line]) if ENV['EMACS']
+      if Debugger.annotate.to_i > 2
+        print afmt("source #{file}:#{line}")
+      end
       print "Breakpoint %d at %s:%s\n", n, file, line
     end
     protect :at_breakpoint
@@ -259,7 +261,7 @@ module Debugger
       if context.dead?
         unless @debugger_context_was_dead
           aprint('exited')
-          # print "The program finished.\n"
+          print "The program finished.\n" if Debugger.annotate.to_i > 2
           @debugger_context_was_dead = true
         end
       end
@@ -360,7 +362,7 @@ module Debugger
 
       unless @debugger_context_was_dead
         aprint 'exited'  
-        # print "The program finished.\n"
+        print "The program finished.\n" if Debugger.annotate.to_i > 2
         @debugger_context_was_dead = true
       end
 

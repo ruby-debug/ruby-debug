@@ -141,18 +141,6 @@
   "\\(\\([a-z][-a-z]+\\)\n\\|source \\)"
   "Regular expression to match the start of an annotation.")
 
-(defconst gud-rdebug-marker-regexp
-  "source \\(\\(?:[a-zA-Z]:\\)?[^:\n]*\\):\\([0-9]*\\).*\n"
-  "Regular expression used to find a file location given by rdebug.
-
-Program-location lines look like this:
-   source /tmp/gcd.rb:29:  gcd
-   source /tmp/gcd.rb:29
-   source C:/tmp/gcd.rb:29
-   source \\sources\\capfilterscanner\\capanalyzer.rb:3:  <module>
-")
-
-
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
 ;; might even receive a big chunk with several markers in it.  If we
