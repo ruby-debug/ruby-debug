@@ -25,17 +25,23 @@
     res))
 
 (deftest "rdebug-indent-files"
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug.el"))
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug-cmd.el"))
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug-core.el"))
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug-source.el"))
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug-track.el"))
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug-regexp.el"))
-  (assert-nil (rdebug-test-reindent-one-file "../rdebug-vars.el"))
-  (assert-nil (rdebug-test-reindent-one-file "./test-cmd.el"))
-  (assert-nil (rdebug-test-reindent-one-file "./test-core.el"))
-  (assert-nil (rdebug-test-reindent-one-file "./test-indent.el"))
-  (assert-nil (rdebug-test-reindent-one-file "./test-regexp.el")))
+  (mapcar (lambda (lisp-file)
+	    (message lisp-file)
+	    (assert-nil (rdebug-test-reindent-one-file lisp-file)))
+	  '("../rdebug.el" 
+	    "../rdebug-cmd.el"
+	    "../rdebug.el"
+	    "../rdebug-cmd.el"
+	    "../rdebug-core.el"
+	    "../rdebug-source.el"
+	    "../rdebug-track.el"
+	    "../rdebug-regexp.el"
+	    "../rdebug-vars.el"
+	    "./test-cmd.el"
+	    "./test-core.el"
+	    "./test-indent.el"
+	    "./test-regexp.el"
+	    )))
 
 (run-elk-test "rdebug-indent-files"
               "test indentation of Lisp files")

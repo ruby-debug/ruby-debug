@@ -16,7 +16,8 @@
 #$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
 
 lisp_files = rdebug.el rdebug-cmd.el rdebug-core.el \
-             rdebug-regexp.el rdebug-track.el rdebug-vars.el
+             rdebug-regexp.el rdebug-source.el
+	     rdebug-track.el rdebug-vars.el
 check_DATA = test/elk-test.el \
 	test/test-cmd.el    \
 	test/test-core.el   \
@@ -24,7 +25,8 @@ check_DATA = test/elk-test.el \
 	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc rdebug-cmd.elc rdebug-core.elc \
-             rdebug-regexp.elc rdebug-track.elc rdebug-vars.elc
+             rdebug-regexp.elc  rdebug-source.elc \
+	     rdebug-track.elc rdebug-vars.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 endif

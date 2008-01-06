@@ -165,7 +165,7 @@ Program-location lines look like this:
     (rdebug-debug-message "GOT: %S" string)
     (setq gud-marker-acc (concat gud-marker-acc string))
     (rdebug-debug-message "TOT: %S" string)
-    (let ((output "")                   ; Output to debugger shell window.
+    (let ((output "")		    ; Output to debugger shell window.
           (tmp ""))
 
       (while (string-match rdebug-annotation-start-regexp gud-marker-acc)

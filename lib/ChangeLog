@@ -1,3 +1,22 @@
+2008-01-06 02:15  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug,
+	  trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  trunk/cli/ruby-debug/commands/control.rb,
+	  trunk/cli/ruby-debug/commands/save.rb,
+	  trunk/cli/ruby-debug/commands/script.rb,
+	  trunk/cli/ruby-debug/interface.rb,
+	  trunk/cli/ruby-debug/processor.rb, trunk/ext/ChangeLog,
+	  ChangeLog: Some work on saving state across a restart. More work
+	  is needed on the
+	  script command to get this working. The save-file name is now
+	  optional. save.rb split off from script.rb Display expressions
+	  and
+	  some settings are now captured in the save/restore file.
+	  Add interface.finalize - things that need to be done before quit
+	  or
+	  restart.
+
 2008-01-05 21:16  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/bin/rdebug,

@@ -3,8 +3,32 @@ require 'ruby-debug/command'
 
 module Debugger
 
-  class CommandProcessor # :nodoc:
+  # Should this be a mixin?
+  class Processor # :nodoc
     attr_accessor :interface
+
+    # Format msg with gdb-style annotation header
+    def afmt(msg, newline="\n")
+      "\032\032#{msg}#{newline}"
+    end
+    
+    def aprint(msg)
+      print afmt(msg) if Debugger.annotate.to_i > 2      
+    end
+    
+    # Callers of this routine should make sure to use comma to
+    # separate format argments rather than %. Otherwise it seems that
+    # if the string you want to print has format specifier, which
+    # could happen if you are trying to show say a source-code line
+    # with "puts" or "print" in it, this print routine will give an
+    # error saying it is looking for more arguments.
+    def print(*args)
+      @interface.print(*args)
+    end
+
+  end
+
+  class CommandProcessor < Processor # :nodoc:
     attr_reader   :display
 
     # FIXME: get from Command regexp method.
@@ -67,7 +91,7 @@ module Debugger
     def self.print_location_and_text(file, line)
       file_line = "%s:%s\n%s" % [canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
-      # FIXME ANNOTATE: remove false below [DONE]
+      # FIXME: use annotations routines
       if Debugger.annotate.to_i > 2
         file_line = "\032\032source #{file_line}"
       elsif ENV['EMACS']
@@ -94,22 +118,21 @@ module Debugger
     end
     
     def at_breakpoint(context, breakpoint)
-      print "\032\032stopped\n"
+      aprint 'stopped'
       n = Debugger.breakpoints.index(breakpoint) + 1
-      print("\032\032source %s:%s\n", 
-            CommandProcessor.canonic_file(breakpoint.source), 
-            breakpoint.pos) if ENV['EMACS']
-      print "Breakpoint %d at %s:%s\n", n, breakpoint.source, breakpoint.pos
+      file = CommandProcessor.canonic_file(breakpoint.source)
+      line = breakpoint.pos
+      print afmt("source %s:%s" % [file, line]) if ENV['EMACS']
+      print "Breakpoint %d at %s:%s\n", n, file, line
     end
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      print "\032\032%s:%d\n", 
-      CommandProcessor.canonic_file(context.frame_file(1)), 
-      context.frame_line(1) if ENV['EMACS']
-      print "Catchpoint at %s:%d: `%s' (%s)\n", 
-      CommandProcessor.canonic_file(context.frame_file(1)), 
-      context.frame_line(1), excpt, excpt.class
+      aprint 'stopped'
+      file = CommandProcessor.canonic_file(context.frame_file(1))
+      line = context.frame_line(1)
+      print afmt("%s:%d" % [file, line]) if ENV['EMACS']
+      print "Catchpoint at %s:%d: `%s' (%s)\n", file, line, excpt, excpt.class
       fs = context.stack_size
       tb = caller(0)[-fs..-1]
       if tb
@@ -141,21 +164,10 @@ module Debugger
     
     private
 
-    # Callers of this routine should make sure to use comma to
-    # separate format argments rather than %. Otherwise it seems that
-    # if the string you want to print has format specifier, which
-    # could happen if you are trying to show say a source-code line
-    # with "puts" or "print" in it, this print routine will give an
-    # error saying it is looking for more arguments.
-    def print(*args)
-      @interface.print(*args)
-    end
-    
     # The prompt shown before reading a command.
     def prompt(context)
       p = '(rdb:%s) ' % (context.dead?  ? 'port-mortem' : context.thnum)
-      # FIXME ANNOTATE: reinstate preprompt [DONE]
-      p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
+      p = afmt("pre-prompt")+p+"\n"+afmt("prompt") if 
         Debugger.annotate.to_i > 2
       return p
     end
@@ -243,18 +255,19 @@ module Debugger
     end
     
     def preloop(commands, context)
+      aprint('stopped')
+      if context.dead?
+        unless @debugger_context_was_dead
+          aprint('exited')
+          # print "The program finished.\n"
+          @debugger_context_was_dead = true
+        end
+      end
+
       if Debugger.annotate.to_i > 2
-        print "\032\032stopped\n"
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
-        if context.dead?
-          print "\032\032exited\n" unless
-            @debugger_context_was_dead
-          print "The program finished.\n"
-          @debugger_context_was_dead = true
-        end
-
         breakpoint_annotations(commands, context)
         display_annotations(commands, context)
         annotation('stack', commands, context, "where")
@@ -274,7 +287,7 @@ module Debugger
           annotation('variables', commands, context, "info variables")
         end
         if not context.dead? and @@Show_annotations_run.find{|pat| cmd =~ pat}
-          print "\032\032starting\n"
+          aprint 'starting'
           @debugger_context_was_dead = false
         end
       end
@@ -284,7 +297,7 @@ module Debugger
     end
 
     def annotation(label, commands, context, cmd)
-      print "\032\032#{label}\n"
+      print afmt(label)
       one_cmd(commands, context, cmd)
       ### FIXME ANNOTATE: the following line should be deleted
       print "\032\032\n"
@@ -335,13 +348,9 @@ module Debugger
     end
   end
   
-  class ControlCommandProcessor # :nodoc:
+  class ControlCommandProcessor < Processor # :nodoc:
     def initialize(interface)
       @interface = interface
-    end
-    
-    def print(*args)
-      @interface.print(*args)
     end
     
     def process_commands
@@ -349,10 +358,9 @@ module Debugger
       state = State.new(@interface, control_cmds)
       commands = control_cmds.map{|cmd| cmd.new(state) }
 
-      if Debugger.annotate.to_i > 2 and
-          not @debugger_context_was_dead
-        print "\032\032exited\n" 
-        print "The program finished.\n"
+      unless @debugger_context_was_dead
+        aprint 'exited'  
+        # print "The program finished.\n"
         @debugger_context_was_dead = true
       end
 
@@ -377,7 +385,7 @@ module Debugger
     # Note: have an unused 'context' parameter to match the local interface.
     def prompt(context)
       p = '(rdb:ctrl) '
-      p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
+      p = afmt("pre-prompt")+p+"\n"+afmt("prompt") if 
         Debugger.annotate.to_i > 2
       return p
     end
