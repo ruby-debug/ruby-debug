@@ -71,7 +71,7 @@ module Debugger
       file_line = "%s:%s\n%s" % [canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
       # FIXME ANNOTATE: remove false below
-      if Debugger.annotate and Debugger.annotate > 2 and false
+      if Debugger.annotate.to_i > 2 and false
         file_line = "\032\032source #{file_line}"
       elsif ENV['EMACS']
         file_line = "\032\032#{file_line}"
@@ -158,7 +158,7 @@ module Debugger
       p = '(rdb:%s) ' % (context.dead?  ? 'port-mortem' : context.thnum)
       # FIXME ANNOTATE: reinstate preprompt
       # p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
-      #  Debugger.annotate and Debugger.annotate > 2
+      #  Debugger.annotate.to_i > 2
       return p
     end
 
@@ -239,7 +239,7 @@ module Debugger
     end
     
     def preloop(commands, context)
-      if Debugger.annotate and Debugger.annotate > 2
+      if Debugger.annotate.to_i > 2
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
@@ -258,7 +258,7 @@ module Debugger
     end
     
     def postcmd(commands, context, cmd)
-      if Debugger.annotate and Debugger.annotate > 0
+      if Debugger.annotate.to_i > 0
         cmd = @last_cmd unless cmd
         breakpoint_annotations(commands, context) if
           @@Show_breakpoints_postcmd.find{|pat| cmd =~ pat}
@@ -344,7 +344,7 @@ module Debugger
       state = State.new(@interface, control_cmds)
       commands = control_cmds.map{|cmd| cmd.new(state) }
 
-      if Debugger.annotate and Debugger.annotate > 2 and
+      if Debugger.annotate.to_i > 2 and
           not @debugger_context_was_dead
         print "\032\032exited\n" 
         @debugger_context_was_dead = true
@@ -372,7 +372,7 @@ module Debugger
     def prompt(context)
       p = '(rdb:ctrl) '
       p = "\032\032pre-prompt\n#{p}\n\032\032prompt\n" if 
-        Debugger.annotate and Debugger.annotate > 2
+        Debugger.annotate.to_i > 2
       return p
     end
 

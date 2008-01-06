@@ -3,6 +3,7 @@ module Debugger
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
+    attr_accessor :restart_file
 
     unless defined?(FILE_HISTORY)
       FILE_HISTORY = ".rdebug_hist"
@@ -19,6 +20,7 @@ module Debugger
           Readline::HISTORY << line
         end
       end if File.exists?(@histfile)
+      @restart_file = nil
     end
 
     def read_command(prompt)
@@ -35,9 +37,16 @@ module Debugger
     
     def close
     end
+
+    # Things to do before quitting
+    def finalize
+      if Debugger.method_defined?("annotate") and Debugger.annotate.to_i > 2
+        print "\032\032exited\n\n" 
+      end
+      Debugger.save_history if Debugger.respond_to?(:save_history)
+    end
     
     private
-    
     begin
       require 'readline'
       class << Debugger
@@ -53,10 +62,7 @@ module Debugger
         public :save_history 
       end
       Debugger.debug_at_exit do 
-        if Debugger.annotate and Debugger.annotate > 2
-          print "\032\032exited\n\n" 
-        end
-        Debugger.save_history 
+        finalize if respond_to?(:finalize)
       end
       
       def readline(prompt, hist)
@@ -80,12 +86,24 @@ module Debugger
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
+    attr_accessor :restart_file
 
     def initialize(socket)
       @socket = socket
       @history_save = false
       @history_length = 256
       @histfile = ''
+      # Do we read the histfile?
+#       open(@histfile, 'r') do |file|
+#         file.each do |line|
+#           line.chomp!
+#           Readline::HISTORY << line
+#         end
+#       end if File.exists?(@histfile)
+      @restart_file = nil
+    end
+    
+    def finalize
     end
     
     def read_command(prompt)
@@ -126,6 +144,9 @@ module Debugger
       @history_save = false
       @history_length = 256  # take gdb default
       @histfile = ''
+    end
+    
+    def finalize
     end
     
     def read_command(prompt)

@@ -1,3 +1,21 @@
+2008-01-05 21:16  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug,
+	  trunk/cli/ruby-debug/interface.rb,
+	  trunk/cli/ruby-debug/processor.rb, ChangeLog,
+	  trunk/lib/ChangeLog, trunk/test/annotate.right,
+	  trunk/test/output.cmd, trunk/test/output.right,
+	  trunk/test/quit.right, trunk/test/tdebug.rb,
+	  trunk/test/test-output.rb: More work to make annotate more like
+	  gdb's. starting/stopping/exiting
+	  should be more similar. Some code has been commented out until we
+	  get
+	  the Emacs interface to match. See "FIXME: ANNOTATE" in
+	  processor.rb.
+	  Also regression tests for output and annotate currently fail for
+	  this
+	  reason.
+
 2008-01-02 20:35  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,

@@ -91,7 +91,7 @@ module Debugger
 
     def execute
       unless @state.context
-        print "No frame selected.\n"
+        print "We are not in a state we can delete breakpoints.\n"
         return 
       end
       brkpts = @match[1]

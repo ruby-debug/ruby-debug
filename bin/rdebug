@@ -7,22 +7,23 @@ require "ostruct"
 require 'ruby-debug'
 
 options = OpenStruct.new(
-  'annotate'    => Debugger.annotate,
-  'client'      => false,
-  'control'     => true,
-  'cport'       => Debugger::PORT + 1,
-  'frame_bind'  => false,
-  'host'        => nil,
-  'no-quit'     => false,
-  'no-stop'     => false,
-  'nx'          => false,
-  'port'        => Debugger::PORT,
-  'post_mortem' => false,
-  'script'      => nil,
-  'server'      => false,
-  'tracing'     => false,
-  'verbose_long'=> false,
-  'wait'        => false
+  'annotate'       => Debugger.annotate,
+  'client'         => false,
+  'control'        => true,
+  'cport'          => Debugger::PORT + 1,
+  'frame_bind'     => false,
+  'host'           => nil,
+  'no-quit'        => false,
+  'no-stop'        => false,
+  'nx'             => false,
+  'port'           => Debugger::PORT,
+  'post_mortem'    => false,
+  'restart_script' => nil,
+  'script'         => nil,
+  'server'         => false,
+  'tracing'        => false,
+  'verbose_long'   => false,
+  'wait'           => false
 )
 
 program = File.basename($0)
@@ -86,6 +87,14 @@ EOB
       puts "ruby-debug is not compatible with Ruby's 'debug' library. This option is ignored."
     else
       require name
+    end
+  end
+  opts.on("--restart-script FILE", String, 
+          "Name of the script file to run. Erased after read") do 
+    |options.restart_script| 
+    unless File.exists?(options.restart_script)
+      puts "Script file '#{options.restart_script}' is not found"
+      exit
     end
   end
   opts.on("--script FILE", String, "Name of the script file to run") do 
@@ -181,10 +190,18 @@ else
     # load initrc script (e.g. .rdebugrc)
     Debugger.run_init_script(StringIO.new) unless options.nx
     
+    # run restore-settings startup script if specified
+    if options.restart_script
+      require "fileutils"
+      Debugger.run_script(options.restart_script)
+      FileUtils.rm(options.restart_script)
+    end
+
     # run startup script if specified
     if options.script
       Debugger.run_script(options.script)
     end
+
     # activate post-mortem
     Debugger.post_mortem if options.post_mortem
     Debugger.tracing = options.nostop = true if options.tracing
