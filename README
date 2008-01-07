@@ -37,6 +37,20 @@ program and a POSIX shell. With this installed, run:
   sudo make install
 </pre>
 
+==== Install on MS Windows
+
+* Set the appropriate environment variables.
+
+* run `nmake'.
+
+* Copy ruby_debug.so to `win32'.
+
+* Go to the ruby_debug root.
+
+* rake win32_gem
+
+* The file is in named `rdebug-debug-base-0.10.0-mswin32.gem'.
+
 == Usage
 
 There are two ways of running ruby-debug.
