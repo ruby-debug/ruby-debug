@@ -46,6 +46,7 @@ EOB
   opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
   opts.on("--emacs", "Activates full Emacs support") do 
     ENV['EMACS'] = '1'
+    ENV['COLUMNS'] = '120' if ENV['COLUMNS'].to_i < 120
     options.control = false
     options.noquit = true
     options.post_mortem = true

@@ -1488,7 +1488,8 @@ and options used to invoke rdebug."
       ;; can be restored.
       (let ((process (get-buffer-process gud-comint-buffer)))
         (when process
-          (gud-call (format "set width %d" rdebug-line-width))
+          (unless (equal rdebug-line-width 120)
+	      (gud-call (format "set width %d" rdebug-line-width)))
           (set-process-sentinel process
                                 'rdebug-process-sentinel)))
 
