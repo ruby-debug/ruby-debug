@@ -2,13 +2,17 @@
 - Experimental: 
   remove Debugger.stop on exit exception raise. May allow catchpoints
   to work and tracing user code handling Exit exceptions
-- add "toggle" command
 - fix bug in "info variables" when string had embedded %s'
 - Number keys move stack position in Emacs stack secondary buffer.
 - --emacs is now --emacs-basic while --emacs now implies
   --emacs-basic --annotate=3 --post-mortem --no-control --no-start --no-quit
 - split off breakpoint code in ruby_debug.c; preface ruby_debug global 
   Ruby variables with rdebug_.
+- self and class variables are listed by "info variables"
+- add "var cl[ass]" command. Note "var const" can no longer be
+  abbreviated "var c"; use "var co" (or const or constant).
+- columnize now pulled in from a separate package.
+
 0.10.0
 - '-r' option can be used to require additional libraries.
 - --noquit option added to stay in debugger when the program exits
@@ -46,7 +50,7 @@
   is also cleared when leaving irb
 - help "foo" gives message "Undefined command "foo" rather than a list
   of help commands. (Message test is gdb's)
-- Add set linetrace+ - similar step+ for linetrace
+- Add set linetrace+ - similar to step+ for linetrace
 - Start unit tests.
 - Start a reference guide.
 
