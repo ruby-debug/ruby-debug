@@ -255,7 +255,7 @@ Initially annotate should be set to nil."
      ((equal "-A" arg)
       (rdebug-get-script-name (cdr args) t))
      ((member arg '("-h" "--host" "-p" "--port"
-		    "-I", "--include" "-r" "--require"))
+		    "-I" "--include" "-r" "--require"))
       (if args
           (rdebug-get-script-name (cdr args) annotate-p)
         ;;else
