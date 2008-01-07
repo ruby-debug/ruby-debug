@@ -1,3 +1,9 @@
+2008-01-07 09:59  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, trunk/bin/rdebug,
+	  trunk/emacs/rdebug-core.el, ChangeLog: --emacs sets width to 120.
+	  rdebug-core.el will reset to 120 unless it's already that.
+
 2008-01-07 04:29  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Makefile.am, trunk/ext/ChangeLog,

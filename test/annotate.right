@@ -23,6 +23,7 @@ No breakpoints.
 variables
 a = 3
 b = 5
+self = main
 
 source gcd.rb:6
 if a > b
@@ -49,6 +50,7 @@ No breakpoints.
 --> #1 at line gcd.rb:18
 
 variables
+self = main
 
 # # "b" should trigger like "break"
 # b 14
@@ -85,6 +87,7 @@ Num Enb What
 variables
 a = 3
 b = 5
+self = main
 
 source gcd.rb:10
 return nil if a <= 0

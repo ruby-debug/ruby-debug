@@ -8,6 +8,7 @@ No breakpoints.
 --> #0 at line output.rb:1
 
 variables
+self = main
 
 source output.rb:1
 puts "one"
@@ -22,6 +23,7 @@ one
 --> #0 at line output.rb:2
 
 variables
+self = main
 
 source output.rb:2
 puts "two"

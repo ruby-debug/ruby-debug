@@ -25,6 +25,7 @@ class TestInfoVar < Test::Unit::TestCase
         [got_lines, correct_lines].each do |a|
           a.each do |s|
             s.sub!(/Lousy_inspect:0x[0-9,a-f]+/, 'Lousy_inspect:')
+            s.sub!(/UnsuspectingClass:0x[0-9,a-f]+/, 'UnsuspectingClass:')
           end
         end
       }

@@ -11,12 +11,14 @@ Currently testing the debugger is on.
 info-var-bug.rb:34
 return x
 # info variables
-x = #<Lousy_inspect:0xb784945c>
+self = main
+x = #<Lousy_inspect:0xb7825034>
 # # Go to where we have a bad "inspect" and "to_s" of a local variable
 # continue 38
 info-var-bug.rb:38
 return x
 # info variables
+self = main
 x = *Error in evaluation*
 # break 29
 Breakpoint 1 file info-var-bug.rb, line 29
@@ -35,8 +37,9 @@ info-var-bug.rb:29
 # info locals
 a = #<Lousy_inspect:0xb784945c>
 # info variables
-a = #<Lousy_inspect:0xb784945c>
-@a = #<Lousy_inspect:0xb784945c>
+a = #<Lousy_inspect:0xb7825034>
+self = #<UnsuspectingClass:0xb781e874>
+@a = #<Lousy_inspect:0xb7825034>
 # # Now go to where we have a bad "inspect" and "to_s" of an class variable
 # continue
 Breakpoint 1 at info-var-bug.rb:29

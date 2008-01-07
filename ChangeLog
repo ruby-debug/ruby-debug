@@ -1,3 +1,18 @@
+2008-01-07 10:36  Rocky Bernstein
+
+	* emacs/Makefile.am: Missing a backslash to continue a line.
+
+2008-01-07 10:21  Anders Lindgren
+
+	* emacs/rdebug-core.el: Fixed problem with byte-compile warning due
+	  to an extra comma.
+
+2008-01-07 09:59  Rocky Bernstein
+
+	* ChangeLog, Rakefile, bin/rdebug, emacs/rdebug-core.el,
+	  lib/ChangeLog: --emacs sets width to 120. rdebug-core.el will
+	  reset to 120 unless it's already that.
+
 2008-01-07 09:08  Rocky Bernstein
 
 	* README: Add Anders' instruction on how to compile in MS Windows
