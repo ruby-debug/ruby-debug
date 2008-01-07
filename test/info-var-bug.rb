@@ -23,6 +23,8 @@ end
 # Something that will be passed objects with
 # bad inspect or to_s methods
 class UnsuspectingClass
+  @@Const = 'A constant'
+  @@var = 'a class variable'
   def initialize(a)
     @a = a      # "info locals" will try to use
                 # inspect or to_s here

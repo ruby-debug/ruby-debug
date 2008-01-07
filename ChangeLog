@@ -1,3 +1,10 @@
+2008-01-07 17:37  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,
+	  test/annotate.right, test/info-var-bug2.right,
+	  test/info-var.right, test/output.right, test/test-info-var.rb:
+	  Add "self" to list "info variables" spits out.
+
 2008-01-07 10:36  Rocky Bernstein
 
 	* emacs/Makefile.am: Missing a backslash to continue a line.

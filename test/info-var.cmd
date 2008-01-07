@@ -4,12 +4,12 @@
 # ***************************************************
 set debuggertesting on
 # Go to where we have a bad "inspect" of a local variable
-continue 34
+continue 36
 info variables
 # Go to where we have a bad "inspect" and "to_s" of a local variable
-continue 38
+continue 40
 info variables
-break 29
+break 31
 # The first time through, we can do inspect.
 continue
 info locals

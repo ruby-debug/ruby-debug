@@ -1,3 +1,11 @@
+2008-01-07 17:37  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
+	  ChangeLog, trunk/test/annotate.right,
+	  trunk/test/info-var-bug2.right, trunk/test/info-var.right,
+	  trunk/test/output.right, trunk/test/test-info-var.rb: Add "self"
+	  to list "info variables" spits out.
+
 2008-01-07 09:59  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, trunk/bin/rdebug,
