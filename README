@@ -14,6 +14,12 @@ are sometimes available), you'll need a C compiler and Ruby
 development headers, and a Make program so the extension in
 ruby-debug-base can be compiled when it is installed.
 
+To install on Microsoft Windows, unless you run under cygwin or mingw
+you'll need Microsoft Visual C++ 6.0 also known as VC6.
+http://rubyforge.org/tracker/index.php?func=detail&aid=16774&group_id=1900&atid=7436
+suggests why.
+
+
 == Install
 
 ruby-debug is provided as a RubyGem.  To install:
@@ -38,6 +44,10 @@ program and a POSIX shell. With this installed, run:
 </pre>
 
 ==== Install on MS Windows
+
+Compiling under cygwin or mingw works like it does on Unix. 
+
+* Have Microsoft Visual C++ 6.0 (VC6) installed - exactly that version.
 
 * Set the appropriate environment variables.
 
