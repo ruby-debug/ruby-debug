@@ -229,8 +229,7 @@ module Debugger
         print "#{s}\n"
       end
       var_list(obj.instance_variables, obj.instance_eval{binding()})
-      binding = @state.context ? get_binding : TOPLEVEL_BINDING
-      var_list(obj.class.class_variables, binding)
+      var_class_self
     end
     
     class << self

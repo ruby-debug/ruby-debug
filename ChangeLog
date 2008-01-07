@@ -1,3 +1,9 @@
+2008-01-07 19:57  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,
+	  test/info-var-bug.rb, test/info-var.cmd, test/info-var.right: Add
+	  class level variables to "info variables"
+
 2008-01-07 17:37  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,

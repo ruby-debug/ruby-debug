@@ -18,18 +18,46 @@ module Debugger
         print "%s = %s\n", v, s
       end
     end
+    def var_class_self
+      obj = debug_eval('self')
+      var_list(obj.class.class_variables, get_binding)
+    end
+  end
+
+  class VarClassVarCommand < Command # :nodoc:
+    def regexp
+      /^\s*v(?:ar)?\s+cl(?:ass)?/
+    end
+
+    def execute
+      unless @state.context
+        print "can't get class variables here.\n"
+        return 
+      end
+      var_class_self
+    end
+
+    class << self
+      def help_command
+        'var'
+      end
+
+      def help(cmd)
+        %{
+          v[ar] cl[ass] \t\t\tshow class variables of self
+        }
+      end
+    end
   end
 
   class VarConstantCommand < Command # :nodoc:
     def regexp
-      /^\s*v(?:ar)?\s+c(?:onst(?:ant)?)?\s+/
+      /^\s*v(?:ar)?\s+co(?:nst(?:ant)?)?\s+/
     end
 
     def execute
       obj = debug_eval(@match.post_match)
-      unless obj.kind_of? Module
-        print "Should be Class/Module: %s\n", @match.post_match
-      else
+      if obj.kind_of? Module
         constants = debug_eval("#{@match.post_match}.constants")
         constants.sort!
         for c in constants
@@ -37,6 +65,8 @@ module Debugger
           value = obj.const_get(c) rescue "ERROR: #{$!}"
           print " %s => %p\n", c, value
         end
+      else
+        print "Should be Class/Module: %s\n", @match.post_match
       end
     end
 

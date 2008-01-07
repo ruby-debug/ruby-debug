@@ -1,3 +1,10 @@
+2008-01-07 19:57  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
+	  ChangeLog, trunk/test/info-var-bug.rb, trunk/test/info-var.cmd,
+	  trunk/test/info-var.right: Add class level variables to "info
+	  variables"
+
 2008-01-07 17:37  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
