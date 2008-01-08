@@ -89,10 +89,11 @@
 (require 'cl)
 
 (require 'rdebug)
-(require 'rdebug-source)
-(require 'rdebug-vars)
-(require 'rdebug-regexp)
 (require 'rdebug-cmd)
+(require 'rdebug-layouts)
+(require 'rdebug-source)
+(require 'rdebug-regexp)
+(require 'rdebug-vars)
 
 
 ;; -------------------------------------------------------------------
@@ -254,6 +255,8 @@ Initially annotate should be set to nil."
       (rdebug-get-script-name (cdr args) t))
      ((equal "-A" arg)
       (rdebug-get-script-name (cdr args) t))
+     ((equal "-emacs" arg)
+      (rdebug-get-script-name (cdr args) t))
      ((member arg '("-h" "--host" "-p" "--port"
 		    "-I" "--include" "-r" "--require"))
       (if args
@@ -376,99 +379,8 @@ Currently-active file is at the head of the list.")
 
 
 ;; -------------------------------------------------------------------
-;; Window layout.
+;; Windows.
 ;;
-
-
-(defun rdebug-window-layout-standard (src-buf name)
-  "The default rdebug window layout, see `rdebug' for more information."
-  (delete-other-windows)
-  (split-window nil ( / ( * (window-height) 3) 4))
-  (split-window nil ( / (window-height) 3))
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "variables" name))
-  (other-window 1)
-  (switch-to-buffer src-buf)
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "output" name))
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "stack" name))
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "breakpoints" name))
-  (other-window 1)
-  (goto-char (point-max)))
-
-(defun rdebug-window-layout-rocky (src-buf name)
-  "Rocky's window layout.
-
-3 windows. The source window is on top 4/5 of height. The
-bottom is split between the command windows and a stack window.
-
-See `rdebug' for more information."
-  (delete-other-windows)
-  (split-window nil ( / ( * (window-height) 4) 5))
-  (set-window-buffer
-   (selected-window) src-buf)
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "stack" name))
-  (split-window-horizontally)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "cmd" name))
-  (goto-char (point-max)))
-
-(defun rdebug-window-layout-conservative (src-buf name)
-  "A conservative rdebug window layout with three windows.
-
-This window layout mimics the traditional debugger shell and
-source window layout, it only add one secondary window.
-Initially, the secondary window displays output of the debugged
-process, but any secondary buffer can be displayed, press `?' in
-the window for more details."
-  (delete-other-windows)
-  (split-window-horizontally)
-  (other-window 1)
-  (switch-to-buffer src-buf)
-  (other-window 1)
-  (split-window nil 20)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "output" name))
-  (other-window 1))
-
-(defun rdebug-window-layout-stack-of-windows (src-buf name)
-  "A rdebug window layout with several secondary windows to the right.
-The debugger shell and the source code window is to the left."
-  (delete-other-windows)
-  (split-window-horizontally)
-  (split-window nil 20)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "cmd" name))
-  (other-window 1)
-  (switch-to-buffer src-buf)
-  (other-window 1)
-  (split-window)
-  (split-window)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "variables" name))
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "stack" name))
-  (other-window 1)
-  (split-window)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "output" name))
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "breakpoints" name))
-  (other-window 1))
-
 
 (defun rdebug-setup-windows ()
   "Create the debugger user interface window layout.
@@ -508,11 +420,6 @@ This is called when the debugger starts."
             (erase-buffer)))))
   (rdebug-setup-windows))
 
-
-(defun rdebug-get-buffer (name script-name)
-  "Return a rdebug buffer for displaying NAME when debugging SCRIPT-NAME.
-If the buffer doesn't exists it is created."
-  (get-buffer-create (format "*rdebug-%s-%s*" name script-name)))
 
 (defun rdebug-restore-windows ()
   "Display the initial ruby debugger window layout."
@@ -1149,8 +1056,38 @@ The higher score the better."
 ;; The output buffer.
 ;;
 
+; FIXME add a macro to toggle read-only and run command.
+(defun rdebug-output-add-divider ()
+  (interactive "")
+  (save-excursion
+    (goto-char (point-max))
+    (setq buffer-read-only nil)
+    ; FIXME Cooler would be to pick up stack 
+    ; position in stack line and prepend a 
+    ; buffer-local marker number
+    (insert (format "%d: ============================\n"
+		    rdebug-output-marker-number))
+    (setq rdebug-output-marker-number (+ rdebug-output-marker-number 1))
+    (setq buffer-read-only t)))
+
+(defun rdebug-output-delete-output ()
+  (interactive)
+  (setq buffer-read-only nil)
+  (delete-region (point-min) (point-max))
+  (setq buffer-read-only t))
+
+(defun rdebug-output-undo ()
+  (interactive "")
+  (setq buffer-read-only nil)
+  (undo)
+  (setq buffer-read-only t))
+
 (defvar rdebug-output-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map "d" 'rdebug-output-delete-output)
+    (define-key map "=" 'rdebug-output-add-divider)
+    (define-key map "\C-_" 'rdebug-output-undo) ; FIXME get from keymap
+    (define-key map "u"    'rdebug-output-undo)
     (suppress-keymap map)
     (rdebug-populate-secondary-buffer-map map)
     map)
@@ -1161,13 +1098,15 @@ The higher score the better."
 
 \\{rdebug-output-mode}"
   (interactive)
-  (kill-all-local-variables)
-  (setq major-mode 'rdebug-output-mode)
-  (setq mode-name "RDEBUG Output")
-  (setq buffer-read-only t)
-  (set (make-local-variable 'rdebug-secondary-buffer) t)
-  (use-local-map rdebug-output-mode-map)
-  (run-mode-hooks 'rdebug-output-mode-hook))
+  (let ((old-marker-number rdebug-output-marker-number))
+    (kill-all-local-variables)
+    (setq major-mode 'rdebug-output-mode)
+    (setq mode-name "RDEBUG Output")
+    (setq buffer-read-only t)
+    (set (make-local-variable 'rdebug-secondary-buffer) t)
+    (use-local-map rdebug-output-mode-map)
+    (set (make-local-variable 'rdebug-output-marker-number) old-marker-number)
+    (run-mode-hooks 'rdebug-output-mode-hook)))
 
 (defun rdebug--setup-output-buffer (buf comint-buffer)
   (rdebug-debug-enter "rdebug--setup-output-buffer"

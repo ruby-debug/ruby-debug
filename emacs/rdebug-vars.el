@@ -45,6 +45,9 @@
 
 (defvar rdebug-goto-entry-acc "")
 
+(defvar rdebug-output-marker-number 0
+  "Number to be used when `rdebug-output-add-divider' is next called on the secondary output buffer.")
+
 (defvar rdebug-original-window-configuration nil
   "The window layout rdebug should restore when the debugger exits.")
 
