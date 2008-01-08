@@ -1,3 +1,11 @@
+2008-01-07 20:38  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
+	  trunk/cli/ruby-debug/commands/variables.rb, ChangeLog: Add "var
+	  class". This means "var const .." can no longer be abbreviated
+	  "var c"; use "var co" instead.
+	  (Or "var const" or "var constant"
+
 2008-01-07 19:57  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
