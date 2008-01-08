@@ -2,9 +2,8 @@
 require "test/unit"
 require "fileutils"
 
-# require "rubygems"
-# require "ruby-debug"
-# Debugger.start
+# require "rubygems" 
+# require "ruby-debug"; Debugger.start
 
 SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless 
   defined?(SRC_DIR)

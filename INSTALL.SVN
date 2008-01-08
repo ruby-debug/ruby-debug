@@ -66,9 +66,9 @@ This creates a Makefile and builds the ruby-debug shared library. (On
 Unix the name is ruby_debug.so).
 
 Once this is done you can run the debugger as you would rdebug using the
-script runner.sh. For example (again from trunk)
+script rdbg.rb. For example (again from trunk)
 
-  ./runner.sh ~/my-ruby-program.rb
+  ./rdbg.rb ~/my-ruby-program.rb
 
 3. Running the Regression tests
   

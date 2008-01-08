@@ -6,7 +6,7 @@ require "fileutils"
 
 module TestHelper
   
-  def run_debugger(testname, args='', outfile=nil, filter=nil,
+  def run_debugger(testname, args='', outfile=nil, filter=nil, old_code=false,
                    debugger=File.join(SRC_DIR, 'tdebug.rb'))
     rightfile = File.join(SRC_DIR, "#{testname}.right")
     
@@ -17,7 +17,11 @@ module TestHelper
     end
     
     ENV['RDEBUG'] = debugger
-    cmd = "/bin/sh #{File.join(SRC_DIR, '../runner.sh')} #{args} >#{outfile}"
+    if old_code
+      cmd = "/bin/sh #{File.join(SRC_DIR, '../runner.sh')} #{args} >#{outfile}"
+    else
+      cmd = "#{File.join(SRC_DIR, '../rdbg.rb')} #{args} >#{outfile}"
+    end
     output = `#{cmd}`
     
     got_lines     = File.read(outfile).split(/\n/)
