@@ -280,8 +280,9 @@ The SEPARATOR regexp defaults to \"\\s-+\"."
         (append (unless (eq i 0) (split-string (substring string 0 i) sep t))
                 (let ((rfs (read-from-string string i)))
                   (cons (car rfs)
-                        (split-string-and-unquote (substring string (cdr rfs))
-                                                  sep)))))))
+                        (with-no-warnings
+                          (split-string-and-unquote (substring string (cdr rfs))
+                                                    sep))))))))
   )
 
 
@@ -1460,7 +1461,8 @@ and options used to invoke rdebug."
     (rdebug-set-window-configuration-state 'debugger t)
     ;; Parse the command line and pick out the script name and whether
     ;; --annotate has been set.
-    (let* ((words (split-string-and-unquote command-line))
+    (let* ((words (with-no-warnings
+                    (split-string-and-unquote command-line)))
            (script-name-annotate-p (rdebug-get-script-name
                                     (gud-rdebug-massage-args "1" words) nil))
            (target-name (file-name-nondirectory (car script-name-annotate-p)))

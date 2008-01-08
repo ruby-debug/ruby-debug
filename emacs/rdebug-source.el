@@ -442,7 +442,8 @@ This does not menus or prefix keys."
   (interactive "aWindow layout function: ")
   (setq rdebug-window-layout-function func)
   (if gud-comint-buffer
-      (rdebug-setup-windows)))
+      (with-no-warnings
+        (rdebug-setup-windows))))
 
 
 ;; -------------------------------------------------------------------
@@ -513,8 +514,11 @@ debugger is active."
   :group 'rdebug
   :global t
   :init-value nil
+  ;; Unless the debugger is running, activating this doesn't do
+  ;; anything.
   (if (featurep 'rdebug-core)
-      (rdebug-short-key-mode-maybe-activate)))
+      (with-no-warnings
+        (rdebug-short-key-mode-maybe-activate))))
 
 (defun rdebug-customize ()
   "Use `customize' to edit the settings of the `rdebug' debugger."
