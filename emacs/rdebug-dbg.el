@@ -1,4 +1,4 @@
-;;; rdebug-breaks.el --- Ruby debugger frames buffer
+;;; rdebug-dbg.el --- Ruby debugger frames buffer
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren

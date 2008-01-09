@@ -31,7 +31,7 @@ CLI_FILES = COMMON_FILES + FileList[
   'test/**/info-var-bug.rb',
   'test/**/tdebug.rb',
   'test/**/test-*.cmd',
-  'rdebug.rb',
+  'rdbg.rb',
    CLI_TEST_FILE_LIST,                                    
 ]
 

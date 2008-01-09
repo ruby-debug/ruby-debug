@@ -1,3 +1,20 @@
+2008-01-09 19:03  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/Makefile.am,
+	  trunk/emacs/rdebug-breaks.el, trunk/emacs/rdebug-cmd.el,
+	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-dbg.el,
+	  trunk/emacs/rdebug-frames.el, trunk/emacs/rdebug-help.el,
+	  trunk/emacs/rdebug-output.el, trunk/emacs/rdebug-secondary.el,
+	  trunk/emacs/rdebug-track.el, trunk/emacs/rdebug-varbuf.el,
+	  trunk/emacs/rdebug-watch.el, trunk/emacs/test/test-indent.el,
+	  trunk/emacs/test/test-regexp.el, ChangeLog: Break out secondary
+	  buffer into their own file, and also internal
+	  debug code and general secondary commands. Secondary buffer code
+	  removed from rdebug-cmd and moved into the appropriate file.
+	  
+	  rdebug-edit-variables-value is not defined so comment out for
+	  now.
+
 2008-01-08 16:04  Rocky Bernstein
 
 	* trunk/ChangeLog, ChangeLog, trunk/rdbg.rb: Restore $: to the
