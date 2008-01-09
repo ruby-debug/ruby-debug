@@ -572,20 +572,6 @@ This function is designed to be used in a user hook, for example:
               rdebug-debugger-support-minor-mode-map-when-deactive))))
 
 
-;; -- Reset support
-
-(defadvice gud-reset (before rdebug-reset)
-  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
-etc.)."
-  (dolist (buffer (buffer-list))
-    (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
-      (let ((w (get-buffer-window buffer)))
-        (when w
-          (delete-window w)))
-      (kill-buffer buffer))))
-(ad-activate 'gud-reset)
-
-
 ;; Common setup to `rdebug' and `rdebug-set-windows' (the shell entry point).
 (defun rdebug-common-initialization ()
   "Common initialization to `rdebug' and `rdebug-set-windows'."

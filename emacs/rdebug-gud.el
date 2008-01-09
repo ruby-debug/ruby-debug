@@ -1,7 +1,7 @@
 ;;; rdebug-gud.el --- rdebug interface to gud.
 
-;; Copyright (C) 2007 Rocky Bernstein (rocky@gnu.org)
-;; Copyright (C) 2007 Anders Lindgren
+;; Copyright (C) 2007, 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2007, 2008 Anders Lindgren
 
 ;; $Id$
 
@@ -120,6 +120,20 @@ As long as repeated next or step commands are given, they inherit this setting.
 With a numeric argument, continue to that line number of the current file."
   (interactive "p")
   (rdebug-stepping "step" arg))
+
+;; -- Reset support
+
+(defadvice gud-reset (before rdebug-reset)
+  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
+etc.)."
+  (dolist (buffer (buffer-list))
+    (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
+      (let ((w (get-buffer-window buffer)))
+        (when w
+          (delete-window w)))
+      (kill-buffer buffer))))
+(ad-activate 'gud-reset)
+
 
 (provide 'rdebug-gud)
 
