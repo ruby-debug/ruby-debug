@@ -16,27 +16,43 @@
 #$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
 
 lisp_files = rdebug.el \
+	     rdebug-breaks.el 	\
 	     rdebug-cmd.el 	\
+	     rdebug-dbg.el 	\
 	     rdebug-core.el 	\
+	     rdebug-frames.el 	\
+	     rdebug-help.el 	\
 	     rdebug-layouts.el	\
+	     rdebug-output.el 	\
              rdebug-regexp.el	\
+	     rdebug-secondary.el\
 	     rdebug-source.el	\
 	     rdebug-track.el 	\
-	     rdebug-vars.el
+	     rdebug-varbuf.el   \
+	     rdebug-vars.el 	\
+	     rdebug-watch.el
 check_DATA = test/elk-test.el	\
 	test/test-cmd.el    	\
 	test/test-core.el   	\
 	test/test-indent.el 	\
 	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
-ELCFILES   = rdebug.elc 	\
-	     rdebug-cmd.elc 	\
-	     rdebug-core.elc 	\
-	     rdebug-layouts.elc	\
-             rdebug-regexp.elc	\
-	     rdebug-source.elc	\
-	     rdebug-track.elc 	\
-	     rdebug-vars.elc
+ELCFILES   = rdebug.elc 		\
+	     rdebug-breaks.elc 		\
+	     rdebug-cmd.elc 		\
+	     rdebug-core.elc 		\
+	     rdebug-dbg.el 		\
+	     rdebug-frames.elc 		\
+	     rdebug-help.elc 		\
+	     rdebug-layouts.elc		\
+	     rdebug-output.elc 		\
+             rdebug-regexp.elc		\
+	     rdebug-secondary.elc	\
+	     rdebug-source.elc		\
+	     rdebug-track.elc 		\
+	     rdebug-varbuf.elc 		\
+	     rdebug-vars.elc 		\
+	     rdebug-watch.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 endif

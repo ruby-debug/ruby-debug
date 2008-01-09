@@ -8,9 +8,12 @@
 (load-file "../rdebug.el")
 (load-file "../rdebug-core.el")
 
+(defvar last-annotation nil
+  "Value of the last annotation processed")
+
 ;; Redefine functions to make them harmless for testing
 (defun rdebug-process-annotation (name contents)
-  (message name))
+  (setq last-annotation name))
 
 (make-variable-buffer-local 'gud-rdebug-marker-acc)
 

@@ -1,3 +1,41 @@
+2008-01-08 16:11  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Change indentation.
+
+2008-01-08 16:04  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, rdbg.rb: Restore $: to the value it was
+	  before rdebug call.
+
+2008-01-08 12:04  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-core.el, emacs/rdebug-layouts.el,
+	  emacs/rdebug-vars.el: rdebug-layouts.rb, Makefile.am: window
+	  layouts - split off from rdebug-core.el
+	  Add some output commands: command to add a marker line, clear the
+	  output window, and allow undo.
+
+2008-01-08 06:30  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug-source.el: New and old
+	  byte-compile warnings eliminated.
+
+2008-01-08 02:36  Rocky Bernstein
+
+	* INSTALL.SVN, Rakefile, rdbg.rb, test/helper.rb,
+	  test/test-breakpoints.rb, test/test-output.rb, test/test-quit.rb:
+	  Rewrite runner.sh in Ruby: rdbg.rb
+	  Were it not for a bug that needs to be fixed, we could
+	  remove runner.sh. test-output.rb hits this bug.
+
+2008-01-07 23:02  Rocky Bernstein
+
+	* README: Note need for VC6.
+
+2008-01-07 20:51  Rocky Bernstein
+
+	* CHANGES: What's changed.
+
 2008-01-07 20:38  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/commands/info.rb,

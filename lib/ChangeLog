@@ -1,3 +1,8 @@
+2008-01-08 16:04  Rocky Bernstein
+
+	* trunk/ChangeLog, ChangeLog, trunk/rdbg.rb: Restore $: to the
+	  value it was before rdebug call.
+
 2008-01-07 20:38  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,

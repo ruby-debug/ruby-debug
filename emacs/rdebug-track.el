@@ -88,6 +88,7 @@ as gud-mode does for debugging C programs with gdb."
 (require 'cl)
 (require 'compile)
 (require 'shell)
+(require 'rdebug-breaks)
 (require 'rdebug-core)
 
 
