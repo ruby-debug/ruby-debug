@@ -51,6 +51,15 @@ Program-location lines look like this:
   "\n"
   "Regular expression to match the end of an annotation.")
 
+;; Examples of annotations:
+;; ^Z^Zfoo\n
+;; ^Z^Zpre-prompt\n
+;; ^Z^Zsource foo.rb:10\n
+
+(defconst rdebug-annotation-start-regexp
+  "\\(\\([a-z][-a-z]+\\)\n\\|source \\)"
+  "Regular expression to match the start of an annotation.")
+
 (defconst rdebug--breakpoint-regexp
   "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")

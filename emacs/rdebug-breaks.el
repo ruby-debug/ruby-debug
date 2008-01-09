@@ -25,11 +25,12 @@
 ;; This file contains code dealing with the breakpoints secondary buffer.
 
 
-(require 'rdebug-regexp)
-(require 'rdebug-vars)
 (require 'rdebug-dbg)
+(require 'rdebug-gud)
+(require 'rdebug-regexp)
 (require 'rdebug-secondary)
 (require 'rdebug-source)
+(require 'rdebug-vars)
 
 (defun rdebug-display-breakpoints-buffer ()
   "Display the rdebug breakpoints buffer."
@@ -161,17 +162,6 @@
       (when (string-match rdebug--breakpoint-regexp s)
         (let ((bpnum (substring s (match-beginning 1) (match-end 1))))
           (gud-call (format "delete %s" bpnum)))))))
-
-(defun rdebug-display-line (file line &optional move-arrow)
-  (let ((oldpos (and gud-overlay-arrow-position
-                     (marker-position gud-overlay-arrow-position)))
-        (oldbuf (and gud-overlay-arrow-position
-                     (marker-buffer gud-overlay-arrow-position))))
-    (gud-display-line file line)
-    (unless move-arrow
-      (when gud-overlay-arrow-position
-        (set-marker gud-overlay-arrow-position oldpos oldbuf)))))
-
 
 (defun rdebug-goto-breakpoint (pt)
   "Displays the location in a source file of the selected breakpoint."

@@ -1,4 +1,4 @@
-;;; rdebug-cmd.el --- Ruby debugger user commands.
+;;; rdebug-gud.el --- rdebug interface to gud.
 
 ;; Copyright (C) 2007 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007 Anders Lindgren
@@ -22,9 +22,7 @@
 
 ;;; Commentary:
 
-;; This file contains interactive rdebug Emacs commands (or the
-;; routines in support of this) which ultimately send command(s) to
-;; the debugger.
+;; This file contains rdebug Emacs routines which interface with gud.
 
 ;;; Code:
 
@@ -35,6 +33,33 @@
 (require 'gud)
 (require 'rdebug-vars)
 (require 'rdebug-regexp)
+
+
+(defun gud-rdebug-massage-args (file args)
+  args)
+
+
+(defun gud-rdebug-find-file (f)
+  (find-file-noselect f))
+
+(defun rdebug-display-line (file line &optional move-arrow)
+  (let ((oldpos (and gud-overlay-arrow-position
+                     (marker-position gud-overlay-arrow-position)))
+        (oldbuf (and gud-overlay-arrow-position
+                     (marker-buffer gud-overlay-arrow-position))))
+    (gud-display-line file line)
+    (unless move-arrow
+      (when gud-overlay-arrow-position
+        (set-marker gud-overlay-arrow-position oldpos oldbuf)))))
+
+(defun rdebug-stepping (step-or-next &optional arg)
+  (or arg (setq arg 1))
+  ;;(if (not (member '('rdebug-next 'rdebug-step 'digit-argument) last-command))
+  ;; (setq rdebug-stepping-prefix ""))
+  (unless (member rdebug-stepping-prefix '("" "+" "-"))
+    (setq rdebug-stepping-prefix ""))
+  (gud-call (format "%s%s %d" step-or-next rdebug-stepping-prefix arg)))
+
 
 
 ;; -------------------------------------------------------------------
@@ -96,19 +121,10 @@ With a numeric argument, continue to that line number of the current file."
   (interactive "p")
   (rdebug-stepping "step" arg))
 
-(defun rdebug-stepping (step-or-next &optional arg)
-  (or arg (setq arg 1))
-  ;;(if (not (member '('rdebug-next 'rdebug-step 'digit-argument) last-command))
-  ;; (setq rdebug-stepping-prefix ""))
-  (unless (member rdebug-stepping-prefix '("" "+" "-"))
-    (setq rdebug-stepping-prefix ""))
-  (gud-call (format "%s%s %d" step-or-next rdebug-stepping-prefix arg)))
-
-
-(provide 'rdebug-cmd)
+(provide 'rdebug-gud)
 
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
 
-;;; rdebug-cmd.el ends here
+;;; rdebug-gud.el ends here

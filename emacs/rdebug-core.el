@@ -89,32 +89,17 @@
 (require 'cl)
 
 (require 'rdebug)
-(require 'rdebug-cmd)
+(require 'rdebug-dbg)
+(require 'rdebug-gud)
 (require 'rdebug-layouts)
 (require 'rdebug-source)
 (require 'rdebug-regexp)
 (require 'rdebug-vars)
-(require 'rdebug-dbg)
-(require 'rdebug-breaks)
 
 
 ;; -------------------------------------------------------------------
 ;; Interface to gud.
 ;;
-
-(defun gud-rdebug-massage-args (file args)
-  args)
-
-
-
-;; Examples of annotations:
-;; ^Z^Zfoo\n
-;; ^Z^Zpre-prompt\n
-;; ^Z^Zsource foo.rb:10\n
-
-(defconst rdebug-annotation-start-regexp
-  "\\(\\([a-z][-a-z]+\\)\n\\|source \\)"
-  "Regular expression to match the start of an annotation.")
 
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
@@ -212,9 +197,6 @@
       (rdebug-debug-message "REM: %S" gud-marker-acc)
 
       output)))
-
-(defun gud-rdebug-find-file (f)
-  (find-file-noselect f))
 
 (defun rdebug-get-script-name (args &optional annotate-p)
   "Pick out the script name from the command line.

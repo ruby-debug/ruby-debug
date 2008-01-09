@@ -17,10 +17,10 @@
 
 lisp_files = rdebug.el \
 	     rdebug-breaks.el 	\
-	     rdebug-cmd.el 	\
 	     rdebug-dbg.el 	\
 	     rdebug-core.el 	\
 	     rdebug-frames.el 	\
+	     rdebug-gud.el 	\
 	     rdebug-help.el 	\
 	     rdebug-layouts.el	\
 	     rdebug-output.el 	\
@@ -39,9 +39,9 @@ check_DATA = test/elk-test.el	\
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc 		\
 	     rdebug-breaks.elc 		\
-	     rdebug-cmd.elc 		\
 	     rdebug-core.elc 		\
 	     rdebug-dbg.el 		\
+	     rdebug-gud.elc 		\
 	     rdebug-frames.elc 		\
 	     rdebug-help.elc 		\
 	     rdebug-layouts.elc		\
