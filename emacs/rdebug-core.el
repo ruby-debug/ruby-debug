@@ -479,6 +479,7 @@ This function is called upon quitting the debugger and
   (let ((map (make-sparse-keymap)))
     (define-key map "b" 'gud-break)
     (define-key map "t" 'rdebug-toggle-source-breakpoint-enabled)
+    (define-key map [insert] 'rdebug-local-short-key-mode-off)
     (define-key map "p" 'gud-print)
     (rdebug-populate-secondary-buffer-map-plain map)
     map)
@@ -522,6 +523,7 @@ This function is designed to be used in a user hook, for example:
 
 (defun rdebug-local-short-key-mode-off ()
   "Turn off `rdebug-local-short-key-mode' in all buffers."
+  (interactive)
   (rdebug-debug-enter "rdebug-local-short-key-mode-off"
     (save-current-buffer
       (dolist (buf (buffer-list))
@@ -535,7 +537,8 @@ This function is designed to be used in a user hook, for example:
 
 (defun rdebug-local-short-key-mode-on ()
   "Turn on `rdebug-local-short-key-mode' in the current debugger frame."
-  (rdebug-debug-enter "rdebug-local-short-key-mode-off"
+  (interactive)
+  (rdebug-debug-enter "rdebug-local-short-key-mode-on"
     (save-current-buffer
       (if (and gud-comint-buffer
                (not (rdebug-buffer-killed-p gud-comint-buffer)))

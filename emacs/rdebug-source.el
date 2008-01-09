@@ -467,6 +467,7 @@ This does not menus or prefix keys."
         (prefix-map (make-sparse-keymap)))
     (rdebug-populate-debugger-menu map)
     (rdebug-populate-secondary-buffer-map-plain prefix-map)
+    (define-key prefix-map [insert] 'rdebug-local-short-key-mode-on)
     (define-key map gud-key-prefix prefix-map)
     (rdebug-populate-common-keys map)
     map)
