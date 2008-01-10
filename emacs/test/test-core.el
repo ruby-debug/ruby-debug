@@ -18,6 +18,7 @@
 (deftest "rdebug-get-script-name-test"
   (assert-equal '("foo" nil) (rdebug-get-script-name '("foo")))
   (assert-equal '("foo" nil) (rdebug-get-script-name '("-m" "foo")))
+  (assert-equal '("foo" t) (rdebug-get-script-name '("--emacs" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name '("--annotate=1" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name '("--annotate" "1" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name '("-A" "1" "foo")))

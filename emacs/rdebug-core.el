@@ -212,7 +212,7 @@ Initially annotate should be set to nil."
      ((equal "-A" arg)
       (rdebug-get-script-name (cdr args) t))
      ((equal "--emacs" arg)
-      (rdebug-get-script-name (cdr args) t))
+      (rdebug-get-script-name args t))
      ((member arg '("-h" "--host" "-p" "--port"
 		    "-I" "--include" "-r" "--require"))
       (if args

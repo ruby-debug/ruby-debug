@@ -1,3 +1,15 @@
+2008-01-10 10:34  Rocky Bernstein
+
+	* trunk/CHANGES, trunk/ChangeLog,
+	  trunk/cli/ruby-debug/commands/condition.rb,
+	  trunk/cli/ruby-debug/commands/enable.rb,
+	  trunk/cli/ruby-debug/processor.rb, trunk/doc/ruby-debug.texi,
+	  trunk/emacs/Makefile.am, trunk/emacs/rdebug-breaks.el,
+	  trunk/emacs/rdebug-regexp.el, trunk/emacs/test/test-regexp.el,
+	  trunk/ext/breakpoint.c, ChangeLog, trunk/test/condition.cmd,
+	  trunk/test/condition.right, trunk/test/test-breakpoints.rb,
+	  trunk/test/test-condition.rb: Add condition command.
+
 2008-01-09 19:10  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, trunk/emacs/rdebug-dbg.el,

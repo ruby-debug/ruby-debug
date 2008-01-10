@@ -1,3 +1,22 @@
+2008-01-10 21:57  Rocky Bernstein
+
+	* bin/rdebug, emacs/rdebug-core.el, test/dollar-0.rb,
+	  test/dollar-0.right, test/helper.rb, test/test-dollar-0.rb: Fix
+	  for "if $0 == __FILE__" idiom. Bug #16038
+	  rdebug-core.el add '--'; -emacs -> --emacs
+	  rdebug: add subroutines for calling debugger and processing
+	  options.
+
+2008-01-10 10:34  Rocky Bernstein
+
+	* CHANGES, ChangeLog, cli/ruby-debug/commands/condition.rb,
+	  cli/ruby-debug/commands/enable.rb, cli/ruby-debug/processor.rb,
+	  doc/ruby-debug.texi, emacs/Makefile.am, emacs/rdebug-breaks.el,
+	  emacs/rdebug-regexp.el, emacs/test/test-regexp.el,
+	  ext/breakpoint.c, lib/ChangeLog, test/condition.cmd,
+	  test/condition.right, test/test-breakpoints.rb,
+	  test/test-condition.rb: Add condition command.
+
 2008-01-10 09:07  Rocky Bernstein
 
 	* emacs/rdebug-frames.el, emacs/rdebug-regexp.el,
