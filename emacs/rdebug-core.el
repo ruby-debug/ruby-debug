@@ -211,7 +211,7 @@ Initially annotate should be set to nil."
       (rdebug-get-script-name (cdr args) t))
      ((equal "-A" arg)
       (rdebug-get-script-name (cdr args) t))
-     ((equal "-emacs" arg)
+     ((equal "--emacs" arg)
       (rdebug-get-script-name (cdr args) t))
      ((member arg '("-h" "--host" "-p" "--port"
 		    "-I" "--include" "-r" "--require"))
@@ -220,7 +220,7 @@ Initially annotate should be set to nil."
         ;;else
         (list nil annotate-p)))
      ((string-match "^-[a-zA-z]" arg) (rdebug-get-script-name args annotate-p))
-     ((string-match "^--[a-zA-z]+" arg) (rdebug-get-script-name args annotate-p))
+     ((string-match "^--[a-zA-z]*" arg) (rdebug-get-script-name args annotate-p))
      ((string-match "^rdebug" arg) (rdebug-get-script-name args annotate-p))
      ;; found script name (or nil
      (t (list arg annotate-p)))))

@@ -5,7 +5,8 @@ require "fileutils"
 # require "diff/lcs/hunk"
 
 module TestHelper
-  
+
+  # FIXME: turn args into a hash.
   def run_debugger(testname, args='', outfile=nil, filter=nil, old_code=false,
                    debugger=File.join(SRC_DIR, 'tdebug.rb'))
     rightfile = File.join(SRC_DIR, "#{testname}.right")
