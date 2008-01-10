@@ -1,3 +1,39 @@
+2008-01-10 09:07  Rocky Bernstein
+
+	* emacs/rdebug-frames.el, emacs/rdebug-regexp.el,
+	  emacs/test/test-cmd.el: rdebug-frames.el: fix redisplay of source
+	  when frames change by running rdebug-display-line in creating
+	  frame buffer. require things we need to require to eval this
+	  file. set-local-variables.
+	  
+	  rdebug-regexp.el: add constants for file and line stack positions
+	  in regexp.
+	  
+	  test-cmd.el: rdebug-cmd -> rdebug-gud.
+
+2008-01-09 23:00  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-gud.el,
+	  emacs/test/test-indent.el: Some more GUD things moved to gud-el.
+
+2008-01-09 22:56  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-breaks.el, emacs/rdebug-cmd.el,
+	  emacs/rdebug-core.el, emacs/rdebug-gud.el,
+	  emacs/rdebug-regexp.el: rdebug-cmd.el -> rdebug-gud.el
+	  Move gud things from rdebug-core.el to rdebug-gud.el
+
+2008-01-09 22:37  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-source.el: Allow [insert] to
+	  turn on/off short-key-mode.
+
+2008-01-09 19:10  Rocky Bernstein
+
+	* ChangeLog, Rakefile, emacs/rdebug-dbg.el, lib/ChangeLog:
+	  Rakefile: rdebug.rb -> rdbg.el
+	  rdebug-dbg.el: Add $Id$
+
 2008-01-09 19:03  Rocky Bernstein
 
 	* ChangeLog, emacs/Makefile.am, emacs/rdebug-breaks.el,

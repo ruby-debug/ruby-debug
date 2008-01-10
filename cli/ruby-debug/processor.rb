@@ -34,10 +34,11 @@ module Debugger
     # FIXME: get from Command regexp method.
     @@Show_breakpoints_postcmd = [
                                   /^\s*b(?:reak)?/, 
+                                  /^\s* cond(?:ition)? (?:\s+(\d+)\s*(.*))?$/ix,
                                   /^\s*del(?:ete)?(?:\s+(.*))?$/ix,
                                   /^\s* dis(?:able)? (?:\s+(.*))?$/ix,
                                   /^\s* en(?:able)? (?:\s+(.*))?$/ix,
-                                  # "tbreak", "condition", "clear", 
+                                  # "tbreak", "clear", 
                                  ]
     @@Show_annotations_run     = [
                                   /^\s*c(?:ont(?:inue)?)?(?:\s+(.*))?$/,

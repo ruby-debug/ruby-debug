@@ -1,3 +1,9 @@
+2008-01-09 19:10  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, trunk/emacs/rdebug-dbg.el,
+	  ChangeLog: Rakefile: rdebug.rb -> rdbg.el
+	  rdebug-dbg.el: Add $Id$
+
 2008-01-09 19:03  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/Makefile.am,

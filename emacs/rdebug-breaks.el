@@ -42,7 +42,8 @@
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
     (define-key map "t" 'rdebug-toggle-breakpoint)
-					; (define-key map "i" 'rdebug-add-breakpoint-condition)
+    (define-key map "i" 'rdebug-add-breakpoint-condition)
+    (define-key map [insert] 'rdebug-add-breakpoint-condition)
     (define-key map "\C-x\C-e" 'gud-print) ; FIXME show expression in msg area
     (rdebug-populate-digit-keys map)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
@@ -207,12 +208,14 @@ secondary window or nil if none found."
                (bpnum (substring s (match-beginning 1) (match-end 1))))
           (gud-call (format "%s breakpoint %s" cmd bpnum)))))))
 
-;;; (defun rdebug-add-breakpoint-condition (pt expr)
-;;;   "Add an expression as a condition to the break `rdebug' Ruby debugger."
-;;;   (interactive "dsRuby expression for breakpoint condition: ")
-;;;   (let ((bpnum (rdebug-get-breakpoint-number pt)))
-;;;     (if (and bpnum (not (string= expr "")))
-;;; 	(gud-call (format "condition %s %s" bpnum expr)))))
+(defun rdebug-add-breakpoint-condition (pt)
+  "Add an expression as a condition to the break `rdebug' Ruby debugger."
+  (interactive "d")
+  (let ((bpnum (rdebug-get-breakpoint-number pt))
+	(expr (read-string  "Ruby expression for breakpoint condition: ")))
+    (if bpnum
+	(gud-call (format "condition %s %s" bpnum expr))
+      (message "Breakpoint number not found"))))
 
 
 (provide 'rdebug-breaks)

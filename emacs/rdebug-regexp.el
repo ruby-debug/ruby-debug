@@ -61,7 +61,7 @@ Program-location lines look like this:
   "Regular expression to match the start of an annotation.")
 
 (defconst rdebug--breakpoint-regexp
-  "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)$"
+  "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)\\( if .*\\)?$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
 
 (defconst rdebug-marker-regexp-file-group 2
@@ -75,7 +75,7 @@ Program-location lines look like this:
   "Regular expression for a rdebug position")
 
 (defconst rdebug-traceback-line-re
-  "^[ \t]+from \\([^:]+\\):\\([0-9]+\\)\\(in `.*'\\)?"
+  "^[ \t]+from \\([^:]+\\):\\([0-9]+\\)\\( in `.*'\\)?"
   "Regular expression that describes a Ruby traceback line.")
 
 (defconst rdebug-dollarbang-traceback-line-re

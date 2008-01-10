@@ -57,25 +57,25 @@ if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 endif
 
-PHONY = test check check-cmd check-core check-indent check-regexp
+PHONY = test check check-core check-gud check-indent check-regexp
 
 test: check
 
-check: check-cmd check-core check-indent check-regexp
+check: check-core check-gud check-indent check-regexp
 
-check-cmd:
+check-gud: rdebug-gud.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-cmd.el )
 
-check-core:
+check-core: rdebug-core.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-core.el )
 
-check-indent:
+check-indent: $(lisp_files)
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-indent.el )
 
-check-regexp:
+check-regexp: rdebug-regexp.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-regexp.el )
 

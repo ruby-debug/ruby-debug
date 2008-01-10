@@ -414,18 +414,18 @@ breakpoint_expr(VALUE self)
 
 /*
  *   call-seq:
- *      breakpoint.expr = string
+ *      breakpoint.expr = string | nil
  *
  *   Sets the codition expression when this breakpoint should be activated.
  */
 static VALUE
-breakpoint_set_expr(VALUE self, VALUE value)
+breakpoint_set_expr(VALUE self, VALUE expr)
 {
     debug_breakpoint_t *breakpoint;
 
     Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
-    breakpoint->expr = StringValue(value);
-    return value;
+    breakpoint->expr = NIL_P(expr) ? expr: StringValue(expr);
+    return expr;
 }
 
 /*

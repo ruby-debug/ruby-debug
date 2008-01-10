@@ -6,7 +6,7 @@
 @set ttDBG @code{@value{DBG}}
 @set Emacs @sc{gnu} Emacs
 
-@set RDEBUG_VERSION 0.10.0
+@set RDEBUG_VERSION 0.10.1
 
 @macro Example {}
 @iftex
@@ -1468,11 +1468,11 @@ ruby-debug help v0.10.1
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-backtrace  disable  exit    irb     pp      restart  step       up   
-break      display  finish  list    ps      save     thread     var  
-catch      down     frame   method  putl    set      toggle     where
-continue   enable   help    next    quit    show     trace    
-delete     eval     info    p       reload  source   undisplay
+backtrace  delete   enable  help    next  quit     show    undisplay
+break      disable  eval    info    p     reload   source  up       
+catch      display  exit    irb     pp    restart  step    var      
+condition  down     finish  list    ps    save     thread  where    
+continue   edit     frame   method  putl  set      trace 
 @end smallexample
 @end flushleft
 @c the above line break eliminates huge line overfull...
@@ -2160,6 +2160,7 @@ continue execution.
 @menu
 * Breakpoints::          Breakpoints (break, catch, delete)
 * Disabling::            Disabling breakpoints (disable, enable)
+* Conditions::                      Break conditions (condition)
 * Resuming Execution::   Resuming execution (continue, step, next, finish)
 @end menu
 
@@ -2310,6 +2311,64 @@ become disabled or enabled only when you use one of the commands
 above.  (The command @code{until} can set and delete a breakpoint of
 its own, but it does not change the state of your other breakpoints;
 see @ref{Resuming Execution, ,Resuming Execution}.)
+
+@node Conditions
+@subsection Break conditions (@samp{condition})
+@cindex conditional breakpoints
+@cindex breakpoint conditions
+
+The simplest sort of breakpoint breaks every time your script reaches
+a specified place.  You can also specify a @dfn{condition} for a
+breakpoint.  A condition is just a Ruby expression.  
+
+Break conditions can be specified when a breakpoint is set, by using
+@samp{if} in the arguments to the @code{break} command. A breakpoint
+with a condition evaluates the expression each time your script
+reaches it, and your script stops only if the condition is
+@emph{true}. They can also be changed at any time
+with the @code{condition} command.
+
+@ifset FINISHED
+You can also use the @code{if} keyword with the @code{watch} command.
+The @code{catch} command does not recognize the @code{if} keyword;
+@code{condition} is the only way to impose a further condition on a
+catchpoint.
+@end ifset
+
+@table @code
+@kindex condition
+@item condition @var{bnum} @var{expression}
+Specify @var{expression} as the break condition for breakpoint
+@var{bnum}.  After you set a condition, breakpoint @var{bnum} stops
+your program only if the value of @var{expression} is true (nonzero).
+
+@item condition @var{bnum}
+Remove the condition from breakpoint number @var{bnum}.  It becomes
+an ordinary unconditional breakpoint.
+@end table
+
+@ifset FINISHED
+When you use @code{condition}, @DBG checks @var{expression}
+immediately for syntactic correctness, and to determine whether
+symbols in it have referents in the context of your breakpoint.  If
+@var{expression} uses symbols not referenced in the context of the
+breakpoint, @DBG prints an error message:
+
+@example
+No symbol "foo" in current context.
+@end example
+@end ifset
+
+@noindent
+The debugger does not actually evaluate @var{expression} at the time
+the @code{condition} command (or a command that sets a breakpoint with
+a condition, like @code{break if @dots{}}) is given, however.
+
+Examples;
+@example
+condition 1 x>5   # Stop on breakpoint 0 only if x>5 is true.
+condition 1       # Change that! Unconditinally stop on breakpoint 1.
+@end example
 
 @node Resuming Execution
 @subsection Resuming Execution (@samp{step}, @samp{next}, @samp{finish}, @samp{continue})

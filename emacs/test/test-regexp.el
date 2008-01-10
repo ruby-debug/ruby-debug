@@ -35,6 +35,10 @@
    "  1 y   at gcd.rb:6"
    "1" "y" "gcd.rb" "6"
    )
+  (regexp-breakpoint-test 
+   "  1 y   at gcd.rb:6 if 1 == a"
+   "1" "y" "gcd.rb" "6"
+   )
   )
 
 (defun regexp-file-test (location-str file-str)

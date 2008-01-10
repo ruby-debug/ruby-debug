@@ -3,7 +3,9 @@ module Debugger
   module EnableDisableFunctions # :nodoc:
     def enable_disable_breakpoints(is_enable, args)
       breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
-      largest = breakpoints.inject(0){|largest, b| largest = b.id if b.id > largest}
+      largest = breakpoints.inject(0) do |largest, b| 
+        largest = b.id if b.id > largest
+      end
       if 0 == largest
         print "No breakpoints have been set.\n"
         return
@@ -36,7 +38,8 @@ module Debugger
     Subcommands = 
       [
        ['breakpoints', 2, "Enable specified breakpoints"],
-       ['display', 2, "Enable some expressions to be displayed when program stops"],
+       ['display', 2, 
+        "Enable some expressions to be displayed when program stops"],
       ].map do |name, min, short_help| 
       SubcmdStruct.new(name, min, short_help)
     end unless defined?(Subcommands)

@@ -12,6 +12,7 @@
 - add "var cl[ass]" command. Note "var const" can no longer be
   abbreviated "var c"; use "var co" (or const or constant).
 - columnize now pulled in from a separate package.
+- add "condition" command. Allow removal of condition.
 
 0.10.0
 - '-r' option can be used to require additional libraries.
