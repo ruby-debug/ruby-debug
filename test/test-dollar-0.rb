@@ -19,8 +19,19 @@ class TestDollar0 < Test::Unit::TestCase
   def test_basic
     Dir.chdir(SRC_DIR) do 
       assert_equal(true, 
-                   run_debugger("dollar-0", 
-                                "-nx --no-stop ./dollar-0.rb",
+                   run_debugger('dollar-0', 
+                                '-nx --no-stop ./dollar-0.rb',
+                                nil, nil, false, File.join(SRC_DIR, '../bin/rdebug')))
+      # Ruby's __FILE__ seems to prepend ./ when no directory was added.
+      assert_equal(true, 
+                   run_debugger('dollar-0a', 
+                                '-nx --no-stop dollar-0.rb',
+                                nil, nil, false, File.join(SRC_DIR, '../bin/rdebug')))
+      # Ruby's __FILE__ seems to prepend ./ when no directory was added.
+      assert_equal(true, 
+                   run_debugger('dollar-0b', 
+                                '-nx --no-stop ' + 
+                                File.join('..', 'test', 'dollar-0.rb'),
                                 nil, nil, false, File.join(SRC_DIR, '../bin/rdebug')))
     end
   end

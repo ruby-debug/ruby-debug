@@ -1,3 +1,8 @@
+2008-01-10 22:25  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-core.el, emacs/test/test-core.el,
+	  lib/ChangeLog: Was gobbling arg in processing --emacs. Add test.
+
 2008-01-10 21:57  Rocky Bernstein
 
 	* bin/rdebug, emacs/rdebug-core.el, test/dollar-0.rb,

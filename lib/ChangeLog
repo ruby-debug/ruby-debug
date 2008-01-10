@@ -1,3 +1,9 @@
+2008-01-10 22:25  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-core.el,
+	  trunk/emacs/test/test-core.el, ChangeLog: Was gobbling arg in
+	  processing --emacs. Add test.
+
 2008-01-10 10:34  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog,

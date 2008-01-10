@@ -9,7 +9,12 @@ require 'ruby-debug'
 def debug_program(options)
   unless options.no_rewrite_program
     $RDEBUG_0 = $0
-    $0 = Debugger::PROG_SCRIPT
+    $0 = if '.' == File.dirname(Debugger::PROG_SCRIPT) and
+             Debugger::PROG_SCRIPT[0..0] != '.'
+           File.join('.', Debugger::PROG_SCRIPT)
+         else
+           Debugger::PROG_SCRIPT
+         end
   end
   Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
 end
