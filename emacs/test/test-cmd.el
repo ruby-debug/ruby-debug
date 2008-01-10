@@ -5,7 +5,7 @@
 
 (setq load-path (cons ".." load-path))
 (require 'rdebug-core)
-(require 'rdebug-cmd)
+(require 'rdebug-gud)
 (setq load-path (cdr load-path))
 
 (defvar last-gud-call nil

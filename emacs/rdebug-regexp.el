@@ -94,6 +94,13 @@ Program-location lines look like this:
   (concat rdebug--stack-frame-1st-regexp rdebug--stack-frame-2nd-regexp)
   "Regexp to recognize a stack frame line in rdebug stack buffers.")
 
+(defconst rdebug-stack-frame-file-group 4
+  "Group position in `rdebug--stack-frame-regexp' that matches the file name.")
+
+(defconst rdebug-stack-frame-line-group 5
+  "Group position in `rdebug--stack-frame-regexp' that matches the line number.")
+
+
 
 ;; -------------------------------------------------------------------
 ;; The end.

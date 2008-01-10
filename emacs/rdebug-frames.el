@@ -24,6 +24,9 @@
 
 ;; This file contains code dealing with the frames secondary buffer.
 (require 'rdebug-dbg)
+(require 'rdebug-regexp)
+(require 'rdebug-secondary)
+(require 'rdebug-source)
 
 (defun rdebug-display-stack-buffer ()
   "Display the rdebug stack buffer."
@@ -86,26 +89,48 @@
         (goto-char (point-min))
         (while (not (eobp))
           (let* ((b (line-beginning-position)) (e (line-end-position))
-                 (s (buffer-substring b e)))
+                 (s (buffer-substring b e))
+		 (file-name nil)
+		 (line-number nil))
             (when (string-match rdebug--stack-frame-1st-regexp s)
               (add-text-properties
                (+ b (match-beginning 2)) (+ b (match-end 2))
                (list 'face font-lock-constant-face
                      'font-lock-face font-lock-constant-face))
+              (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
+                    (fn-start (+ b (match-beginning 3))))
+                (if (string-match "\\([^(]+\\)(" fn-str)
+                    (add-text-properties
+                     (+ fn-start (match-beginning 1))
+                     (+ fn-start (match-end 1))
+                     (list 'face font-lock-function-name-face
+                           'font-lock-face font-lock-function-name-face))))
               ;; Not all stack frames are on one line.
               ;; handle those that are.
               (when (string-match rdebug--stack-frame-regexp s)
+		(setq file-name 
+		      (substring s (match-beginning rdebug-stack-frame-file-group)
+				 (match-end rdebug-stack-frame-line-group)))
                 (add-text-properties
-                 (+ b (match-beginning 4)) (+ b (match-end 4))
+                 (+ b (match-beginning rdebug-stack-frame-file-group)) 
+		 (+ b (match-end rdebug-stack-frame-file-group))
                  (list 'face font-lock-comment-face
                        'font-lock-face font-lock-comment-face))
+
+		(setq line-number 
+		      (substring s (match-beginning rdebug-stack-frame-line-group)
+				 (match-end rdebug-stack-frame-line-group)))
                 (add-text-properties
-                 (+ b (match-beginning 5)) (+ b (match-end 5))
+                 (+ b (match-beginning rdebug-stack-frame-line-group)) 
+		 (+ b (match-end rdebug-stack-frame-line-group))
                  (list 'face font-lock-constant-face
                        'font-lock-face font-lock-constant-face)))
 
               (when (string= (substring s (match-beginning 1) (match-end 1))
                              "-->")
+		; Update source buffer to reflect current position
+		(if (and file-name line-number)
+		    (rdebug-display-line file-name (string-to-number line-number)))
                 ;; highlight the currently selected frame
                 (add-text-properties b e
                                      (list 'face 'bold
@@ -115,15 +140,7 @@
 		(setq current-frame-point (point)))
               (add-text-properties b e
                                    (list 'mouse-face 'highlight
-                                         'keymap rdebug-frames-mode-map))
-              (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
-                    (fn-start (+ b (match-beginning 3))))
-                (if (string-match "\\([^(]+\\)(" fn-str)
-                    (add-text-properties
-                     (+ fn-start (match-beginning 1))
-                     (+ fn-start (match-end 1))
-                     (list 'face font-lock-function-name-face
-                           'font-lock-face font-lock-function-name-face))))))
+                                         'keymap rdebug-frames-mode-map))))
           ;; remove initial '   '  or '-->'
           (beginning-of-line)
           (delete-char 3)
@@ -189,3 +206,9 @@ non-digit will start entry number from the beginning again."
 
 
 (provide 'rdebug-frames)
+
+;;; Local variables:
+;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
+;;; End:
+
+;;; rdebug-frames.el ends here
