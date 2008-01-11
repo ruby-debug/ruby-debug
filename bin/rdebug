@@ -101,15 +101,15 @@ EOB
     opts.on('-m', '--post-mortem', 'Activate post-mortem mode') do 
       options.post_mortem = true
     end
-    opts.on('--no-rewrite-program',
-            'Do not set $0 to the program being debugged') do 
-      options.no_dollar_0 = true
-    end
     opts.on('--no-control', 'Do not automatically start control thread') do 
       options.control = false
     end
     opts.on('--no-quit', 'Do not quit when script finishes') do
       options.noquit = true
+    end
+    opts.on('--no-rewrite-program',
+            'Do not set $0 to the program being debugged') do 
+      options.no_dollar_0 = true
     end
     opts.on('--no-stop', 'Do not stop when script is loaded') do 
       options.nostop = true

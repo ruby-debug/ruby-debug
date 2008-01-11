@@ -594,20 +594,8 @@ And before we can turn that into something that can be
 like to keep in that line so that when I look at the file, I have an
 example of how to run it.  Therefore we will conditionally run this
 line if that file is invoked directly, but skip it if it is
-not.@footnote{If you want to be able to run @code{rdebug} from the
-outset on this code in ``standalone'' operation, the condition needs to
-more complicated because @code{$0} will be @code{rdebug} rather than
-the program, @code{tri2.rb} here. And if you use @code{rcov} to test
-program coverage, it will show this code as being ``dead''. To get
-around these problems here's the actual condition test I use:
-@smallexample
-if __FILE__ == $0 or
-    ($DEBUG and ['rdebug', 'rcov'].include?(File.basename($0)))
-@end smallexample
-The test for @code{$DEBUG} is so that if I am debugging some
-@emph{other} piece of code and require this file, I don't run this
-section. And this also means that I have to save and restore
-@code{$DEBUG} before requiring this file. It's ugly, but it works.}
+not.@footnote{@code{rdebug} resets @code{$0} to try to make things
+like this work.}
 @smallexample
   if __FILE__ == $0 
     puts triangle(3)
@@ -1108,6 +1096,7 @@ Options:
     -m, --post-mortem                Activate post-mortem mode
         --no-control                 Do not automatically start control thread
         --no-quit                    Do not quit when script finishes
+        --no-rewrite-program         Do not set $0 to the program being debugged
         --no-stop                    Do not stop when script is loaded
     -p, --port PORT                  Port used for remote debugging
     -r, --require SCRIPT             Require the library, before executing your script
@@ -1222,6 +1211,26 @@ the debugger for inspection of what went wrong. You may also want to
 use this option in conjunction with @code{--no-stop}. See also 
 @ref{Post-Mortem Debugging}. 
 
+@item --no-control
+@cindex @code{--no-control}
+Do not automatically start control thread.
+
+@item --no-quit
+@cindex @code{--no-quit}
+Restart the debugger when your program terminates normally.
+
+@item --no-rewrite-program
+@cindex @code{--no-rewrite-program}
+Normally @code{rdebug} will reset the program name @code{$0} from its
+name to the debugged program, and set the its name in variable
+@code{$RDEBUG_0}. In the unlikely even you don't want this use this option.
+
+@item --no-stop
+@cindex @code{--no-stop}
+Normally the @code{rdebug} stops before executing the first
+statement. If instead you want it to start running initially and will
+perhaps break it later in the running, use this options.
+
 @item -p | --port @var{port}
 @cindex @code{-p} @var{port}
 @cindex @code{--port} @var{port}
@@ -1256,20 +1265,6 @@ option automatically sets @code{--server} option.
 @cindex @code{-x}
 @cindex @code{--trace}
 Turn on line tracing.
-
-@item --no-control
-@cindex @code{--no-control}
-Do not automatically start control thread.
-
-@item --no-stop
-@cindex @code{--no-stop}
-Normally the @code{rdebug} stops before executing the first
-statement. If instead you want it to start running initially and will
-perhaps break it later in the running, use this options.
-
-@item --no-quit
-@cindex @code{--no-quit}
-Restart the debugger when your program terminates normally.
 
 @end table
 

@@ -1,3 +1,12 @@
+2008-01-10 22:56  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug, ChangeLog,
+	  trunk/test/dollar-0.rb, trunk/test/dollar-0.right,
+	  trunk/test/dollar-0a.right, trunk/test/dollar-0b.right,
+	  trunk/test/test-dollar-0.rb: More correct $0 fix. Deal with the
+	  case ./ is automatically added.
+	  However this might not be right in all cases.
+
 2008-01-10 22:25  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/rdebug-core.el,

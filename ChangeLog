@@ -1,3 +1,22 @@
+2008-01-11 10:10  Rocky Bernstein
+
+	* CHANGES, bin/rdebug, test/output.right, test/quit.right,
+	  test/tdebug.rb, test/test-quit.rb: rdebug: do syntax checking
+	  when running as server as well as local interface. --no-quit
+	  intercepts Syntax Errors now
+	  (which shouldn't happen and means there's another bug in there to
+	  fix; but robustness is good.)
+	  Bring tdebug.rb more in line iwth rdebug until we can get rid of
+	  it altogether. Note some of the current weaknesses.
+
+2008-01-10 22:56  Rocky Bernstein
+
+	* ChangeLog, bin/rdebug, lib/ChangeLog, test/dollar-0.rb,
+	  test/dollar-0.right, test/dollar-0a.right, test/dollar-0b.right,
+	  test/test-dollar-0.rb: More correct $0 fix. Deal with the case ./
+	  is automatically added.
+	  However this might not be right in all cases.
+
 2008-01-10 22:25  Rocky Bernstein
 
 	* ChangeLog, emacs/rdebug-core.el, emacs/test/test-core.el,
