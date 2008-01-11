@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 # -*- Ruby -*-
 # This is a hacked down copy of rdebug which can be used for testing
+# FIXME: use the real rdebug script - DRY.
 
 require 'stringio'
 require 'rubygems'
@@ -10,9 +11,41 @@ require "ostruct"
 TOP_SRC_DIR = File.join(File.expand_path(File.dirname(__FILE__), "..")) unless 
   defined?(TOP_SRC_DIR)
 
-$: << File.join(TOP_SRC_DIR, "ext")
-$: << File.join(TOP_SRC_DIR, "lib")
-$: << File.join(TOP_SRC_DIR, "cli")
+$:.unshift File.join(TOP_SRC_DIR, "ext")
+$:.unshift File.join(TOP_SRC_DIR, "lib")
+$:.unshift File.join(TOP_SRC_DIR, "cli")
+
+def debug_program(options)
+  # Make sure Ruby script syntax checks okay.
+  # Otherwise we get a load message that looks like rdebug has 
+  # a problem. 
+  output = `ruby -c #{Debugger::PROG_SCRIPT} 2>&1`
+  if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
+    puts output
+    exit $?.exitstatus 
+  end
+  print "\032\032starting\n" if Debugger.annotate and Debugger.annotate > 2
+  unless options.no_rewrite_program
+    # Set $0 so things like __FILE == $0 work.
+    # A more reliable way to do this is to put $0 = __FILE__ *after*
+    # loading the script to be debugged.  For this, adding a debug hook
+    # for the first time and then switching to the debug hook that's
+    # normally used would be helpful. Doing this would also help other
+    # first-time initializations such as reloading debugger state
+    # after a restart. 
+
+    # However This is just a little more than I want to take on right
+    # now, so I think I'll stick with the slightly hacky approach.
+    $RDEBUG_0 = $0
+    $0 = if '.' == File.dirname(Debugger::PROG_SCRIPT) and
+             Debugger::PROG_SCRIPT[0..0] != '.'
+           File.join('.', Debugger::PROG_SCRIPT)
+         else
+           Debugger::PROG_SCRIPT
+         end
+  end
+  Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+end
 
 options = OpenStruct.new(
   'annotate'    => false,
@@ -176,27 +209,21 @@ end
 Debugger.post_mortem if options.post_mortem
 Debugger.tracing = options.nostop = true if options.tracing
 
-# Make sure Ruby script syntax checks okay.
-# Otherwise we get a load message that looks like rdebug has 
-# a problem. 
-output = `ruby -c #{Debugger::PROG_SCRIPT} 2>&1`
-if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
-  puts output
-  exit $?.exitstatus 
-end
-print "\032\032starting\n\n" if Debugger.annotate and Debugger.annotate > 2
 if options.noquit
   Debugger.stop if Debugger.started?
   begin
-    Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+    debug_program(options)
   rescue
     print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
     print "Uncaught exception: #{$!}\n"
   end
-  print "The program finished.\n"
+  print "The program finished.\n" unless 
+    Debugger.annotate.to_i > 2 # annotate has its own way
   interface = Debugger::LocalInterface.new
+  # Not sure if ControlCommandProcessor is really the right
+  # thing to use. CommandProcessor requires a state.
   processor = Debugger::ControlCommandProcessor.new(interface)
   processor.process_commands
 else
-  Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+  debug_program(options)
 end

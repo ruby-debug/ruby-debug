@@ -1,5 +1,5 @@
-tdebug.rb:196
-print "The program finished.\n"
+tdebug.rb:221
+Debugger.annotate.to_i > 2 # annotate has its own way
 # # ***************************************************
 # # This tests the quit.
 # # ***************************************************

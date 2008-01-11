@@ -13,6 +13,8 @@
   abbreviated "var c"; use "var co" (or const or constant).
 - columnize now pulled in from a separate package.
 - add "condition" command. Allow removal of condition.
+- $0 == __FILE__ when running rdebug should work -- most of the time. See
+  comments in code for a better solution.
 
 0.10.0
 - '-r' option can be used to require additional libraries.
