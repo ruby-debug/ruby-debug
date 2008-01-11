@@ -55,12 +55,6 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-watch.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
-endif
-
-PHONY = test check check-core check-gud check-indent check-regexp
-
-test: check
-
 check: check-core check-gud check-indent check-regexp
 
 check-gud: rdebug-gud.el
@@ -78,4 +72,9 @@ check-indent: $(lisp_files)
 check-regexp: rdebug-regexp.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-regexp.el )
+endif
+
+PHONY = test check check-core check-gud check-indent check-regexp
+
+test: check
 
