@@ -40,7 +40,7 @@ EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc 		\
 	     rdebug-breaks.elc 		\
 	     rdebug-core.elc 		\
-	     rdebug-dbg.el 		\
+	     rdebug-dbg.elc 		\
 	     rdebug-gud.elc 		\
 	     rdebug-frames.elc 		\
 	     rdebug-help.elc 		\
