@@ -86,10 +86,21 @@ Program-location lines look like this:
   "^\\(-->\\|   \\) +#\\([0-9]+\\)\\(.*\\)"
   "Regexp to match the first line of a stack frame in rdebug stack buffers.")
 
+(defconst rdebug-stack-frame-number-group 2
+  "Group position in `rdebug--stack-frame-1st-regexp' that
+  matches the frame number.")
+
 (defconst rdebug--stack-frame-2nd-regexp
   "\s+at line +\\([^:]+\\):\\([0-9]+\\)$"
   "Regexp to match the second line of a stack frame in rdebug stack buffers.")
 
+(defconst rdebug-stack-frame-2nd-file-group 1
+  "Group position in `rdebug--stack-frame-2nd-regexp' that
+  matches the file name.")
+
+(defconst rdebug-stack-frame-2nd-line-group 2
+  "Group position in `rdebug--stack-frame-2nd-regexp' that
+  matches the line number.")
 (defconst rdebug--stack-frame-regexp
   (concat rdebug--stack-frame-1st-regexp rdebug--stack-frame-2nd-regexp)
   "Regexp to recognize a stack frame line in rdebug stack buffers.")
@@ -98,7 +109,8 @@ Program-location lines look like this:
   "Group position in `rdebug--stack-frame-regexp' that matches the file name.")
 
 (defconst rdebug-stack-frame-line-group 5
-  "Group position in `rdebug--stack-frame-regexp' that matches the line number.")
+  "Group position in `rdebug--stack-frame-regexp' that matches
+  the line number.")
 
 
 

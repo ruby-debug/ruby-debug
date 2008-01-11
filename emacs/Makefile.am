@@ -65,6 +65,10 @@ check-core: rdebug-core.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-core.el )
 
+check-frames: rdebug-frames.el
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-frames.el )
+
 check-indent: $(lisp_files)
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-indent.el )
