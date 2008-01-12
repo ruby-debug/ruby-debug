@@ -468,7 +468,7 @@ This function is called upon quitting the debugger and
   "Keymap used in `rdebug-local-short-key-mode'.")
 
 
-;; Implementation node: This is the mode that does all the work, it's
+;; Implementation note: This is the mode that does all the work, it's
 ;; local to the buffer that is affected.
 (define-minor-mode rdebug-local-short-key-mode
   "Minor mode with short keys for source buffers for the `rdebug' debugger.
