@@ -24,6 +24,7 @@
 
 ;; This file contains code dealing with the breakpoints secondary buffer.
 
+;;; Code:
 
 (require 'rdebug-dbg)
 (require 'rdebug-gud)
@@ -152,7 +153,13 @@
               )
             (forward-line)
             (beginning-of-line)))
-	(goto-line old-line-number)))))
+	(goto-line old-line-number)))
+    (rdebug-breakpoints-update-icons (rdebug-all-breakpoints))))
+
+
+;; ---------------------------------------------------------
+;; Commands of the rdebug breakpoints buffer.
+;;
 
 (defun rdebug-delete-breakpoint (pt)
   "Deletes the breakpoint at PT in the breakpoints buffer."
@@ -217,6 +224,84 @@ secondary window or nil if none found."
 	(gud-call (format "condition %s %s" bpnum expr))
       (message "Breakpoint number not found"))))
 
+
+;; -----------------------------------------------
+;; Breakpoint icon support.
+;;
+
+;; This is a trivial implementation, it has the following shortcomings:
+;;
+;; * It assumes that the buffer content doesn't change, if it does it
+;;   will not be able to remove the icon.
+;;
+;; * No support for displaying an icon in a newly opened file.
+;;
+;; * It has no support for more than one session.
+
+;; Note: This is implemented on top of `gdb-ui'. In the future, it
+;; would be better if that code is generalized.
+
+(require 'gdb-ui)
+
+;; This is a local variable, should not be placed in rdebug-vars.el.
+(defvar rdebug-breakpoint-icons-current-state nil)
+
+(defun rdebug-breakpoint-remove-icon (entry)
+  (if (eq (nth 0 entry) :file)
+      (let ((buf (find-buffer-visiting (nth 3 entry))))
+        (if buf
+            (save-current-buffer
+              (set-buffer buf)
+              (save-excursion
+                (goto-line (nth 4 entry))
+                (gdb-remove-breakpoint-icons (point) (point))))))))
+
+(defun rdebug-breakpoint-add-icon (entry)
+  (if (eq (nth 0 entry) :file)
+      (let ((buf (find-buffer-visiting (nth 3 entry))))
+        (if buf
+            (save-current-buffer
+              (set-buffer buf)
+              (save-excursion
+                (goto-line (nth 4 entry))
+                (gdb-put-breakpoint-icon (nth 2 entry) (nth 1 entry))))))))
+
+(defun rdebug-test-test ()
+  (interactive)
+  (rdebug-breakpoints-update-icons (rdebug-all-breakpoints)))
+
+
+(defun rdebug-breakpoint-list-member (file line list)
+  (let ((res nil))
+    (dolist (entry list)
+      (if (and (equal file (nth 3 entry))
+               (equal line (nth 4 entry)))
+          (setq res t)))
+    res))
+
+;; bpts has the same representation as returned by `rdebug-all-breakpoints'.
+(defun rdebug-breakpoints-update-icons (bpts)
+  ;; Make sure there are is only one reference for each line.
+  (let ((state '()))
+    ;; An enabled breakpoint take precedence.
+    (dolist (enabled '(t nil))
+      (dolist (bpt bpts)
+        (if (and (eq (nth 0 bpt) :file)
+                 (eq (nth 2 bpt) enabled)
+                 (not (rdebug-breakpoint-list-member
+                       (nth 3 bpt) (nth 4 bpt) state)))
+            (setq state (cons bpt state)))))
+    (dolist (entry rdebug-breakpoint-icons-current-state)
+      (unless (member entry state)
+        (rdebug-breakpoint-remove-icon entry)))
+    (dolist (entry state)
+      (unless (member entry rdebug-breakpoint-icons-current-state)
+        (rdebug-breakpoint-add-icon entry)))
+    (setq rdebug-breakpoint-icons-current-state state)))
+
+;; -------------------------------------------------------------------
+;; The end.
+;;
 
 (provide 'rdebug-breaks)
 
