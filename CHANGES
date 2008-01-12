@@ -45,7 +45,7 @@
 - INCOMPATIBLE CHANGE: "script" command removed. Use "source" command instead
   (same as gdb).
 - Run .rdebugrc on Debugger.start. Look for a file in the current directory and
-  run that instead the one in $HOME if that exists. Again, inspired and compatible
+  run that instead of the one in $HOME if that exists. Again, inspired by and compatible
   with gdb.
 - Changes compatible with Ruby 1.9. NOTE: this debugger will NOT work with
   Ruby 1.9
