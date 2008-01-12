@@ -77,18 +77,19 @@
   ;;     '(gdb-locals-font-lock-keywords))
   (run-mode-hooks 'rdebug-frames-mode-hook))
 
+(defun rdebug-stack-buffer-mark-field (b group face)
+  "Mark a field in the stack buffer"
+  (add-text-properties
+   (+ b (match-beginning group)) 
+   (+ b (match-end group))
+   (list 'face font-lock-comment-face
+	 'font-lock-face font-lock-comment-face)))
+
 (defun rdebug-stack-buffer-field (s b group face)
-  "Process a field in the stack buffer and return the string
+  "Mark a field in the stack buffer and return the string
 value of the field."
-  (let ((value))
-    (setq value
-	  (substring s (match-beginning group) (match-end group)))
-    (add-text-properties
-     (+ b (match-beginning group)) 
-     (+ b (match-end group))
-     (list 'face font-lock-comment-face
-	   'font-lock-face font-lock-comment-face))
-    value))
+  (rdebug-stack-buffer-mark-field b group face)
+  (substring s (match-beginning group) (match-end group)))
   
 (defun rdebug--setup-stack-buffer (buf comint-buffer)
   "Detects stack frame lines and sets up mouse navigation."
@@ -110,11 +111,8 @@ value of the field."
               (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
                     (fn-start (+ b (match-beginning 3))))
                 (if (string-match "\\([^(]+\\)(" fn-str)
-                    (add-text-properties
-                     (+ fn-start (match-beginning 1))
-                     (+ fn-start (match-end 1))
-                     (list 'face font-lock-function-name-face
-                           'font-lock-face font-lock-function-name-face))))
+		    (rdebug-stack-buffer-mark-field 
+		     b 1 font-lock-function-name-face)))
 
               (if (string-match rdebug--stack-frame-regexp s)
 		  ;; Handle frames that are on one line
@@ -139,7 +137,9 @@ value of the field."
 		      (setq line-number (rdebug-stack-buffer-field
 					 s b
 					 rdebug-stack-frame-2nd-line-group
-					 font-lock-constant-face))))))
+					 font-lock-constant-face)))))
+		;; Redo string match on first line so we can process the indicator.
+		(string-match rdebug--stack-frame-1st-regexp s))
 
               (when (string= (substring s (match-beginning 1) (match-end 1))
                              "-->")

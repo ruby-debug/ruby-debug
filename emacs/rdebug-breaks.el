@@ -264,7 +264,8 @@ secondary window or nil if none found."
               (set-buffer buf)
               (save-excursion
                 (goto-line (nth 4 entry))
-                (gdb-put-breakpoint-icon (nth 2 entry) (nth 1 entry))))))))
+                (gdb-put-breakpoint-icon (nth 2 entry) 
+					 (number-to-string (nth 1 entry)))))))))
 
 (defun rdebug-test-test ()
   (interactive)
