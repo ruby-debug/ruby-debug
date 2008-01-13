@@ -17,7 +17,6 @@ class TestStartingAnnotate < Test::Unit::TestCase
   require 'stringio'
 
   def test_basic
-    puts "test-output: need to fix bug in ruby_debug.so"
     Dir.chdir(SRC_DIR) do 
       assert_equal(true, 
                    run_debugger("output", 
