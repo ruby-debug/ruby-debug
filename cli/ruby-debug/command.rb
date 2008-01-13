@@ -137,6 +137,11 @@ module Debugger
 
     protected
 
+    # FIXME: use delegate? 
+    def errmsg(*args)
+      @state.errmsg(*args)
+    end
+
     def print(*args)
       @state.print(*args)
     end

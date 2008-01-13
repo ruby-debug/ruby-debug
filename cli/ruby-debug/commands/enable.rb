@@ -15,6 +15,13 @@ module Debugger
         return nil unless pos
         breakpoints.each do |b|
           if b.id == pos 
+            enabled = ("Enable" == is_enable)
+            if enabled
+              unless syntax_valid?(b.expr)
+                errmsg("Expression \"#{b.expr}\" syntactically incorrect; breakpoint remains disabled.\n")
+                break
+              end
+            end
             b.enabled = ("Enable" == is_enable)
             break
           end
@@ -50,7 +57,7 @@ module Debugger
     
     def execute
       if not @match[1]
-        print "\"enable\" must be followed \"display\", \"breakpoints\"" +
+        errmsg "\"enable\" must be followed \"display\", \"breakpoints\"" +
           " or breakpoint numbers.\n"
       else
         args = @match[1].split(/[ \t]+/)
@@ -112,7 +119,7 @@ module Debugger
     
     def execute
       if not @match[1]
-        print "\"disable\" must be followed \"display\", \"breakpoints\"" +
+        errmsg "\"disable\" must be followed \"display\", \"breakpoints\"" +
           " or breakpoint numbers.\n"
       else
         args = @match[1].split(/[ \t]+/)

@@ -1,6 +1,11 @@
 module Debugger  
-  # FIXME: create parent Interface and have Local, Remote subclass.
-  class LocalInterface # :nodoc:
+  class Interface # :nodoc:
+    def errmsg(*args)
+      print *args
+    end
+  end
+
+  class LocalInterface < Interface # :nodoc:
     attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
@@ -11,6 +16,7 @@ module Debugger
       FILE_HISTORY = ".rdebug_hist"
     end
     def initialize()
+      super
       @command_queue = []
       @history_save = true
       # take gdb's default
@@ -34,6 +40,11 @@ module Debugger
       readline(prompt, false)
     end
     
+    def errmsg(*args)
+      # FIXME: do something different for annotations
+      print(*args)
+    end
+
     def print(*args)
       STDOUT.printf(*args)
     end
@@ -138,12 +149,13 @@ module Debugger
     end
   end
   
-  class ScriptInterface # :nodoc:
+  class ScriptInterface < Interface # :nodoc:
     attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
     def initialize(file, out, verbose=false)
+      super()
       @command_queue = []
       @file = file.respond_to?(:gets) ? file : open(file)
       @out = out

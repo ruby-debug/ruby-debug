@@ -15,7 +15,7 @@ module Debugger
     def aprint(msg)
       print afmt(msg) if Debugger.annotate.to_i > 2
     end
-    
+
     # Callers of this routine should make sure to use comma to
     # separate format argments rather than %. Otherwise it seems that
     # if the string you want to print has format specifier, which
@@ -25,7 +25,7 @@ module Debugger
     def print(*args)
       @interface.print(*args)
     end
-
+    
   end
 
   class CommandProcessor < Processor # :nodoc:
@@ -327,10 +327,16 @@ module Debugger
       attr_accessor :interface, :commands
 
       def initialize
+        super()
         @frame_pos = 0
         @previous_line = nil
         @proceed = false
         yield self
+      end
+
+      # FIXME: use delegate? 
+      def errmsg(*args)
+        @interface.errmsg(*args)
       end
 
       def print(*args)
@@ -353,6 +359,7 @@ module Debugger
   
   class ControlCommandProcessor < Processor # :nodoc:
     def initialize(interface)
+      super()
       @interface = interface
     end
     

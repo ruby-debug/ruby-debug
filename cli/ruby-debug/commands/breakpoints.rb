@@ -21,7 +21,7 @@ module Debugger
       full_file = nil
       if file.nil?
         unless @state.context
-          print "We are not in a state that has an associated file.\n"
+          errmsg "We are not in a state that has an associated file.\n"
           return 
         end
         full_file = @state.file
@@ -36,7 +36,7 @@ module Debugger
         if klass && klass.kind_of?(Module)
           class_name = klass.name if klass
         else
-          print "Unknown class #{file}.\n"
+          errmsg "Unknown class #{file}.\n"
           throw :debug_error
         end
       else
@@ -49,9 +49,9 @@ module Debugger
         line = line.to_i
         lines = Debugger.source_for(full_file)
         if not lines 
-          print "No source file named %s\n", file
+          errmsg "No source file named %s\n", file
         elsif lines.size < line
-          print "No line %d in file \"%s\"\n", line, file
+          errmsg "No line %d in file \"%s\"\n", line, file
         else
           unless @state.context
             print "We are not in a state we can add breakpoints.\n"
@@ -59,6 +59,10 @@ module Debugger
           end
           b = Debugger.add_breakpoint file, line, expr
           print "Breakpoint %d file %s, line %s\n", b.id, file, line.to_s
+          unless syntax_valid?(expr)
+            errmsg("Expression \"#{expr}\" syntactically incorrect; breakpoint disabled.\n")
+            b.enabled = false
+          end
         end
       else
         method = line.intern.id2name
@@ -91,7 +95,7 @@ module Debugger
 
     def execute
       unless @state.context
-        print "We are not in a state we can delete breakpoints.\n"
+        errmsg "We are not in a state we can delete breakpoints.\n"
         return 
       end
       brkpts = @match[1]
@@ -104,7 +108,7 @@ module Debugger
           pos = get_int(pos, "Delete", 1)
           return unless pos
           unless Debugger.remove_breakpoint(pos)
-            print "No breakpoint number %d\n", pos
+            errmsg "No breakpoint number %d\n", pos
           end
         end
       end

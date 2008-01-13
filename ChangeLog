@@ -1,3 +1,48 @@
+2008-01-12 13:22  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Typo.
+
+2008-01-12 12:45  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-frames.el: breaks.el
+	  gdb-put-breakpoint-icon seems to want to string for a breakpoint
+	  number and our entries are
+	  numbers.
+	  frames.el: wasn't resetting search string to first line pattern
+	  (for subsequent testing of
+	  whether this is the current frame) after processing split entry
+	  with file/line position. Break out
+	  a common routine rdebug-stack-buffer-field which also seems to
+	  simplify it.
+
+2008-01-12 10:56  Anders Lindgren
+
+	* emacs/rdebug-breaks.el: Breakpoint icons are now displayed in the
+	  margin. This is a simple implementation that used gdb-ui to do
+	  the actual display.
+
+2008-01-11 18:04  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-frames.el,
+	  emacs/rdebug-regexp.el, emacs/test/test-frames.el: Process frames
+	  which are split across two lines. DRY a little
+	  and add the first frame test.
+
+2008-01-11 15:08  Rocky Bernstein
+
+	* emacs/Makefile.am: ELC typo.
+
+2008-01-11 14:01  Rocky Bernstein
+
+	* emacs/Makefile.am: Don't give an error on "make test" if emacs is
+	  not around.
+
+2008-01-11 10:26  Rocky Bernstein
+
+	* ChangeLog, bin/rdebug, doc/ruby-debug.texi, lib/ChangeLog:
+	  Document that ruby-debug resets $0. Align program options in ref
+	  manual and --help. Alphabetize better.
+
 2008-01-11 10:10  Rocky Bernstein
 
 	* CHANGES, bin/rdebug, test/output.right, test/quit.right,

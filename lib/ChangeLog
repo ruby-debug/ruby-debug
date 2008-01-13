@@ -1,3 +1,9 @@
+2008-01-11 10:26  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug, trunk/doc/ruby-debug.texi,
+	  ChangeLog: Document that ruby-debug resets $0. Align program
+	  options in ref manual and --help. Alphabetize better.
+
 2008-01-10 22:56  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/bin/rdebug, ChangeLog,

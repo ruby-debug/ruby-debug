@@ -17,4 +17,12 @@ disable 1
 continue
 info break
 p a
+# Now test trying to enable an invalid breakpoint
+break 6 if a > 
+info break
+enable 3
+info break
+condition 3 a > 5
+enable 3
+info break
 quit
