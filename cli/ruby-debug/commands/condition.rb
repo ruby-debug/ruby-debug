@@ -8,7 +8,7 @@ module Debugger
     
     def execute
       if not @match[1]
-        print "\"condition\" must be followed a breakpoint number and expression\n"
+        errmsg "\"condition\" must be followed a breakpoint number and expression\n"
       else
         breakpoints = Debugger.breakpoints.sort_by{|b| b.id }
         largest = breakpoints.inject(0) do |largest, b| 

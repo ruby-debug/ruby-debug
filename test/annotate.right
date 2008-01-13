@@ -91,4 +91,45 @@ self = main
 
 source gcd.rb:10
 return nil if a <= 0
+# # Test error annotations
+# up 10
+error-begin
+Adjusting would put us beyond the oldest (initial) frame.
+
+display
+
+stack
+--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+    #1 at line gcd.rb:18
+
+variables
+a = 3
+b = 5
+self = main
+
+# frame 100
+error-begin
+Adjusting would put us beyond the oldest (initial) frame.
+
+display
+
+stack
+--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+    #1 at line gcd.rb:18
+
+variables
+a = 3
+b = 5
+self = main
+
+# break bogus:5
+error-begin
+No source file named bogus
+
+breakpoints
+Num Enb What
+  2 y   at gcd.rb:14
+
+display
+
 # quit

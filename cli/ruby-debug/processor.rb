@@ -16,6 +16,11 @@ module Debugger
       print afmt(msg) if Debugger.annotate.to_i > 2
     end
 
+    # FIXME: use delegate? 
+    def errmsg(*args)
+      @interface.errmsg(*args)
+    end
+
     # Callers of this routine should make sure to use comma to
     # separate format argments rather than %. Otherwise it seems that
     # if the string you want to print has format specifier, which
@@ -409,6 +414,10 @@ module Debugger
       end
       
       def proceed
+      end
+      
+      def errmsg(*args)
+        @interface.print(*args)
       end
       
       def print(*args)

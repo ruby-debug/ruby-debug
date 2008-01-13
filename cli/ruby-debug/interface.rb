@@ -1,8 +1,28 @@
 module Debugger  
   class Interface # :nodoc:
+
+    # Common routine for reporting debugger error messages.
+    # Derived classed may want to override this to capture output.
     def errmsg(*args)
-      print *args
+      if Debugger.annotate.to_i > 2
+        aprint 'error-begin'
+        print(*args)
+        aprint ''
+      else
+        print '*** '
+        print *args
+      end
     end
+    
+    # Format msg with gdb-style annotation header
+    def afmt(msg, newline="\n")
+      "\032\032#{msg}#{newline}"
+    end
+
+    def aprint(msg)
+      print afmt(msg)
+    end
+
   end
 
   class LocalInterface < Interface # :nodoc:
@@ -40,11 +60,6 @@ module Debugger
       readline(prompt, false)
     end
     
-    def errmsg(*args)
-      # FIXME: do something different for annotations
-      print(*args)
-    end
-
     def print(*args)
       STDOUT.printf(*args)
     end

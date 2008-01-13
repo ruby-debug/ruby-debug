@@ -38,14 +38,14 @@ Num Enb What
 # # Now test trying to enable an invalid breakpoint
 # break 6 if a > 
 Breakpoint 3 file gcd.rb, line 6
-Expression "a > " syntactically incorrect; breakpoint disabled.
+*** Expression "a > " syntactically incorrect; breakpoint disabled.
 # info break
 Num Enb What
   1 n   at gcd.rb:6
   2 y   at gcd.rb:12 if 1 == a
   3 n   at gcd.rb:6 if a > 
 # enable 3
-Expression "a > " syntactically incorrect; breakpoint remains disabled.
+*** Expression "a > " syntactically incorrect; breakpoint remains disabled.
 # info break
 Num Enb What
   1 n   at gcd.rb:6

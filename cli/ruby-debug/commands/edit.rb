@@ -8,7 +8,7 @@ module Debugger
     def execute
       if not @match[1] or @match[1].strip.empty?
         unless @state.context
-          print "We are not in a state that has an associated file.\n"
+          errmsg "We are not in a state that has an associated file.\n"
           return 
         end
         file = @state.file
@@ -16,14 +16,14 @@ module Debugger
       elsif @pos_match = /([^:]+)[:]([0-9]+)/.match(@match[1])
         file, line_number = @pos_match.captures
       else
-        print "Invalid file/line number specification: #{@match[1]}\n"
+        errmsg "Invalid file/line number specification: #{@match[1]}\n"
         return
       end
       editor = ENV['EDITOR'] || 'ex'
       if File.readable?(file)
         system("#{editor} +#{line_number} #{file}")
       else
-        print "File \"#{file}\" is not readable.\n"
+        errmsg "File \"#{file}\" is not readable.\n"
       end
     end
     

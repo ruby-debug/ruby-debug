@@ -1,3 +1,19 @@
+2008-01-13 04:05  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/command.rb,
+	  cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/commands/enable.rb, cli/ruby-debug/helper.rb,
+	  cli/ruby-debug/interface.rb, cli/ruby-debug/processor.rb,
+	  lib/ChangeLog, test/condition.cmd, test/condition.right: Check
+	  validity of expressions in breakpoint conditions and don't allow
+	  enabling a syntactically invalid expression.
+	  
+	  Start noting messages which are errors via an errmsg routine.
+
+2008-01-12 13:35  Rocky Bernstein
+
+	* CHANGES: Typo.
+
 2008-01-12 13:22  Rocky Bernstein
 
 	* emacs/rdebug-core.el: Typo.

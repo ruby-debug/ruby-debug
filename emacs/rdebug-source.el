@@ -406,9 +406,10 @@ This does not menus or prefix keys."
   (define-key map "?" 'rdebug-display-secondary-window-help-buffer)
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
+  (define-key map "E" 'rdebug-display-error-buffer)
+  (define-key map "F" 'rdebug-display-stack-buffer)
   (define-key map "O" 'rdebug-display-output-buffer)
   (define-key map "S" 'rdebug-display-source-buffer)
-  (define-key map "T" 'rdebug-display-stack-buffer)
   (define-key map "V" 'rdebug-display-variables-buffer)
   (define-key map "W" 'rdebug-display-watch-buffer)
   ;; Common debugger commands.

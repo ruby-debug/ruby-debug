@@ -12,7 +12,7 @@ FAKE-EDITOR +4 ./gcd.rb
 FAKE-EDITOR +5 edit.cmd
 # # File should not exist
 # edit foo
-Invalid file/line number specification: foo
+*** Invalid file/line number specification: foo
 # # Add space to the end of 'edit'
 # edit 
 FAKE-EDITOR +4 ./gcd.rb

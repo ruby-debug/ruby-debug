@@ -13,10 +13,10 @@ module Debugger
       end
 
       if abs_frame_pos >= @state.context.stack_size then
-        print "Adjusting would put us beyond the oldest (initial) frame."
+        errmsg "Adjusting would put us beyond the oldest (initial) frame.\n"
         return
       elsif abs_frame_pos < 0 then
-        print "Adjusting would put us beyond the newest (innermost) frame."
+        errmsg "Adjusting would put us beyond the newest (innermost) frame.\n"
         return
       end
       if @state.frame_pos != abs_frame_pos then
@@ -195,7 +195,7 @@ module Debugger
 
     def execute
       if not @match[1]
-        print "Missing a frame number argument.\n"
+        errmsg "Missing a frame number argument.\n"
         return
       else
         pos = get_int(@match[1], "Frame")

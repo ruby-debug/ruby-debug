@@ -42,7 +42,7 @@ module Debugger
             return
           end
         end
-        print "Unknown info command #{subcmd}\n"
+        errmsg "Unknown info command #{subcmd}\n"
       end
     end
     
@@ -119,7 +119,7 @@ module Debugger
     
     def info_line(*args)
       unless @state.context
-        print "info line not available here.\n"
+        errmsg "info line not available here.\n"
         return 
       end
       print "Line %d of \"%s\"\n",  @state.line, @state.file
@@ -127,7 +127,7 @@ module Debugger
     
     def info_locals(*args)
       unless @state.context
-        print "info line not available here.\n"
+        errmsg "info line not available here.\n"
         return 
       end
       locals = @state.context.frame_locals(@state.frame_pos)
@@ -171,7 +171,7 @@ module Debugger
     
     def info_stack(*args)
       if not @state.context
-        print "info stack not available here.\n"
+        errmsg "info stack not available here.\n"
         return
       end
       (0...@state.context.stack_size).each do |idx|
@@ -196,7 +196,7 @@ module Debugger
     
     def info_global_variables(*args)
       unless @state.context
-        print "info global_variables not available here.\n"
+        errmsg "info global_variables not available here.\n"
         return 
       end
       var_list(global_variables)
@@ -204,7 +204,7 @@ module Debugger
     
     def info_variables(*args)
       if not @state.context
-        print "info variables not available here.\n"
+        errmsg "info variables not available here.\n"
         return
       end
       obj = debug_eval('self')

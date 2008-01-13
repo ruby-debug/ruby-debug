@@ -34,11 +34,13 @@ if a > b
     #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 --> #1 at line gcd.rb:18
 # up 2
-Adjusting would put us beyond the oldest (initial) frame.# where
+*** Adjusting would put us beyond the oldest (initial) frame.
+# where
     #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 --> #1 at line gcd.rb:18
 # down 2
-Adjusting would put us beyond the newest (innermost) frame.# where
+*** Adjusting would put us beyond the newest (innermost) frame.
+# where
     #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 --> #1 at line gcd.rb:18
 # # finish

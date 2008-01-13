@@ -17,8 +17,9 @@
 
 lisp_files = rdebug.el \
 	     rdebug-breaks.el 	\
-	     rdebug-dbg.el 	\
 	     rdebug-core.el 	\
+	     rdebug-dbg.el 	\
+	     rdebug-error.el 	\
 	     rdebug-frames.el 	\
 	     rdebug-gud.el 	\
 	     rdebug-help.el 	\
@@ -41,6 +42,7 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-breaks.elc 		\
 	     rdebug-core.elc 		\
 	     rdebug-dbg.elc 		\
+	     rdebug-error.elc		\
 	     rdebug-gud.elc 		\
 	     rdebug-frames.elc 		\
 	     rdebug-help.elc 		\

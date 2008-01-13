@@ -56,7 +56,7 @@ module Debugger
         print "Failed to change initial directory #{Debugger::INITIAL_DIR}"
       end
       if not File.exists?(prog_script)
-        print "Ruby program #{prog_script} doesn't exist\n"
+        errmsg "Ruby program #{prog_script} doesn't exist\n"
         return
       end
       if not File.executable?(prog_script) and rdebug_script == ''
@@ -69,7 +69,7 @@ module Debugger
         argv = [prog_script] + @match[1].split(/[ \t]+/)
       else
         if not defined? Command.settings[:argv]
-          print "Arguments have not been set. Use 'set args' to set them.\n"
+          errmsg "Arguments have not been set. Use 'set args' to set them.\n"
           return
         else
           argv = Command.settings[:argv]

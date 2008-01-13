@@ -24,7 +24,7 @@ module Debugger
         print help.join("\n")
       else
         if @match[1]
-          print "Undefined command: \"#{@match[1]}\".  Try \"help\"."
+          errmsg "Undefined command: \"#{@match[1]}\".  Try \"help\"."
         else
           print "Type 'help <command-name>' for help on a specific command\n\n"
           print "Available commands:\n"

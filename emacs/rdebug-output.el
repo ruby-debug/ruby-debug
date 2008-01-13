@@ -32,15 +32,14 @@
   (interactive)
   (rdebug-display-secondary-buffer "output"))
 
-					; FIXME add a macro to toggle read-only and run command.
+;; FIXME add a macro to toggle read-only and run command.
 (defun rdebug-output-add-divider ()
   (interactive "")
   (save-excursion
     (goto-char (point-max))
     (setq buffer-read-only nil)
-					; FIXME Cooler would be to pick up stack 
-					; position in stack line and prepend a 
-					; buffer-local marker number
+    ;; FIXME Cooler would be to pick up stack position in stack line
+    ;; and prepend a buffer-local marker number
     (insert (format "%d: ============================\n"
 		    rdebug-output-marker-number))
     (setq rdebug-output-marker-number (+ rdebug-output-marker-number 1))

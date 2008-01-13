@@ -313,26 +313,31 @@ Currently-active file is at the head of the list.")
     (cond ((string= name "starting")
            (setq name "output"))
           ((string= name "display")
-           (setq name "watch")))
+           (setq name "watch"))
+          ((string= name "error-begin")
+           (setq name "error")))
     (let ((buf (get-buffer-create
                 (format "*rdebug-%s-%s*" name gud-target-name)))
           ;; Buffer local, doesn't survive the buffer change.
           (comint-buffer gud-comint-buffer))
-      (if (and (string= name "output") (not rdebug-use-separate-io-buffer))
+;;; FIXME: figure out how to get rdebug-use-separate-io-buffer working
+;;;       (if (and (string= name "output") (not rdebug-use-separate-io-buffer))
+;;; 	  (insert contents)
+      ;;else
+      (with-current-buffer buf
+	(setq buffer-read-only t)
+	(let ((inhibit-read-only t)
+	      (setup-func (gethash name rdebug--annotation-setup-map)))
+	  (set (make-local-variable 'rdebug-current-line-number) 
+	       (line-number-at-pos))
+	  (cond ((string= name "output")
+		 (goto-char (point-max)))
+		((string= name "error")
+		 (goto-char (point-max))
+		 (message contents))
+		(t (erase-buffer)))
 	  (insert contents)
-        ;;else
-	(with-current-buffer buf
-	  (setq buffer-read-only t)
-	  (let ((inhibit-read-only t)
-		(setup-func (gethash name rdebug--annotation-setup-map)))
-	    (set (make-local-variable 'rdebug-current-line-number) 
-		 (line-number-at-pos))
-	    (if (string= name "output")
-		(goto-char (point-max))
-	      (erase-buffer))
-	    (insert contents)
-	    (when setup-func (funcall setup-func buf comint-buffer))))))))
-
+	  (when setup-func (funcall setup-func buf comint-buffer)))))))
 
 ;; -------------------------------------------------------------------
 ;; Windows.
@@ -435,6 +440,7 @@ This function is called upon quitting the debugger and
 
 (require 'rdebug-secondary)
 (require 'rdebug-breaks)
+(require 'rdebug-error)
 (require 'rdebug-frames)
 (require 'rdebug-help)
 (require 'rdebug-output)
