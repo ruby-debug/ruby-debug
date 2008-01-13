@@ -28,17 +28,17 @@
 (require 'rdebug-secondary)
 (require 'rdebug-source)
 
-(defun rdebug-display-stack-buffer ()
-  "Display the rdebug stack buffer."
+(defun rdebug-display-frame-buffer ()
+  "Display the rdebug stack-frame buffer."
   (interactive)
-  (rdebug-display-secondary-buffer "stack"))
+  (rdebug-display-secondary-buffer "frame"))
 
 (defvar rdebug-frames-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'rdebug-goto-stack-frame-mouse)
-    (define-key map [mouse-2] 'rdebug-goto-stack-frame-mouse)
-    (define-key map [mouse-3] 'rdebug-goto-stack-frame-mouse)
-    (define-key map [(control m)] 'rdebug-goto-stack-frame)
+    (define-key map [mouse-1] 'rdebug-goto-frame-mouse)
+    (define-key map [mouse-2] 'rdebug-goto-frame-mouse)
+    (define-key map [mouse-3] 'rdebug-goto-frame-mouse)
+    (define-key map [(control m)] 'rdebug-goto-frame)
     (define-key map "0" 'rdebug-goto-frame-n)
     (define-key map "1" 'rdebug-goto-frame-n)
     (define-key map "2" 'rdebug-goto-frame-n)
@@ -59,112 +59,25 @@
         'placeholder))
 
     (define-key map [menu-bar debugger stack goto]
-      '(menu-item "Goto frame" rdebug-goto-stack-frame))
+      '(menu-item "Goto frame" rdebug-goto-frame))
     map)
   "Keymap to navigate rdebug stack frames.")
 
-(defun rdebug-frames-mode ()
-  "Major mode for displaying the stack trace in the `rdebug' Ruby debugger.
-
-\\{rdebug-frames-mode-map}"
-  (interactive)
-  ;; (kill-all-local-variables)
-  (setq major-mode 'rdebug-frames-mode)
-  (setq mode-name "RDEBUG Stack Frames")
-  (set (make-local-variable 'rdebug-secondary-buffer) t)
-  (use-local-map rdebug-frames-mode-map)
-  ;; (set (make-local-variable 'font-lock-defaults)
-  ;;     '(gdb-locals-font-lock-keywords))
-  (run-mode-hooks 'rdebug-frames-mode-hook))
-
-(defun rdebug-stack-buffer-mark-field (b group face)
-  "Mark a field in the stack buffer"
+(defun rdebug-frame-buffer-mark-field (b group face)
+  "Mark a field in the stack-frame buffer"
   (add-text-properties
    (+ b (match-beginning group)) 
    (+ b (match-end group))
    (list 'face font-lock-comment-face
 	 'font-lock-face font-lock-comment-face)))
 
-(defun rdebug-stack-buffer-field (s b group face)
+(defun rdebug-frame-buffer-field (s b group face)
   "Mark a field in the stack buffer and return the string
 value of the field."
-  (rdebug-stack-buffer-mark-field b group face)
+  (rdebug-frame-buffer-mark-field b group face)
   (substring s (match-beginning group) (match-end group)))
   
-(defun rdebug--setup-stack-buffer (buf comint-buffer)
-  "Detects stack frame lines and sets up mouse navigation."
-  (rdebug-debug-enter "rdebug--setup-stack-buffer"
-    (with-current-buffer buf
-      (let ((inhibit-read-only t)
-            ;; position in stack buffer of selected frame
-            (current-frame-point nil))
-        (rdebug-frames-mode)
-        (set (make-local-variable 'gud-comint-buffer) comint-buffer)
-        (goto-char (point-min))
-        (while (not (eobp))
-          (let* ((b (line-beginning-position)) (e (line-end-position))
-                 (s (buffer-substring b e))
-		 (file-name nil) (line-number nil))
-            (when (string-match rdebug--stack-frame-1st-regexp s)
-	      (rdebug-stack-buffer-field 
-	       s b rdebug-stack-frame-number-group font-lock-constant-face)
-              (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
-                    (fn-start (+ b (match-beginning 3))))
-                (if (string-match "\\([^(]+\\)(" fn-str)
-		    (rdebug-stack-buffer-mark-field 
-		     b 1 font-lock-function-name-face)))
-
-              (if (string-match rdebug--stack-frame-regexp s)
-		  ;; Handle frames that are on one line
-		  (progn (setq file-name (rdebug-stack-buffer-field
-					  s b
-					  rdebug-stack-frame-file-group
-					  font-lock-comment-face))
-			 (setq line-number (rdebug-stack-buffer-field
-					    s b
-					    rdebug-stack-frame-line-group
-					    font-lock-constant-face)))
-		;; Handle frames that are split on two lines
-		(save-excursion
-		  (forward-line)
-		  (let* ((b (line-beginning-position)) (e (line-end-position))
-			 (s (buffer-substring b e)))
-		    (when (string-match rdebug--stack-frame-2nd-regexp s)
-		      (setq file-name (rdebug-stack-buffer-field
-				       s b
-				       rdebug-stack-frame-2nd-file-group
-				       font-lock-comment-face))
-		      (setq line-number (rdebug-stack-buffer-field
-					 s b
-					 rdebug-stack-frame-2nd-line-group
-					 font-lock-constant-face)))))
-		;; Redo string match on first line so we can process the indicator.
-		(string-match rdebug--stack-frame-1st-regexp s))
-
-              (when (string= (substring s (match-beginning 1) (match-end 1))
-                             "-->")
-		;; Update source buffer to reflect current position
-		(if (and file-name line-number)
-		    (rdebug-display-line file-name (string-to-number line-number)))
-                ;; highlight the currently selected frame
-                (add-text-properties b e
-                                     (list 'face 'bold
-                                           'font-lock-face 'bold))
-		(setq overlay-arrow-position (make-marker))
-		(set-marker overlay-arrow-position (point))
-		(setq current-frame-point (point)))
-              (add-text-properties b e
-                                   (list 'mouse-face 'highlight
-                                         'keymap rdebug-frames-mode-map))))
-          ;; remove initial '   '  or '-->'
-          (beginning-of-line)
-          (delete-char 3)
-          (forward-line)
-          (beginning-of-line))
-        (when current-frame-point
-          (goto-char current-frame-point)))))) 
-
-(defun rdebug-goto-stack-frame (pt)
+(defun rdebug-goto-frame (pt)
   "Show the rdebug stack frame corresponding at PT in the rdebug stack buffer."
   (interactive "d")
   (save-excursion
@@ -184,11 +97,11 @@ value of the field."
         (let ((frame (substring s (match-beginning 2) (match-end 2))))
           (gud-call (concat "frame " frame)))))))
 
-(defun rdebug-goto-stack-frame-mouse (event)
+(defun rdebug-goto-frame-mouse (event)
   "Show the rdebug stack frame under the mouse in the rdebug stack buffer."
   (interactive "e")
   (with-current-buffer (window-buffer (posn-window (event-end event)))
-    (rdebug-goto-stack-frame (posn-point (event-end event)))))
+    (rdebug-goto-frame (posn-point (event-end event)))))
 
 ;; The following is split in two to facilitate debugging.
 (defun rdebug-goto-frame-n-internal (keys)
@@ -219,6 +132,91 @@ non-digit will start entry number from the beginning again."
       (setq rdebug-goto-entry-acc ""))
   (rdebug-goto-frame-n-internal (this-command-keys)))
 
+(defun rdebug-frames-mode ()
+  "Major mode for displaying the stack trace in the `rdebug' Ruby debugger.
+\\{rdebug-frames-mode-map}"
+  (interactive)
+  ;; (kill-all-local-variables)
+  (setq major-mode 'rdebug-frames-mode)
+  (setq mode-name "RDEBUG Stack Frames")
+  (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (use-local-map rdebug-frames-mode-map)
+  ;; (set (make-local-variable 'font-lock-defaults)
+  ;;     '(gdb-locals-font-lock-keywords))
+  (run-mode-hooks 'rdebug-frames-mode-hook))
+
+(defun rdebug--setup-frame-buffer (buf comint-buffer)
+  "Detects stack frame lines and sets up mouse navigation."
+  (rdebug-debug-enter "rdebug-setup-stack-buffer"
+    (with-current-buffer buf
+      (let ((inhibit-read-only t)
+            ;; position in stack buffer of selected frame
+            (current-frame-point nil))
+        (rdebug-frames-mode)
+        (set (make-local-variable 'gud-comint-buffer) comint-buffer)
+        (goto-char (point-min))
+        (while (not (eobp))
+          (let* ((b (line-beginning-position)) (e (line-end-position))
+                 (s (buffer-substring b e))
+		 (file-name nil) (line-number nil))
+            (when (string-match rdebug--stack-frame-1st-regexp s)
+	      (rdebug-frame-buffer-field 
+	       s b rdebug-stack-frame-number-group font-lock-constant-face)
+              (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
+                    (fn-start (+ b (match-beginning 3))))
+                (if (string-match "\\([^(]+\\)(" fn-str)
+		    (rdebug-frame-buffer-mark-field 
+		     b 1 font-lock-function-name-face)))
+
+              (if (string-match rdebug--stack-frame-regexp s)
+		  ;; Handle frames that are on one line
+		  (progn (setq file-name (rdebug-frame-buffer-field
+					  s b
+					  rdebug-stack-frame-file-group
+					  font-lock-comment-face))
+			 (setq line-number (rdebug-frame-buffer-field
+					    s b
+					    rdebug-stack-frame-line-group
+					    font-lock-constant-face)))
+		;; Handle frames that are split on two lines
+		(save-excursion
+		  (forward-line)
+		  (let* ((b (line-beginning-position)) (e (line-end-position))
+			 (s (buffer-substring b e)))
+		    (when (string-match rdebug--stack-frame-2nd-regexp s)
+		      (setq file-name (rdebug-frame-buffer-field
+				       s b
+				       rdebug-stack-frame-2nd-file-group
+				       font-lock-comment-face))
+		      (setq line-number (rdebug-frame-buffer-field
+					 s b
+					 rdebug-stack-frame-2nd-line-group
+					 font-lock-constant-face)))))
+		;; Redo string match on first line so we can process the indicator.
+		(string-match rdebug--stack-frame-1st-regexp s))
+
+              (when (string= (substring s (match-beginning 1) (match-end 1))
+                             "-->")
+		;; Update source buffer to reflect current position
+		(if (and file-name line-number)
+		    (rdebug-display-line file-name (string-to-number line-number)))
+                ;; highlight the currently selected frame
+                (add-text-properties b e
+                                     (list 'face 'bold
+                                           'font-lock-face 'bold))
+		(setq overlay-arrow-position (make-marker))
+		(set-marker overlay-arrow-position (point))
+		(setq current-frame-point (point)))
+              (add-text-properties b e
+                                   (list 'mouse-face 'highlight
+                                         'keymap rdebug-frames-mode-map))))
+          ;; remove initial '   '  or '-->'
+          (beginning-of-line)
+          (delete-char 3)
+          (forward-line)
+          (beginning-of-line))
+        (when current-frame-point
+          (goto-char current-frame-point)))))) 
 
 (provide 'rdebug-frames)
 

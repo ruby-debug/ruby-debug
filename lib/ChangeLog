@@ -1,3 +1,27 @@
+2008-01-13 18:13  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/condition.rb,
+	  trunk/cli/ruby-debug/commands/control.rb,
+	  trunk/cli/ruby-debug/commands/display.rb,
+	  trunk/cli/ruby-debug/commands/edit.rb,
+	  trunk/cli/ruby-debug/commands/frame.rb,
+	  trunk/cli/ruby-debug/commands/help.rb,
+	  trunk/cli/ruby-debug/commands/info.rb,
+	  trunk/cli/ruby-debug/interface.rb,
+	  trunk/cli/ruby-debug/processor.rb, trunk/emacs/Makefile.am,
+	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-error.el,
+	  trunk/emacs/rdebug-output.el, trunk/emacs/rdebug-source.el,
+	  ChangeLog, trunk/test/annotate.cmd, trunk/test/annotate.right,
+	  trunk/test/breakpoints.right, trunk/test/condition.right,
+	  trunk/test/edit.right, trunk/test/emacs-basic.right,
+	  trunk/test/frame.right: Create errmsg routine for error output,
+	  start tagging error messages
+	  as errors. Under annotate 3, output errors similar to gdb
+	  --annotate
+	  does (although still simplified). Have Emacs pick up debugger
+	  error
+	  annotations.
+
 2008-01-13 04:05  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb,

@@ -54,7 +54,7 @@ module Debugger
           errmsg "No line %d in file \"%s\"\n", line, file
         else
           unless @state.context
-            print "We are not in a state we can add breakpoints.\n"
+            errmsg "We are not in a state we can add breakpoints.\n"
             return 
           end
           b = Debugger.add_breakpoint file, line, expr

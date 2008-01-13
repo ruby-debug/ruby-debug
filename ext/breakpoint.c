@@ -362,7 +362,7 @@ breakpoint_set_source(VALUE self, VALUE value)
  *   call-seq:
  *      breakpoint.pos -> string or int
  *
- *   Returns a position of this breakpoint.
+ *   Returns the position of this breakpoint.
  */
 static VALUE
 breakpoint_pos(VALUE self)
@@ -559,20 +559,20 @@ void
 Init_breakpoint()
 {
     cBreakpoint = rb_define_class_under(mDebugger, "Breakpoint", rb_cObject);
-    rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
-    rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
-    rb_define_method(cBreakpoint, "source=", breakpoint_set_source, 1);
-    rb_define_method(cBreakpoint, "enabled?", breakpoint_enabled, 0);
     rb_define_method(cBreakpoint, "enabled=", breakpoint_set_enabled, 1);
-    rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
-    rb_define_method(cBreakpoint, "pos=", breakpoint_set_pos, 1);
+    rb_define_method(cBreakpoint, "enabled?", breakpoint_enabled, 0);
     rb_define_method(cBreakpoint, "expr", breakpoint_expr, 0);
     rb_define_method(cBreakpoint, "expr=", breakpoint_set_expr, 1);
+    rb_define_method(cBreakpoint, "hit_condition", breakpoint_hit_condition, 0);
+    rb_define_method(cBreakpoint, "hit_condition=", breakpoint_set_hit_condition, 1);
     rb_define_method(cBreakpoint, "hit_count", breakpoint_hit_count, 0);
     rb_define_method(cBreakpoint, "hit_value", breakpoint_hit_value, 0);
     rb_define_method(cBreakpoint, "hit_value=", breakpoint_set_hit_value, 1);
-    rb_define_method(cBreakpoint, "hit_condition", breakpoint_hit_condition, 0);
-    rb_define_method(cBreakpoint, "hit_condition=", breakpoint_set_hit_condition, 1);
+    rb_define_method(cBreakpoint, "id", breakpoint_id, 0);
+    rb_define_method(cBreakpoint, "pos", breakpoint_pos, 0);
+    rb_define_method(cBreakpoint, "pos=", breakpoint_set_pos, 1);
+    rb_define_method(cBreakpoint, "source", breakpoint_source, 0);
+    rb_define_method(cBreakpoint, "source=", breakpoint_set_source, 1);
     idEval         = rb_intern("eval");
 }
 

@@ -371,7 +371,8 @@ menu. (The common map typically contains function key bindings.)"
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key map [menu-bar debugger view stack]
-      (rdebug-menu-item common-map "Stack trace" 'rdebug-display-stack-buffer
+      (rdebug-menu-item common-map "Stack-Frame trace" 
+			'rdebug-display-frame-buffer
                         :enable '(get-buffer-process gud-comint-buffer)))
 
     (define-key map [menu-bar debugger view shell]
@@ -407,7 +408,7 @@ This does not menus or prefix keys."
   (define-key map "B" 'rdebug-display-breakpoints-buffer)
   (define-key map "C" 'rdebug-display-cmd-buffer)
   (define-key map "E" 'rdebug-display-error-buffer)
-  (define-key map "F" 'rdebug-display-stack-buffer)
+  (define-key map "F" 'rdebug-display-frame-buffer)
   (define-key map "O" 'rdebug-display-output-buffer)
   (define-key map "S" 'rdebug-display-source-buffer)
   (define-key map "V" 'rdebug-display-variables-buffer)

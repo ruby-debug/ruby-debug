@@ -1,3 +1,28 @@
+2008-01-13 20:32  Rocky Bernstein
+
+	* test/test-output.rb: Seems we don't get a core dump any more.
+
+2008-01-13 18:13  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/condition.rb,
+	  cli/ruby-debug/commands/control.rb,
+	  cli/ruby-debug/commands/display.rb,
+	  cli/ruby-debug/commands/edit.rb,
+	  cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/commands/help.rb, cli/ruby-debug/commands/info.rb,
+	  cli/ruby-debug/interface.rb, cli/ruby-debug/processor.rb,
+	  emacs/Makefile.am, emacs/rdebug-core.el, emacs/rdebug-error.el,
+	  emacs/rdebug-output.el, emacs/rdebug-source.el, lib/ChangeLog,
+	  test/annotate.cmd, test/annotate.right, test/breakpoints.right,
+	  test/condition.right, test/edit.right, test/emacs-basic.right,
+	  test/frame.right: Create errmsg routine for error output, start
+	  tagging error messages
+	  as errors. Under annotate 3, output errors similar to gdb
+	  --annotate
+	  does (although still simplified). Have Emacs pick up debugger
+	  error
+	  annotations.
+
 2008-01-13 04:05  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/command.rb,
