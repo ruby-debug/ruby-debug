@@ -314,6 +314,8 @@ Currently-active file is at the head of the list.")
            (setq name "output"))
           ((string= name "display")
            (setq name "watch"))
+          ((string= name "stack")
+           (setq name "frame"))
           ((string= name "error-begin")
            (setq name "error")))
     (let ((buf (get-buffer-create
@@ -588,7 +590,7 @@ This function is designed to be used in a user hook, for example:
   ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
 
   (gud-def gud-args   "info args" "a"
-           "Show arguments of current stack.")
+           "Show arguments of current stack frame.")
   (gud-def gud-break  "break %d%f:%l""\C-b"
            "Set breakpoint at current line.")
   (gud-def gud-cont   "continue"   "\C-r"
@@ -632,7 +634,7 @@ By default, the \"standard\" user window layout looks like the following:
 | Source buffer                     | Output buffer                    |
 |                                   |                                  |
 +-----------------------------------+----------------------------------+
-| Stack buffer                      | Breakpoints buffer               |
+| Stack Frame buffer                | Breakpoints buffer               |
 +-----------------------------------+----------------------------------+
 
 The variable `rdebug-window-layout-function' can be

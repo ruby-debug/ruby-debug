@@ -3,7 +3,7 @@
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
 
-;; $Id:$
+;; $Id$
 
 ;; This program is free software; you can redistribute it and/or modify
 ;; it under the terms of the GNU General Public License as published by
@@ -67,7 +67,7 @@ See `rdebug' for more information."
    (selected-window) src-buf)
   (other-window 1)
   (set-window-buffer
-   (selected-window) (rdebug-get-buffer "stack" name))
+   (selected-window) (rdebug-get-buffer "frame" name))
   (split-window-horizontally)
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "cmd" name))
@@ -90,7 +90,7 @@ The debugger shell and the source code window is to the left."
    (selected-window) (rdebug-get-buffer "variables" name))
   (other-window 1)
   (set-window-buffer
-   (selected-window) (rdebug-get-buffer "stack" name))
+   (selected-window) (rdebug-get-buffer "frame" name))
   (other-window 1)
   (split-window)
   (set-window-buffer
@@ -118,7 +118,7 @@ The debugger shell and the source code window is to the left."
    (selected-window) (rdebug-get-buffer "output" name))
   (other-window 1)
   (set-window-buffer
-   (selected-window) (rdebug-get-buffer "stack" name))
+   (selected-window) (rdebug-get-buffer "frame" name))
   (split-window-horizontally)
   (other-window 1)
   (set-window-buffer
