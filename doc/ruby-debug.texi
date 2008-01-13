@@ -1404,7 +1404,9 @@ require "ruby-debug/debugger"
 @chapter @code{ruby-debug} Command Reference
 
 @menu
-* Command Syntax::           How to give commands to the rdebug
+* Command Interfaces::       The kinds of interface used to interact with ruby-debug
+* Command Syntax::           How to give commands to the ruby-debug
+* Command Output::           How rdebug presents its output
 * Help::                     How to ask for help (help)
 * Control::                  Controlling the debugger (quit, restart, interrupt)
 * DisplayCommands::          Executing expressions on stop (display, undisplay)
@@ -1418,8 +1420,27 @@ require "ruby-debug/debugger"
 * Program Information::      Program Status  (info)
 @end menu
 
+@node Command Interfaces
+@section Command Interfaces
+There are several ways one can talk to @code{ruby-debug} and get
+results. The simplest way is via a command-line interface directly
+talking to the debugger. This is referred to below as a ``Local
+Interface''. It's also possible to run the debugger and set up a port
+by which some other process can connect and control the debug
+session. This is called a ``Remote Interface''. When you want to gain
+access to a remote interface you need to run @code{ruby-debug} using a
+``Control Interface''. This interface might not be the same process as
+the process running the debugged program and might not even be
+running on the same computer.
+
+Other front-ends may use one of these and build on top and provide
+other (richer) interfaces. Although many of the commands are available
+on all interfaces some are not. Most of the time in this manual when
+we talk about issuing commands describing the respoinses elicited,
+we'll assume we are working with the local interface.
+
 @node Command Syntax
-@section Command syntax
+@section Command Syntax
 Usually a command is put on a single line. There is no limit on how long
 it can be.  It starts with a command name, which is followed by
 arguments whose meaning depends on the command name.  For example, the
@@ -1441,12 +1462,28 @@ command). Command history is saved in file @code{.rdebug_hist}. A
 limit is put on the history size. You can see this with the @code{show
 history size} command. See @ref{History} for history parameters.
 
+@node Command Output
+@section Command Output
+
+In the command-line interface, when @code{ruby-debug} is waiting for
+input it presents a prompt of the form
+@code{(rdb:}@emph{x}@code{)}. If debugging locally, @emph{x} will be
+the thread number. Usual the main thread is 1, so often you'll see
+@code{(rdb:1)}. In the control interface though @emph{x} will be
+@code{ctl}.
+
+In the local interface, whenever @code{ruby-debug} gives an error
+message such as for an invalid command, or an invalid location
+postion, it will generally preface the message with @code{***
+}. However if annotation mode is on that the message is put in a
+@code{begin-error} annotation and no @code{***} appears.
+
 @node Help
 @section Getting help (@samp{help})
 @cindex online documentation
 
-Once inside @code{ruby-debug} you can always ask it for information on its
-commands, using the command @code{help}.
+Once inside @code{ruby-debug} you can always ask it for information on
+its commands, using the command @code{help}.
 
 @table @code
 @kindex h @r{(@code{help})}
@@ -2835,7 +2872,7 @@ end
 
 @menu
 * Debugger Module::            ruby-debug's Debugger module
-* Debugger Class::             Overview of Debugger with a sample session
+* Debugger Class::             Debugger class
 * Kernel routines::            Routines added to Kernel
 @end menu
 
@@ -2956,6 +2993,42 @@ Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
 
 @node Debugger Class
 @section The @code{Debugger} Class
+@table @code
+@item add_breakpoint(file, line, expr)
+Adds a breakpoint in file @var{file}, at line @var{line}. If
+@var{expr} is not nil, it is evaluated and a breakpoint takes effect
+at the indicated position when that expression is true. You should
+verify that @var{expr} is syntactically valid or a @code{SyntaxError}
+exception, and unless your code handles this the debugged program may
+terminate.
+@item remove_breakpoint(bpnum)
+@item breakpoints
+@end table
+@subsection The @code{Debugger}::Breakpoint Class
+Breakpoint are objects in the @code{Debugger::Breakpoint} class. 
+@table @code
+@item enabled=
+@item enabled?
+Returns whether breakpoint is enabled or not.
+@item expr
+@item expr=
+@item hit_condition
+@item hit_condition=
+@item hit_count
+Returns the hit count of the breakpoint.
+@item hit_value
+Returns the hit value of the breakpoint.
+@item hit_value=
+Sets the hit value of the breakpoint.
+@item id
+@item pos
+Returns the position of this breakpoint.
+@item pos=
+@item source
+Returns a source of the breakpoint.
+@item source=
+Sets the source of the breakpoint.
+@end table
 @node Kernel routines
 @section Additions to @code{Kernel}
 
