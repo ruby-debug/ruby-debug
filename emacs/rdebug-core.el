@@ -200,32 +200,46 @@
 
       output)))
 
-(defun rdebug-get-script-name (args &optional annotate-p)
+
+(defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.
 Return a list of that and whether the annotate option was set.
 Initially annotate should be set to nil."
-  (let ((arg (pop args)))
-    (cond
-     ((not arg) (list nil annotate-p))
-     ((string-match "^--annotate=[1-9]" arg)
-      (rdebug-get-script-name args t))
-     ((equal "--annotate" arg)
-      (rdebug-get-script-name (cdr args) t))
-     ((equal "-A" arg)
-      (rdebug-get-script-name (cdr args) t))
-     ((equal "--emacs" arg)
-      (rdebug-get-script-name args t))
-     ((member arg '("-h" "--host" "-p" "--port"
-		    "-I" "--include" "-r" "--require"))
-      (if args
-          (rdebug-get-script-name (cdr args) annotate-p)
-        ;;else
-        (list nil annotate-p)))
-     ((string-match "^-[a-zA-z]" arg) (rdebug-get-script-name args annotate-p))
-     ((string-match "^--[a-zA-z]*" arg) (rdebug-get-script-name args annotate-p))
-     ((string-match "^rdebug" arg) (rdebug-get-script-name args annotate-p))
-     ;; found script name (or nil
-     (t (list arg annotate-p)))))
+  (and args
+       (let ((name nil)
+             (annotate-p nil))
+         ;; Strip of optional "ruby" or "ruby182" etc.
+         (if (string-match "^ruby[0-9]*$"
+                           (file-name-sans-extension
+                            (file-name-nondirectory (car args))))
+             (pop args))
+         ;; Remove "rdebug" from "rdebug --rdebug-options script
+         ;; --script-options"
+         (pop args)
+         ;; Skip to the first non-option argument.
+         (while (and args
+                     (not name))
+           (let ((arg (pop args)))
+             (cond
+              ;; Annotation options with arguments.
+              ((member arg '("--annotate" "-A"))
+               (setq annotate-p t)
+               (pop args))
+              ;; Annotation option.
+              ((or (string-match "^--annotate=[0-9]" arg)
+                   (equal arg "--emacs"))
+               (setq annotate-p t))
+              ;; Options with arguments.
+              ((member arg '("-h" "--host" "-p" "--port"
+                             "-I" "--include" "-r" "--require"))
+               (pop args))
+              ((string-match "^-" arg)
+               nil)
+              (t
+               (setq name arg)))))
+         (and name
+              (list name annotate-p)))))
+
 
 ;; From Emacs 23
 (unless (fboundp 'split-string-and-unquote)
@@ -662,7 +676,7 @@ and options used to invoke rdebug."
     (let* ((words (with-no-warnings
                     (split-string-and-unquote command-line)))
            (script-name-annotate-p (rdebug-get-script-name
-                                    (gud-rdebug-massage-args "1" words) nil))
+                                    (gud-rdebug-massage-args "1" words)))
            (target-name (file-name-nondirectory (car script-name-annotate-p)))
            (annotate-p (cadr script-name-annotate-p))
            (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
@@ -711,50 +725,6 @@ and options used to invoke rdebug."
         (rdebug-setup-windows-initially))
 
       (run-hooks 'rdebug-mode-hook))))
-
-
-;; Implementation note: If Emacs could talk directly to the Ruby
-;; debugger, this would be rougly "Debugger.breakpoints". Since we
-;; currently can't do that we parse the content of the breakpoints
-;; window.
-;;
-;; Note: The :function kind is not yet implemented.
-(defun rdebug-all-breakpoints ()
-  "Return a list of all breakpoints.
-
-Each entry in the list is on the form:
-
-    (:file number enabled file line)
-
-or
-
-    (:function number enabled class function)"
-  (let* ((target-name (or (and gud-comint-buffer
-                               (buffer-local-value 'gud-target-name
-                                                   gud-comint-buffer))
-                          gud-target-name))
-         (buf (rdebug-get-buffer "breakpoints" target-name)))
-    (and buf
-         (save-current-buffer
-           (set-buffer buf)
-           (save-excursion
-             (let ((res '()))
-               (goto-char (point-min))
-               (while (not (eobp))
-                 (when (looking-at rdebug--breakpoint-regexp)
-                   (push (list :file
-                               ;; Break point number
-                               (string-to-number (match-string 1))
-                               ;; Enabled
-                               (string= (match-string 2) "y")
-                               ;; File name
-                               (file-truename
-                                (match-string-no-properties 3))
-                               ;; Line number
-                               (string-to-number (match-string 4)))
-                         res))
-                 (forward-line 1))
-               (nreverse res)))))))
 
 
 (defun rdebug-breakpoints-on-line (file line)

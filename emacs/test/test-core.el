@@ -16,16 +16,19 @@
 (make-variable-buffer-local 'gud-rdebug-marker-acc)
 
 (deftest "rdebug-get-script-name-test"
-  (assert-equal '("foo" nil) (rdebug-get-script-name '("foo")))
-  (assert-equal '("foo" nil) (rdebug-get-script-name '("-m" "foo")))
-  (assert-equal '("foo" t) (rdebug-get-script-name '("--emacs" "foo")))
-  (assert-equal '("foo" t) (rdebug-get-script-name '("--annotate=1" "foo")))
-  (assert-equal '("foo" t) (rdebug-get-script-name '("--annotate" "1" "foo")))
-  (assert-equal '("foo" t) (rdebug-get-script-name '("-A" "1" "foo")))
-  (assert-equal '("foo" nil) 
-		(rdebug-get-script-name 
+  (assert-equal '("foo" nil) (rdebug-get-script-name '("rdebug" "foo")))
+  (assert-equal '("foo" nil) (rdebug-get-script-name '("rdebug" "-m" "foo")))
+  (assert-equal '("foo" t) (rdebug-get-script-name
+                            '("rdebug" "--emacs" "foo")))
+  (assert-equal '("foo" t) (rdebug-get-script-name
+                            '("myrdebug" "--annotate=1" "foo")))
+  (assert-equal '("foo" t) (rdebug-get-script-name
+                            '("ruby" "rdebug" "--annotate" "1" "foo")))
+  (assert-equal '("foo" t) (rdebug-get-script-name '("rdebug" "-A" "1" "foo")))
+  (assert-equal '("foo" nil)
+		(rdebug-get-script-name
 		 '("rdebug" "--include" "me" "-n" "foo")))
-  (assert-equal '("foo" nil) (rdebug-get-script-name 
+  (assert-equal '("foo" nil) (rdebug-get-script-name
 			      '("rdebug" "--server" "-d" "--host"
 				"localhost" "foo" "-1")))
   )
