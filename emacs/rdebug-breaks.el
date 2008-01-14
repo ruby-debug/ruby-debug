@@ -154,7 +154,62 @@
             (forward-line)
             (beginning-of-line)))
 	(goto-line old-line-number)))
+    (rdebug-breakpoints-parse-and-update-cache)
     (rdebug-breakpoints-update-icons (rdebug-all-breakpoints))))
+
+
+(defvar rdebug-breakpoints-cache '()
+  "The cached return value of `rdebug-all-breakpoints'.
+
+Buffer-local to the debugger shell window.")
+
+
+;; Implementation note: If Emacs could talk directly to the Ruby
+;; debugger, this would be roughly "Debugger.breakpoints". Since we
+;; currently can't do that we parse the content of the breakpoints
+;; window.
+;;
+;; Note: The :function kind is not yet implemented.
+(defun rdebug-breakpoints-parse-and-update-cache ()
+  "Build up the return value of `rdebug-all-breakpoints'."
+  (save-excursion
+    (goto-char (point-min))
+    (let ((res '()))
+      (while (not (eobp))
+        (when (looking-at rdebug--breakpoint-regexp)
+          (push (list :file
+                      ;; Break point number
+                      (string-to-number (match-string 1))
+                      ;; Enabled
+                      (string= (match-string 2) "y")
+                      ;; File name
+                      (file-truename
+                       (match-string-no-properties 3))
+                      ;; Line number
+                      (string-to-number (match-string 4)))
+                res))
+        (forward-line 1))
+      ;; The result goes into a buffer-local variable in the debugger
+      ;; shell. (This ensures that this would work in a multi-session
+      ;; environment.)
+      (if gud-comint-buffer
+          (with-current-buffer gud-comint-buffer
+            (set (make-local-variable 'rdebug-breakpoints-cache)
+                 (nreverse res)))))))
+
+
+(defun rdebug-all-breakpoints ()
+  "Return a list of all breakpoints.
+
+Each entry in the list is on the form:
+
+    (:file number enabled file line)
+
+or
+
+    (:function number enabled class function)"
+  (and gud-comint-buffer
+       (buffer-local-value 'rdebug-breakpoints-cache gud-comint-buffer)))
 
 
 ;; ---------------------------------------------------------
