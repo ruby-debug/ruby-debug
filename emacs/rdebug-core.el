@@ -96,10 +96,20 @@
 (require 'rdebug-regexp)
 (require 'rdebug-vars)
 
-
 ;; -------------------------------------------------------------------
 ;; Interface to gud.
 ;;
+
+(defun rdebug-get-annotate-end-regexp (name)
+  (cond ((string= name "starting")
+	 "\\(stopped\\|exited\\)\n")
+	((string= name "pre-prompt")
+	 ;; TODO: The extra "\n" is probably
+	 ;; a bug in processor.rb.
+	 "\nprompt\n")
+	((string= name "source")
+	 "\n")
+	(t rdebug-annotation-end-regexp)))
 
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
@@ -129,15 +139,7 @@
                  (end (match-end 0))
                  (name (or (match-string 2 gud-marker-acc)
                            "source"))
-                 (end-regexp (cond ((string= name "starting")
-                                    "\\(stopped\\|exited\\)\n")
-                                   ((string= name "pre-prompt")
-                                    ;; TODO: The extra "\n" is probably
-                                    ;; a bug in processor.rb.
-                                    "\nprompt\n")
-                                   ((string= name "source")
-                                    "\n")
-                                   (t rdebug-annotation-end-regexp))))
+                 (end-regexp (rdebug-get-annotate-end-regexp name)))
             (if (string-match end-regexp gud-marker-acc end)
                 ;; ok, annotation complete, process it and remove it
                 (let ((contents (substring

@@ -1,3 +1,24 @@
+2008-01-13 22:03  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-layouts.el: A couple more
+	  stack -> frame spots missed
+
+2008-01-13 21:51  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/breakpoints.rb,
+	  emacs/rdebug-core.el, emacs/rdebug-frames.el,
+	  emacs/rdebug-source.el, ext/breakpoint.c, lib/ChangeLog: Some
+	  stack -> frame renaming
+	  ext/breakpoint.c: put methods in alpha order (to help with
+	  reference man)
+	  breakpoints.rb: one print -> errmsg
+
+2008-01-13 21:19  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Add info about the 3 kinds of interfaces and
+	  give some
+	  Debugger::Breakpoint methods.
+
 2008-01-13 20:32  Rocky Bernstein
 
 	* test/test-output.rb: Seems we don't get a core dump any more.

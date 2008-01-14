@@ -1,3 +1,13 @@
+2008-01-13 21:51  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-frames.el,
+	  trunk/emacs/rdebug-source.el, trunk/ext/breakpoint.c, ChangeLog:
+	  Some stack -> frame renaming
+	  ext/breakpoint.c: put methods in alpha order (to help with
+	  reference man)
+	  breakpoints.rb: one print -> errmsg
+
 2008-01-13 18:13  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/condition.rb,

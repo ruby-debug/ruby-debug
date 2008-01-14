@@ -168,12 +168,20 @@ at the beginning of the line."
                 (goto-char block-start)
                 (while (re-search-forward
                         rdebug-annotation-start-regexp annotate-end t)
-                  (setq annotate-start (match-beginning 0))
-                  (if (re-search-forward
-                       rdebug-annotation-end-regexp annotate-end t)
-                      (delete-region annotate-start (point))
-                    ;;else
-                    (forward-line)))))))))))
+		  (let* ((start (match-beginning 0))
+			 (end (match-end 0))
+			 (name (or (match-string 1) "source")))
+		    (cond ((string= name "prompt\n")
+			   (delete-region (- start 1) end))
+			  ((string= name "pre-prompt\n")
+			   (delete-region start end))
+			  ((string= name "error-begin\n")
+			   (delete-region start end))
+			  ((re-search-forward rdebug-annotation-end-regexp 
+					      annotate-end t)
+			   (delete-region start (point)))
+			  (t (forward-line)))))))
+	    ))))))
 
 (defun rdebug-track-get-source-buffer (block-str)
   "Return line and buffer of code indicated by block-str's traceback text.

@@ -49,6 +49,10 @@ module Debugger
       else 
         rdebug_script = Debugger::RDEBUG_SCRIPT + " "
       end
+      if not defined? Debugger::PROG_SCRIPT
+        errmsg "Don't know name of debugged program\n"
+        return
+      end
       prog_script = Debugger::PROG_SCRIPT
       begin
         Dir.chdir(Debugger::INITIAL_DIR)
