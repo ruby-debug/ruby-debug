@@ -70,6 +70,26 @@
     map)
   "Keymap to navigate/set/enable rdebug breakpoints.")
 
+;; Here the "anchored match" method is used, see `font-lock-keywords'
+;; for details.
+(defvar rdebug-breakpoints-font-lock-keywords
+  '(("\\([0-9]+\\) +\\(\\(n\\)\\|\\(y\\)\\) +at "
+     (1 font-lock-constant-face)
+     (3 font-lock-type-face    nil t)   ; t = ok if not present
+     (4 font-lock-warning-face nil t)   ; ditto.
+     ;; File name and line
+     ("\\([a-zA-Z0-9/_:.]+\\):[0-9]+$"
+      nil                               ; Preform (not used)
+      nil                               ; Postfrom (not used)
+      (1 font-lock-warning-face))
+     ;; Class:function
+     ("\\([a-zA-Z0-9_]*\\):\\([a-zA-Z_][a-zA-Z0-9_]+\\)$"
+      nil                               ; Preform (not used)
+      nil                               ; Postfrom (not used)
+      (1 font-lock-type-face)
+      (2 font-lock-function-name-face))))
+  "Rules for coloring the rdebug breakpoints buffer.")
+
 (defun rdebug-breakpoints-mode ()
   "Major mode for displaying breakpoints in the `rdebug' Ruby debugger.
 
@@ -80,31 +100,17 @@
   (use-local-map rdebug-breakpoints-mode-map)
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
-  (run-mode-hooks 'rdebug-breakpoints-mode-hook)
-  ;;(if (eq (buffer-local-value 'gud-minor-mode gud-comint-buffer) 'gdba)
-  ;;    'gdb-invalidate-breakpoints
-  ;;  'gdbmi-invalidate-breakpoints)
-  )
+  (set (make-local-variable 'font-lock-defaults)
+       '(rdebug-breakpoints-font-lock-keywords))
+  (run-mode-hooks 'rdebug-breakpoints-mode-hook))
 
-;; Work in progress...
-(defvar rdebug-breakpoints-font-lock-keywords
-  '(("\\([0-9]+\\) +[ny] +at +\\(\\(.*\\):\\([0-9]+\\)\\|\\(.*\\):\\([a-zA-Z_][a-zA-Z0-9_]\\)$")
-    (1 font-lock-constant-face)
-    (2 font-lock-warning-face)))
-
-;;  '(("@[a-zA-Z0-9_]+" 0 font-lock-variable-name-face)
-;;    ("\\<\\(nil\\|true\\|false\\)\\>" 0 font-lock-constant-face)
-;;    ("#<\\([a-zA-Z0-9_]+\\):\\([0-9a-fx]*\\)"
-;;     (1 font-lock-type-face)
-;;     (2 font-lock-constant-face)))
-;;  "Font-lock rules for the variables and watch windows in `rdebug'.")
 
 (defun rdebug--setup-breakpoints-buffer (buf comint-buffer)
   "Detects breakpoint lines and sets up keymap and mouse navigation."
   (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
     (with-current-buffer buf
-      (let ((inhibit-read-only t) 
-	    (old-line-number (buffer-local-value 'rdebug-current-line-number 
+      (let ((inhibit-read-only t)
+	    (old-line-number (buffer-local-value 'rdebug-current-line-number
 						 buf))
 	    (flag))
         (rdebug-breakpoints-mode)
@@ -115,44 +121,8 @@
                                 (buffer-substring b e))
               (add-text-properties b e
                                    (list 'mouse-face 'highlight
-                                         'keymap rdebug-breakpoints-mode-map))
-              (add-text-properties
-               (+ b (match-beginning 1)) (+ b (match-end 1))
-               (list 'face font-lock-constant-face
-                     'font-lock-face font-lock-constant-face))
-              (setq flag (char-after (+ b (match-beginning 2))))
-              (add-text-properties
-               (+ b (match-beginning 2)) (+ b (match-end 2))
-               (if (eq flag ?y)
-                   '(face font-lock-warning-face)
-                 '(face font-lock-type-face)))
-              (add-text-properties
-               (+ b (match-beginning 3)) (+ b (match-end 3))
-               (list 'face font-lock-comment-face
-                     'font-lock-face font-lock-comment-face))
-              (add-text-properties
-               (+ b (match-beginning 4)) (+ b (match-end 4))
-               (list 'face font-lock-constant-face
-                     'font-lock-face font-lock-constant-face))
-;;;             ;; fontify "keep/del"
-;;;             (let ((face (if (string= "keep" (buffer-substring
-;;;                                              (+ b (match-beginning 2))
-;;;                                              (+ b (match-end 2))))
-;;;                             compilation-info-face
-;;;                           compilation-warning-face)))
-;;;               (add-text-properties
-;;;                (+ b (match-beginning 2)) (+ b (match-end 2))
-;;;                (list 'face face 'font-lock-face face)))
-;;;             ;; fontify "enabled"
-;;;             (when (string= "y" (buffer-substring (+ b (match-beginning 3))
-;;;                                                  (+ b (match-end 3))))
-;;;               (add-text-properties
-;;;                (+ b (match-beginning 3)) (+ b (match-end 3))
-;;;                (list 'face compilation-error-face
-;;;                      'font-lock-face compilation-error-face)))
-              )
-            (forward-line)
-            (beginning-of-line)))
+                                         'keymap rdebug-breakpoints-mode-map)))
+            (forward-line)))
 	(goto-line old-line-number)))
     (rdebug-breakpoints-parse-and-update-cache)
     (rdebug-breakpoints-update-icons (rdebug-all-breakpoints))))
