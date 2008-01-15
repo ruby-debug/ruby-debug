@@ -746,24 +746,36 @@ and options used to invoke rdebug."
 (defun rdebug-toggle-source-breakpoint (file line)
   "Toggle break point on current source line."
   (interactive (rdebug-file-and-line-arg))
-  (let ((bps (rdebug-breakpoints-on-line file line)))
-    (if bps
-        (gud-call (format "delete %s" (nth 1 (car bps))))
-      (gud-call (format "break %s:%d" file line)))))
+  (cond ((eq major-mode 'rdebug-breakpoints-mode)
+         (rdebug-delete-breakpoint))
+        ((null file)
+         ;; Do nothing.
+         )
+        (t
+         (let ((bps (rdebug-breakpoints-on-line file line)))
+           (if bps
+               (gud-call (format "delete %s" (nth 1 (car bps))))
+             (gud-call (format "break %s:%d" file line)))))))
 
 
 (defun rdebug-toggle-source-breakpoint-enabled (file line)
   "Enable or disable a break point on the current source line."
   (interactive (rdebug-file-and-line-arg))
-  (let ((bps (rdebug-breakpoints-on-line file line)))
-    (if bps
-        ;; Note: If the line contains more than one simply use the
-        ;; first one.
-        (let ((entry (car bps)))
-          (if (nth 2 entry)
-              (gud-call (format "disable %s" (nth 1 entry)))
-            (gud-call (format "enable %s" (nth 1 entry)))))
-      (gud-call (format "break %s:%d" file line)))))
+  (cond ((eq major-mode 'rdebug-breakpoints-mode)
+         (rdebug-toggle-breakpoint))
+        ((null file)
+         ;; Do nothing.
+         )
+        (t
+         (let ((bps (rdebug-breakpoints-on-line file line)))
+           (if bps
+               ;; Note: If the line contains more than one simply use the
+               ;; first one.
+               (let ((entry (car bps)))
+                 (if (nth 2 entry)
+                     (gud-call (format "disable %s" (nth 1 entry)))
+                   (gud-call (format "enable %s" (nth 1 entry)))))
+             (gud-call (format "break %s:%d" file line)))))))
 
 
 (defun rdebug-customize ()

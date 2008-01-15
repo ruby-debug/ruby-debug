@@ -186,11 +186,12 @@ or
 ;; Commands of the rdebug breakpoints buffer.
 ;;
 
-(defun rdebug-delete-breakpoint (pt)
+(defun rdebug-delete-breakpoint (&optional pt)
   "Deletes the breakpoint at PT in the breakpoints buffer."
   (interactive "d")
   (save-excursion
-    (goto-char pt)
+    (if pt
+        (goto-char pt))
     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
       (when (string-match rdebug--breakpoint-regexp s)
         (let ((bpnum (substring s (match-beginning 1) (match-end 1))))
@@ -227,11 +228,12 @@ secondary window or nil if none found."
 	  (substring s (match-beginning 1) (match-end 1))
 	nil))))
 
-(defun rdebug-toggle-breakpoint (pt)
+(defun rdebug-toggle-breakpoint (&optional pt)
   "Toggles the breakpoint at PT in the breakpoints buffer."
   (interactive "d")
   (save-excursion
-    (goto-char pt)
+    (if pt
+        (goto-char pt))
     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
       (when (string-match rdebug--breakpoint-regexp s)
         (let* ((enabled
@@ -289,8 +291,12 @@ secondary window or nil if none found."
               (set-buffer buf)
               (save-excursion
                 (goto-line (nth 4 entry))
-                (gdb-put-breakpoint-icon (nth 2 entry) 
-					 (number-to-string (nth 1 entry)))))))))
+                ;; Workaround for bug in `gdb-ui'. (It checks
+                ;; `left-fringe-width' but it doesn't interpret the
+                ;; `nil' value correctly.
+                (let ((gdb-buffer-fringe-width (car (window-fringes))))
+                  (gdb-put-breakpoint-icon (nth 2 entry)
+                                           (number-to-string (nth 1 entry))))))))))
 
 (defun rdebug-test-test ()
   (interactive)
