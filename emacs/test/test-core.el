@@ -24,6 +24,12 @@
                             '("myrdebug" "--annotate=1" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name
                             '("ruby" "rdebug" "--annotate" "1" "foo")))
+  (assert-equal '("foo" nil) (rdebug-get-script-name
+                            '("/usr/bin/ruby19" "rdebug" "--emacs-basic" "foo")))
+  (assert-equal '("foo" nil) (rdebug-get-script-name
+                            '("rdbg.rb" "foo")))
+  (assert-equal '("rdbg.rb" nil) (rdebug-get-script-name
+                            '("rdebug" "rdbg.rb" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name '("rdebug" "-A" "1" "foo")))
   (assert-equal '("foo" nil)
 		(rdebug-get-script-name
