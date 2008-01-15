@@ -642,8 +642,10 @@ working directory and source-file directory for your debugger.
 The custom variable `gud-rdebug-command-name' sets the command
 and options used to invoke rdebug."
   (interactive
-   (list (gud-query-cmdline 'rdebug)))
-
+   (let ((init (buffer-file-name)))
+     (setq init (and init
+                     (file-name-nondirectory init)))
+     (list (gud-query-cmdline 'rdebug init))))
   (rdebug-debug-enter "rdebug"
     (rdebug-set-window-configuration-state 'debugger t)
     ;; Parse the command line and pick out the script name and whether
