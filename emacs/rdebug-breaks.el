@@ -78,7 +78,7 @@
      (3 font-lock-type-face    nil t)   ; t = ok if not present
      (4 font-lock-warning-face nil t)   ; ditto.
      ;; File name and line
-     ("\\([a-zA-Z0-9/_:.]+\\):[0-9]+$"
+     ("\\([-a-zA-Z0-9/_:.]+\\):[0-9]+$"
       nil                               ; Preform (not used)
       nil                               ; Postfrom (not used)
       (1 font-lock-warning-face))
