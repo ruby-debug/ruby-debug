@@ -22,8 +22,49 @@
 
 ;;; Commentary:
 
-;; This file contains the initialization needed for the Emacs user
-;; interface to the `rdebug' Ruby debugger.
+;;
+;; Introduction:
+;;
+;; This is a full-blown debugger user interface to the Ruby rdebug
+;; debugger shell.
+;;
+;; The main features are:
+;;
+;;  * Window layout with dedicated windows for:
+;;      + Local and member variables
+;;      + Stack trace
+;;      + Display expressions
+;;      + Breakpoints
+;;      + Output
+;;      + Debugger Shell
+;;
+;;  * Source-level debugging:
+;;      + The current source file is shown and current line is marked.
+;;      + Function keys bindings for effective stepping in the source code.
+;;      + A "Debugger" menu for easy access to all features.
+;;
+;;  * A number of predefined window layouts and key bindings are
+;;    supplied, including binding that emulate Eclipse and NetBeans.
+;;    The user can easily provide their own window layout and
+;;    settings.
+;;
+;; The default window layout looks like the following:
+;;
+;; +----------------------------------------------------------------------+
+;; |                                Toolbar                               |
+;; +-----------------------------------+----------------------------------+
+;; | Debugger shell                    | Variables buffer                 |
+;; +-----------------------------------+----------------------------------+
+;; |                                   |                                  |
+;; | Source buffer                     | Output buffer                    |
+;; |                                   |                                  |
+;; +-----------------------------------+----------------------------------+
+;; | Stack buffer                      | Breakpoints buffer               |
+;; +-----------------------------------+----------------------------------+
+;;
+
+;;
+;; Installation:
 ;;
 ;; To use this package, place the following line in an appropriate
 ;; init file (for example ~/.emacs):
@@ -31,8 +72,23 @@
 ;;    (require 'rdebug)
 ;;
 
-;;; Code:
+;;
+;; History and Future:
+;;
+;; The design of this debugger user interface was inspired by
+;; `gdb-ui', a similar user interface to GDB.
+;;
+;; Hopefully, rdebug, gdb-ui, and other emacs user interfaces could
+;; join forces to create a common user-level look and feel, and a
+;; battery of underlying support functions.
+;;
 
+;;
+;; This file contains only user-customizable variables and code to
+;; load the other files when needed.
+;;
+
+;;; Code:
 
 ;; -------------------------------------------------------------------
 ;; Consistency checks.

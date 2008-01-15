@@ -22,14 +22,10 @@
 
 ;;; Commentary:
 
-;; Introduction:
-;;
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; This file is loaded when a Ruby source buffer is loaded. It
 ;; contains, among else, the Debugger menu.
-;;
-;; For more information, see rdebug.el, rdebug-core.el, and the
-;; manual.
-;;
 
 ;;; Code:
 

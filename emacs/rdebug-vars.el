@@ -22,6 +22,8 @@
 
 ;;; Commentary:
 
+;; See the manual and the file `rdebug.el' for more information.
+
 ;;
 ;; Introduction:
 ;;
@@ -33,6 +35,8 @@
 ;; Functions can be annotated with `rdebug-debug-enter' to display a
 ;; call trace.
 ;;
+
+;;; Code:
 
 (defvar rdebug-debug-active nil
   "Non-nil when rdebug should emit internal debug output to *Xrdebug*.")
@@ -66,7 +70,11 @@
   "Represent the window layout that currently is in use.
 Can be `original' or `debugger'.")
 
-
+
+;; -------------------------------------------------------------------
+;; The end.
+;;
+
 (provide 'rdebug-vars)
 
 ;;; Local variables:

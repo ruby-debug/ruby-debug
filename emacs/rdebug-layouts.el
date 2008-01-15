@@ -22,14 +22,13 @@
 
 ;;; Commentary:
 
-;;
-;; Introduction:
-;;
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; This is file contains the window layouts that come with rdebug; the
 ;; code where can be consulted as a guide for creating other window
 ;; layouts.
-;; -------------------------------------------------------------------
 
+;;; Code:
 
 (defun rdebug-get-buffer (name script-name)
   "Return a rdebug buffer for displaying NAME when debugging SCRIPT-NAME.

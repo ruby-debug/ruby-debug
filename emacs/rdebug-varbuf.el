@@ -22,7 +22,11 @@
 
 ;;; Commentary:
 
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; This file contains code dealing with the variables secondary buffer.
+
+;;; Code:
 
 (defvar rdebug-variables-mode-map
   (let ((map (make-sparse-keymap)))

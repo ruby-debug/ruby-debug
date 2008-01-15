@@ -22,52 +22,9 @@
 
 ;;; Commentary:
 
-;;
-;; Introduction:
-;;
-;; This is a full-blown debugger user interface to the Ruby rdebug
-;; debugger shell.
-;;
-;; The main features are:
-;;
-;;  * Window layout with dedicated windows for:
-;;      + Local and member variables
-;;      + Stack trace
-;;      + Display expressions
-;;      + Breakpoints
-;;      + Output
-;;      + Debugger Shell
-;;
-;;  * Source-level debugging:
-;;      + The current source file is shown and current line is marked.
-;;      + Function keys bindings for effective stepping in the source code.
-;;      + A "Debugger" menu for easy access to all features.
-;;
-;;  * A number of predefined window layouts and key bindings are
-;;    supplied, including binding that emulate Eclipse and NetBeans.
-;;    The user can easily provide their own window layout and
-;;    settings.
-;;
+;; See the manual and the file `rdebug.el' for more information.
 
-;;
-;; Installation:
-;;
-;; To use this package, place the following line in an appropriate
-;; init file (for example ~/.emacs):
-;;
-;;    (require 'rdebug)
-;;
-
-;;
-;; History and Future:
-;;
-;; The design of this debugger user interface was inspired by
-;; `gdb-ui', a similar user interface to GDB.
-;;
-;; Hopefully, rdebug, gdb-ui, and other emacs user interfaces could
-;; join forces to create a common user-level look and feel, and a
-;; battery of underlying support functions.
-;;
+;; This file implements the core of the debugger.
 
 ;;; Code:
 

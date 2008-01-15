@@ -21,7 +21,12 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
+
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; This file contains code dealing with the help buffer.
+
+;;; Code:
 
 (defvar rdebug-secondary-window-help-mode-map
   (let ((map (make-sparse-keymap)))

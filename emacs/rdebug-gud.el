@@ -22,6 +22,8 @@
 
 ;;; Commentary:
 
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; This file contains rdebug Emacs routines which interface with gud.
 
 ;;; Code:

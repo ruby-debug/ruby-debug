@@ -22,7 +22,12 @@
 
 ;;; Commentary:
 
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; This file contains code dealing with the frames secondary buffer.
+
+;;; Code:
+
 (require 'rdebug-dbg)
 (require 'rdebug-regexp)
 (require 'rdebug-secondary)

@@ -22,8 +22,11 @@
 
 ;;; Commentary:
 
-;; This file internal debug trace support.
-;;
+;; See the manual and the file `rdebug.el' for more information.
+
+;; This file contains internal debug trace support.
+
+;;; Code:
 
 (require 'rdebug-vars)
 

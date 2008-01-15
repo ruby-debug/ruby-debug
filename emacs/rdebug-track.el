@@ -21,6 +21,8 @@
 
 ;;; Commentary:
 
+;; See the manual and the file `rdebug.el' for more information.
+
 ;;  `rdebug-track-mode' allows access to full debugger user interface
 ;;   for Ruby debugger sessions started in a standard shell window.
 ;;   `turn-on-rdebug-track-mode' turns the mode on and

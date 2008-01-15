@@ -22,12 +22,10 @@
 
 ;;; Commentary:
 
-;;
-;; Introduction:
-;;
+;; See the manual and the file `rdebug.el' for more information.
+
 ;; Here we have regular expressions and names for matched patterns
 ;; of those regular expressions.
-;;
 
 ;;; Code:
 
