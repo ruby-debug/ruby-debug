@@ -465,7 +465,7 @@ This does not menus or prefix keys."
         (prefix-map (make-sparse-keymap)))
     (rdebug-populate-debugger-menu map)
     (rdebug-populate-secondary-buffer-map-plain prefix-map)
-    (define-key prefix-map [insert] 'rdebug-local-short-key-mode-on)
+    (define-key prefix-map [insert] 'rdebug-internal-short-key-mode-on)
     (define-key map gud-key-prefix prefix-map)
     (rdebug-populate-common-keys map)
     map)
@@ -506,8 +506,9 @@ debugger is active."
 ;; deactivated appropriately by the Rdebug filter functions.
 
 ;; Implementation note: This is the user-level command. It only
-;; controls if `rdebug-local-short-key-mode' should be activated or
+;; controls if `rdebug-internal-short-key-mode' should be activated or
 ;; not.
+
 (define-minor-mode rdebug-short-key-mode
   "When enabled, short keys can be used in source buffers in `rdebug'."
   :group 'rdebug

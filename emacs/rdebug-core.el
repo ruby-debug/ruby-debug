@@ -134,7 +134,7 @@
       (if gud-last-frame
           (rdebug-pick-source-window))
 
-      (rdebug-local-short-key-mode-on)
+      (rdebug-internal-short-key-mode-on)
 
       ;; Does the remaining text look like it might end with the
       ;; beginning of another marker?  If it does, then keep it in
@@ -446,34 +446,46 @@ This function is called upon quitting the debugger and
 ;; minor mode named "local short key mode". This is activated and
 ;; deactivated appropriately by the Rdebug filter functions.
 
-(defvar rdebug-local-short-key-mode-map
+(defvar rdebug-internal-short-key-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "b" 'gud-break)
     (define-key map "t" 'rdebug-toggle-source-breakpoint-enabled)
-    (define-key map [insert] 'rdebug-local-short-key-mode-off)
+    (define-key map [insert] 'rdebug-short-key-mode)
     (define-key map "p" 'gud-print)
     (rdebug-populate-secondary-buffer-map-plain map)
     map)
-  "Keymap used in `rdebug-local-short-key-mode'.")
+  "Keymap used in `rdebug-internal-short-key-mode'.")
 
+(defvar rdebug-original-read-only :off
+  "The value `buffer-read-only' should be restored to after short key mode.
+
+When :off, the mode is not active.")
 
 ;; Implementation note: This is the mode that does all the work, it's
 ;; local to the buffer that is affected.
-(define-minor-mode rdebug-local-short-key-mode
+(define-minor-mode rdebug-internal-short-key-mode
   "Minor mode with short keys for source buffers for the `rdebug' debugger.
 The buffer is read-only when the minor mode is active.
 
-Please use the global `rdebug-short-key-mode' to automatically
-activate this mode when the `rdebug' debugger is used.
+Note that this is for internal use only, please use the global
+mode `rdebug-short-key-mode'.
 
-\\{rdebug-local-short-key-mode-map}"
+\\{rdebug-internal-short-key-mode-map}"
   :group 'rdebug
   :global nil
   :init-value nil
-  :keymap rdebug-local-short-key-mode-map
-  (if rdebug-local-short-key-mode
-      (setq buffer-read-only t)
-    (setq buffer-read-only nil)))
+  :lighter " ShortKeys"
+  :keymap rdebug-internal-short-key-mode-map
+  (make-local-variable 'rdebug-original-read-only)
+  ;; Note, without the third state, :off, activating the mode more
+  ;; than once would overwrite the real original value.
+  (if rdebug-internal-short-key-mode
+      (progn
+        (if (eq rdebug-original-read-only :off)
+            (setq rdebug-original-read-only buffer-read-only))
+        (setq buffer-read-only t))
+    (setq buffer-read-only rdebug-original-read-only)
+    (setq rdebug-original-read-only :off)))
 
 
 (defun rdebug-turn-on-short-key-mode ()
@@ -488,28 +500,26 @@ This function is designed to be used in a user hook, for example:
 
 (defun rdebug-short-key-mode-maybe-activate ()
   (if rdebug-short-key-mode
-      (rdebug-local-short-key-mode-on)
-    (rdebug-local-short-key-mode-off)))
+      (rdebug-internal-short-key-mode-on)
+    (rdebug-internal-short-key-mode-off)))
 
 
-(defun rdebug-local-short-key-mode-off ()
-  "Turn off `rdebug-local-short-key-mode' in all buffers."
-  (interactive)
-  (rdebug-debug-enter "rdebug-local-short-key-mode-off"
+(defun rdebug-internal-short-key-mode-off ()
+  "Turn off `rdebug-internal-short-key-mode' in all buffers."
+  (rdebug-debug-enter "rdebug-internal-short-key-mode-off"
     (save-current-buffer
       (dolist (buf (buffer-list))
         (set-buffer buf)
-        (if rdebug-local-short-key-mode
-            (rdebug-local-short-key-mode -1))))))
+        (if rdebug-internal-short-key-mode
+            (rdebug-internal-short-key-mode -1))))))
 
 (defun rdebug-buffer-killed-p (buffer)
   "Return t if BUFFER is killed."
   (not (buffer-name buffer)))
 
-(defun rdebug-local-short-key-mode-on ()
-  "Turn on `rdebug-local-short-key-mode' in the current debugger frame."
-  (interactive)
-  (rdebug-debug-enter "rdebug-local-short-key-mode-on"
+(defun rdebug-internal-short-key-mode-on ()
+  "Turn on `rdebug-internal-short-key-mode' in the current debugger frame."
+  (rdebug-debug-enter "rdebug-internal-short-key-mode-on"
     (save-current-buffer
       (if (and gud-comint-buffer
                (not (rdebug-buffer-killed-p gud-comint-buffer)))
@@ -523,7 +533,7 @@ This function is designed to be used in a user hook, for example:
               (let ((buffer (gud-find-file (car frame))))
                 (save-current-buffer
                   (set-buffer buffer)
-                  (rdebug-local-short-key-mode 1)))))))))
+                  (rdebug-internal-short-key-mode 1)))))))))
 
 
 ;; -------------------------------------------------------------------
@@ -554,7 +564,7 @@ This function is designed to be used in a user hook, for example:
                    (eq process (get-buffer-process gud-comint-buffer)))
                (eq rdebug-window-configuration-state 'debugger)
                (not (eq (process-status process) 'run)))
-      (rdebug-local-short-key-mode-off)
+      (rdebug-internal-short-key-mode-off)
       (rdebug-set-window-configuration-state 'original)
       ;; This unbinds the special debugger keys of the source buffers.
       (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
