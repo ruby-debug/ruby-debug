@@ -205,14 +205,22 @@
   "Pick out the script name from the command line.
 Return a list of that and whether the annotate option was set.
 Initially annotate should be set to nil."
+  ;; Parse the following:
+  ;;
+  ;;  [ruby ruby-options] rdebug rdebug-options script-name script-options
   (and args
        (let ((name nil)
              (annotate-p nil))
          ;; Strip of optional "ruby" or "ruby182" etc.
-         (if (string-match "^ruby[0-9]*$"
-                           (file-name-sans-extension
-                            (file-name-nondirectory (car args))))
-             (pop args))
+         (when (string-match "^ruby[0-9]*$"
+                             (file-name-sans-extension
+                              (file-name-nondirectory (car args))))
+           (pop args)
+           (while (and args
+                       (string-match "^-" (car args)))
+             (if (member (car args) '("-e" "-r" "-I" "-C" "-F" "-K"))
+                 (pop args))
+             (pop args)))
          ;; Remove "rdebug" from "rdebug --rdebug-options script
          ;; --script-options"
          (pop args)
