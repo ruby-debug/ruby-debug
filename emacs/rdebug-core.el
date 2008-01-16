@@ -53,6 +53,14 @@
 (require 'rdebug-regexp)
 (require 'rdebug-vars)
 
+;; Should go somehwere else
+(defun chomp(string)
+  "Remove trailing \n if it's there"
+  (let ((s string)) 
+    (if (string= "\n" (substring s -1)) 
+	(substring s 0 -1)
+      s)))
+
 ;; -------------------------------------------------------------------
 ;; Interface to gud.
 ;;
@@ -317,7 +325,7 @@ Currently-active file is at the head of the list.")
 		 (goto-char (point-max)))
 		((string= name "error")
 		 (goto-char (point-max))
-		 (message contents))
+		 (message (chomp contents)))
 		(t (erase-buffer)))
 	  (insert contents)
 	  (when setup-func (funcall setup-func buf comint-buffer)))))))
