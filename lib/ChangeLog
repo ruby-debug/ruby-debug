@@ -1,3 +1,11 @@
+2008-01-14 01:31  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/control.rb,
+	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-track.el,
+	  ChangeLog: Make rdebug-track work better in the face of prompt
+	  and error annotations.
+	  control.rb: need another test when rdebug not called initially.
+
 2008-01-13 21:51  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,

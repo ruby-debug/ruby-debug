@@ -1,3 +1,98 @@
+2008-01-16 01:14  Rocky Bernstein
+
+	* emacs/rdebug-source.el: Get insert working again.
+
+2008-01-16 01:13  Rocky Bernstein
+
+	* emacs/rdebug-secondary.el: Typo.
+
+2008-01-16 00:23  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Chomp error before message'ing.
+
+2008-01-15 23:41  Anders Lindgren
+
+	* emacs/rdebug-core.el: When starting 'rdebug' the first time, the
+	  file name of the current buffer is suggested as script name.
+
+2008-01-15 23:34  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug-source.el: Local short key
+	  mode renamed to internal short key mode. Original read-only
+	  status saved in local variable. Minor mode text 'ShortKey' added.
+
+2008-01-15 23:04  Anders Lindgren
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-core.el,
+	  emacs/rdebug-dbg.el, emacs/rdebug-error.el,
+	  emacs/rdebug-frames.el, emacs/rdebug-gud.el,
+	  emacs/rdebug-help.el, emacs/rdebug-layouts.el,
+	  emacs/rdebug-output.el, emacs/rdebug-regexp.el,
+	  emacs/rdebug-secondary.el, emacs/rdebug-source.el,
+	  emacs/rdebug-track.el, emacs/rdebug-varbuf.el,
+	  emacs/rdebug-vars.el, emacs/rdebug-watch.el, emacs/rdebug.el:
+	  Comment fixes.
+
+2008-01-15 22:48  Anders Lindgren
+
+	* emacs/rdebug-breaks.el: Breakpoints font-lock rules even more
+	  generous, now all characters are matched.
+
+2008-01-15 22:44  Anders Lindgren
+
+	* emacs/rdebug-core.el: rdebug-get-script-name now skips ruby
+	  options, if present
+
+2008-01-15 07:56  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el: File names can have a - in them.
+
+2008-01-15 06:51  Anders Lindgren
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-core.el: The source
+	  breakpoint toggle and toggle enabled commands, when issued in the
+	  breakpoints window, do the right thing. In other non-file buffers
+	  they do nothing.
+
+2008-01-15 04:57  Rocky Bernstein
+
+	* emacs/test/test-core.el: indentation.
+
+2008-01-15 04:56  Rocky Bernstein
+
+	* emacs/test/test-core.el: More tests.
+
+2008-01-14 22:22  Anders Lindgren
+
+	* emacs/rdebug-breaks.el: Replaced code coloring breakpoint buffer
+	  with font-lock rules. Now coloring of breakpoints of kind
+	  'Type:function' works.
+
+2008-01-14 07:00  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/test/test-core.el:
+	  rdebug-get-script-name now handles something else than 'rdebug'
+	  as command name. Rewritten to get rid of unmaintanable recursive
+	  function.
+
+2008-01-14 06:58  Anders Lindgren
+
+	* emacs/test/test-cmd.el: Breakpoints are now parsed and cached
+	  when a new annotation arrives.
+
+2008-01-14 06:57  Anders Lindgren
+
+	* emacs/rdebug-breaks.el: Breakpoints are now parsed and cached
+	  when a new annotation arrives.
+
+2008-01-14 01:31  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/control.rb,
+	  emacs/rdebug-core.el, emacs/rdebug-track.el, lib/ChangeLog: Make
+	  rdebug-track work better in the face of prompt and error
+	  annotations.
+	  control.rb: need another test when rdebug not called initially.
+
 2008-01-13 22:03  Rocky Bernstein
 
 	* emacs/rdebug-core.el, emacs/rdebug-layouts.el: A couple more

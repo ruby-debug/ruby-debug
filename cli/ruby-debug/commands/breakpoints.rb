@@ -47,22 +47,24 @@ module Debugger
       
       if line =~ /^\d+$/
         line = line.to_i
-        lines = Debugger.source_for(full_file)
-        if not lines 
-          errmsg "No source file named %s\n", file
-        elsif lines.size < line
-          errmsg "No line %d in file \"%s\"\n", line, file
-        else
-          unless @state.context
-            errmsg "We are not in a state we can add breakpoints.\n"
-            return 
-          end
-          b = Debugger.add_breakpoint file, line, expr
-          print "Breakpoint %d file %s, line %s\n", b.id, file, line.to_s
-          unless syntax_valid?(expr)
-            errmsg("Expression \"#{expr}\" syntactically incorrect; breakpoint disabled.\n")
-            b.enabled = false
-          end
+        unless LineCache::cache(full_file, 
+                                Command.settings[:reload_source_on_change])
+          errmsg("No source file named %s\n", file) 
+          return
+        end
+        unless LineCache::getline(full_file, line)
+          errmsg("No line %d in file \"%s\"\n", line, file) 
+          return
+        end
+        unless @state.context
+          errmsg "We are not in a state we can add breakpoints.\n"
+          return 
+        end
+        b = Debugger.add_breakpoint file, line, expr
+        print "Breakpoint %d file %s, line %s\n", b.id, file, line.to_s
+        unless syntax_valid?(expr)
+          errmsg("Expression \"#{expr}\" syntactically incorrect; breakpoint disabled.\n")
+          b.enabled = false
         end
       else
         method = line.intern.id2name

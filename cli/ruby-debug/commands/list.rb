@@ -60,7 +60,9 @@ module Debugger
 
     def display_list(b, e, file, line)
       print "[%d, %d] in %s\n", b, e, file
-      if lines = Debugger.source_for(file)
+      lines = LineCache::getlines(file, 
+                                  Command.settings[:reload_source_on_change])
+      if lines
         n = 0
         b.upto(e) do |n|
           if n > 0 && lines[n-1]

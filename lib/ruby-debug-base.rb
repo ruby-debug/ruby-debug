@@ -1,7 +1,6 @@
 require 'ruby_debug.so'
-
-SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
-SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
+require 'rubygems'
+require 'linecache'
 
 module Debugger
   class Context
@@ -74,42 +73,16 @@ module Debugger
       context
     end
     
-    def source_for(file) # :nodoc:
-      finder = lambda do
-        if File.exists?(file)
-          if SCRIPT_LINES__[file].nil? || SCRIPT_LINES__[file] == true
-            SCRIPT_LINES__[file] = File.readlines(file)
-          end
-
-          change_time = File.stat(file).mtime
-          SCRIPT_TIMESTAMPS__[file] ||= change_time
-          if @reload_source_on_change && SCRIPT_TIMESTAMPS__[file] < change_time
-            SCRIPT_LINES__[file] = File.readlines(file)
-          end
-
-          SCRIPT_LINES__[file]
-        end
-      end
-      
-      Dir.chdir(File.dirname($0)){finder.call} || finder.call ||
-        (SCRIPT_LINES__[file] == true ? nil : SCRIPT_LINES__[file])
-    end
-    
     def source_reload
-      SCRIPT_LINES__.keys.each do |file|
-        next unless File.exists?(file)
-        SCRIPT_LINES__[file] = nil
-      end
+      LineCache::clear_file_cache(true)
     end
     
-    def line_at(file, line) # :nodoc:
-      lines = source_for(file)
-      if lines
-        line = lines[line-1]
-        return "\n" unless line
-        return "#{line.gsub(/^\s+/, '').chomp}\n"
-      end
-      return "\n"
+    # Get line +line_number+ from file named +filename+. Return "\n"
+    # there was a problem. Leaking blanks are stripped off.
+    def line_at(filename, line_number) # :nodoc:
+      line = LineCache::getline(filename, line_number, @reload_on_change)
+      return "\n" unless line
+      return "#{line.gsub(/^\s+/, '').chomp}\n"
     end
 
     #
