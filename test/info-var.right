@@ -21,7 +21,7 @@ return x
 self = main
 x = *Error in evaluation*
 # break 31
-Breakpoint 1 file info-var-bug.rb, line 31
+Breakpoint 1 file ./info-var-bug.rb, line 31
 # # The first time through, we can do inspect.
 # continue
 Breakpoint 1 at info-var-bug.rb:31

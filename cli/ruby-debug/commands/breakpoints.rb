@@ -18,13 +18,13 @@ module Debugger
         _, file, line, expr = @match.captures
       end
 
-      full_file = nil
+      brkpt_filename = nil
       if file.nil?
         unless @state.context
           errmsg "We are not in a state that has an associated file.\n"
           return 
         end
-        full_file = @state.file
+        brkpt_filename = @state.file
         file = File.basename(@state.file)
         if line.nil? 
           # Set breakpoint at current line
@@ -40,19 +40,20 @@ module Debugger
           throw :debug_error
         end
       else
+        # FIXME: This should be done in LineCache.
         file = File.expand_path(file) if file.index(File::SEPARATOR) || \
         File::ALT_SEPARATOR && file.index(File::ALT_SEPARATOR)
-        full_file = file
+        brkpt_filename = file
       end
       
       if line =~ /^\d+$/
         line = line.to_i
-        unless LineCache::cache(full_file, 
+        unless LineCache::cache(brkpt_filename, 
                                 Command.settings[:reload_source_on_change])
           errmsg("No source file named %s\n", file) 
           return
         end
-        unless LineCache::getline(full_file, line)
+        unless LineCache::getline(brkpt_filename, line)
           errmsg("No line %d in file \"%s\"\n", line, file) 
           return
         end
@@ -61,7 +62,7 @@ module Debugger
           return 
         end
         b = Debugger.add_breakpoint file, line, expr
-        print "Breakpoint %d file %s, line %s\n", b.id, file, line.to_s
+        print "Breakpoint %d file %s, line %s\n", b.id, brkpt_filename, line.to_s
         unless syntax_valid?(expr)
           errmsg("Expression \"#{expr}\" syntactically incorrect; breakpoint disabled.\n")
           b.enabled = false

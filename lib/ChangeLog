@@ -1,3 +1,12 @@
+2008-01-16 02:19  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, trunk/cli/ruby-debug/command.rb,
+	  trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  trunk/cli/ruby-debug/commands/list.rb, ChangeLog,
+	  ruby-debug-base.rb: Line caching moved to an external gem,
+	  linecache. We now require
+	  version 0.2 of that or greater.
+
 2008-01-14 01:31  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/control.rb,

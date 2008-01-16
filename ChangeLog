@@ -1,3 +1,17 @@
+2008-01-16 12:30  Rocky Bernstein
+
+	* emacs/rdebug-track.el: Slightly better rdebug-track-attach
+	  initialization. Still has problems, but it's better.
+
+2008-01-16 02:19  Rocky Bernstein
+
+	* ChangeLog, Rakefile, cli/ruby-debug/command.rb,
+	  cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/commands/list.rb, lib/ChangeLog,
+	  lib/ruby-debug-base.rb: Line caching moved to an external gem,
+	  linecache. We now require
+	  version 0.2 of that or greater.
+
 2008-01-16 01:14  Rocky Bernstein
 
 	* emacs/rdebug-source.el: Get insert working again.
