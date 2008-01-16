@@ -301,7 +301,6 @@ window layout is used."
     (set (make-local-variable 'gud-find-file) 'gud-rdebug-find-file)
     (setq gud-last-last-frame nil)
     (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
-    (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
     (gud-set-buffer)
     ;;
 
@@ -309,6 +308,16 @@ window layout is used."
     (set (make-local-variable 'gud-last-frame) nil)
     (rdebug-track-mode 1)
     (rdebug-common-initialization)
+
+    ;; Setup exit callback so that the original frame configuration
+    ;; can be restored.
+    (let ((process (get-buffer-process gud-comint-buffer)))
+      (when process
+	(unless (equal rdebug-line-width 120)
+	  (gud-call (format "set width %d" rdebug-line-width)))
+	(set-process-sentinel process
+			      'rdebug-process-sentinel)))
+    
     (when name
       (setq gud-target-name name)
       (setq gud-comint-buffer (current-buffer)))
@@ -316,10 +325,24 @@ window layout is used."
       (setq gud-last-last-frame gud-last-frame))
     (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
 
+    ;; Add the buffer-displaying commands to the Gud buffer,
+    (let ((prefix-map (make-sparse-keymap)))
+      (define-key (current-local-map) gud-key-prefix prefix-map)
+      (rdebug-populate-secondary-buffer-map-plain prefix-map))
+    
+    (rdebug-populate-common-keys (current-local-map))
+    (rdebug-populate-debugger-menu (current-local-map))
+      
+    (setq comint-prompt-regexp "^(rdb:-) ")
+    (setq paragraph-start comint-prompt-regexp)
+
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
             rdebug-debugger-support-minor-mode-map-when-active)
+    (gud-call "set annotate 3")
+    (gud-call "frame 0")
     (when rdebug-many-windows
-      (rdebug-setup-windows))))
+      (rdebug-setup-windows))
+    (run-hooks 'rdebug-mode-hook)))
 
 
 ;; -------------------------------------------------------------------
