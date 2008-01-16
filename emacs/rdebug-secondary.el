@@ -31,7 +31,7 @@
 (require 'rdebug)
 
 (defun rdebug-populate-secondary-buffer-map (map)
-  "Bind all common keys and menu used in the rdebug seondary buffers.
+  "Bind all common keys and menu used in the rdebug secondary buffers.
 This includes the keys bound to `gud-key-prefix' (typically C-x
 C-a)."
   (rdebug-populate-secondary-buffer-map-plain map)
