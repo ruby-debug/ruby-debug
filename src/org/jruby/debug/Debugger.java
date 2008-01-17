@@ -133,7 +133,7 @@ final class Debugger {
         if (stop.isTrue()) {
             debugContext.setStopNext(1);
         }
-        rt.getLoadService().load(((RubyString) file).toString());
+        rt.getLoadService().load(((RubyString) file).toString(), false);
         stop(rt);
     }
     

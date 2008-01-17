@@ -33,7 +33,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 import org.jruby.runtime.load.Library;
 
 public final class RubyDebugBaseLibrary implements Library {
-    public void load(Ruby runtime) throws IOException {
+    public void load(Ruby runtime, boolean wrap) throws IOException {
         RubyDebugger.createDebuggerModule(runtime);
     }
     

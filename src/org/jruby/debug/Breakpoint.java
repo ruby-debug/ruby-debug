@@ -141,7 +141,7 @@ public class Breakpoint extends RubyObject {
             throw getRuntime().newArgumentError("Invalid condition parameter");
         }
         
-        String symbol = ((RubySymbol)hit_condition).asInternedString();
+        String symbol = ((RubySymbol)hit_condition).asJavaString();
         if (symbol.equals("greater_or_equal") || symbol.equals("ge")) {
             debugBreakpoint.setHitCondition(DebugBreakpoint.HitCondition.GE);
         } else if (symbol.equals("equal") || symbol.equals("eq")) {
