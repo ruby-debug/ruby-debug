@@ -133,7 +133,7 @@ module Debugger
         print "\n"
       end
       if %w(all basic lines).member?(param)
-        lines = LineCache.lines(file)
+        lines = LineCache.size(file)
         print "\t %d lines\n", lines if lines
       end
       if %w(all mtime).member?(param)
