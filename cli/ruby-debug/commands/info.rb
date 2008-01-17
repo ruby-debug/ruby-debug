@@ -8,7 +8,8 @@ module Debugger
        ['args', 1, "Argument variables of current stack frame"],
        ['breakpoints', 1, "Status of user-settable breakpoints"],
        ['display', 2, "Expressions to display when program stops"],
-       ['files', 1, "File names and timestamps of files read in"],
+       ['files', 5, "File names and timestamps of files read in"],
+       ['file', 4, "Info about a particular file read in"],
        ['global_variables', 2, "global variables"],
        ['instance_variables', 2, "instance variables"],
        ['line', 2, "Line number and file name of current position in source"],
@@ -33,12 +34,13 @@ module Debugger
           print "info #{subcmd.name} -- #{subcmd.short_help}\n"
         end
       else
-        subcmd, args = @match[1].split(/[ \t]+/)
+        args = @match[1].split(/[ \t]+/)
+        subcmd = args.shift
         subcmd.downcase!
         for try_subcmd in Subcommands do
           if (subcmd.size >= try_subcmd.min) and
               (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            send("info_#{try_subcmd.name}", args)
+            send("info_#{try_subcmd.name}", *args)
             return
           end
         end
@@ -102,9 +104,60 @@ module Debugger
       end
     end
     
+    def info_file(*args)
+      unless args[0] 
+        info_files
+        return
+      end
+      file = args[0]
+      param =  args[1]
+      if param and not %w(all lines mtime path sha1).member?(param)
+        errmsg "Invalid parameter #{param}\n"
+        return
+      end
+      param = 'basic' unless param
+      
+      unless LineCache::cached?(file)
+        unless LineCache::cached_script?(file)
+          print "File #{file} is not cached\n"
+          return
+        end
+        LineCache::cache(file, Command.settings[:reload_source_on_change])
+      end
+      
+      print "File %s", file
+      path = LineCache.path(file)
+      if %w(all basic path).member?(param) and path != file
+        print " - %s\n", path 
+      else
+        print "\n"
+      end
+      if %w(all basic lines).member?(param)
+        lines = LineCache.lines(file)
+        print "\t %d lines\n", lines if lines
+      end
+      if %w(all mtime).member?(param)
+        stat = LineCache.stat(file)
+        print "\t %s\n", stat.mtime if stat
+      end
+      if %w(all sha1).member?(param)
+        print "\t %s\n", LineCache.sha1(file)
+      end
+    end
+    
     def info_files(*args)
-      SCRIPT_LINES__.each do |file, value|
-        print "File %s %s\n", file, SCRIPT_TIMESTAMPS__[file]
+      files = LineCache::cached_files
+      files += SCRIPT_LINES__.keys unless 'stat' == args[0] 
+      files.uniq.sort.each do |file|
+        stat = LineCache::stat(file)
+        path = LineCache::path(file)
+        print "File %s", file
+        if path and path != file
+          print " - %s\n", path 
+        else
+          print "\n"
+        end
+        print "\t %s\n", stat.mtime if stat
       end
     end
     

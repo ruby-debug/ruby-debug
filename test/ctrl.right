@@ -13,6 +13,7 @@ info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
 info display -- Expressions to display when program stops
 info files -- File names and timestamps of files read in
+info file -- Info about a particular file read in
 info global_variables -- global variables
 info instance_variables -- instance variables
 info line -- Line number and file name of current position in source
