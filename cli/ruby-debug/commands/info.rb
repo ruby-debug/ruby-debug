@@ -8,7 +8,7 @@ module Debugger
        ['args', 1, "Argument variables of current stack frame"],
        ['breakpoints', 1, "Status of user-settable breakpoints"],
        ['display', 2, "Expressions to display when program stops"],
-       ['file', 1, "File names and timestamps of files read in"],
+       ['files', 1, "File names and timestamps of files read in"],
        ['global_variables', 2, "global variables"],
        ['instance_variables', 2, "instance variables"],
        ['line', 2, "Line number and file name of current position in source"],
@@ -102,7 +102,7 @@ module Debugger
       end
     end
     
-    def info_file(*args)
+    def info_files(*args)
       SCRIPT_LINES__.each do |file, value|
         print "File %s %s\n", file, SCRIPT_TIMESTAMPS__[file]
       end
