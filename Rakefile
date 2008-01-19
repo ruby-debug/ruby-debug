@@ -18,7 +18,7 @@ COMMON_FILES = FileList[
   'Rakefile',
 ]                        
 
-CLI_TEST_FILE_LIST = 'test/**/*test-*.rb'
+CLI_TEST_FILE_LIST = 'test/test-*.rb'
 CLI_FILES = COMMON_FILES + FileList[
   "cli/**/*",
   'ChangeLog',
@@ -35,7 +35,7 @@ CLI_FILES = COMMON_FILES + FileList[
    CLI_TEST_FILE_LIST,                                    
 ]
 
-BASE_TEST_FILE_LIST = 'test/test-ruby-debug-base.rb'
+BASE_TEST_FILE_LIST = %w(test/base/base.rb test/base/binding.rb)
 BASE_FILES = COMMON_FILES + FileList[
   'ext/breakpoint.c',
   'ext/extconf.rb',
@@ -47,10 +47,19 @@ BASE_FILES = COMMON_FILES + FileList[
 ]
 
 desc "Test everything."
-test_task = task :test => :lib do 
+test_task = task :test => [:lib, :test_base] do 
   Rake::TestTask.new(:test) do |t|
     t.libs << ['./ext', './lib', './cli']
     t.pattern = CLI_TEST_FILE_LIST
+    t.verbose = true
+  end
+end
+
+desc "Test ruby-debug-base."
+test_task = task :test_base => :lib do 
+  Rake::TestTask.new(:test_base) do |t|
+    t.libs << ['./ext', './lib']
+    t.test_files = FileList[BASE_TEST_FILE_LIST]
     t.verbose = true
   end
 end

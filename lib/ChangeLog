@@ -1,3 +1,14 @@
+2008-01-16 18:42  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  ChangeLog, trunk/test/annotate.right,
+	  trunk/test/breakpoints.right, trunk/test/condition.right,
+	  trunk/test/display.right, trunk/test/emacs-basic.right,
+	  trunk/test/info-var.right: Need to present source filename
+	  (__FILE__) as Ruby and therefore breakpoint
+	  sees it.
+	  
+
 2008-01-16 02:19  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, trunk/cli/ruby-debug/command.rb,
