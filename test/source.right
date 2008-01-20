@@ -6,7 +6,7 @@ def gcd(a, b)
 Currently testing the debugger is on.
 # source ./rdebug-save.1
 Breakpoint 1 file gcd.rb, line 10
-Breakpoint 2 file gcd.rb, line 11
+Breakpoint 2 file gcd.rb, line 12
 autoeval is on.
 basename is off.
 Currently testing the debugger is on.

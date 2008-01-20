@@ -48,13 +48,18 @@ module Debugger
       
       if line =~ /^\d+$/
         line = line.to_i
-        unless LineCache::cache(brkpt_filename, 
+        unless LineCache.cache(brkpt_filename, 
                                 Command.settings[:reload_source_on_change])
           errmsg("No source file named %s\n", file) 
           return
         end
-        unless LineCache::getline(brkpt_filename, line)
-          errmsg("No line %d in file \"%s\"\n", line, file) 
+        last_line = LineCache.size(brkpt_filename)
+        if line > last_line
+          errmsg("There are only %d lines in file \"%s\".\n", last_line, file) 
+          return
+        end
+        unless LineCache.trace_line_numbers(brkpt_filename).member?(line)
+          errmsg("Line %d is not a stopping point in file \"%s\".\n", line, file) 
           return
         end
         unless @state.context
