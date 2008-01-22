@@ -1,3 +1,10 @@
+2008-01-19 19:28  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, ChangeLog, trunk/test/base,
+	  trunk/test/base/base.rb, trunk/test/base/binding.rb,
+	  trunk/test/test-ruby-debug-base.rb: Move ruby-debug-base tests to
+	  base directory. Add a binding_n regression test.
+
 2008-01-16 18:42  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,

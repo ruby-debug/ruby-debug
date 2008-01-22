@@ -12,8 +12,8 @@ require File.join(SRC_DIR, "helper.rb")
 
 include TestHelper
 
-# Test annotate handling.
-class TestAnnotate < Test::Unit::TestCase
+# Test 'edit' command handling.
+class TestEdit < Test::Unit::TestCase
   require 'stringio'
 
   def test_basic

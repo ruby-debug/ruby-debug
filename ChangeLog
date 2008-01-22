@@ -1,3 +1,19 @@
+2008-01-20 22:01  Rocky Bernstein
+
+	* cli/ruby-debug/commands/breakpoints.rb, test/break-bad.cmd,
+	  test/break-bad.right, test/breakpoints.cmd,
+	  test/breakpoints.right, test/rdebug-save.1, test/source.right,
+	  test/test-break-bad.rb: We now only allow breakpoints on stopping
+	  lines. We get this via
+	  linecache which ultimately gets it from ParseTree.
+
+2008-01-19 19:28  Rocky Bernstein
+
+	* ChangeLog, Rakefile, lib/ChangeLog, test/base, test/base/base.rb,
+	  test/base/binding.rb, test/test-ruby-debug-base.rb: Move
+	  ruby-debug-base tests to base directory. Add a binding_n
+	  regression test.
+
 2008-01-17 22:29  Rocky Bernstein
 
 	* cli/ruby-debug/commands/info.rb: lines -> size.

@@ -53,11 +53,11 @@ No breakpoints.
 self = main
 
 # # "b" should trigger like "break"
-# b 14
-Breakpoint 2 file ./gcd.rb, line 14
+# b 12
+Breakpoint 2 file ./gcd.rb, line 12
 breakpoints
 Num Enb What
-  2 y   at gcd.rb:14
+  2 y   at gcd.rb:12
 
 # # "display" should trigger display annotation
 # display 1+2
@@ -76,7 +76,7 @@ Num Enb What
 stopped
 breakpoints
 Num Enb What
-  2 y   at gcd.rb:14
+  2 y   at gcd.rb:12
 
 display
 
@@ -128,7 +128,7 @@ No source file named bogus
 
 breakpoints
 Num Enb What
-  2 y   at gcd.rb:14
+  2 y   at gcd.rb:12
 
 display
 

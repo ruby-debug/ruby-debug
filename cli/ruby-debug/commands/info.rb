@@ -1,25 +1,30 @@
 module Debugger
   class InfoCommand < Command # :nodoc:
     self.control = true
-    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
+    SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
       defined?(SubcmdStruct)
     Subcommands = 
       [
-       ['args', 1, "Argument variables of current stack frame"],
-       ['breakpoints', 1, "Status of user-settable breakpoints"],
-       ['display', 2, "Expressions to display when program stops"],
-       ['files', 5, "File names and timestamps of files read in"],
-       ['file', 4, "Info about a particular file read in"],
-       ['global_variables', 2, "global variables"],
-       ['instance_variables', 2, "instance variables"],
-       ['line', 2, "Line number and file name of current position in source"],
-       ['locals', 2, "Local variables of the current stack frame"],
-       ['program', 2, "Execution status of the program"],
-       ['stack', 2, "Backtrace of the stack"],
-       ['threads', 1, "IDs of currently known threads"],
-       ['variables', 1, "local and instance variables"]
-      ].map do |name, min, short_help| 
-      SubcmdStruct.new(name, min, short_help)
+       ['args', 1, 'Argument variables of current stack frame'],
+       ['breakpoints', 1, 'Status of user-settable breakpoints',
+        'Without argument, list info about all breakpoints.  With an
+integer argument, list info on that breakpoint.'],
+       ['display', 2, 'Expressions to display when program stops'],
+       ['files', 5, 'File names and timestamps of files read in'],
+       ['file', 4, 'Info about a particular file read in'],
+       ['global_variables', 2, 'Global variables'],
+       ['instance_variables', 2, 
+        'Instance variables of the current stack frame'],
+       ['line', 2, 
+        'Line number and file name of current position in source file'],
+       ['locals', 2, 'Local variables of the current stack frame'],
+       ['program', 2, 'Execution status of the program'],
+       ['stack', 2, 'Backtrace of the stack'],
+       ['threads', 1, 'IDs of currently known threads'],
+       ['variables', 1, 
+        'Local and instance variables of the current stack frame']
+      ].map do |name, min, short_help, long_help| 
+      SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(Subcommands)
 
     def regexp
@@ -27,7 +32,7 @@ module Debugger
     end
     
     def execute
-      if not @match[1]
+      if @match[1].empty?
         print "\"info\" must be followed by the name of an info command:\n"
         print "List of info subcommands:\n\n"
         for subcmd in Subcommands do
@@ -70,8 +75,17 @@ module Debugger
         return 
       end
       unless Debugger.breakpoints.empty?
+        brkpts = Debugger.breakpoints.sort_by{|b| b.id}
+        unless args.empty?
+          a = args.map{|a| a.to_i}
+          brkpts = brkpts.select{|b| a.member?(b.id)}
+          if brkpts.empty?
+            errmsg "No breakpoints found among list given\n"
+            return
+          end
+        end
         print "Num Enb What\n"
-        Debugger.breakpoints.sort_by{|b| b.id }.each do |b|
+        brkpts.each do |b|
           if b.expr.nil?
             print "%3d %s   at %s:%s\n", 
             b.id, (b.enabled? ? 'y' : 'n'), b.source, b.pos
@@ -290,7 +304,21 @@ module Debugger
         'info'
       end
 
-      def help(cmd)
+      def help(args)
+        if args[1] 
+          s = args[1]
+          subcmd = Subcommands.find do |try_subcmd| 
+            (s.size >= try_subcmd.min) and
+              (try_subcmd.name[0..s.size-1] == s)
+          end
+          if subcmd
+            str = subcmd.short_help + '.'
+            str += "\n" + subcmd.long_help if subcmd.long_help
+            return str
+          else
+            return "Invalid 'info' subcommand '#{args[1]}'"
+          end
+        end
         s = %{
           Generic command for showing things about the program being debugged.
           -- 

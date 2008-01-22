@@ -15,16 +15,24 @@ module Debugger
     def execute
       print "ruby-debug help v#{Debugger::VERSION}\n" unless
         self.class.settings[:debuggertesting]
-      cmds = @state.commands.select{ |cmd| [cmd.help_command].flatten.include?(@match[1]) }
+      if @match[1]
+        args = @match[1].split
+        cmds = @state.commands.select do |cmd| 
+        [cmd.help_command].flatten.include?(args[0])
+        end
+      else
+        args = @match[1]
+        cmds = []
+      end
       unless cmds.empty?
-        help = cmds.map{ |cmd| cmd.help(@match[1]) }.join
+        help = cmds.map{ |cmd| cmd.help(args) }.join
         help = help.split("\n").map{|l| l.gsub(/^ +/, '')}
         help.shift if help.first && help.first.empty?
         help.pop if help.last && help.last.empty?
         print help.join("\n")
       else
-        if @match[1]
-          errmsg "Undefined command: \"#{@match[1]}\".  Try \"help\"."
+        if args and args[0]
+          errmsg "Undefined command: \"#{args[0]}\".  Try \"help\"."
         else
           print "Type 'help <command-name>' for help on a specific command\n\n"
           print "Available commands:\n"
