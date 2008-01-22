@@ -125,7 +125,7 @@ we'll just pick a visible buffer to bury and replace."
 
 
 (defun rdebug-display-source-window-categorize (win)
-  "Return how suiteable this window is to display the source buffer.
+  "Return how suitable this window is to display the source buffer.
 The higher score the better."
   (let ((buffer (window-buffer win)))
     (cond ((eq buffer gud-comint-buffer)
