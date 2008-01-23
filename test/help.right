@@ -2,3 +2,8 @@ Currently testing the debugger is on.
 autoeval is off.
 width is 80.
 Undefined command: "foo".  Try "help".
+Set number of source lines to list by default.
+Show annotation level.
+0 == normal; 2 == output annotated suitably for use by programs that control 
+ruby-debug.
+Invalid 'show' subcommand 'foo'.

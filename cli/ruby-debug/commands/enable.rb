@@ -40,15 +40,18 @@ module Debugger
   end
 
   class EnableCommand < Command # :nodoc:
-    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
-      defined?(SubcmdStruct)
     Subcommands = 
       [
-       ['breakpoints', 2, "Enable specified breakpoints"],
+       ['breakpoints', 2, "Enable specified breakpoints",
+"Give breakpoint numbers (separated by spaces) as arguments.
+This is used to cancel the effect of the \"disable\" command."
+       ],
        ['display', 2, 
-        "Enable some expressions to be displayed when program stops"],
-      ].map do |name, min, short_help| 
-      SubcmdStruct.new(name, min, short_help)
+        "Enable some expressions to be displayed when program stops",
+"Arguments are the code numbers of the expressions to resume displaying.
+Do \"info display\" to see current list of code numbers."],
+      ].map do |name, min, short_help, long_help| 
+      SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(Subcommands)
 
     def regexp
@@ -86,7 +89,21 @@ module Debugger
         'enable'
       end
 
-      def help(cmd)
+      def help(args)
+        if args[1] 
+          s = args[1]
+          subcmd = Subcommands.find do |try_subcmd| 
+            (s.size >= try_subcmd.min) and
+              (try_subcmd.name[0..s.size-1] == s)
+          end
+          if subcmd
+            str = subcmd.short_help + '.'
+            str += "\n" + subcmd.long_help if subcmd.long_help
+            return str
+          else
+            return "Invalid 'enable' subcommand '#{args[1]}'."
+          end
+        end
         s = %{
           Enable some things.
           This is used to cancel the effect of the "disable" command.
@@ -103,14 +120,16 @@ module Debugger
   end
 
   class DisableCommand < Command # :nodoc:
-    SubcmdStruct=Struct.new(:name, :min, :short_help) unless
-      defined?(SubcmdStruct)
     Subcommands = 
       [
-       ['breakpoints', 2, "Disable specified breakpoints"],
-       ['display', 2, "Disable some display expressions when program stops"],
-      ].map do |name, min, short_help| 
-      SubcmdStruct.new(name, min, short_help)
+       ['breakpoints', 2, "Disable some breakpoints",
+"Arguments are breakpoint numbers with spaces in between.
+A disabled breakpoint is not forgotten, but has no effect until reenabled."],
+       ['display', 2, "Disable some display expressions when program stops",
+"Arguments are the code numbers of the expressions to stop displaying.
+Do \"info display\" to see current list of code numbers."],
+      ].map do |name, min, short_help, long_help| 
+      SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(Subcommands)
 
     def regexp
@@ -148,7 +167,21 @@ module Debugger
         'disable'
       end
 
-      def help(cmd)
+      def help(args)
+        if args[1] 
+          s = args[1]
+          subcmd = Subcommands.find do |try_subcmd| 
+            (s.size >= try_subcmd.min) and
+              (try_subcmd.name[0..s.size-1] == s)
+          end
+          if subcmd
+            str = subcmd.short_help + '.'
+            str += "\n" + subcmd.long_help if subcmd.long_help
+            return str
+          else
+            return "Invalid 'disable' subcommand '#{args[1]}'."
+          end
+        end
         s = %{
           Disable some things.
 

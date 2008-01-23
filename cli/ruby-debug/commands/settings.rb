@@ -1,14 +1,17 @@
 module Debugger
   class SetCommand < Command # :nodoc:
-    
-    SubcmdStruct=Struct.new(:name, :min, :is_bool, :short_help) unless
-      defined?(SubcmdStruct)
+    SubcmdStruct2=Struct.new(:name, :min, :is_bool, :short_help, 
+                             :long_help) unless defined?(SubcmdStruct2)
     Subcommands = 
       [
        ['annotate', 2, false,
-       "Set annotation level."],
+       "Set annotation level",
+"0 == normal;
+2 == output annotated suitably for use by programs that control 
+ruby-debug."],
        ['args', 2, false,
-       "Set argument list to give program being debugged when it is started."],
+       "Set argument list to give program being debugged when it is started",
+"Follow this command with any number of args, to be passed to the program."],
        ['autoeval', 4, true,
         "Evaluate every unrecognized command"],
        ['autolist', 4, true,
@@ -28,7 +31,10 @@ module Debugger
        ['fullpath', 2, true,
         "Display full file names in frames"],
        ['history', 2, false,
-        "Generic command for setting command history parameters."],
+        "Generic command for setting command history parameters",
+"set history filename -- Set the filename in which to record the command history
+set history save -- Set saving of the history record on exit
+set history size -- Set the size of the command history"],
        ['keep-frame-bindings', 1, true,
         "Save frame binding on each call"],
        ['linetrace+', 10, true,
@@ -41,8 +47,8 @@ module Debugger
         "Display stack trace when 'eval' raises exception"],
        ['width', 1, false,
         "Number of characters the debugger thinks are in a line"],
-      ].map do |name, min, is_bool, short_help| 
-      SubcmdStruct.new(name, min, is_bool, short_help)
+      ].map do |name, min, is_bool, short_help, long_help| 
+      SubcmdStruct2.new(name, min, is_bool, short_help, long_help)
     end unless defined?(Subcommands)
     
     self.control = true
@@ -176,7 +182,21 @@ module Debugger
         "set"
       end
 
-      def help(cmd)
+      def help(args)
+        if args[1] 
+          s = args[1]
+          subcmd = Subcommands.find do |try_subcmd| 
+            (s.size >= try_subcmd.min) and
+              (try_subcmd.name[0..s.size-1] == s)
+          end
+          if subcmd
+            str = subcmd.short_help + '.'
+            str += "\n" + subcmd.long_help if subcmd.long_help
+            return str
+          else
+            return "Invalid 'set' subcommand '#{args[1]}'."
+          end
+        end
         s = %{
           Modifies parts of the ruby-debug environment. Boolean values take
           on, off, 1 or 0.

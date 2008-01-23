@@ -13,8 +13,6 @@ module Debugger
     end
 
     def execute
-      print "ruby-debug help v#{Debugger::VERSION}\n" unless
-        self.class.settings[:debuggertesting]
       if @match[1]
         args = @match[1].split
         cmds = @state.commands.select do |cmd| 
@@ -34,6 +32,8 @@ module Debugger
         if args and args[0]
           errmsg "Undefined command: \"#{args[0]}\".  Try \"help\"."
         else
+          print "ruby-debug help v#{Debugger::VERSION}\n" unless
+            self.class.settings[:debuggertesting]
           print "Type 'help <command-name>' for help on a specific command\n\n"
           print "Available commands:\n"
           cmds = @state.commands.map{ |cmd| cmd.help_command }

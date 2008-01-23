@@ -111,13 +111,14 @@ module Debugger
 
   class ShowCommand < Command # :nodoc:
     
-    SubcmdStruct=Struct.new(:name, :min, :short_help) unless 
-      defined?(SubcmdStruct)
     Subcommands = 
       [
-       ['annotate', 2, "Show annotation level"],
+       ['annotate', 2, "Show annotation level",
+"0 == normal; 2 == output annotated suitably for use by programs that control 
+ruby-debug."],
        ['args', 2, 
-        "Show argument list to give program being debugged when it is started"],
+        "Show argument list to give program being debugged when it is started",
+"Follow this command with any number of args, to be passed to the program."],
        ['autoeval', 4, "Show if unrecognized command are evaluated"],
        ['autolist', 4, "Show if 'list' commands is run on breakpoints"],
        ['autoirb', 4, "Show if IRB is invoked on debugger stops"],
@@ -126,7 +127,10 @@ module Debugger
        ['callstyle', 2, "Show paramater style used showing call frames"],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
        ['fullpath', 2, "Show if full file names are displayed in frames"],
-       ['history', 2, "Generic command for showing command history parameters"],
+       ['history', 2, "Generic command for showing command history parameters",
+"show history filename -- Show the filename in which to record the command history
+show history save -- Show saving of the history record on exit
+show history size -- Show the size of the command history"],
        ['keep-frame-bindings', 1, "Save frame binding on each call"],
        ['linetrace', 3, "Show line execution tracing"],
        ['linetrace+', 10, 
@@ -139,8 +143,8 @@ module Debugger
         "Show what version of the debugger this is"],
        ['width', 1, 
         "Show the number of characters the debugger thinks are in a line"],
-      ].map do |name, min, short_help| 
-      SubcmdStruct.new(name, min, short_help)
+      ].map do |name, min, short_help, long_help| 
+      SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(Subcommands)
     
     self.control = true
@@ -157,7 +161,8 @@ module Debugger
           print "show #{subcmd.name} -- #{subcmd.short_help}\n"
         end
       else
-        subcmd, arg = @match[1].split(/[ \t]+/)
+        args = @match[1].split(/[ \t]+/)
+        subcmd = args.shift
         subcmd.downcase!
         for try_subcmd in Subcommands do
           if (subcmd.size >= try_subcmd.min) and
@@ -175,7 +180,21 @@ module Debugger
         "show"
       end
 
-      def help(cmd)
+      def help(args)
+        if args[1] 
+          s = args[1]
+          subcmd = Subcommands.find do |try_subcmd| 
+            (s.size >= try_subcmd.min) and
+              (try_subcmd.name[0..s.size-1] == s)
+          end
+          if subcmd
+            str = subcmd.short_help + '.'
+            str += "\n" + subcmd.long_help if subcmd.long_help
+            return str
+          else
+            return "Invalid 'show' subcommand '#{args[1]}'."
+          end
+        end
         s = "
           Generic command for showing things about the debugger.
 

@@ -7,6 +7,9 @@ module Debugger
   RUBY_DEBUG_DIR = File.expand_path(File.dirname(__FILE__))
 
   class Command # :nodoc:
+    SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
+      defined?(SubcmdStruct)
+
     include Columnize
     class << self
       def commands

@@ -1,8 +1,6 @@
 module Debugger
   class InfoCommand < Command # :nodoc:
     self.control = true
-    SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
-      defined?(SubcmdStruct)
     Subcommands = 
       [
        ['args', 1, 'Argument variables of current stack frame'],
@@ -316,7 +314,7 @@ integer argument, list info on that breakpoint.'],
             str += "\n" + subcmd.long_help if subcmd.long_help
             return str
           else
-            return "Invalid 'info' subcommand '#{args[1]}'"
+            return "Invalid 'info' subcommand '#{args[1]}'."
           end
         end
         s = %{

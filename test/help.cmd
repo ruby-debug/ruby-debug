@@ -7,6 +7,9 @@ set width 80
 ### ***   help commands         ***
 ### *******************************
 help foo
+help set listsize
+help show anno
+help show foo
 # FIXME - the below should work
 # help 
 # help step

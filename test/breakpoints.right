@@ -60,9 +60,6 @@ Num Enb What
   1 n   at gcd.rb:6
   2 y   at gcd.rb:10
   3 y   at Object:gcd
-# enable breakpoint 1
-# enable br 10
-Enable breakpoints argument '10' needs to at most 3.
 # delete 1
 # # We should see breakpoint 2 but not 1
 # info break
@@ -71,10 +68,6 @@ Num Enb What
   3 y   at Object:gcd
 # # We should still be able to access 2
 # disable 2
-# enable
-*** "enable" must be followed "display", "breakpoints" or breakpoint numbers.
-# enable foo
-Enable breakpoints argument 'foo' needs to be a number.
 # disable bar
 Disable breakpoints argument 'bar' needs to be a number.
 # disable
