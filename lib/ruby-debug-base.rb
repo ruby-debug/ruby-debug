@@ -159,6 +159,20 @@ module Kernel
   end
   alias breakpoint debugger unless respond_to?(:breakpoint)
   
+  # Allows for First-time Debugger initialization that would normally
+  # occur if you ran the debugger via rdebug. In particular, 
+  # These things like setting program name and arguments make it possible
+  # for "restart" to work.
+  def init(options={})
+    Debugger.start unless Debugger.started?
+    Debugger.const_set('ARGV', ARGV.clone) unless 
+      defined? Debugger::ARGV
+    Debugger.const_set('PROG_SCRIPT', $0) unless 
+      defined? Debugger::PROG_SCRIPT
+    Debugger.const_set('INITIAL_DIR', Dir.pwd) unless 
+      defined? Debugger::INITIAL_DIR
+  end
+
   #
   # Returns a binding of n-th call frame
   #

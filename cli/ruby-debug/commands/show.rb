@@ -8,7 +8,13 @@ module Debugger
         return ("Annotation level is #{Debugger.annotate}")
       when /^args$/
         if Command.settings[:argv] and Command.settings[:argv].size > 0
-          args = Command.settings[:argv][1..-1].join(' ')
+          if defined?(Debugger::RDEBUG_SCRIPT)
+            # rdebug was called initially. 1st arg is script name.
+            args = Command.settings[:argv][1..-1].join(' ')
+          else
+            # rdebug wasn't called initially. 1st arg is not script name.
+            args = Command.settings[:argv].join(' ')
+          end
         else
           args = ''
         end

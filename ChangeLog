@@ -1,3 +1,33 @@
+2008-01-23 02:53  Rocky Bernstein
+
+	* cli/ruby-debug/command.rb, cli/ruby-debug/commands/enable.rb,
+	  cli/ruby-debug/commands/help.rb, cli/ruby-debug/commands/info.rb,
+	  cli/ruby-debug/commands/settings.rb,
+	  cli/ruby-debug/commands/show.rb, test/breakpoints.cmd,
+	  test/breakpoints.right, test/enable.cmd, test/enable.right,
+	  test/help.cmd, test/help.right, test/test-enable.rb,
+	  test/test-help.rb: Add subcommand/long help for enable, disable,
+	  set, and show. Put Subcommand structure in Command. More work is
+	  needed to reduce redundancy.
+
+2008-01-22 23:15  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/help.rb,
+	  cli/ruby-debug/commands/info.rb, lib/ChangeLog,
+	  test/annotate.cmd, test/annotate.right, test/ctrl.right,
+	  test/info.cmd, test/info.right, test/test-edit.rb,
+	  test/test-source.rb: Allow "help info xxx". Add ability for long
+	  help on "info" command.
+	  Add "info break xx".
+	  
+	  test: remove test/unit class name conflicts. All the tests we
+	  wrote
+	  now get run.
+
+2008-01-22 18:48  Rocky Bernstein
+
+	* emacs/rdebug-secondary.el: A small comment spelling mistake.
+
 2008-01-20 22:01  Rocky Bernstein
 
 	* cli/ruby-debug/commands/breakpoints.rb, test/break-bad.cmd,

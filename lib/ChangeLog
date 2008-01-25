@@ -1,3 +1,18 @@
+2008-01-22 23:15  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/help.rb,
+	  trunk/cli/ruby-debug/commands/info.rb, ChangeLog,
+	  trunk/test/annotate.cmd, trunk/test/annotate.right,
+	  trunk/test/ctrl.right, trunk/test/info.cmd,
+	  trunk/test/info.right, trunk/test/test-edit.rb,
+	  trunk/test/test-source.rb: Allow "help info xxx". Add ability for
+	  long help on "info" command.
+	  Add "info break xx".
+	  
+	  test: remove test/unit class name conflicts. All the tests we
+	  wrote
+	  now get run.
+
 2008-01-19 19:28  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, ChangeLog, trunk/test/base,

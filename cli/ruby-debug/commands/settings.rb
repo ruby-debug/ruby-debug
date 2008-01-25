@@ -91,7 +91,13 @@ set history size -- Set the size of the command history"],
                 else
                   return
                 end
-                Command.settings[:argv][1..-1] = args
+                if defined?(Debugger::RDEBUG_SCRIPT)
+                  # rdebug was called initially. 1st arg is script name.
+                  Command.settings[:argv][1..-1] = args
+                else
+                  # rdebug wasn't called initially. 1st arg is not script name.
+                  Command.settings[:argv] = args
+                end
               when /^args$/
                 Command.settings[:argv][1..-1] = args
               when /^autolist$/

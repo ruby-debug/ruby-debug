@@ -42,18 +42,18 @@ module Debugger
     end
     
     def execute
-      if not defined? Debugger::RDEBUG_SCRIPT
-        # FIXME? Should ask for confirmation? 
-        print "Debugger was not called from the outset...\n"
-        rdebug_script = ''
-      else 
-        rdebug_script = Debugger::RDEBUG_SCRIPT + " "
-      end
       if not defined? Debugger::PROG_SCRIPT
         errmsg "Don't know name of debugged program\n"
         return
       end
       prog_script = Debugger::PROG_SCRIPT
+      if not defined? Debugger::RDEBUG_SCRIPT
+        # FIXME? Should ask for confirmation? 
+        print "Debugger was not called from the outset...\n"
+        rdebug_script = prog_script
+      else 
+        rdebug_script = Debugger::RDEBUG_SCRIPT
+      end
       begin
         Dir.chdir(Debugger::INITIAL_DIR)
       rescue
@@ -63,11 +63,13 @@ module Debugger
         errmsg "Ruby program #{prog_script} doesn't exist\n"
         return
       end
-      if not File.executable?(prog_script) and rdebug_script == ''
+      if not File.executable?(prog_script) and rdebug_script == prog_script
         print "Ruby program #{prog_script} doesn't seem to be executable...\n"
         print "We'll add a call to Ruby.\n"
         ruby = begin defined?(Gem) ? Gem.ruby : "ruby" rescue "ruby" end
         rdebug_script = "#{ruby} -I#{$:.join(' -I')} #{prog_script}"
+      else
+        rdebug_script += ' '
       end
       if @match[1]
         argv = [prog_script] + @match[1].split(/[ \t]+/)
@@ -79,7 +81,7 @@ module Debugger
           argv = Command.settings[:argv]
         end
       end
-      args = argv.join(" ")
+      args = argv.join(' ')
 
       # An execv would be preferable to the "exec" below.
       cmd = rdebug_script + args
