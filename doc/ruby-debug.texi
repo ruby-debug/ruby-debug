@@ -93,9 +93,10 @@ Appendix
 * Using from Subversion::
 
 Indexes (nodes containing large menus)
+* Class Module Index::        An item for Class, Module, and Methods.
+* Command Index::             An item for each command name.
 * Emacs Key Binding Index::   An item for each Emacs Key Binding.
 * Emacs Command Index::       An item for each Emacs Debugger Command.
-* Command Index::             An item for each command name.
 * General Index::             An item for each concept.
 @end menu
 
@@ -610,8 +611,8 @@ Here's the test code:
 
 @smallexample
   #!/usr/bin/env ruby
-  require "test/unit"
-  require "tri2.rb"
+  require 'test/unit'
+  require 'tri2.rb'
 
   class TestTri < Test::Unit::TestCase
     def test_basic
@@ -620,7 +621,7 @@ Here's the test code:
         solutions << triangle(i)
       end
       assert_equal([0, 1, 3, 6, 10, 15], solutions,
-                   "Testing the first 5 triangle numbers")
+                   'Testing the first 5 triangle numbers')
     end
   end
 @end smallexample
@@ -633,8 +634,8 @@ program to add an explicit call to the debugger.
 One way to do this is to add the following before the place you want
 to stop:
 @smallexample
-  require "rubygems"
-  require "ruby-debug/debugger"
+  require 'rubygems'
+  require 'ruby-debug/debugger'
 @end smallexample
 The line @code{require "rubygems"} is needed if @code{ruby-debug} is
 installed as a Ruby gem.
@@ -685,10 +686,9 @@ tracking calls from the outset
 
 @smallexample
 #!/usr/bin/env ruby
-require "test/unit"
-require "tri2.rb"
-require "rubygems"
-@b{require "ruby-debug"}
+require 'test/unit'
+require 'tri2.rb'
+require 'rubygems'
 @b{Debugger.start}
 
 class TestTri < Test::Unit::TestCase
@@ -1481,6 +1481,9 @@ postion, it will generally preface the message with @code{***
 @node Help
 @section Getting help (@samp{help})
 @cindex online documentation
+@menu
+* Help for Subcommands::
+@end menu
 
 Once inside @code{ruby-debug} you can always ask it for information on
 its commands, using the command @code{help}.
@@ -1526,26 +1529,27 @@ l[ist] nn-mm	list given lines
 * NOTE - to turn on autolist, use 'set autolist'
 (rdb:1)
 @end smallexample
-
-In addition to @code{help}, you can use the debugger command
-@code{info} to inquire about the state of your script, or the state of
-@DBG itself.  The listings under @code{info} in the Index
-point to all the sub-commands.  @xref{Command Index}.
 @end table
 
-@c @group
-@table @code
-@kindex info
-@kindex i @r{(@code{info})}
-@item info
-This command (abbreviated @code{i}) is for describing the state of
-your program.  For example, you can list the arguments given to your
-script with @code{info args}, or list the breakpoints you have set
-with @code{info breakpoints}.  You can get a complete list of the
-@code{info} sub-commands with @w{@code{help info}}.
+@node Help for Subcommands
+@subsection Help on Subcommands
+A number of commands have many subparameters or
+@emph{subcommands}. These include @code{info}, @code{set},
+@code{show}, @code{enable} and @code{disable}.
 
+When you ask for help for one of these commands, you will get help for
+all of the subcommands that that command offers. Sometimes you may
+want help that subcommand and to do this just follow the command with
+its subcommand name. For example @code{help set annotate} will just
+give help about the annotate command. Furthermore it will give longer
+help than the summary information that appears when you ask for
+help. You don't need to list the full subcommand name, but just enough
+of the letters to make that subcommand distinct from others will
+do. For example, @code{help set an} is the same as @code{help set annotate}.
+
+Some exampels follow.
 @example
-bashdb<0> @b{help info}
+(rdb:1) @b{help info}
 Generic command for showing things about the program being debugged.
 -- 
 List of info subcommands:
@@ -1553,7 +1557,7 @@ List of info subcommands:
 info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
 info display -- Expressions to display when program stops
-info file -- File names and timestamps of files read in
+info files -- File names and timestamps of files read in
 info global_variables -- global variables
 info instance_variables -- instance variables
 info line -- Current source position
@@ -1564,7 +1568,20 @@ info threads -- IDs of currently known threads
 info variables -- local and instance variables
 @end example
 
-@end table
+@example
+(rdb:1) @b{help info breakpoints}
+Status of user-settable breakpoints.
+Without argument, list info about all breakpoints.  With an
+integer argument, list info on that breakpoint.
+@end example
+
+@example
+(rdb:1) @b{help info br}
+Status of user-settable breakpoints.
+Without argument, list info about all breakpoints.  With an
+integer argument, list info on that breakpoint.
+@end example
+
 @node Control
 @section Controlling the debugger (@samp{quit}, @samp{restart}, @samp{interrupt}, @samp{source})
 
@@ -2800,17 +2817,29 @@ info}}.
 
 @table @code
 @kindex info args
+
 @item info args
 Method arguments of the current stack frame.
 @kindex info breakpoints
+
 @item info breakpoints
 Status of user-settable breakpoints
 @kindex info display
+
 @item info display
 All display expressions.
 @kindex info files
+
 @item info files
 Source files in the program.
+@kindex info file
+
+@item info file @var{filename} @ovar{all|lines|mtime|sha1}
+Information about a specific file. Parameter @code{lines} gives the
+number of lines in the file, @code{mtime} shows the modification time
+of the file (if available), @code{sha1} computes a SHA1 has of the
+data of the file. @code{all} gives all of the above information.
+
 @kindex info line
 @item info line
 Line number and file name of current position in source.
@@ -2889,7 +2918,7 @@ end
 @end menu
 
 @node Debugger.run
-@subsection @code{Debugger.start}, @code{Debugger.stop}, @code{Debugger.started?}, @code{Debugger.run_script}
+@subsection @code{Debugger.start}, @code{Debugger.started?}, @code{Debugger.init}, @code{Debugger.stop}, @code{Debugger.run_script}
 
 In order to provide better debugging information regarding the stack
 frame(s) across all threads, ruby-debug has to intercept each call,
@@ -2901,6 +2930,7 @@ for you.
 
 @table @code
 @item Debugger.start @ovar{block}
+@vindex @code{Debugger.start}
 Turn on add additional instrumentation code to facilitate debugging.
 If called without a block, it returns @code{true}, unless debugger was
 already started. If a block is given, it starts debugger and
@@ -2908,14 +2938,27 @@ already started. If a block is given, it starts debugger and
 debugger stopped with the @code{Debugger.stop method}.  @emph{Note
 that if you want to stop debugger, you must call @code{Debugger.stop}
 as many times as you called Debugger.start method.}
+
+@item Debugger.init
+@vindex @code{Debugger.init}
+This is like @code{Debugger.start} but additional setup is done so to
+make the @code{restart} command work. In particular @code{$0} and
+@code{ARGV} are used to set internal debugger variables. Therefore you
+should make sure that when @code{Debugger.init} is called neither of
+these variables has been modified. (Or at least to the point where is
+running and @code{exec} based on their values does the wrong thing.
+
 @item Debugger.stop
+@vindex @code{Debugger.stop}
 Turn off instrumentation to allow debugging. Return @code{true} is returned
 if the debugger is disabled, otherwise it returns @code{false}.
 @emph{Note that if you want to stop debugger, you must call Debugger.stop
 as many times as you called the @code{Debugger.start} method.}
 @item Debugger.started?
+@vindex @code{Debugger.started?}
 Boolean. Return @code{true} if debugger has been started.
 @item Debugger.run_script(@var{debugger-command-file}, out = handler.interface)
+@vindex @code{Debugger.run_script}
 Reads/runs the given file containing debugger commands. @code{.rdebugrc} is run this way.
 @end table
 
@@ -2930,20 +2973,35 @@ position (position zero) is used if none is given.
 
 @table @code
 @item Debugger.context.frame_args @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_args}
 If track_frame_args? is true, return information saved about call
 arguments (if any saved) for the given frame position.
+
 @item Debugger.context.frame_args_info @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_args_info}
+
 @item Debugger.context.frame_class @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_args_info}
 Return the class of the current frame stack.
+
 @item Debugger.context.frame_file @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_file}
 Return the filename of the location of the indicated frame position.
+
 @item Debugger.context.frame_id @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_id}
 Same as @code{Debugger.context.method}.
+
 @item Debugger.context.frame_line @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_line}
 Return the filename of the location of the indicated frame position.
+
 @item Debugger.context.frame_method @ovar{frame-position=0}
+@vindex @code{Debugger.context.frame_method}
 Symbol of the method name of the indicated frame position.
+
 @item Debugger.context.stack_size
+@vindex @code{Debugger.context.stack_size}
 Return the number the size of the frame stack. Note this may be less
 that the actual frame stack size if debugger recording
 (@code{Debugger.start}) was turned on at after some blocks were added
@@ -2952,6 +3010,7 @@ and not finished when the @code{Debugger.start} was issued.
 
 @node Debugger.settings
 @subsection @code{Debugger.settings}
+@vindex @code{Debugger.settings}
 Symbols listed here are keys into the Array @code{Debugger.settings}.
 These can be set any time after the @code{ruby-debug} is loaded. For example:
 @smallexample
@@ -2995,39 +3054,76 @@ Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
 @section The @code{Debugger} Class
 @table @code
 @item add_breakpoint(file, line, expr)
+@vindex @code{Debugger.add_breakpoint}
 Adds a breakpoint in file @var{file}, at line @var{line}. If
 @var{expr} is not nil, it is evaluated and a breakpoint takes effect
 at the indicated position when that expression is true. You should
 verify that @var{expr} is syntactically valid or a @code{SyntaxError}
 exception, and unless your code handles this the debugged program may
 terminate.
+
 @item remove_breakpoint(bpnum)
+@vindex @code{Debugger.remove_breakpoint}
+
 @item breakpoints
+@vindex @code{Debugger.breakpoints}
 @end table
-@subsection The @code{Debugger}::Breakpoint Class
+
+@subsection The @code{Debugger::Breakpoint} Class
 Breakpoint are objects in the @code{Debugger::Breakpoint} class. 
 @table @code
-@item enabled=
 @item enabled?
+@vindex @code{Debugger::Breakpoints.enabled?}
 Returns whether breakpoint is enabled or not.
+
+@item enabled=
+@vindex @code{Debugger::Breakpoints.enabled=}
+Sets whether breakpoint is enabled or not.
+
 @item expr
+@vindex @code{Debugger::Breakpoints.expr}
+Expression which has to be true at the point where the breakpoint is
+set before we stop.
+
 @item expr=
+@vindex @code{Debugger::Breakpoints.expr=}
+
 @item hit_condition
 @item hit_condition=
+@vindex @code{Debugger::Breakpoints.condition}
+@vindex @code{Debugger::Breakpoints.condition=}
+
 @item hit_count
+@vindex @code{Debugger::Breakpoints.hit_count}
 Returns the hit count of the breakpoint.
+
 @item hit_value
+@vindex @code{Debugger::Breakpoints.hit_value}
 Returns the hit value of the breakpoint.
+
 @item hit_value=
+@vindex @code{Debugger::Breakpoints.hit_value=}
 Sets the hit value of the breakpoint.
+
 @item id
+@cindex @code{Debugger::Breakpoints.id}
+A numeric name for the breakpoint which is used in listing breakpoints
+and removing, enabling or disabling the breakpoint
+
 @item pos
-Returns the position of this breakpoint.
+@vindex @code{Debugger::Breakpoints.pos=}
+Returns the line number of this breakpoint.
 @item pos=
+@vindex @code{Debugger::Breakpoints.pos=}
+Sets the line number of this breakpoint.
+
 @item source
-Returns a source of the breakpoint.
+@vindex @code{Debugger::Breakpoints.source}
+Returns the file name in which the breakpoint occurs.
+
 @item source=
-Sets the source of the breakpoint.
+@vindex @code{Debugger::Breakpoints.source=}
+Sets the file name in which the breakpoint occurs.
 @end table
 @node Kernel routines
 @section Additions to @code{Kernel}
@@ -3035,13 +3131,16 @@ Sets the source of the breakpoint.
 @table @code
 
 @item debugger @ovar{steps=1}
+@vindex @code{Kernel::debugger}
 Enters the debugger in the current thread after a stepping @var{steps} steps.
 Before entering the debugger startup script is read.
 
 @item breakpoint @ovar{steps=1}
+@vindex @code{Kernel::breakpoint}
 An alias for debugger.
 
 @item binding_n @ovar{n=0}
+@vindex @code{Kernel::binding_n}
 Returns a binding of @var{n}-th call frame. 
 
 @end table
@@ -3927,6 +4026,14 @@ Then run:
 @end smallexample
 
 
+@node Class Module Index
+@unnumbered Class, Module Method Index
+@printindex vr
+
+@node Command Index
+@unnumbered Command Index
+@printindex ky
+
 @node Emacs Key Binding Index
 @unnumbered Emacs Key Binding Index
 @printindex pg
@@ -3934,10 +4041,6 @@ Then run:
 @node Emacs Command Index
 @unnumbered Emacs Command Index
 @printindex fn
-
-@node Command Index
-@unnumbered Command Index
-@printindex ky
 
 @node General Index
 @unnumbered General Index
