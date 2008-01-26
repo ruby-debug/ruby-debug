@@ -126,3 +126,9 @@ The debugger shell and the source code window is to the left."
   (goto-char (point-max)))
 
 (provide 'rdebug-layouts)
+
+;;; Local variables:
+;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
+;;; End:
+
+;;; rdebug-layout.el ends here
