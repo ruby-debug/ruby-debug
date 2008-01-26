@@ -68,20 +68,6 @@
     map)
   "Keymap to navigate rdebug stack frames.")
 
-(defun rdebug-frame-buffer-mark-field (b group face)
-  "Mark a field in the stack-frame buffer"
-  (add-text-properties
-   (+ b (match-beginning group)) 
-   (+ b (match-end group))
-   (list 'face font-lock-comment-face
-	 'font-lock-face font-lock-comment-face)))
-
-(defun rdebug-frame-buffer-field (s b group face)
-  "Mark a field in the stack buffer and return the string
-value of the field."
-  (rdebug-frame-buffer-mark-field b group face)
-  (substring s (match-beginning group) (match-end group)))
-  
 (defun rdebug-goto-frame (pt)
   "Show the rdebug stack frame corresponding at PT in the rdebug stack buffer."
   (interactive "d")
@@ -137,19 +123,71 @@ non-digit will start entry number from the beginning again."
       (setq rdebug-goto-entry-acc ""))
   (rdebug-goto-frame-n-internal (this-command-keys)))
 
+(defvar rdebug-frames-current-frame-number nil
+  "The frame number of the selected frame.")
+
+(defun rdebug-frames-match-current-line (limit)
+  (and rdebug-frames-current-frame-number
+       (re-search-forward
+        (concat "^ *#"
+                (number-to-string rdebug-frames-current-frame-number)
+                ;; At least one space (so that we don't match #1 when looking for #10).
+                " +"
+                ;; The entire line.
+                ".*"
+                "\n"
+                ;; And the next, if this entry was split into two.
+                "\\( *[^# ].*$\\)?") limit t)))
+
+(defvar rdebug-frames-current-frame-face 'highlight)
+
+;; Example of frame buffer content:
+;;
+;;  #0 Integer.under_cover at line test.rb:13
+;;  #1 ClassA::Nested::DeepDown.under_cover(p#ClassA::Nested::DeepD...)
+;;     at line test.rb:12
+;;  #2 Object.sune(s#String, i#Fixnum) at line test.rb:24
+;;  #3 at line test.rb:27
+
+(defvar rdebug-frames-font-lock-keywords
+  '(
+    ;; Parameters and first type entry.
+    ("\\<\\([a-zA-Z_][a-zA-Z0-9_]*\\)#\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\>"
+     (1 font-lock-variable-name-face)
+     (2 font-lock-type-face))
+    ;; "::Type", which occurs in class name of function and in parameter list.
+    ("::\\([a-zA-Z_][a-zA-Z0-9_]*\\)"
+     (1 font-lock-type-face))
+    ;; The frame number and first type name, if present.
+    ("^ *#\\([0-9]+\\) *\\(\\([a-zA-Z_][a-zA-Z0-9_]*\\)[.:]\\)?"
+     (1 font-lock-constant-face)
+     (3 font-lock-type-face nil t))      ; t means optional.
+    ;; File name and line number.
+    ("at line \\(.*\\):\\([0-9]+\\)$"
+     (1 font-lock-warning-face)
+     (2 font-lock-constant-face))
+    ;; Function name.
+    ("\\<\\([a-zA-Z_][a-zA-Z0-9_]*\\)\\.\\([a-zA-Z_][a-zA-Z0-9_]*\\)"
+     (1 font-lock-type-face)
+     (2 font-lock-function-name-face))
+    (rdebug-frames-match-current-line
+     (0 rdebug-frames-current-frame-face append)))
+  "Font-lock rules for the stack frame window in `rdebug'.")
+
 (defun rdebug-frames-mode ()
   "Major mode for displaying the stack trace in the `rdebug' Ruby debugger.
 \\{rdebug-frames-mode-map}"
   (interactive)
-  ;; (kill-all-local-variables)
+  (kill-all-local-variables)
   (setq major-mode 'rdebug-frames-mode)
   (setq mode-name "RDEBUG Stack Frames")
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (use-local-map rdebug-frames-mode-map)
-  ;; (set (make-local-variable 'font-lock-defaults)
-  ;;     '(gdb-locals-font-lock-keywords))
+  (set (make-local-variable 'font-lock-defaults)
+       '(rdebug-frames-font-lock-keywords))
   (run-mode-hooks 'rdebug-frames-mode-hook))
 
+;; TODO: This is a major overkill now when the coloring is done by font-lock.
 (defun rdebug--setup-frame-buffer (buf comint-buffer)
   "Detects stack frame lines and sets up mouse navigation."
   (rdebug-debug-enter "rdebug-setup-stack-buffer"
@@ -160,55 +198,35 @@ non-digit will start entry number from the beginning again."
         (rdebug-frames-mode)
         (set (make-local-variable 'gud-comint-buffer) comint-buffer)
         (goto-char (point-min))
+        ;; Rewrite, remove "s", instead match against buffer content.
         (while (not (eobp))
-          (let* ((b (line-beginning-position)) (e (line-end-position))
+          (let* ((b (line-beginning-position))
+                 (e (line-end-position))
                  (s (buffer-substring b e))
-		 (file-name nil) (line-number nil))
+		 (file-name nil)
+                 (line-number nil))
             (when (string-match rdebug--stack-frame-1st-regexp s)
-	      (rdebug-frame-buffer-field 
-	       s b rdebug-stack-frame-number-group font-lock-constant-face)
-              (let ((fn-str (substring s (match-beginning 3) (match-end 3)))
-                    (fn-start (+ b (match-beginning 3))))
-                (if (string-match "\\([^(]+\\)(" fn-str)
-		    (rdebug-frame-buffer-mark-field 
-		     b 1 font-lock-function-name-face)))
-
               (if (string-match rdebug--stack-frame-regexp s)
 		  ;; Handle frames that are on one line
-		  (progn (setq file-name (rdebug-frame-buffer-field
-					  s b
-					  rdebug-stack-frame-file-group
-					  font-lock-comment-face))
-			 (setq line-number (rdebug-frame-buffer-field
-					    s b
-					    rdebug-stack-frame-line-group
-					    font-lock-constant-face)))
+		  (progn (setq file-name (match-string rdebug-stack-frame-file-group s))
+			 (setq line-number (match-string rdebug-stack-frame-line-group s)))
 		;; Handle frames that are split on two lines
 		(save-excursion
 		  (forward-line)
 		  (let* ((b (line-beginning-position)) (e (line-end-position))
 			 (s (buffer-substring b e)))
 		    (when (string-match rdebug--stack-frame-2nd-regexp s)
-		      (setq file-name (rdebug-frame-buffer-field
-				       s b
-				       rdebug-stack-frame-2nd-file-group
-				       font-lock-comment-face))
-		      (setq line-number (rdebug-frame-buffer-field
-					 s b
-					 rdebug-stack-frame-2nd-line-group
-					 font-lock-constant-face)))))
+		      (setq file-name (match-string rdebug-stack-frame-2nd-file-group s))
+		      (setq line-number (match-string rdebug-stack-frame-2nd-line-group s)))))
 		;; Redo string match on first line so we can process the indicator.
 		(string-match rdebug--stack-frame-1st-regexp s))
 
-              (when (string= (substring s (match-beginning 1) (match-end 1))
-                             "-->")
+              (when (string= (match-string 1 s) "-->")
+                (setq rdebug-frames-current-frame-number
+                      (string-to-number (match-string 2 s)))
 		;; Update source buffer to reflect current position
 		(if (and file-name line-number)
 		    (rdebug-display-line file-name (string-to-number line-number)))
-                ;; highlight the currently selected frame
-                (add-text-properties b e
-                                     (list 'face 'bold
-                                           'font-lock-face 'bold))
 		(setq overlay-arrow-position (make-marker))
 		(set-marker overlay-arrow-position (point))
 		(setq current-frame-point (point)))
@@ -221,7 +239,7 @@ non-digit will start entry number from the beginning again."
           (forward-line)
           (beginning-of-line))
         (when current-frame-point
-          (goto-char current-frame-point)))))) 
+          (goto-char current-frame-point))))))
 
 (provide 'rdebug-frames)
 
