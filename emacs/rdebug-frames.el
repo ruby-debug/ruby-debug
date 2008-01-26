@@ -187,59 +187,32 @@ non-digit will start entry number from the beginning again."
        '(rdebug-frames-font-lock-keywords))
   (run-mode-hooks 'rdebug-frames-mode-hook))
 
-;; TODO: This is a major overkill now when the coloring is done by font-lock.
+;; Note: This function can't restore the original point alone, since
+;; the point is already at the end of the buffer when this is called.
 (defun rdebug--setup-frame-buffer (buf comint-buffer)
-  "Detects stack frame lines and sets up mouse navigation."
+  "Find the current frame and display the corresponding source line.
+
+Also, cleans the buffer somewhat and sets up help for the font-lock rules."
   (rdebug-debug-enter "rdebug-setup-stack-buffer"
     (with-current-buffer buf
-      (let ((inhibit-read-only t)
-            ;; position in stack buffer of selected frame
-            (current-frame-point nil))
+      (let ((inhibit-read-only t))
         (rdebug-frames-mode)
         (set (make-local-variable 'gud-comint-buffer) comint-buffer)
         (goto-char (point-min))
-        ;; Rewrite, remove "s", instead match against buffer content.
-        (while (not (eobp))
-          (let* ((b (line-beginning-position))
-                 (e (line-end-position))
-                 (s (buffer-substring b e))
-		 (file-name nil)
-                 (line-number nil))
-            (when (string-match rdebug--stack-frame-1st-regexp s)
-              (if (string-match rdebug--stack-frame-regexp s)
-		  ;; Handle frames that are on one line
-		  (progn (setq file-name (match-string rdebug-stack-frame-file-group s))
-			 (setq line-number (match-string rdebug-stack-frame-line-group s)))
-		;; Handle frames that are split on two lines
-		(save-excursion
-		  (forward-line)
-		  (let* ((b (line-beginning-position)) (e (line-end-position))
-			 (s (buffer-substring b e)))
-		    (when (string-match rdebug--stack-frame-2nd-regexp s)
-		      (setq file-name (match-string rdebug-stack-frame-2nd-file-group s))
-		      (setq line-number (match-string rdebug-stack-frame-2nd-line-group s)))))
-		;; Redo string match on first line so we can process the indicator.
-		(string-match rdebug--stack-frame-1st-regexp s))
-
-              (when (string= (match-string 1 s) "-->")
-                (setq rdebug-frames-current-frame-number
-                      (string-to-number (match-string 2 s)))
-		;; Update source buffer to reflect current position
-		(if (and file-name line-number)
-		    (rdebug-display-line file-name (string-to-number line-number)))
-		(setq overlay-arrow-position (make-marker))
-		(set-marker overlay-arrow-position (point))
-		(setq current-frame-point (point)))
-              (add-text-properties b e
-                                   (list 'mouse-face 'highlight
-                                         'keymap rdebug-frames-mode-map))))
-          ;; remove initial '   '  or '-->'
+        (when (re-search-forward "-->" nil t)
           (beginning-of-line)
-          (delete-char 3)
-          (forward-line)
-          (beginning-of-line))
-        (when current-frame-point
-          (goto-char current-frame-point))))))
+          (setq overlay-arrow-position (make-marker))
+          (set-marker overlay-arrow-position (point))
+          (when (looking-at rdebug--stack-frame-1st-regexp)
+            (setq rdebug-frames-current-frame-number
+                  (string-to-number (match-string rdebug-stack-frame-number-group))))
+          (when (re-search-forward "at line \\(.*\\):\\([0-9]+\\)$" nil t)
+            (rdebug-display-line (match-string 1) (string-to-number (match-string 2)))))
+        ;; Remove initial '   '  or '-->'.
+        (goto-char (point-max))
+        (beginning-of-line)
+        (if (> (point) 4)
+            (delete-rectangle 4 (point)))))))
 
 (provide 'rdebug-frames)
 
