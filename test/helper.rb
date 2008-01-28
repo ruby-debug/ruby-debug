@@ -8,7 +8,7 @@ module TestHelper
 
   # FIXME: turn args into a hash.
   def run_debugger(testname, args='', outfile=nil, filter=nil, old_code=false,
-                   debugger='tdebug.rb')
+                   debug_pgm='tdebug.rb')
     rightfile = "#{testname}.right"
     
     outfile = "#{testname}.out" unless outfile
@@ -17,7 +17,7 @@ module TestHelper
       FileUtils.rm(outfile)
     end
     
-    ENV['RDEBUG'] = debugger
+    ENV['RDEBUG'] = debug_pgm
     if old_code
       cmd = "/bin/sh #{File.join('..', 'runner.sh')} #{args} >#{outfile}"
     else
@@ -63,7 +63,6 @@ module TestHelper
   #   diffs = Diff::LCS.diff(right_data, check_data)
   #   return output if diffs.empty?
   #   oldhunk = hunk = nil
-  #   debugger
   #   file_length_difference = 0
   #   diffs.each do |piece|
   #     begin
