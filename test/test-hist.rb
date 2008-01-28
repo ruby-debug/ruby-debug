@@ -38,8 +38,8 @@ class TestHistory < Test::Unit::TestCase
 
       # Now that we've set up a history file, run the debugger
       # and check that it's reading that correctly.
-      debugger=File.join(SRC_DIR, '..', 'rdbg.rb')
-      debugged=File.join(SRC_DIR, 'gcd.rb')
+      debugger=File.join('..', 'rdbg.rb')
+      debugged=File.join('gcd.rb')
       IO.popen("#{debugger} #{debugged} 3 5 >#{debugger_output}", 'w') do 
         |pipe|
         debugger_commands.each do |cmd|
@@ -49,6 +49,7 @@ class TestHistory < Test::Unit::TestCase
       
       # Compare output
       got_lines = File.read(@@FILE_HISTORY).split(/\n/)
+      puts got_lines
       if cheap_diff(got_lines, correct_lines)
         assert true
         FileUtils.rm(debugger_output)

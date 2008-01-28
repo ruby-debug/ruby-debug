@@ -31,7 +31,7 @@ integer argument, list info on that breakpoint.'],
     
     def execute
       if @match[1].empty?
-        print "\"info\" must be followed by the name of an info command:\n"
+        errmsg "\"info\" must be followed by the name of an info command:\n"
         print "List of info subcommands:\n\n"
         for subcmd in Subcommands do
           print "info #{subcmd.name} -- #{subcmd.short_help}\n"
@@ -123,7 +123,7 @@ integer argument, list info on that breakpoint.'],
       end
       file = args[0]
       param =  args[1]
-      if param and not %w(all lines mtime path sha1).member?(param)
+      if param and not %w(all breakpoints lines mtime path sha1).member?(param)
         errmsg "Invalid parameter #{param}\n"
         return
       end
@@ -144,16 +144,28 @@ integer argument, list info on that breakpoint.'],
       else
         print "\n"
       end
+
       if %w(all basic lines).member?(param)
         lines = LineCache.size(file)
         print "\t %d lines\n", lines if lines
       end
+
+      if %w(breakpoints).member?(param)
+        breakpoints = LineCache.trace_line_numbers(file)
+        if breakpoints
+          out = StringIO.new
+          print "\tbreakpoint line numbers:\n" 
+          PP.pp(breakpoints, out)
+          print out.string
+        end
+      end
+
       if %w(all mtime).member?(param)
         stat = LineCache.stat(file)
-        print "\t %s\n", stat.mtime if stat
+        print "\t%s\n", stat.mtime if stat
       end
       if %w(all sha1).member?(param)
-        print "\t %s\n", LineCache.sha1(file)
+        print "\t%s\n", LineCache.sha1(file)
       end
     end
     
@@ -169,7 +181,7 @@ integer argument, list info on that breakpoint.'],
         else
           print "\n"
         end
-        print "\t %s\n", stat.mtime if stat
+        print "\t%s\n", stat.mtime if stat
       end
     end
     

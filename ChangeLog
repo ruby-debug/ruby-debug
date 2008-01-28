@@ -1,3 +1,56 @@
+2008-01-28 03:16  Rocky Bernstein
+
+	* doc/Makefile.am: Don't remove Unix manual page.
+
+2008-01-28 03:15  Rocky Bernstein
+
+	* cli/ruby-debug/commands/show.rb, doc/ruby-debug.texi: Make show
+	  commands a little more like gdb. Document it too.
+
+2008-01-28 02:24  Rocky Bernstein
+
+	* cli/ruby-debug/commands/show.rb, cli/ruby-debug/interface.rb,
+	  test/ctrl.right, test/test-enable.rb, test/test-hist.rb:
+	  interface.rb: Command history not saved between local rdebug
+	  sessions. Patch from Martin Krauskopf #17491.
+	  show.rb: add "show commands" so we can see the command history.
+	  test/* Add a history regression test.
+
+2008-01-26 17:12  Anders Lindgren
+
+	* emacs/rdebug-frames.el: debug--setup-frame-buffer rewritten from
+	  scratch, it's now a lot simpler since it no longer has to handle
+	  coloring.
+
+2008-01-26 17:10  Anders Lindgren
+
+	* emacs/rdebug-layouts.el: comment fix.
+
+2008-01-26 16:33  Anders Lindgren
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-frames.el: Coloring added to
+	  the Stack frames window
+
+2008-01-26 01:45  Rocky Bernstein
+
+	* test/test-annotate.rb, test/test-enable.rb, test/test-init.rb,
+	  test/test-init.right: Add test of new Debugger.init
+
+2008-01-25 21:02  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Document info subcommands and Debugger.init.
+	  Start Class, Module,
+	  method index. Order of index changed slightly.
+
+2008-01-25 12:11  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/control.rb,
+	  cli/ruby-debug/commands/settings.rb,
+	  cli/ruby-debug/commands/show.rb, lib/ChangeLog,
+	  lib/ruby-debug-base.rb, test/gcd-dbg-nox.rb, test/gcd-dbg.rb: Add
+	  Debugger.init which intializes things that rdebug does. This
+	  allows a restart even though rdebug wasn't called initially.
+
 2008-01-23 02:53  Rocky Bernstein
 
 	* cli/ruby-debug/command.rb, cli/ruby-debug/commands/enable.rb,

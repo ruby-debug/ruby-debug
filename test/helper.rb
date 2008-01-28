@@ -8,10 +8,10 @@ module TestHelper
 
   # FIXME: turn args into a hash.
   def run_debugger(testname, args='', outfile=nil, filter=nil, old_code=false,
-                   debugger=File.join(SRC_DIR, 'tdebug.rb'))
-    rightfile = File.join(SRC_DIR, "#{testname}.right")
+                   debugger='tdebug.rb')
+    rightfile = "#{testname}.right"
     
-    outfile = File.join(SRC_DIR, "#{testname}.out") unless outfile
+    outfile = "#{testname}.out" unless outfile
 
     if File.exists?(outfile)
       FileUtils.rm(outfile)
@@ -19,9 +19,9 @@ module TestHelper
     
     ENV['RDEBUG'] = debugger
     if old_code
-      cmd = "/bin/sh #{File.join(SRC_DIR, '../runner.sh')} #{args} >#{outfile}"
+      cmd = "/bin/sh #{File.join('..', 'runner.sh')} #{args} >#{outfile}"
     else
-      cmd = "#{File.join(SRC_DIR, '../rdbg.rb')} #{args} >#{outfile}"
+      cmd = "../rdbg.rb #{args} >#{outfile}"
     end
     output = `#{cmd}`
     

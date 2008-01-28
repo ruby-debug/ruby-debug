@@ -1,14 +1,14 @@
 #!/usr/bin/env ruby
-require "test/unit"
-require "fileutils"
+require 'test/unit'
+require 'fileutils'
 
-# require "rubygems"
-# require "ruby-debug"; Debugger.start
+# require 'rubygems'
+# require 'ruby-debug'; Debugger.init
 
-SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless 
+SRC_DIR = File.expand_path(File.dirname(__FILE__)) unless 
   defined?(SRC_DIR)
 
-require File.join(SRC_DIR, "helper.rb")
+require File.join(SRC_DIR, 'helper.rb')
 
 include TestHelper
 
@@ -21,18 +21,18 @@ class TestDollar0 < Test::Unit::TestCase
       assert_equal(true, 
                    run_debugger('dollar-0', 
                                 '-nx --no-stop ./dollar-0.rb',
-                                nil, nil, false, File.join(SRC_DIR, '../bin/rdebug')))
+                                nil, nil, false, '../bin/rdebug'))
       # Ruby's __FILE__ seems to prepend ./ when no directory was added.
       assert_equal(true, 
                    run_debugger('dollar-0a', 
                                 '-nx --no-stop dollar-0.rb',
-                                nil, nil, false, File.join(SRC_DIR, '../bin/rdebug')))
+                                nil, nil, false, '../bin/rdebug'))
       # Ruby's __FILE__ seems to prepend ./ when no directory was added.
       assert_equal(true, 
                    run_debugger('dollar-0b', 
                                 '-nx --no-stop ' + 
                                 File.join('..', 'test', 'dollar-0.rb'),
-                                nil, nil, false, File.join(SRC_DIR, '../bin/rdebug')))
+                                nil, nil, false, '../bin/rdebug'))
     end
   end
 end
