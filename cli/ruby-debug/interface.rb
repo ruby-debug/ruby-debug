@@ -80,12 +80,13 @@ module Debugger
       require 'readline'
       class << Debugger
         define_method(:save_history) do
-          @histfile ||= File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
+          iface = self.handler.interface
+          iface.histfile ||= File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
                                   FILE_HISTORY)
-          open(@histfile, 'w') do |file|
-            Readline::HISTORY.to_a.last(@history_length).each do |line|
+          open(iface.histfile, 'w') do |file|
+            Readline::HISTORY.to_a.last(iface.history_length).each do |line|
               file.puts line unless line.strip.empty?
-            end if defined?(@history_save) and @history_save
+            end if defined?(iface.history_save) and iface.history_save
           end rescue nil
         end
         public :save_history 

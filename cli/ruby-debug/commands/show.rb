@@ -37,6 +37,13 @@ module Debugger
       when /^callstyle$/
         style = Command.settings[:callstyle]
         return "Frame call-display style is #{style}."
+      when /^commands$/
+        i = 1; s = '';
+        Readline::HISTORY.each do |cmd|
+          s += ("%5d  %s\n" % [i, cmd])
+          i += 1
+        end
+        return s
       when /^debuggertesting$/
         on_off = Command.settings[:debuggertesting]
         return "Currently testing the debugger is #{show_onoff(on_off)}."
@@ -125,14 +132,15 @@ ruby-debug."],
        ['args', 2, 
         "Show argument list to give program being debugged when it is started",
 "Follow this command with any number of args, to be passed to the program."],
-       ['autoeval', 4, "Show if unrecognized command are evaluated"],
-       ['autolist', 4, "Show if 'list' commands is run on breakpoints"],
-       ['autoirb', 4, "Show if IRB is invoked on debugger stops"],
+       ['autoeval',  4, "Show if unrecognized command are evaluated"],
+       ['autolist',  4, "Show if 'list' commands is run on breakpoints"],
+       ['autoirb',   4, "Show if IRB is invoked on debugger stops"],
        ['autoreload', 4, "Show if source code is reloaded when changed"],
-       ['basename', 1, "Show if basename used in reporting files"],
+       ['basename',  1, "Show if basename used in reporting files"],
        ['callstyle', 2, "Show paramater style used showing call frames"],
+       ['commands',  2, "Show the history of commands you typed"],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
-       ['fullpath', 2, "Show if full file names are displayed in frames"],
+       ['fullpath',  2, "Show if full file names are displayed in frames"],
        ['history', 2, "Generic command for showing command history parameters",
 "show history filename -- Show the filename in which to record the command history
 show history save -- Show saving of the history record on exit

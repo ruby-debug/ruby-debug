@@ -46,6 +46,7 @@ show autoirb -- Show if IRB is invoked on debugger stops
 show autoreload -- Show if source code is reloaded when changed
 show basename -- Show if basename used in reporting files
 show callstyle -- Show paramater style used showing call frames
+show commands -- Show the history of commands you typed
 show forcestep -- Show if sure 'next/step' forces move to a new line
 show fullpath -- Show if full file names are displayed in frames
 show history -- Generic command for showing command history parameters
