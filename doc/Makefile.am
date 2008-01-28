@@ -57,4 +57,4 @@ ruby-debug.html: ruby-debug.texi
 
 all-formats: pdf dvi txt ps html
 
-MOSTLYCLEANFILES = rubydb.tgs rubydb.ps.gz rubydb.pdf rubydb.html rubydb_toc.html rubydb_foot.html $(man1_MANS) rubydb-man.html
+MOSTLYCLEANFILES = rubydb.tgs rubydb.ps.gz rubydb.pdf rubydb.html rubydb_toc.html rubydb_foot.html rubydb-man.html
