@@ -2724,21 +2724,33 @@ Shows whether forcestep is in effect or not.
 @node History
 @subsection Command History Parameters
 @table @code
-@kindex show history filename
+@item show commands
+@kindex show commands
+Display the last ten commands in the command history.
+
+@item show commands @var{n}
+@kindex show commands @var{n}
+Print ten commands centered on command number @var{n}.
+
 @item show history filename
+@kindex show history filename
 Show the filename in which to record the command history
 (the list of previous commands of which a record is kept).
-@kindex set history save @r{[} on | 1 | off | 0 @r{]}
+
 @item set history save @r{[} on | 1 | off | 0 @r{]}
+@kindex set history save @r{[} on | 1 | off | 0 @r{]}
 Set whether to save the history on exit.
-@kindex show history save
+
 @item show history save
+@kindex show history save
 Show saving of the history record on exit.
-@kindex set history size @var{number}
+
 @item set history size @var{number}
+@kindex set history size @var{number}
 Set the maximum number of commands to save in the history.
-@kindex show history size
+
 @item show history size
+@kindex show history size
 Show the size of the command history, i.e. the number of previous
 commands to keep a record of.
 @end table

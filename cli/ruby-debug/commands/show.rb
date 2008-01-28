@@ -37,9 +37,32 @@ module Debugger
       when /^callstyle$/
         style = Command.settings[:callstyle]
         return "Frame call-display style is #{style}."
-      when /^commands$/
-        i = 1; s = '';
-        Readline::HISTORY.each do |cmd|
+      when /^commands(:?\s+(\d+))?$/
+        s = '';
+        args = @match[1].split
+        if args[1]
+          first_line = args[1].to_i - 4
+          last_line  = first_line + 10 - 1
+          if first_line > Readline::HISTORY.length
+            first_line = last_line = Readline::HISTORY.length
+          elsif first_line <= 0
+            first_line = 1
+          end
+          if last_line > Readline::HISTORY.length
+            last_line = Readline::HISTORY.length
+          end
+          i = first_line
+          commands = Readline::HISTORY.to_a[first_line..last_line]
+        else
+          if Readline::HISTORY.length > 10
+            commands = Readline::HISTORY.to_a[-10..-1]
+            i = Readline::HISTORY.length - 10
+          else
+            commands = Readline::HISTORY.to_a
+            i = 1
+          end
+        end
+        commands.each do |cmd|
           s += ("%5d  %s\n" % [i, cmd])
           i += 1
         end
@@ -138,7 +161,8 @@ ruby-debug."],
        ['autoreload', 4, "Show if source code is reloaded when changed"],
        ['basename',  1, "Show if basename used in reporting files"],
        ['callstyle', 2, "Show paramater style used showing call frames"],
-       ['commands',  2, "Show the history of commands you typed"],
+       ['commands',  2, "Show the history of commands you typed",
+"You can supply a command number to start with."],
        ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
        ['fullpath',  2, "Show if full file names are displayed in frames"],
        ['history', 2, "Generic command for showing command history parameters",
