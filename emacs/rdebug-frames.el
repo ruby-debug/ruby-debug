@@ -207,16 +207,13 @@ Also, cleans the buffer somewhat and sets up help for the font-lock rules."
           (set-marker overlay-arrow-position (point))
           (when (looking-at rdebug--stack-frame-1st-regexp)
             (setq rdebug-frames-current-frame-number
-                  (string-to-number (match-string rdebug-stack-frame-number-group))))
-          (when (re-search-forward "at line \\(.*\\):\\([0-9]+\\)$" nil t)
-            (rdebug-display-line (match-string 1) (string-to-number (match-string 2)))))
+                  (string-to-number (match-string rdebug-stack-frame-number-group)))))
         ;; Remove initial '   '  or '-->'.
-        (goto-char (point-max))
-        (beginning-of-line)
-        (if (> (point) 4)
-            (delete-rectangle 4 (point)))
-	;; Put point somwhere on the active-frame line
-	(if active-frame-point (goto-char active-frame-point))))))
+        (save-excursion
+          (goto-char (point-max))
+          (beginning-of-line)
+          (if (> (point) 4)
+              (delete-rectangle 4 (point))))))))
 
 (provide 'rdebug-frames)
 

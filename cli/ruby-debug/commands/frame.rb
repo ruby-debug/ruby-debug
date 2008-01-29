@@ -100,8 +100,11 @@ module Debugger
         end
       end
       print file_line
-      print "\032\032%s:%d\n" % [CommandProcessor.canonic_file(file), 
-                                 line] if ENV['EMACS'] && adjust
+      if ENV['EMACS'] && adjust
+        fmt = (Debugger.annotate.to_i > 1 ?
+               "\032\032source %s:%d\n" : "\032\032%s:%d\n")
+        print fmt % [CommandProcessor.canonic_file(file), line]
+      end
     end
   end
 

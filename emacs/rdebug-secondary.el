@@ -137,6 +137,19 @@ The higher score the better."
           (t
            2))))
 
+(defun rdebug-display-pick-source-window ()
+  (rdebug-debug-enter "rdebug-display-pick-source-window"
+    (let ((candidate nil)
+          (candidate-score -1))
+      (dolist (win (window-list (selected-frame)))
+        (let ((score
+               (rdebug-display-source-window-categorize win)))
+          (if (> score candidate-score)
+              (progn
+                (setq candidate       win)
+                (setq candidate-score score)))))
+      candidate)))
+
 (defun rdebug-frame-source-buffer (frame)
   "Return the buffer corresponding to guds frame, or nil"
   (and frame
@@ -155,29 +168,21 @@ The higher score the better."
 (defun rdebug-display-source-buffer ()
   "Display the current source buffer."
   (interactive)
-  (let ((buffer (rdebug-current-source-buffer))
-        (last-buffer (rdebug-frame-source-buffer gud-last-last-frame)))
-    (if buffer
-        (let ((window
-               (or
-                ;; Buffer is already visible, re-use the window.
-                (get-buffer-window buffer)
-                ;; Re-use the last window
-                (and last-buffer
-                     (get-buffer-window last-buffer))
-                ;; Find a non-rdebug window.
-                (let ((candidate nil)
-                      (candidate-score -1))
-                  (dolist (win (window-list (selected-frame)))
-                    (let ((score
-                           (rdebug-display-source-window-categorize win)))
-                      (if (> score candidate-score)
-                          (progn
-                            (setq candidate       win)
-                            (setq candidate-score score)))))
-                  candidate))))
-          (select-window window)
-          (switch-to-buffer buffer)))))
+  (rdebug-debug-enter "rdebug-display-source-buffer"
+    (let ((buffer (rdebug-current-source-buffer))
+          (last-buffer (rdebug-frame-source-buffer gud-last-last-frame)))
+      (if buffer
+          (let ((window
+                 (or
+                  ;; Buffer is already visible, re-use the window.
+                  (get-buffer-window buffer)
+                  ;; Re-use the last window
+                  (and last-buffer
+                       (get-buffer-window last-buffer))
+                  ;; Find a non-rdebug window.
+                  (rdebug-display-pick-source-window))))
+            (select-window window)
+            (switch-to-buffer buffer))))))
 
 
 (defun rdebug-pick-source-window ()
