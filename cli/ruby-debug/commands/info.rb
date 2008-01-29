@@ -153,10 +153,8 @@ integer argument, list info on that breakpoint.'],
       if %w(breakpoints).member?(param)
         breakpoints = LineCache.trace_line_numbers(file)
         if breakpoints
-          out = StringIO.new
           print "\tbreakpoint line numbers:\n" 
-          PP.pp(breakpoints, out)
-          print out.string
+          print columnize(breakpoints, self.class.settings[:width])
         end
       end
 

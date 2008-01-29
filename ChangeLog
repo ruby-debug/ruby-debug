@@ -1,3 +1,51 @@
+2008-01-29 22:19  Rocky Bernstein
+
+	* cli/ruby-debug/interface.rb, emacs/rdebug-frames.el,
+	  test/test-ctrl.rb: test-ctrl.rb: try to make it influenced less
+	  by environment.
+	  rdebug-frames.el remove unused local variable.
+
+2008-01-29 21:13  Anders Lindgren
+
+	* cli/ruby-debug/commands/frame.rb, emacs/rdebug-frames.el,
+	  emacs/rdebug-secondary.el: * Fixed a problem where the source
+	  buffer opened in the wrong window.
+	  Turned out that the Stack Frame buffer setup function tried to
+	  display the current frame itself, instead of letting the normal
+	  source annotations handle this.
+	  
+	  * Fixed a problem with an annotation turning up in the debugger
+	  shell
+	  buffer. The 'frame' command emitted a source annotation without
+	  the
+	  "source" part.
+	  
+	  * In the stack frame window, when selecting a frame to display,
+	  the
+	  point is now placed at the beginning of the line of the active
+	  frame.
+	  
+	  * Internal restructuring of the pick source window parts.
+
+2008-01-29 19:58  Rocky Bernstein
+
+	* emacs/rdebug-frames.el: In the frame secondary buffer, put point
+	  somewhere on the line with
+	  the active frame. (It had been at the end of the buffer.)
+
+2008-01-29 19:16  Rocky Bernstein
+
+	* emacs/rdebug-layouts.el: So for a layout with one less window and
+	  the command buffer on the bottom.
+
+2008-01-29 11:20  Rocky Bernstein
+
+	* CHANGES, ChangeLog, bin/rdebug, cli/ruby-debug/interface.rb,
+	  cli/ruby-debug/processor.rb, doc/ruby-debug.texi,
+	  emacs/rdebug-core.el, emacs/rdebug-layouts.el,
+	  emacs/rdebug-source.el, emacs/rdebug.el, emacs/test/test-core.el,
+	  lib/ChangeLog: More annotate=2 fixes.
+
 2008-01-29 05:03  Anders Lindgren
 
 	* emacs/rdebug-core.el: In Emacs, the current directory of the

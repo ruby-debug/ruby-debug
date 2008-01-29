@@ -1,3 +1,12 @@
+2008-01-29 11:20  Rocky Bernstein
+
+	* trunk/CHANGES, trunk/ChangeLog, trunk/bin/rdebug,
+	  trunk/cli/ruby-debug/interface.rb,
+	  trunk/cli/ruby-debug/processor.rb, trunk/doc/ruby-debug.texi,
+	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-layouts.el,
+	  trunk/emacs/rdebug-source.el, trunk/emacs/rdebug.el,
+	  trunk/emacs/test/test-core.el, ChangeLog: More annotate=2 fixes.
+
 2008-01-28 15:59  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
