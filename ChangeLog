@@ -1,3 +1,31 @@
+2008-01-29 05:03  Anders Lindgren
+
+	* emacs/rdebug-core.el: In Emacs, the current directory of the
+	  debugger shell process is now the directory in which it was
+	  started.
+
+2008-01-28 21:11  Rocky Bernstein
+
+	* test/history.right, test/test-hist.rb: Disable for now.
+
+2008-01-28 16:18  Rocky Bernstein
+
+	* test/helper.rb, test/test-hist.rb: Some more work on test-hist.
+	  Not working yet completely though.
+
+2008-01-28 15:59  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,
+	  test/helper.rb, test/test-dollar-0.rb, test/test-hist.rb,
+	  test/test-output.rb: Add info file breakpoints to show lines
+	  which we can set a breakpoint on.
+	  Revise so we chdir into SRC_DIR.
+	  test-hist.rb is broken - will fix later.
+
+2008-01-28 15:50  Rocky Bernstein
+
+	* test/history.right: Comparison file for test-hist.rb
+
 2008-01-28 03:16  Rocky Bernstein
 
 	* doc/Makefile.am: Don't remove Unix manual page.

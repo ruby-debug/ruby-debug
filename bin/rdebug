@@ -78,13 +78,15 @@ EOB
       |options.cport|
     end
     opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
-    opts.on("--emacs", "Activates full Emacs support") do 
+    opts.on("--emacs LEVEL", Integer,
+            "Activates full Emacs support at annotation level LEVEL") do 
+      |level|
+      Debugger.annotate = level.to_i
       ENV['EMACS'] = '1'
       ENV['COLUMNS'] = '120' if ENV['COLUMNS'].to_i < 120
       options.control = false
       options.noquit = true
       options.post_mortem = true
-      Debugger.annotate = 3
     end
     opts.on('--emacs-basic', 'Activates basic Emacs mode') do 
       ENV['EMACS'] = '1'
@@ -259,7 +261,7 @@ else
         print "Uncaught exception: #{$!}\n"
       end
       print "The program finished.\n" unless 
-        Debugger.annotate.to_i > 2 # annotate has its own way
+        Debugger.annotate.to_i > 1 # annotate has its own way
       interface = Debugger::LocalInterface.new
       # Not sure if ControlCommandProcessor is really the right
       # thing to use. CommandProcessor requires a state.

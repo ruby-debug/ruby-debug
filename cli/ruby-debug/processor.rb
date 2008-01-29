@@ -13,7 +13,7 @@ module Debugger
     end
     
     def aprint(msg)
-      print afmt(msg) if Debugger.annotate.to_i > 2
+      print afmt(msg) if Debugger.annotate.to_i > 1
     end
 
     # FIXME: use delegate? 
@@ -98,7 +98,7 @@ module Debugger
       file_line = "%s:%s\n%s" % [canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
       # FIXME: use annotations routines
-      if Debugger.annotate.to_i > 2
+      if Debugger.annotate.to_i > 1
         file_line = "\032\032source #{file_line}"
       elsif ENV['EMACS']
         file_line = "\032\032#{file_line}"
@@ -124,7 +124,7 @@ module Debugger
     end
     
     def at_breakpoint(context, breakpoint)
-      aprint 'stopped'
+      aprint 'stopped' if Debugger.annotate.to_i > 2
       n = Debugger.breakpoints.index(breakpoint) + 1
       file = CommandProcessor.canonic_file(breakpoint.source)
       line = breakpoint.pos
@@ -136,7 +136,7 @@ module Debugger
     protect :at_breakpoint
     
     def at_catchpoint(context, excpt)
-      aprint 'stopped'
+      aprint 'stopped' if Debugger.annotate.to_i > 2
       file = CommandProcessor.canonic_file(context.frame_file(1))
       line = context.frame_line(1)
       print afmt("%s:%d" % [file, line]) if ENV['EMACS']
@@ -263,16 +263,16 @@ module Debugger
     end
     
     def preloop(commands, context)
-      aprint('stopped')
+      aprint('stopped') if Debugger.annotate.to_i > 2
       if context.dead?
         unless @debugger_context_was_dead
-          aprint('exited')
-          print "The program finished.\n" if Debugger.annotate.to_i > 2
+          aprint('exited') if Debugger.annotate.to_i > 2
+          print "The program finished.\n" if Debugger.annotate.to_i > 1
           @debugger_context_was_dead = true
         end
       end
 
-      if Debugger.annotate.to_i > 2
+      if Debugger.annotate.to_i > 1
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
@@ -295,7 +295,8 @@ module Debugger
           annotation('variables', commands, context, "info variables")
         end
         if not context.dead? and @@Show_annotations_run.find{|pat| cmd =~ pat}
-          aprint 'starting'
+          aprint 'starting'  if Debugger.annotate.to_i > 2
+
           @debugger_context_was_dead = false
         end
       end
@@ -374,8 +375,8 @@ module Debugger
       commands = control_cmds.map{|cmd| cmd.new(state) }
 
       unless @debugger_context_was_dead
-        aprint 'exited'  
-        print "The program finished.\n" if Debugger.annotate.to_i > 2
+        aprint 'exited'  if Debugger.annotate.to_i > 2
+        print "The program finished.\n" if Debugger.annotate.to_i > 1
         @debugger_context_was_dead = true
       end
 

@@ -250,7 +250,8 @@ menu. (The common map typically contains function key bindings.)"
     (let ((predefined '(rdebug-window-layout-standard
                         rdebug-window-layout-conservative
                         rdebug-window-layout-stack-of-windows
-                        rdebug-window-layout-rocky)))
+                        rdebug-window-layout-rocky
+                        rdebug-window-layout-rocky2)))
 
       (define-key map [menu-bar debugger options layout other]
         (rdebug-menu-item
@@ -268,6 +269,18 @@ menu. (The common map typically contains function key bindings.)"
          (lambda ()
            (interactive)
            (rdebug-set-window-layout 'rdebug-window-layout-rocky))
+         :button
+         '(:radio
+           . (eq rdebug-window-layout-function
+                 'rdebug-window-layout-rocky))))
+
+      (define-key map [menu-bar debugger options layout rocky2]
+        (rdebug-menu-item
+         common-map
+         "Rocky II"
+         (lambda ()
+           (interactive)
+           (rdebug-set-window-layout 'rdebug-window-layout-rocky2))
          :button
          '(:radio
            . (eq rdebug-window-layout-function

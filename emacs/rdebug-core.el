@@ -201,7 +201,8 @@ Initially annotate should be set to nil."
               ;; Annotation option.
               ((or (string-match "^--annotate=[0-9]" arg)
                    (equal arg "--emacs"))
-               (setq annotate-p t))
+               (setq annotate-p t)
+	       (pop args))
               ;; Options with arguments.
               ((member arg '("-h" "--host" "-p" "--port"
                              "-I" "--include" "-r" "--require"))

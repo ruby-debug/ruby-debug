@@ -889,13 +889,16 @@ loop here which gets run in this situation 3 times. A similar command
 @code{next}, can also be used to skip over loops and method
 calls.
 
-But what about all the duplicated @code{if} statements in @code{gcd}? Each
-one is listed twice whether or not we put the @code{if} at the
-beginning or the end.
+But what about all the duplicated @code{if} statements in @code{gcd}?
+Each one is listed twice whether or not we put the @code{if} at the
+beginning or the end. You will find this to be the case for any
+conditional statement such as @code{until} or @code{while}.
 
-Each @code{if} statement appears twice because we stop once before the
-expression is evaluated and once after the expression is evaluated but
-before the if statement takes hold.
+One might think that the @code{if} statement appears twice because we
+stop once before the expression is evaluated and once after the
+expression is evaluated but before the if statement takes hold. Alas,
+that's not the case and is probably a bug. See
+@url{http://www.ruby-forum.com/topic/140412} for details.
 
 If you are issuing a @code{step} command one at a time, the repetitive
 nature can be little cumbersome if not annoying. So @value{DBG} offers

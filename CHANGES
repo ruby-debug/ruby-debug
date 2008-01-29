@@ -1,20 +1,39 @@
 0.10.1
+
 - Experimental: 
   remove Debugger.stop on exit exception raise. May allow catchpoints
   to work and tracing user code handling Exit exceptions
+
+- Add Debugger.init to save things (like $0 and ARGV) necessary to
+  allow restart.
+
 - fix bug in "info variables" when string had embedded %s'
+
 - Number keys move stack position in Emacs stack secondary buffer.
-- --emacs is now --emacs-basic while --emacs now implies
-  --emacs-basic --annotate=3 --post-mortem --no-control --no-start --no-quit
-- split off breakpoint code in ruby_debug.c; preface ruby_debug global 
+
+- --emacs is now --emacs-basic while --emacs now implies emacs-basic
+  ----annotate=3 --post-mortem --no-control --no-start --no-quit
+
+- split off breakpoint code in ruby_debug.c; preface ruby_debug global
   Ruby variables with rdebug_.
+
 - self and class variables are listed by "info variables"
+
 - add "var cl[ass]" command. Note "var const" can no longer be
   abbreviated "var c"; use "var co" (or const or constant).
+
 - columnize now pulled in from a separate package.
+
 - add "condition" command. Allow removal of condition.
-- $0 == __FILE__ when running rdebug should work -- most of the time. See
-  comments in code for a better solution.
+
+- $0 == __FILE__ when running rdebug should work -- most of the
+  time. See comments in code for a better solution.
+
+- gdb "show commands" added. (Shows command history). Bug in history
+  saving fixed.
+
+- split of line caching to an external gem. We now only allow setting
+  breakpoints on lines where it makes sense to do so.
 
 0.10.0
 - '-r' option can be used to require additional libraries.

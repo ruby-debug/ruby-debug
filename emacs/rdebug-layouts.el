@@ -72,6 +72,28 @@ See `rdebug' for more information."
    (selected-window) (rdebug-get-buffer "cmd" name))
   (goto-char (point-max)))
 
+(defun rdebug-window-layout-rocky2 (src-buf name)
+  "The standard window without the output window, see `rdebug'
+for more information."
+  (delete-other-windows)
+  (split-window nil ( / ( * (window-height) 3) 4))
+  (split-window nil ( / (window-height) 3))
+  (split-window-horizontally)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "variables" name))
+  (other-window 1)
+  (switch-to-buffer src-buf)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "frame" name))
+  (split-window-horizontally)
+  (other-window 1)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "breakpoints" name))
+  (other-window 1)
+  (goto-char (point-max)))
+
 (defun rdebug-window-layout-stack-of-windows (src-buf name)
   "A rdebug window layout with several secondary windows to the right.
 The debugger shell and the source code window is to the left."

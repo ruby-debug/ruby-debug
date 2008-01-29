@@ -200,7 +200,7 @@ This function is designed to be added to hooks, for example:
 ;;
 
 (defcustom gud-rdebug-command-name
-  "rdebug --emacs"
+  "rdebug --emacs 3"
   "File name for executing the Ruby debugger and command options.
 This should be an executable on your path, or an absolute file name."
   :type 'string
@@ -292,6 +292,7 @@ Rdebug provides the following predefined layout functions:
     (function :tag "Conservative"     rdebug-window-layout-conservative)
     (function :tag "Stack of windows" rdebug-window-layout-stack-of-windows)
     (function :tag "Rocky's own"      rdebug-window-layout-rocky)
+    (function :tag "Rocky's II"       rdebug-window-layout-rocky2)
     (function :tag "Other"            function))
   :group 'rdebug)
 

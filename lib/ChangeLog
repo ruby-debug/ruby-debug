@@ -1,3 +1,12 @@
+2008-01-28 15:59  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
+	  ChangeLog, trunk/test/helper.rb, trunk/test/test-dollar-0.rb,
+	  trunk/test/test-hist.rb, trunk/test/test-output.rb: Add info file
+	  breakpoints to show lines which we can set a breakpoint on.
+	  Revise so we chdir into SRC_DIR.
+	  test-hist.rb is broken - will fix later.
+
 2008-01-25 12:11  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/control.rb,

@@ -19,7 +19,7 @@
   (assert-equal '("foo" nil) (rdebug-get-script-name '("rdebug" "foo")))
   (assert-equal '("foo" nil) (rdebug-get-script-name '("rdebug" "-m" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name
-                            '("rdebug" "--emacs" "foo")))
+                            '("rdebug" "--emacs" "3" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name
                             '("myrdebug" "--annotate=1" "foo")))
   (assert-equal '("foo" t) (rdebug-get-script-name
