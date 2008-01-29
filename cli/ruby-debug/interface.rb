@@ -72,7 +72,9 @@ module Debugger
       if Debugger.method_defined?("annotate") and Debugger.annotate.to_i > 1
         print "\032\032exited\n\n" 
       end
-      Debugger.save_history if Debugger.respond_to?(:save_history)
+      if Debugger.respond_to?(:save_history)
+        Debugger.save_history 
+      end
     end
     
     private

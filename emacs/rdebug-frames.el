@@ -195,14 +195,12 @@ non-digit will start entry number from the beginning again."
 Also, cleans the buffer somewhat and sets up help for the font-lock rules."
   (rdebug-debug-enter "rdebug-setup-stack-buffer"
     (with-current-buffer buf
-      (let ((inhibit-read-only t)
-	    (active-frame-point nil))
+      (let ((inhibit-read-only t))
         (rdebug-frames-mode)
         (set (make-local-variable 'gud-comint-buffer) comint-buffer)
         (goto-char (point-min))
         (when (re-search-forward "-->" nil t)
           (beginning-of-line)
-	  (setq active-frame-point (point))
           (setq overlay-arrow-position (make-marker))
           (set-marker overlay-arrow-position (point))
           (when (looking-at rdebug--stack-frame-1st-regexp)
