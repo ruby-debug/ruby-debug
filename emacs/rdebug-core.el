@@ -665,7 +665,8 @@ and options used to invoke rdebug."
            (target-name (file-name-nondirectory (car script-name-annotate-p)))
            (annotate-p (cadr script-name-annotate-p))
            (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
-           (rdebug-buffer (get-buffer rdebug-buffer-name)))
+           (rdebug-buffer (get-buffer rdebug-buffer-name))
+           (gud-chdir-before-run nil))
 
       ;; `gud-rdebug-massage-args' needs whole `command-line'.
       ;; command-line is refered through dynamic scope.
