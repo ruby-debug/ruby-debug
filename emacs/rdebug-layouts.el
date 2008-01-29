@@ -77,8 +77,12 @@ See `rdebug' for more information."
 for more information."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 3) 4))
+  (set-window-buffer
+   (selected-window) src-buf)
   (split-window nil ( / (window-height) 3))
   (split-window-horizontally)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "frame" name))
   (other-window 1)
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "variables" name))
@@ -86,12 +90,7 @@ for more information."
   (switch-to-buffer src-buf)
   (other-window 1)
   (set-window-buffer
-   (selected-window) (rdebug-get-buffer "frame" name))
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "breakpoints" name))
-  (other-window 1)
+   (selected-window) (rdebug-get-buffer "cmd" name))
   (goto-char (point-max)))
 
 (defun rdebug-window-layout-stack-of-windows (src-buf name)
