@@ -51,10 +51,14 @@ spec = Gem::Specification.new do |s|
   s.version  = GEM_VERSION
   s.require_path = 'lib'
   s.files    = FileList['Rakefile', 'README', 'lib/ruby_debug_base.jar', 'lib/ruby-debug-base.rb']
-  s.description = "Java extension to make fast ruby debugger run on JRuby"
+  s.description = <<-EOF
+Java extension to make fast ruby debugger run on JRuby.
+It is the same what ruby-debug-base is for native Ruby.
+EOF
   s.author   = 'debug-commons team'
   s.homepage = 'http://rubyforge.org/projects/debug-commons/'
   s.has_rdoc = true
+  s.rubyforge_project = 'debug-commons'
 end
 
 Rake::GemPackageTask.new(spec).define
