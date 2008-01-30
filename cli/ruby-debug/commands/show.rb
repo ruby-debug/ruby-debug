@@ -200,16 +200,13 @@ show history size -- Show the size of the command history"],
         end
       else
         args = @match[1].split(/[ \t]+/)
-        subcmd = args.shift
-        subcmd.downcase!
-        for try_subcmd in Subcommands do
-          if (subcmd.size >= try_subcmd.min) and
-              (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            print "%s\n" % show_setting(try_subcmd.name)
-            return
-          end
+        param = args.shift
+        subcmd = find(Subcommands, param)
+        if subcmd
+          print "%s\n" % show_setting(subcmd.name)
+        else
+          print "Unknown show command #{param}\n"
         end
-        print "Unknown show command #{subcmd}\n"
       end
     end
 

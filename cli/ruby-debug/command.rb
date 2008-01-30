@@ -11,6 +11,20 @@ module Debugger
       defined?(SubcmdStruct)
 
     include Columnize
+
+    # Find param in subcmds. param id downcased and can be abbreviated
+    # to the minimum length listed in the subcommands
+    def find(subcmds, param)
+      param.downcase!
+      for try_subcmd in subcmds do
+        if (param.size >= try_subcmd.min) and
+            (try_subcmd.name[0..param.size-1] == param)
+          return try_subcmd
+        end
+      end
+      return nil
+    end
+
     class << self
       def commands
         @commands ||= []

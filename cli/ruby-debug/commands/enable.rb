@@ -7,7 +7,7 @@ module Debugger
         largest = b.id if b.id > largest
       end
       if 0 == largest
-        print "No breakpoints have been set.\n"
+        errmsg "No breakpoints have been set.\n"
         return
       end
       args.each do |pos|
@@ -30,6 +30,10 @@ module Debugger
     end
 
     def enable_disable_display(is_enable, args)
+      if 0 == @state.display.size 
+        errmsg "No display expressions have been set.\n"
+        return
+      end
       args.each do |pos|
         pos = get_int(pos, "#{is_enable} display", 1, @state.display.size)
         return nil unless pos
@@ -64,15 +68,13 @@ Do \"info display\" to see current list of code numbers."],
           " or breakpoint numbers.\n"
       else
         args = @match[1].split(/[ \t]+/)
-        subcmd = args.shift.downcase
-        for try_subcmd in Subcommands do
-          if (subcmd.size >= try_subcmd.min) and
-              (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            send("enable_#{try_subcmd.name}", args)
-            return
-          end
+        param = args.shift
+        subcmd = find(Subcommands, param)
+        if subcmd
+          send("enable_#{subcmd.name}", args)
+        else
+          send("enable_breakpoints", args.unshift(param))
         end
-        send("enable_breakpoints", args.unshift(subcmd))
       end
     end
     
@@ -122,10 +124,10 @@ Do \"info display\" to see current list of code numbers."],
   class DisableCommand < Command # :nodoc:
     Subcommands = 
       [
-       ['breakpoints', 2, "Disable some breakpoints",
+       ['breakpoints', 1, "Disable some breakpoints",
 "Arguments are breakpoint numbers with spaces in between.
 A disabled breakpoint is not forgotten, but has no effect until reenabled."],
-       ['display', 2, "Disable some display expressions when program stops",
+       ['display', 1, "Disable some display expressions when program stops",
 "Arguments are the code numbers of the expressions to stop displaying.
 Do \"info display\" to see current list of code numbers."],
       ].map do |name, min, short_help, long_help| 
@@ -142,15 +144,13 @@ Do \"info display\" to see current list of code numbers."],
           " or breakpoint numbers.\n"
       else
         args = @match[1].split(/[ \t]+/)
-        subcmd = args.shift.downcase
-        for try_subcmd in Subcommands do
-          if (subcmd.size >= try_subcmd.min) and
-              (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            send("disable_#{try_subcmd.name}", args)
-            return
-          end
+        param = args.shift
+        subcmd = find(Subcommands, param)
+        if subcmd
+          send("disable_#{subcmd.name}", args)
+        else
+          send("disable_breakpoints", args.unshift(param))
         end
-        send("disable_breakpoints", args.unshift(subcmd))
       end
     end
     

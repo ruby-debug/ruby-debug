@@ -25,6 +25,19 @@ integer argument, list info on that breakpoint.'],
       SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(Subcommands)
 
+    InfoFileSubcommands = 
+      [
+       ['all', 1, 'Argument variables of current stack frame'],
+       ['breakpoints', 1, 'trace line numbers',
+        'These are the line number where a breakpoint can be set.'],
+       ['lines', 1, 'Number of lines in the file'],
+       ['mtime', 1, 'Modification time of file'],
+       ['path', 4, 'Full file path name for file'],
+       ['sha1', 1, 'SHA1 Hash of contents of the file']
+      ].map do |name, min, short_help, long_help|
+      SubcmdStruct.new(name, min, short_help, long_help)
+    end unless defined?(InfoFileSubcommands)
+
     def regexp
       /^\s* i(?:nfo)? (?:\s+(.*))?$/ix
     end
@@ -38,16 +51,13 @@ integer argument, list info on that breakpoint.'],
         end
       else
         args = @match[1].split(/[ \t]+/)
-        subcmd = args.shift
-        subcmd.downcase!
-        for try_subcmd in Subcommands do
-          if (subcmd.size >= try_subcmd.min) and
-              (try_subcmd.name[0..subcmd.size-1] == subcmd)
-            send("info_#{try_subcmd.name}", *args)
-            return
-          end
+        param = args.shift
+        subcmd = find(Subcommands, param)
+        if subcmd
+          send("info_#{subcmd.name}", *args)
+        else
+          errmsg "Unknown info command #{param}\n"
         end
-        errmsg "Unknown info command #{subcmd}\n"
       end
     end
     
@@ -128,11 +138,13 @@ integer argument, list info on that breakpoint.'],
       end
       file = args[0]
       param =  args[1]
-      if param and not %w(all breakpoints lines mtime path sha1).member?(param)
+      
+      param = 'basic' unless param
+      subcmd = find(InfoFileSubcommands, param)
+      unless subcmd
         errmsg "Invalid parameter #{param}\n"
         return
       end
-      param = 'basic' unless param
       
       unless LineCache::cached?(file)
         unless LineCache::cached_script?(file)
@@ -144,18 +156,18 @@ integer argument, list info on that breakpoint.'],
       
       print "File %s", file
       path = LineCache.path(file)
-      if %w(all basic path).member?(param) and path != file
+      if %w(all basic path).member?(subcmd) and path != file
         print " - %s\n", path 
       else
         print "\n"
       end
 
-      if %w(all basic lines).member?(param)
+      if %w(all basic lines).member?(subcmd)
         lines = LineCache.size(file)
         print "\t %d lines\n", lines if lines
       end
 
-      if %w(breakpoints).member?(param)
+      if %w(breakpoints).member?(subcmd)
         breakpoints = LineCache.trace_line_numbers(file)
         if breakpoints
           print "\tbreakpoint line numbers:\n" 
@@ -163,11 +175,11 @@ integer argument, list info on that breakpoint.'],
         end
       end
 
-      if %w(all mtime).member?(param)
+      if %w(all mtime).member?(subcmd)
         stat = LineCache.stat(file)
         print "\t%s\n", stat.mtime if stat
       end
-      if %w(all sha1).member?(param)
+      if %w(all sha1).member?(subcmd)
         print "\t%s\n", LineCache.sha1(file)
       end
     end

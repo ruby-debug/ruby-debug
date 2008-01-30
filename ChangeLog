@@ -1,3 +1,24 @@
+2008-01-30 11:33  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-output.el,
+	  emacs/rdebug-track.el: Add keybindings in shell, output and
+	  command buffers for going to a
+	  traceback line or a $! traceback line.
+	  
+	  rdebug-common-initialization -> rdebug-command-initialization and
+	  fix
+	  up docstring.
+	  
+	  rdebug-core.el: Bug in handling --emacs introduced when a
+	  parameter was added
+	  rdebug-track.el: start with annotate 2.
+
+2008-01-30 01:43  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,
+	  test/breakpoints.right, test/emacs-basic.right: Add number of
+	  times a breakpoint is hit like gdb does.
+
 2008-01-29 22:37  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog:
