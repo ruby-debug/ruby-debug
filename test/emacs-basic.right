@@ -29,6 +29,7 @@ Breakpoint 3 at Object::gcd
 # info break
 Num Enb What
   1 y   at gcd.rb:6
+	breakpoint already hit 1 time
   2 y   at gcd.rb:10
   3 y   at Object:gcd
 # continue
@@ -47,21 +48,30 @@ def gcd(a, b)
 # info break
 Num Enb What
   1 y   at gcd.rb:6
+	breakpoint already hit 1 time
   2 y   at gcd.rb:10
+	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # break foo
 Unknown command
 # info break
 Num Enb What
   1 y   at gcd.rb:6
+	breakpoint already hit 1 time
   2 y   at gcd.rb:10
+	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # disable  1
 # info break
 Num Enb What
   1 n   at gcd.rb:6
+	breakpoint already hit 1 time
   2 y   at gcd.rb:10
+	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # enable breakpoint 1
 # enable br 10
 Enable breakpoints argument '10' needs to at most 3.
@@ -70,7 +80,9 @@ Enable breakpoints argument '10' needs to at most 3.
 # info break
 Num Enb What
   2 y   at gcd.rb:10
+	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # # We should still be able to access 2
 # disable 2
 # enable

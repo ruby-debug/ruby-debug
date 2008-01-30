@@ -91,6 +91,11 @@ integer argument, list info on that breakpoint.'],
             print "%3d %s   at %s:%s if %s\n", 
             b.id, (b.enabled? ? 'y' : 'n'), b.source, b.pos, b.expr
           end
+          hits = b.hit_count
+          if hits > 0
+            s = (hits > 1) ? 's' : ''
+            print "\tbreakpoint already hit #{hits} time#{s}\n"
+          end
         end
       else
         print "No breakpoints.\n"

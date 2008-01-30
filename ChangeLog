@@ -1,3 +1,8 @@
+2008-01-29 22:37  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog:
+	  Columnize breakpoint output.
+
 2008-01-29 22:19  Rocky Bernstein
 
 	* cli/ruby-debug/interface.rb, emacs/rdebug-frames.el,

@@ -1,3 +1,8 @@
+2008-01-29 22:37  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
+	  ChangeLog: Columnize breakpoint output.
+
 2008-01-29 11:20  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog, trunk/bin/rdebug,
