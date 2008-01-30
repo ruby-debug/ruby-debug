@@ -27,8 +27,10 @@ integer argument, list info on that breakpoint.'],
 
     InfoFileSubcommands = 
       [
-       ['all', 1, 'Argument variables of current stack frame'],
-       ['breakpoints', 1, 'trace line numbers',
+       ['all', 1, 'Argument file information'],
+       ['basic', 2, 
+        'basic information - path, number of lines'],
+       ['breakpoints', 2, 'trace line numbers',
         'These are the line number where a breakpoint can be set.'],
        ['lines', 1, 'Number of lines in the file'],
        ['mtime', 1, 'Modification time of file'],
@@ -156,18 +158,18 @@ integer argument, list info on that breakpoint.'],
       
       print "File %s", file
       path = LineCache.path(file)
-      if %w(all basic path).member?(subcmd) and path != file
+      if %w(all basic path).member?(subcmd.name) and path != file
         print " - %s\n", path 
       else
         print "\n"
       end
 
-      if %w(all basic lines).member?(subcmd)
+      if %w(all basic lines).member?(subcmd.name)
         lines = LineCache.size(file)
         print "\t %d lines\n", lines if lines
       end
 
-      if %w(breakpoints).member?(subcmd)
+      if %w(all breakpoints).member?(subcmd.name)
         breakpoints = LineCache.trace_line_numbers(file)
         if breakpoints
           print "\tbreakpoint line numbers:\n" 
@@ -175,11 +177,11 @@ integer argument, list info on that breakpoint.'],
         end
       end
 
-      if %w(all mtime).member?(subcmd)
+      if %w(all mtime).member?(subcmd.name)
         stat = LineCache.stat(file)
         print "\t%s\n", stat.mtime if stat
       end
-      if %w(all sha1).member?(subcmd)
+      if %w(all sha1).member?(subcmd.name)
         print "\t%s\n", LineCache.sha1(file)
       end
     end
