@@ -65,17 +65,6 @@
 ;; Interface to gud.
 ;;
 
-(defun rdebug-get-annotate-end-regexp (name)
-  (cond ((string= name "starting")
-	 "\\(stopped\\|exited\\)\n")
-	((string= name "pre-prompt")
-	 ;; TODO: The extra "\n" is probably
-	 ;; a bug in processor.rb.
-	 "\nprompt\n")
-	((string= name "source")
-	 "\n")
-	(t rdebug-annotation-end-regexp)))
-
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
 ;; might even receive a big chunk with several markers in it.  If we
@@ -166,6 +155,17 @@
       output)))
 
 
+(defun rdebug-get-annotate-end-regexp (name)
+  (cond ((string= name "starting")
+	 "\\(stopped\\|exited\\)\n")
+	((string= name "pre-prompt")
+	 ;; TODO: The extra "\n" is probably
+	 ;; a bug in processor.rb.
+	 "\nprompt\n")
+	((string= name "source")
+	 "\n")
+	(t rdebug-annotation-end-regexp)))
+
 (defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.
 Return a list of that and whether the annotate option was set.
@@ -194,15 +194,14 @@ Initially annotate should be set to nil."
                      (not name))
            (let ((arg (pop args)))
              (cond
-              ;; Annotation options with arguments.
-              ((member arg '("--annotate" "-A"))
+              ;; Annotation or emacs option with level number.
+              ((or (member arg '("--annotate" "-A"))
+		   (equal arg "--emacs"))
                (setq annotate-p t)
                (pop args))
-              ;; Annotation option.
-              ((or (string-match "^--annotate=[0-9]" arg)
-                   (equal arg "--emacs"))
-               (setq annotate-p t)
-	       (pop args))
+              ;; Combined annotation and level option.
+              ((string-match "^--annotate=[0-9]" arg)
+               (setq annotate-p t))
               ;; Options with arguments.
               ((member arg '("-h" "--host" "-p" "--port"
                              "-I" "--include" "-r" "--require"))
@@ -213,7 +212,6 @@ Initially annotate should be set to nil."
                (setq name arg)))))
          (and name
               (list name annotate-p)))))
-
 
 ;; From Emacs 23
 (unless (fboundp 'split-string-and-unquote)
@@ -579,10 +577,9 @@ This function is designed to be used in a user hook, for example:
       (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
               rdebug-debugger-support-minor-mode-map-when-deactive))))
 
-
-;; Common setup to `rdebug' and `rdebug-set-windows' (the shell entry point).
-(defun rdebug-common-initialization ()
-  "Common initialization to `rdebug' and `rdebug-set-windows'."
+(defun rdebug-command-initialization ()
+  "Initialization of command buffer common to `rdebug' and
+`rdebug-track-attach'."
 
   ;; This opens up "Gud" menu, which isn't used since we've got our
   ;; own "Debugger" menu.
@@ -683,7 +680,7 @@ and options used to invoke rdebug."
       (when rdebug-buffer (kill-buffer rdebug-buffer))
       (rename-buffer rdebug-buffer-name)
 
-      (rdebug-common-initialization)
+      (rdebug-command-initialization)
 
       ;; Setup exit callback so that the original frame configuration
       ;; can be restored.
@@ -696,8 +693,12 @@ and options used to invoke rdebug."
 
 
       ;; Add the buffer-displaying commands to the Gud buffer,
+      ;; FIXME: combine with code in rdebug-track.el; make common 
+      ;; command buffer mode map.
       (let ((prefix-map (make-sparse-keymap)))
         (define-key (current-local-map) gud-key-prefix prefix-map)
+	(define-key prefix-map "t" 'rdebug-goto-traceback-line)
+	(define-key prefix-map "!" 'rdebug-goto-dollarbang-traceback-line)
         (rdebug-populate-secondary-buffer-map-plain prefix-map))
 
       (rdebug-populate-common-keys (current-local-map))

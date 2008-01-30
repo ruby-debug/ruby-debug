@@ -1,7 +1,9 @@
 ;;; rdebug-track.el --- Tracking the Ruby debugger from a shell
 ;; $Id$
-;; Copyright (C) 2006, 2007 Rocky Bernstein (rocky@gnu.org)
-;;; Modified from  python-mode in particular the part:
+
+;; Copyright (C) 2006, 2007, 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2007, 2008 Anders Lindgren
+;; Modified from  python-mode in particular the part:
 ;; pdbtrack support contributed by Ken Manheimer, April 2001.
 
 ;; This program is free software; you can redistribute it and/or modify
@@ -307,7 +309,7 @@ window layout is used."
     (set (make-local-variable 'gud-last-last-frame) nil)
     (set (make-local-variable 'gud-last-frame) nil)
     (rdebug-track-mode 1)
-    (rdebug-common-initialization)
+    (rdebug-command-initialization)
 
     ;; Setup exit callback so that the original frame configuration
     ;; can be restored.
@@ -326,8 +328,12 @@ window layout is used."
     (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
 
     ;; Add the buffer-displaying commands to the Gud buffer,
+    ;; FIXME: combine with code in rdebug-track.el; make common 
+    ;; command buffer mode map.
     (let ((prefix-map (make-sparse-keymap)))
       (define-key (current-local-map) gud-key-prefix prefix-map)
+      (define-key prefix-map "t" 'rdebug-goto-traceback-line)
+      (define-key prefix-map "!" 'rdebug-goto-dollarbang-traceback-line)
       (rdebug-populate-secondary-buffer-map-plain prefix-map))
     
     (rdebug-populate-common-keys (current-local-map))
@@ -338,7 +344,7 @@ window layout is used."
 
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
             rdebug-debugger-support-minor-mode-map-when-active)
-    (gud-call "set annotate 3")
+    (gud-call "set annotate 2")
     (gud-call "frame 0")
     (when rdebug-many-windows
       (rdebug-setup-windows))

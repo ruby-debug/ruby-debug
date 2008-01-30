@@ -64,6 +64,8 @@
 (defvar rdebug-output-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "d" 'rdebug-output-delete-output)
+    (define-key map "t" 'rdebug-goto-traceback-line)
+    (define-key map "!" 'rdebug-goto-dollarbang-traceback-line)
     (define-key map "=" 'rdebug-output-add-divider)
     (define-key map "\C-_" 'rdebug-output-undo) ; FIXME get from keymap
     (define-key map "u"    'rdebug-output-undo)
