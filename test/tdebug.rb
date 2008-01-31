@@ -44,7 +44,16 @@ def debug_program(options)
            Debugger::PROG_SCRIPT
          end
   end
-  Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop)
+  if bt
+    if options.post_mortem
+      Debugger.start
+      Debugger.handle_post_mortem(bt)
+    else
+      print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
+      print "Uncaught exception: #{bt}\n"
+    end
+  end
 end
 
 options = OpenStruct.new(
@@ -181,8 +190,10 @@ Debugger.start
 Debugger.post_mortem if options.post_mortem
 
 # Set up an interface to read commands from a debugger script file.
-Debugger.interface = Debugger::ScriptInterface.new(options.script, 
-                                                   STDOUT, true)
+if options.script
+  Debugger.interface = Debugger::ScriptInterface.new(options.script, 
+                                                     STDOUT, true)
+end
 Debugger.tracing = options.nostop = true if options.tracing
 
 # Make sure Ruby script syntax checks okay.
@@ -213,12 +224,7 @@ if options.noquit
   if Debugger.started?
     until Debugger.stop do end
   end
-  begin
-    debug_program(options)
-  rescue
-    print $!.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
-    print "Uncaught exception: #{$!}\n"
-  end
+  debug_program(options)
   print "The program finished.\n" unless 
     Debugger.annotate.to_i > 1 # annotate has its own way
   interface = Debugger::LocalInterface.new

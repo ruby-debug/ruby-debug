@@ -137,7 +137,7 @@ module Debugger
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing
       Debugger.resume
     end
-    private :handle_post_mortem
+    # private :handle_post_mortem
   end
   
   class DebugThread # :nodoc:

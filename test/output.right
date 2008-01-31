@@ -29,3 +29,13 @@ puts "two"
 # step
 starting
 two
+stopped
+stack
+--> #0 debug_program at line tdebug.rb:48
+
+variables
+self = main
+
+source tdebug.rb:48
+if bt
+# quit

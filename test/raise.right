@@ -7,3 +7,11 @@ raise "abc"
 # set debuggertesting on
 Currently testing the debugger is on.
 # step
+	./raise.rb:3
+	./tdebug.rb:47:in `debug_load'
+	./tdebug.rb:47:in `debug_program'
+	./tdebug.rb:236
+	../rdbg.rb:22:in `load'
+	../rdbg.rb:22:in `runner'
+	../rdbg.rb:32
+Uncaught exception: abc

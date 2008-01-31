@@ -35,7 +35,16 @@ def debug_program(options)
            Debugger::PROG_SCRIPT
          end
   end
-  Debugger.debug_load Debugger::PROG_SCRIPT, !options.nostop
+  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop)
+  if bt
+    if options.post_mortem
+      Debugger.start
+      Debugger.handle_post_mortem(bt)
+    else
+      print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"
+      print "Uncaught exception: #{bt}\n"
+    end
+  end
 end
 
 options = OpenStruct.new(

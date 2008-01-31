@@ -1,5 +1,5 @@
-rdbg.rb:23
-$stdout.reopen(old_stdout) if old_stdout
+tdebug.rb:48
+if bt
 # # ***************************************************
 # # This tests the quit.
 # # ***************************************************
