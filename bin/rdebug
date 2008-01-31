@@ -250,7 +250,9 @@ else
     Debugger.tracing = options.nostop = true if options.tracing
 
     if options.noquit
-      Debugger.stop if Debugger.started?
+      if Debugger.started?
+        until Debugger.stop do end
+      end
       begin
         debug_program(options)
       rescue SyntaxError

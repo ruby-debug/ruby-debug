@@ -1322,7 +1322,8 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
 {
     VALUE file, stop, context;
     debug_context_t *debug_context;
-
+    int state = 0;
+    
     if(rb_scan_args(argc, argv, "11", &file, &stop) == 1)
       stop = Qfalse;
 
@@ -1332,8 +1333,14 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
     debug_context->stack_size = 0;
     if(RTEST(stop))
       debug_context->stop_next = 1;
-    rb_load(file, 0);
-
+    rb_load_protect(file, 0, &state);
+    if (0 != state) {
+      VALUE errinfo = ruby_errinfo;
+      start_count = 1;
+      debug_stop(self);
+      ruby_errinfo = Qnil;
+      return errinfo;
+    }
     debug_stop(self);
     return Qnil;
 }

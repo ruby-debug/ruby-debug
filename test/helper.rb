@@ -23,6 +23,7 @@ module TestHelper
     else
       cmd = "../rdbg.rb #{args} >#{outfile}"
     end
+    # puts cmd
     output = `#{cmd}`
     
     got_lines     = File.read(outfile).split(/\n/)

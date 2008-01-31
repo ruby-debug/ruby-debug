@@ -8,7 +8,7 @@ require 'rubygems'
 require 'optparse'
 require "ostruct"
 
-TOP_SRC_DIR = File.join(File.expand_path(File.dirname(__FILE__), "..")) unless 
+TOP_SRC_DIR = File.join(File.dirname(__FILE__), "..") unless 
   defined?(TOP_SRC_DIR)
 
 $:.unshift File.join(TOP_SRC_DIR, "ext")
@@ -144,7 +144,7 @@ begin
   end
   rdebug_path = File.expand_path($0)
   if RUBY_PLATFORM =~ /mswin/
-    rdebug_path += ".cmd" unless rdebug_path =~ /\.cmd$/i
+    rdebug_path += '.cmd' unless rdebug_path =~ /\.cmd$/i
   end
   Debugger::RDEBUG_SCRIPT = rdebug_path
   Debugger::INITIAL_DIR = Dir.pwd
@@ -160,7 +160,7 @@ if ARGV.empty?
   exit if $VERBOSE and not options.verbose_long
   puts opts
   puts
-  puts "Must specify a script to run"
+  puts 'Must specify a script to run'
   exit(-1)
 end
   
@@ -210,7 +210,9 @@ Debugger.post_mortem if options.post_mortem
 Debugger.tracing = options.nostop = true if options.tracing
 
 if options.noquit
-  Debugger.stop if Debugger.started?
+  if Debugger.started?
+    until Debugger.stop do end
+  end
   begin
     debug_program(options)
   rescue
@@ -218,7 +220,7 @@ if options.noquit
     print "Uncaught exception: #{$!}\n"
   end
   print "The program finished.\n" unless 
-    Debugger.annotate.to_i > 2 # annotate has its own way
+    Debugger.annotate.to_i > 1 # annotate has its own way
   interface = Debugger::LocalInterface.new
   # Not sure if ControlCommandProcessor is really the right
   # thing to use. CommandProcessor requires a state.
