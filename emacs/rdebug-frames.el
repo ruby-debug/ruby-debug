@@ -40,7 +40,7 @@
 
 (defvar rdebug-frames-mode-map
   (let ((map (make-sparse-keymap)))
-    (define-key map [mouse-1] 'rdebug-goto-frame-mouse)
+    (define-key map [double-mouse-1] 'rdebug-goto-frame-mouse)
     (define-key map [mouse-2] 'rdebug-goto-frame-mouse)
     (define-key map [mouse-3] 'rdebug-goto-frame-mouse)
     (define-key map [(control m)] 'rdebug-goto-frame)

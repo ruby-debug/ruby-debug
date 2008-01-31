@@ -42,6 +42,7 @@
 
 (defvar rdebug-breakpoints-mode-map
   (let ((map (make-sparse-keymap)))
+    (define-key map [double-mouse-1] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-3] 'rdebug-goto-breakpoint-mouse)
     (define-key map "t" 'rdebug-toggle-breakpoint)
