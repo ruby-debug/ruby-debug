@@ -1,3 +1,20 @@
+2008-01-31 15:16  Rocky Bernstein
+
+	* trunk/bin/rdebug, ruby-debug-base.rb, trunk/test/output.right,
+	  trunk/test/quit.right, trunk/test/raise.rb,
+	  trunk/test/raise.right, trunk/test/tdebug.rb: Handle post-mortem
+	  and exception traceback reporting in ruby-debug
+
+2008-01-30 17:01  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb,
+	  trunk/cli/ruby-debug/commands/enable.rb,
+	  trunk/cli/ruby-debug/commands/info.rb,
+	  trunk/cli/ruby-debug/commands/show.rb, ChangeLog,
+	  trunk/test/condition.right: Add Command.find() to find a
+	  subcommand name.
+	  condition.right: correct for breakpoint hit counts.
+
 2008-01-30 01:43  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,

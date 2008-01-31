@@ -47,7 +47,6 @@ def debug_program(options)
   bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop)
   if bt
     if options.post_mortem
-      Debugger.start
       Debugger.handle_post_mortem(bt)
     else
       print bt.backtrace.map{|l| "\t#{l}"}.join("\n"), "\n"

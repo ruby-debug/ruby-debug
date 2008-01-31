@@ -279,7 +279,8 @@ module Debugger
         breakpoint_annotations(commands, context)
         display_annotations(commands, context)
         annotation('stack', commands, context, "where")
-        annotation('variables', commands, context, "info variables")
+        annotation('variables', commands, context, "info variables") unless
+          context.dead?
       end
     end
     
@@ -292,7 +293,8 @@ module Debugger
         if @@Show_annotations_postcmd.find{|pat| cmd =~ pat}
           annotation('stack', commands, context, "where") if 
             context.stack_size > 0
-          annotation('variables', commands, context, "info variables")
+          annotation('variables', commands, context, "info variables") unless
+            context.dead?
         end
         if not context.dead? and @@Show_annotations_run.find{|pat| cmd =~ pat}
           aprint 'starting'  if Debugger.annotate.to_i > 2

@@ -1,3 +1,39 @@
+2008-01-31 15:16  Rocky Bernstein
+
+	* bin/rdebug, lib/ruby-debug-base.rb, test/output.right,
+	  test/quit.right, test/raise.rb, test/raise.right, test/tdebug.rb:
+	  Handle post-mortem and exception traceback reporting in
+	  ruby-debug
+
+2008-01-31 03:01  Rocky Bernstein
+
+	* bin/rdebug, ext/ruby_debug.c, test/helper.rb, test/quit.right,
+	  test/tdebug.rb, test/test-quit.rb, test/test-raise.rb: Have
+	  Debug.load recover from uncaught error raised in a debugged
+	  program.
+	  Go over regression tests.
+
+2008-01-30 21:33  Anders Lindgren
+
+	* test/raise.cmd, test/raise.rb, test/raise.right,
+	  test/test-raise.rb: Test case ensuring that an error in the user
+	  code doesn't cause the debugger to single step it's own code.
+	  (This is currently broken.)
+
+2008-01-30 17:13  Rocky Bernstein
+
+	* cli/ruby-debug/commands/info.rb: Add broken "info file"
+	  information.
+
+2008-01-30 17:01  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/command.rb,
+	  cli/ruby-debug/commands/enable.rb,
+	  cli/ruby-debug/commands/info.rb, cli/ruby-debug/commands/show.rb,
+	  lib/ChangeLog, test/condition.right: Add Command.find() to find a
+	  subcommand name.
+	  condition.right: correct for breakpoint hit counts.
+
 2008-01-30 11:33  Rocky Bernstein
 
 	* emacs/rdebug-core.el, emacs/rdebug-output.el,

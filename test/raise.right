@@ -10,7 +10,7 @@ Currently testing the debugger is on.
 	./raise.rb:3
 	./tdebug.rb:47:in `debug_load'
 	./tdebug.rb:47:in `debug_program'
-	./tdebug.rb:236
+	./tdebug.rb:235
 	../rdbg.rb:22:in `load'
 	../rdbg.rb:22:in `runner'
 	../rdbg.rb:32

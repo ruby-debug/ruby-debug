@@ -1336,8 +1336,9 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
     rb_load_protect(file, 0, &state);
     if (0 != state) {
       VALUE errinfo = ruby_errinfo;
-      start_count = 1;
       debug_stop(self);
+      debug_suspend(self);
+      debug_context->stop_next = -1;
       ruby_errinfo = Qnil;
       return errinfo;
     }
