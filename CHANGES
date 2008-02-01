@@ -11,11 +11,13 @@
 
 - Number keys move stack position in Emacs stack secondary buffer.
 
-- --emacs is now --emacs-basic while --emacs now implies emacs-basic
+- --emacs is now --emacs-basic while --emacs 3 now implies emacs-basic
   ----annotate=3 --post-mortem --no-control --no-start --no-quit
 
-- split off breakpoint code in ruby_debug.c; preface ruby_debug global
-  Ruby variables with rdebug_.
+- split off breakpoint code in ruby_debug.c. We now allow setting breakpoints
+  at valid trace lines. 
+
+- preface ruby_debug global Ruby variables with rdebug_.
 
 - self and class variables are listed by "info variables"
 
@@ -34,6 +36,19 @@
 
 - split of line caching to an external gem. We now only allow setting
   breakpoints on lines where it makes sense to do so.
+
+- Add "info files" and "info file xxx". Which shows file information.
+
+- "rdebug --post-mortem" now really catches uncaught exceptions and
+  brings you to post-mortem handling.
+
+- allow catching multiple exceptions. 
+  INCOMPATIBLE CHANGE: varible Debugger.catchpoint a String was turned
+  into Debugger.catchpoints, a Hash. Debugger.catchpoint= no
+  longer exists. Debugger.set_catchpoint was turned into 
+  Debugger.add_catchpoint
+
+- "info catch" added.
 
 0.10.0
 - '-r' option can be used to require additional libraries.

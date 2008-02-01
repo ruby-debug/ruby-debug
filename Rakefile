@@ -35,7 +35,10 @@ CLI_FILES = COMMON_FILES + FileList[
    CLI_TEST_FILE_LIST,                                    
 ]
 
-BASE_TEST_FILE_LIST = %w(test/base/base.rb test/base/binding.rb)
+BASE_TEST_FILE_LIST = %w(
+  test/base/base.rb 
+  test/base/binding.rb 
+  test/base/catchpoint.rb)
 BASE_FILES = COMMON_FILES + FileList[
   'ext/breakpoint.c',
   'ext/extconf.rb',

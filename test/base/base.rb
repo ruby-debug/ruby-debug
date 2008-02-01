@@ -3,8 +3,8 @@ require 'test/unit'
 
 # Test of C extension ruby_debug.so
 class TestRubyDebug < Test::Unit::TestCase
-  $: << File.expand_path(File.dirname(__FILE__)) + '/../../ext'
-  $: << File.expand_path(File.dirname(__FILE__)) + '/../../lib'
+  $:.unshift File.dirname(__FILE__) + '/../../ext'
+  $:.unshift File.dirname(__FILE__) + '/../../lib'
   require 'ruby_debug'
 
   include Debugger

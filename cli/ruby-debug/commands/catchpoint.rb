@@ -12,8 +12,8 @@ module Debugger
           Debugger.catchpoint = nil
           print "Clear catchpoint.\n"
         else
-          Debugger.catchpoint = excn
-          print "Set catchpoint %s.\n", excn
+          Debugger.add_catchpoint(excn)
+          print "Catch exception %s.\n", excn
         end
       else
         if Debugger.catchpoint

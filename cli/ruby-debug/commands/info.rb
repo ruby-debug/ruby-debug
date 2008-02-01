@@ -7,6 +7,7 @@ module Debugger
        ['breakpoints', 1, 'Status of user-settable breakpoints',
         'Without argument, list info about all breakpoints.  With an
 integer argument, list info on that breakpoint.'],
+       ['catch', 3, 'Exceptions that can be caught in the current stack frame'],
        ['display', 2, 'Expressions to display when program stops'],
        ['files', 5, 'File names and timestamps of files read in'],
        ['file', 4, 'Info about a particular file read in'],
@@ -114,6 +115,22 @@ integer argument, list info on that breakpoint.'],
       end
     end
     
+    def info_catch(*args)
+      unless @state.context
+        print "No frame selected.\n"
+        return 
+      end
+      if Debugger.catchpoints.empty?
+        print "No exceptions set to be caught.\n"
+      else
+        print "Exception Hits\n"
+        Debugger.catchpoints.each do |exception, hits|
+          print "#{exception}: #{hits}\n"
+        end
+      end
+    end
+    
+
     def info_display(*args)
       unless @state.context
         print "info display not available here.\n"

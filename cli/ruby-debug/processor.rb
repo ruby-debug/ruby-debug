@@ -137,8 +137,8 @@ module Debugger
     
     def at_catchpoint(context, excpt)
       aprint 'stopped' if Debugger.annotate.to_i > 2
-      file = CommandProcessor.canonic_file(context.frame_file(1))
-      line = context.frame_line(1)
+      file = CommandProcessor.canonic_file(context.frame_file(0))
+      line = context.frame_line(0)
       print afmt("%s:%d" % [file, line]) if ENV['EMACS']
       print "Catchpoint at %s:%d: `%s' (%s)\n", file, line, excpt, excpt.class
       fs = context.stack_size

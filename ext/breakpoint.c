@@ -1,7 +1,7 @@
 #include "ruby_debug.h"
 
 VALUE rdebug_breakpoints = Qnil;
-VALUE rdebug_catchpoint  = Qnil;
+VALUE rdebug_catchpoints  = Qnil;
 
 static VALUE cBreakpoint;
 static ID    idEval;
@@ -219,17 +219,18 @@ rdebug_remove_breakpoint(VALUE self, VALUE id_value)
 
 /*
  *   call-seq:
- *      Debugger.checkpoint -> string
+ *      Debugger.catchpoints -> string
  *
- *   Returns a current checkpoint, which is a name of exception that will
- *   trigger a debugger when raised.
+ *   Returns a current catchpoints, which is a hash exception names that will
+ *   trigger a debugger when raised. The values are the number of times taht
+ *   catchpoint was hit, initially 0.
  */
 VALUE
-debug_catchpoint(VALUE self)
+debug_catchpoints(VALUE self)
 {
     debug_check_started();
 
-    return rdebug_catchpoint;
+    return rdebug_catchpoints;
 }
 
 /*
@@ -239,7 +240,7 @@ debug_catchpoint(VALUE self)
  *   Sets catchpoint.
  */
 VALUE
-rdebug_set_catchpoint(VALUE self, VALUE value)
+rdebug_add_catchpoint(VALUE self, VALUE value)
 {
     debug_check_started();
 
@@ -247,9 +248,10 @@ rdebug_set_catchpoint(VALUE self, VALUE value)
         rb_raise(rb_eTypeError, "value of chatchpoint must be String");
     }
     if(NIL_P(value))
-      rdebug_catchpoint = Qnil;
+      rdebug_catchpoints = Qnil;
     else
-      rdebug_catchpoint = rb_str_dup(value);
+      rb_hash_aset(rdebug_catchpoints, rb_str_dup(value), 
+		    INT2FIX(0));
     return value;
 }
 

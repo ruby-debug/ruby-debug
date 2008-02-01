@@ -14,6 +14,7 @@ List of info subcommands:
 --  
 info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
+info catch -- Exceptions that can be caught in the current stack frame
 info display -- Expressions to display when program stops
 info files -- File names and timestamps of files read in
 info file -- Info about a particular file read in

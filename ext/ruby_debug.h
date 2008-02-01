@@ -62,7 +62,7 @@ typedef struct {
 /* variables in ruby_debug.c */
 extern VALUE mDebugger;
 extern VALUE rdebug_breakpoints;
-extern VALUE rdebug_catchpoint;
+extern VALUE rdebug_catchpoints;
 extern VALUE rdebug_threads_tbl;
 
 /* routines in ruby_debug.c */
@@ -114,8 +114,8 @@ extern VALUE check_breakpoints_by_pos(debug_context_t *debug_context,
 extern VALUE create_breakpoint_from_args(int argc, VALUE *argv, int id);
 extern VALUE context_breakpoint(VALUE self);
 extern VALUE context_set_breakpoint(int argc, VALUE *argv, VALUE self);
-extern VALUE debug_catchpoint(VALUE self);
+extern VALUE rdebug_add_catchpoint(VALUE self, VALUE value);
+extern VALUE debug_catchpoints(VALUE self);
 extern VALUE rdebug_remove_breakpoint(VALUE self, VALUE id_value);
-extern VALUE rdebug_set_catchpoint(VALUE self, VALUE value);
 
 extern void Init_breakpoint();

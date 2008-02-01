@@ -876,15 +876,24 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         }
 #endif
 
-        if(rdebug_catchpoint == Qnil)
+        if (rdebug_catchpoints == Qnil || 
+	    RHASH(rdebug_catchpoints)->tbl->num_entries == 0)
             break;
 
         ancestors = rb_mod_ancestors(expn_class);
         for(i = 0; i < RARRAY(ancestors)->len; i++)
         {
-            aclass = rb_ary_entry(ancestors, i);
-            if(rb_str_cmp(rb_mod_name(aclass), rdebug_catchpoint) == 0)
+	    VALUE mod_name;
+	    VALUE hit_count;
+
+            aclass    = rb_ary_entry(ancestors, i);
+	    mod_name  = rb_mod_name(aclass);
+	    hit_count = rb_hash_aref(rdebug_catchpoints, mod_name);
+            if(hit_count != Qnil)
             {
+	        hit_count = INT2FIX(FIX2INT(rb_hash_aref(rdebug_catchpoints, 
+							 mod_name)+1));
+		rb_hash_aset(rdebug_catchpoints, mod_name, hit_count);
                 debug_context->stop_reason = CTX_STOP_CATCHPOINT;
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
                 if(self && binding == Qnil)
@@ -961,6 +970,7 @@ debug_start(VALUE self)
     else
     {
         rdebug_breakpoints = rb_ary_new();
+	rdebug_catchpoints = rb_hash_new();
         locker             = Qnil;
         rdebug_threads_tbl = threads_table_create();
 
@@ -2189,10 +2199,10 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "remove_breakpoint", 
 			      rdebug_remove_breakpoint, 
 			      1);                        /* in breakpoint.c */
-    rb_define_module_function(mDebugger, "catchpoint", 
-			      debug_catchpoint, 0);      /* in breakpoint.c */
-    rb_define_module_function(mDebugger, "catchpoint=", 
-			      rdebug_set_catchpoint, 1); /* in breakpoint.c */
+    rb_define_module_function(mDebugger, "add_catchpoint", 
+			      rdebug_add_catchpoint, 1); /* in breakpoint.c */
+    rb_define_module_function(mDebugger, "catchpoints", 
+			      debug_catchpoints, 0);     /* in breakpoint.c */
     rb_define_module_function(mDebugger, "last_context", debug_last_interrupted, 0);
     rb_define_module_function(mDebugger, "contexts", debug_contexts, 0);
     rb_define_module_function(mDebugger, "current_context", debug_current_context, 0);
@@ -2233,7 +2243,7 @@ Init_ruby_debug()
 
     rb_global_variable(&rdebug_threads_tbl);
     rb_global_variable(&rdebug_breakpoints);
-    rb_global_variable(&rdebug_catchpoint);
+    rb_global_variable(&rdebug_catchpoints);
     rb_global_variable(&locker);
     rb_global_variable(&last_context);
     rb_global_variable(&last_thread);
