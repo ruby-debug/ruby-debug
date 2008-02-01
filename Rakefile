@@ -83,3 +83,9 @@ desc "Create the Java extension."
 task :compile => ['lib/ruby_debug_base.jar']
 task :gem => [:compile]
 task :install_gem => [:gem]
+
+desc "Create a GNU-style ChangeLog via svn2cl"
+task :ChangeLog do
+  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/debug-commons/jruby-debug/trunk")
+end
+
