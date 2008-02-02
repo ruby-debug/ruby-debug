@@ -11,9 +11,10 @@ require File.join(SRC_DIR, 'helper.rb')
 
 include TestHelper
 
-# Test Quit command
-class TestQuit < Test::Unit::TestCase
+# Test Post-mortem command
+class TestPM < Test::Unit::TestCase
 
+  # Test post-mortem handling
   def test_basic
     Dir.chdir(SRC_DIR) do 
 #       filter = Proc.new{|got_lines, correct_lines|
@@ -21,9 +22,10 @@ class TestQuit < Test::Unit::TestCase
 #           s.sub!(/tdebug.rb:\d+/, 'rdebug:999')
 #         end
 #       }
+      ENV['COLUMNS'] = '80'
       assert_equal(true, 
-                   run_debugger('quit', 
-                                '--script quit.cmd -- null.rb'))
+                   run_debugger('post-mortem', 
+                                '--script post-mortem.cmd --post-mortem pm.rb'))
     end
   end
 end

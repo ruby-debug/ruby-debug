@@ -1,6 +1,6 @@
 module Debugger
   class InfoCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     Subcommands = 
       [
        ['args', 1, 'Argument variables of current stack frame'],
@@ -261,10 +261,14 @@ integer argument, list info on that breakpoint.'],
     end
     
     def info_program(*args)
-      if not @state.context or @state.context.dead? 
+      if not @state.context
         print "The program being debugged is not being run.\n"
         return
+      elsif @state.context.dead? 
+        print "The program crashed.\n"
+        return
       end
+      
       print "Program stopped. "
       case @state.context.stop_reason
       when :step

@@ -80,7 +80,7 @@ module Debugger
   end
 
   class ReloadCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
 
     register_setting_get(:reload_source_on_change) do 
       Debugger.reload_source_on_change

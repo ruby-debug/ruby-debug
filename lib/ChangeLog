@@ -1,3 +1,15 @@
+2008-02-02 09:27  Rocky Bernstein
+
+	* trunk/CHANGES, trunk/ext/ruby_debug.c, ruby-debug-base.rb,
+	  trunk/test/gcd-dbg.rb: Remove Debugger.init and fold options
+	  parameter into Debugger.start.
+	  Old Debugger.start has been renamed Deebugger.start_
+
+2008-01-31 16:30  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/ext/ruby_debug.c, ChangeLog: Leave
+	  ruby_debug.c this way for now.
+
 2008-01-31 16:24  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,

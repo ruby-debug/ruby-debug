@@ -1,6 +1,6 @@
 module Debugger
   class Edit < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     def regexp
       /^\s* ed(?:it)? (?:\s+(.*))?$/ix
     end

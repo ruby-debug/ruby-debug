@@ -31,8 +31,9 @@ module Debugger
       end
       
       DEF_OPTIONS = {
+        :allow_in_control     => false, 
+        :allow_in_post_mortem => true,
         :event => true, 
-        :control => false, 
         :always_run => 0,
         :unknown => false,
         :need_context => false,

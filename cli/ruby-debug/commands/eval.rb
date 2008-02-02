@@ -22,7 +22,7 @@ module Debugger
   end
   
   class EvalCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     register_setting_get(:autoeval) do
       EvalCommand.unknown
@@ -69,7 +69,7 @@ module Debugger
   end
 
   class PPCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     def regexp
       /^\s*pp\s+/
@@ -99,7 +99,7 @@ module Debugger
   end
 
   class PutLCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     def regexp
       /^\s*putl\s+/
@@ -135,7 +135,7 @@ module Debugger
   end
   
   class PSCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     include EvalFunctions
     

@@ -1,6 +1,6 @@
 module Debugger
   class SourceCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     def regexp
       /^\s*so(?:urce)?\s+(.+)$/

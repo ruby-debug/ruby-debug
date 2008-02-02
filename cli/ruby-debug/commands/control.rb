@@ -1,6 +1,6 @@
 module Debugger
   class QuitCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
 
     def regexp
       /^\s*(?:q(?:uit)?|exit)\s*(\s+unconditionally)?\s*$/
@@ -31,7 +31,7 @@ module Debugger
   end
   
   class RestartCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
 
     def regexp
       / ^\s*
@@ -107,9 +107,10 @@ module Debugger
   end
 
   class InterruptCommand < Command # :nodoc:
-    self.event = false
-    self.control = true
-    self.need_context = true
+    self.allow_in_control     = true
+    self.allow_in_post_mortem = false
+    self.event                = false
+    self.need_context         = true
     
     def regexp
       /^\s*i(?:nterrupt)?\s*$/

@@ -14,7 +14,7 @@ module Debugger
   end
 
   class SaveCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     def save_breakpoints(file)
       Debugger.breakpoints.each do |b|

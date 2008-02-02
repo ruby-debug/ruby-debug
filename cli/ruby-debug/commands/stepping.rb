@@ -14,7 +14,8 @@ module Debugger
     end
   end
   class NextCommand < Command # :nodoc:
-    self.need_context = true
+    self.allow_in_post_mortem  = false
+    self.need_context          = true
     
     def regexp
       /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/
@@ -43,7 +44,8 @@ module Debugger
   end
 
   class StepCommand < Command # :nodoc:
-    self.need_context = true
+    self.allow_in_post_mortem = false
+    self.need_context         = true
     
     def regexp
       /^\s*s(?:tep)?([+-])?(?:\s+(.*))?$/
@@ -71,7 +73,8 @@ module Debugger
   end
 
   class FinishCommand < Command # :nodoc:
-    self.need_context = true
+    self.allow_in_post_mortem = false
+    self.need_context         = true
     
     def regexp
       /^\s*fin(?:ish)?$/
@@ -101,6 +104,8 @@ module Debugger
   end
 
   class ContinueCommand < Command # :nodoc:
+    self.allow_in_post_mortem = false
+    self.need_context         = true
     def regexp
       /^\s*c(?:ont(?:inue)?)?(?:\s+(.*))?$/
     end

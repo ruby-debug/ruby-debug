@@ -185,7 +185,7 @@ show history size -- Show the size of the command history"],
       SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(Subcommands)
     
-    self.control = true
+    self.allow_in_control = true
 
     def regexp
       /^show (?: \s+ (.+) )?$/xi

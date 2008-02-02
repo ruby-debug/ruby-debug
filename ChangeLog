@@ -1,3 +1,59 @@
+2008-02-02 18:16  Anders Lindgren
+
+	* emacs/rdebug-core.el: Changing window layout no longer clears the
+	  secondary windows.
+
+2008-02-02 16:14  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug-source.el: All window layout
+	  menu items are not collected in one place. Comment fixes.
+
+2008-02-02 09:27  Rocky Bernstein
+
+	* CHANGES, ext/ruby_debug.c, lib/ruby-debug-base.rb,
+	  test/gcd-dbg.rb: Remove Debugger.init and fold options parameter
+	  into Debugger.start.
+	  Old Debugger.start has been renamed Deebugger.start_
+
+2008-02-01 03:09  Rocky Bernstein
+
+	* CHANGES, Rakefile, bin/rdebug,
+	  cli/ruby-debug/commands/catchpoint.rb,
+	  cli/ruby-debug/commands/info.rb, cli/ruby-debug/processor.rb,
+	  ext/breakpoint.c, ext/ruby_debug.c, ext/ruby_debug.h,
+	  test/base/base.rb, test/base/catchpoint.rb, test/ctrl.right,
+	  test/info.right: Allow multiple exceptions to be caught.
+	  
+	  INCOMPATIBLE CHANGE: varible Debugger.catchpoint a String was
+	  turned
+	  into Debugger.catchpoints, a Hash. Debugger.catchpoint= no longer
+	  exists. Debugger.set_catchpoint was turned into
+	  Debugger.add_catchpoint
+	  
+	  "info catch" added.
+	  
+	  INCOMPATIBLE CHANGE: variable Debugger.catchpoint is now
+	  Debugger.catchpoints
+	  which is a now hash rather than a String. Debugger.catchpoint= no
+	  longer exists.
+	  
+	  A catchpoint ruby-debug-base test added. use unshift in requires.
+	  
+	  rdebug: --post-mortem now really catches uncaught exceptions and
+	  brings you to post-mortem handling.
+
+2008-01-31 18:29  Anders Lindgren
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-frames.el: In the frames and
+	  breakpoint windows, the left mouse button simply sets the point.
+	  Double-clicking selects the item. The second and third mouse
+	  button also selects.
+
+2008-01-31 16:30  Rocky Bernstein
+
+	* ChangeLog, ext/ruby_debug.c, lib/ChangeLog: Leave ruby_debug.c
+	  this way for now.
+
 2008-01-31 16:24  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/processor.rb, ext/ruby_debug.c,

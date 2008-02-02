@@ -51,7 +51,7 @@ set history size -- Set the size of the command history"],
       SubcmdStruct2.new(name, min, is_bool, short_help, long_help)
     end unless defined?(Subcommands)
     
-    self.control = true
+    self.allow_in_control = true
 
     def regexp
       /^set (?: \s+ (.*) )?$/ix

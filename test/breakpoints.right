@@ -90,8 +90,8 @@ Disable breakpoints argument 'bar' needs to be a number.
 No breakpoints.
 # # Should get a message about having no breakpoints.
 # disable 1
-No breakpoints have been set.
+*** No breakpoints have been set.
 # enable 1
-No breakpoints have been set.
+*** No breakpoints have been set.
 # # finish
 # quit

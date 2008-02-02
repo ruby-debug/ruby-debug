@@ -11,6 +11,8 @@ class TestDebuggerInit < Test::Unit::TestCase
   def test_basic
     debugger_output = 'test-init.out'
     Dir.chdir(@@SRC_DIR) do 
+      old_emacs = ENV['EMACS']
+      old_columns = ENV['COLUMNS']
       ENV['EMACS'] = nil
       ENV['COLUMNS'] = '120'
       IO.popen("./gcd-dbg.rb 5 >#{debugger_output}", 'w') do |pipe|
@@ -19,6 +21,9 @@ class TestDebuggerInit < Test::Unit::TestCase
         pipe.puts 'quit unconditionally'
       end
       lines = File.open(debugger_output).readlines
+      ENV['EMACS'] = old_emacs
+      ENV['COLUMNS'] = old_columns
+
       expected = File.open('test-init.right').readlines
       assert_equal(expected, lines)
       File.delete(debugger_output) if expected == lines

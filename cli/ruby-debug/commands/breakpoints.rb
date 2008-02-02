@@ -1,6 +1,6 @@
 module Debugger
   class AddBreakpoint < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
     
     def regexp
       / ^\s*
@@ -95,7 +95,7 @@ module Debugger
   end
 
   class DeleteBreakpointCommand < Command # :nodoc:
-    self.control = true
+    self.allow_in_control = true
 
     def regexp
       /^\s *del(?:ete)? (?:\s+(.*))?$/ix

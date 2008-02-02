@@ -182,8 +182,16 @@ module Debugger
 
     # Run these commands, for example display commands or possibly
     # the list or irb in an "autolist" or "autoirb".
+    # We return a list of commands that are acceptable to run bound
+    # to the current state.
     def always_run(context, file, line, run_level)
       event_cmds = Command.commands.select{|cmd| cmd.event }
+
+      # Remove some commands in post-mortem
+      event_cmds = event_cmds.find_all do |cmd| 
+        cmd.allow_in_post_mortem
+      end if context.dead?
+
       state = State.new do |s|
         s.context = context
         s.file    = file
@@ -195,8 +203,12 @@ module Debugger
       end
       @interface.state = state if @interface.respond_to?('state=')
       
-      commands = event_cmds.map{|cmd| cmd.new(state) }
-      commands.select{|cmd| cmd.class.always_run >= run_level}.each{|cmd| cmd.execute }
+      # Bind commands to the current state.
+      commands = event_cmds.map{|cmd| cmd.new(state)}
+
+      commands.select do |cmd| 
+        cmd.class.always_run >= run_level
+      end.each {|cmd| cmd.execute}
       return state, commands
     end
 
@@ -372,7 +384,9 @@ module Debugger
     end
     
     def process_commands
-      control_cmds = Command.commands.select{|cmd| cmd.control }
+      control_cmds = Command.commands.select do |cmd| 
+        cmd.allow_in_control 
+      end
       state = State.new(@interface, control_cmds)
       commands = control_cmds.map{|cmd| cmd.new(state) }
 
