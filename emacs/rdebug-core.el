@@ -347,7 +347,8 @@ This is only used when `rdebug-many-windows' is non-nil."
     (pop-to-buffer gud-comint-buffer)
     (maphash
      (lambda (name func)
-       (rdebug-process-annotation name ""))
+       (unless (rdebug-get-buffer name gud-target-name)
+         (rdebug-process-annotation name "")))
      rdebug--annotation-setup-map)
     (let ((buf
            (cond (gud-last-last-frame
