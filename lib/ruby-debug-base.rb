@@ -3,6 +3,12 @@ require 'rubygems'
 require 'linecache'
 
 module Debugger
+  
+  # Default options to Debugger.start
+  DEFAULT_START_SETTINGS = { 
+    :init => true # Set $0 and save ARGV? 
+  }
+
   class Context
     def interrupt
       self.stop_next = 1
@@ -159,18 +165,35 @@ module Kernel
   end
   alias breakpoint debugger unless respond_to?(:breakpoint)
   
-  # Allows for First-time Debugger initialization that would normally
+  #  Debugger.start(options) -> bool
+  #  Debugger.start(options) { ... } -> obj
+  #
+  #   This method is internal and activates the debugger. Use
+  #   Debugger.start (from ruby-debug-base.rb) instead.
+  #
+  #   If it's called without a block it returns +true+, unless debugger
+  #   was already started.  If a block is given, it starts debugger and
+  #   yields to block. When the block is finished executing it stops
+  #   the debugger with Debugger.stop method.
+  #
+  #   <i>Note that if you want to stop debugger, you must call
+  #   Debugger.stop as many time as you called Debugger.start
+  #   method.</i>
+  # 
   # occur if you ran the debugger via rdebug. In particular, 
   # These things like setting program name and arguments make it possible
   # for "restart" to work.
-  def init(options={})
-    Debugger.start unless Debugger.started?
-    Debugger.const_set('ARGV', ARGV.clone) unless 
-      defined? Debugger::ARGV
-    Debugger.const_set('PROG_SCRIPT', $0) unless 
-      defined? Debugger::PROG_SCRIPT
-    Debugger.const_set('INITIAL_DIR', Dir.pwd) unless 
-      defined? Debugger::INITIAL_DIR
+  def start(options={}, &block)
+    options = Debugger::DEFAULT_START_SETTINGS.merge(options)
+    if options[:init]
+      Debugger.const_set('ARGV', ARGV.clone) unless 
+        defined? Debugger::ARGV
+      Debugger.const_set('PROG_SCRIPT', $0) unless 
+        defined? Debugger::PROG_SCRIPT
+      Debugger.const_set('INITIAL_DIR', Dir.pwd) unless 
+        defined? Debugger::INITIAL_DIR
+    end
+    Debugger.started? ? nil : Debugger.start_(&block) 
   end
 
   #

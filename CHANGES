@@ -4,8 +4,9 @@
   remove Debugger.stop on exit exception raise. May allow catchpoints
   to work and tracing user code handling Exit exceptions
 
-- Add Debugger.init to save things (like $0 and ARGV) necessary to
-  allow restart.
+- Change Debugger.start to save things (like $0 and ARGV) necessary to
+  allow restart. It now takes an optional option argument.
+  The old Debugger.start is now renamed to Debugger.start_)
 
 - fix bug in "info variables" when string had embedded %s'
 

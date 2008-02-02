@@ -948,16 +948,20 @@ debug_stop_i(VALUE self)
 
 /*
  *   call-seq:
- *      Debugger.start -> bool
- *      Debugger.start { ... } -> obj
+ *      Debugger.start_ -> bool
+ *      Debugger.start_ { ... } -> obj
  *
- *   This method activates the debugger.
- *   If it's called without a block it returns +true+, unless debugger was already started.
- *   If a block is given, it starts debugger and yields to block. When the block is finished
- *   executing it stops the debugger with Debugger.stop method.
+ *   This method is internal and activates the debugger. Use
+ *   Debugger.start (from ruby-debug-base.rb) instead.
  *
- *   <i>Note that if you want to stop debugger, you must call Debugger.stop as many time as you
- *   called Debugger.start method.</i>
+ *   If it's called without a block it returns +true+, unless debugger
+ *   was already started.  If a block is given, it starts debugger and
+ *   yields to block. When the block is finished executing it stops
+ *   the debugger with Debugger.stop method.
+ *
+ *   <i>Note that if you want to stop debugger, you must call
+ *   Debugger.stop as many time as you called Debugger.start
+ *   method.</i>
  */
 static VALUE
 debug_start(VALUE self)
@@ -2191,7 +2195,7 @@ Init_ruby_debug()
 {
     mDebugger = rb_define_module("Debugger");
     rb_define_const(mDebugger, "VERSION", rb_str_new2(DEBUG_VERSION));
-    rb_define_module_function(mDebugger, "start", debug_start, 0);
+    rb_define_module_function(mDebugger, "start_", debug_start, 0);
     rb_define_module_function(mDebugger, "stop", debug_stop, 0);
     rb_define_module_function(mDebugger, "started?", debug_is_started, 0);
     rb_define_module_function(mDebugger, "breakpoints", debug_breakpoints, 0);
