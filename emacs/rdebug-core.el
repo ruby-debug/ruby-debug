@@ -372,26 +372,51 @@ This is called when the debugger starts."
   (rdebug-setup-windows))
 
 
-(defun rdebug-restore-windows ()
-  "Display the initial ruby debugger window layout."
+(defun rdebug-restore-debugger-window-layout ()
+  "Restore the initial ruby debugger window layout."
   (interactive)
   (when rdebug-many-windows
     (rdebug-setup-windows)))
 
 (defun rdebug-display-debugger-window-configuration ()
-  "Display the current layout of windows of the rdebug Ruby debugger.
-See also `rdebug-display-original-window-configuration'"
+  "Switch from the \"original\" to the \"debugger\" window layout.
+
+The rdebug debugger remembers, and can switch between, two window layouts:
+ * original -- the window layout when the debugger was started.
+ * debugger -- the window layout of the debugger, plus all changes made
+               since the debugger started.
+
+The check-marks in the \"Window Layout\" menu indicates the
+active window layout.
+
+The function `rdebug-display-original-window-configuration'
+switch to the \"original\" window configuration.
+
+The function `rdebug-restore-debugger-window-layout' restores the
+window layout to the state it was when the debugger started."
   (interactive)
   (rdebug-set-window-configuration-state 'debugger)
   (message
    "Type `M-x rdebug-display-original-window-configuration RET' to restore."))
 
-(defun rdebug-display-original-window-configuration ()
-  "Display the layout of windows prior to starting the rdebug Ruby debugger.
 
-This function is called upon quitting the debugger and
-`rdebug-many-windows' is not nil. See also
-`rdebug-display-debugger-window-configuration'."
+;;This function is called upon quitting the debugger and
+;;`rdebug-many-windows' is not nil. See also
+;;`rdebug-display-debugger-window-configuration'."
+
+(defun rdebug-display-original-window-configuration ()
+  "Switch from the \"debugger\" to the \"original\" window layout.
+
+The rdebug debugger remembers, and can switch between, two window layouts:
+ * original -- the window layout when the debugger was started.
+ * debugger -- the window layout of the debugger, plus all changes made
+               since the debugger started.
+
+The check-marks in the \"Window Layout\" menu indicates the
+active window layout.
+
+The function `rdebug-display-debugger-window-configuration'
+switch to the \"debugger\" window configuration."
   (interactive)
   (rdebug-set-window-configuration-state 'original)
   (message
