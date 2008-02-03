@@ -123,9 +123,11 @@ integer argument, list info on that breakpoint.'],
       if Debugger.catchpoints.empty?
         print "No exceptions set to be caught.\n"
       else
-        print "Exception Hits\n"
+        # FIXME: show whether Exception is valid or not
+        # print "Exception: is_a?(Class)\n"
         Debugger.catchpoints.each do |exception, hits|
-          print "#{exception}: #{hits}\n"
+          # print "#{exception}: #{exception.is_a?(Class)}\n"
+           print "#{exception}\n"
         end
       end
     end
