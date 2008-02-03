@@ -2933,7 +2933,7 @@ end
 @end menu
 
 @node Debugger.run
-@subsection @code{Debugger.start}, @code{Debugger.started?}, @code{Debugger.init}, @code{Debugger.stop}, @code{Debugger.run_script}
+@subsection @code{Debugger.start}, @code{Debugger.started?}, @code{Debugger.stop}, @code{Debugger.run_script}
 
 In order to provide better debugging information regarding the stack
 frame(s) across all threads, ruby-debug has to intercept each call,
@@ -2944,24 +2944,44 @@ If you call ruby-debug from the outset via @code{rdebug} this is done
 for you.
 
 @table @code
-@item Debugger.start @ovar{block}
-@vindex @code{Debugger.start}
-Turn on add additional instrumentation code to facilitate debugging.
-If called without a block, it returns @code{true}, unless debugger was
-already started. If a block is given, it starts debugger and
-@code{yields} to block. When the block is finished executing, the
-debugger stopped with the @code{Debugger.stop method}.  @emph{Note
-that if you want to stop debugger, you must call @code{Debugger.stop}
-as many times as you called Debugger.start method.}
+@item Debugger.start(@ovar{options}) @ovar{block}
+@vindex @code{Debugger.start(options)}
+@vindex @code{Debugger.start(block)}
+Turn on add additional instrumentation code to facilitate debugging. A
+system even table hook is installed and some variables are set up to
+access thread frames.
 
-@item Debugger.init
-@vindex @code{Debugger.init}
-This is like @code{Debugger.start} but additional setup is done so to
-make the @code{restart} command work. In particular @code{$0} and
-@code{ARGV} are used to set internal debugger variables. Therefore you
-should make sure that when @code{Debugger.init} is called neither of
-these variables has been modified. (Or at least to the point where is
-running and @code{exec} based on their values does the wrong thing.
+This needs to be done before enterining the debugger; therefore a call
+to the debugger issue a @code{Debugger.start} call if necessary;
+
+If called without a block, @code{Debugger.start}returns @code{true} if
+the debugger was already started. But if you want to know if the
+debugger has already been started @code{Debugger.started?} can tell
+you.
+
+If a block is given, the debugger is started and @code{yields} to
+block. When the block is finished executing, the debugger stopped with
+the @code{Debugger.stop method}. To completely stop the debugger and remove
+
+But if you want to completely stop debugger, you must call
+@code{Debugger.stop} as many times as you called Debugger.start
+method.
+
+The first time Debugger.start is called there is also some additional
+setup to make the @code{restart} command work. In particular, @code{$0} and
+@code{ARGV} are used to set internal debugger variables. 
+
+Therefore you should make try to make sure that when
+@code{Debugger.start} is called neither of these variables has been
+modified. If instead you don't want this behavior you can pass an
+options has and set the @code{:init} key to @code{false}. That is
+@smallexample
+  Debugger.start(:init => false) # or Debugger.start(@{:init => false@})
+@end smallexample
+
+@item Debugger.started?
+@vindex @code{Debugger.started?}
+Boolean. Return @code{true} if debugger has been started.
 
 @item Debugger.stop
 @vindex @code{Debugger.stop}
@@ -2969,12 +2989,11 @@ Turn off instrumentation to allow debugging. Return @code{true} is returned
 if the debugger is disabled, otherwise it returns @code{false}.
 @emph{Note that if you want to stop debugger, you must call Debugger.stop
 as many times as you called the @code{Debugger.start} method.}
-@item Debugger.started?
-@vindex @code{Debugger.started?}
-Boolean. Return @code{true} if debugger has been started.
+
 @item Debugger.run_script(@var{debugger-command-file}, out = handler.interface)
 @vindex @code{Debugger.run_script}
 Reads/runs the given file containing debugger commands. @code{.rdebugrc} is run this way.
+
 @end table
 
 @node Debugger.context
