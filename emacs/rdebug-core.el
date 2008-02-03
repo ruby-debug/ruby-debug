@@ -76,30 +76,59 @@
   (rdebug-debug-enter "gud-rdebug-marker-filter"
     (rdebug-debug-message "GOT: %S" string)
     (setq gud-marker-acc (concat gud-marker-acc string))
-    (rdebug-debug-message "TOT: %S" string)
+    (rdebug-debug-message "TOT: %S" gud-marker-acc)
     (let ((output "")		    ; Output to debugger shell window.
           (tmp ""))
-
-      (while (string-match rdebug-annotation-start-regexp gud-marker-acc)
+      ;; ^Z^Z\n
+      ;; ^Z^Zfoo\n
+      ;; ^Z^Zsource foo.c:23\n
+      ;;
+      ;; Note: Regexp:s are greedy, i.e. the char parts take overhand
+      ;; compared to the .* part.
+      (while (string-match "\032\032\\([-a-z]*\\).*\n" gud-marker-acc)
         (rdebug-debug-message "ACC: %S" gud-marker-acc)
         (if (not (equal (match-beginning 0) 0))
-            ;; Spawn off plain text going to the debugger shell window.
+            ;; Plain text preceeding annotation goes straight into the
+            ;; debugger shell window.
             (progn
               (setq output (concat output (substring gud-marker-acc
                                                      0 (match-beginning 0))))
               (setq gud-marker-acc (substring gud-marker-acc
                                               (match-beginning 0))))
+          ;; Handle annotation.
           (let* ((s (match-beginning 0))
                  (end (match-end 0))
-                 (name (or (match-string 2 gud-marker-acc)
-                           "source"))
-                 (end-regexp (rdebug-get-annotate-end-regexp name)))
-            (if (string-match end-regexp gud-marker-acc end)
+                 (name (match-string 1 gud-marker-acc))
+                 ;; TODO: This is probably not complete...
+                 ;; "prompt" is needed to handle "quit" in the shell correctly.
+                 (one-liner (member name '("" "exited" "source" "prompt")))
+                 ;; Note: string-match returns start of match.
+                 (next-annotation (string-match "\032\032" gud-marker-acc end))
+                 (end-of-annotation (if one-liner end next-annotation)))
+            (if (or next-annotation
+                    one-liner)
                 ;; ok, annotation complete, process it and remove it
-                (let ((contents (substring
-                                 gud-marker-acc end (match-beginning 0)))
-                      (end2 (match-end 0)))
+                (let* ((contents (substring
+                                  gud-marker-acc end end-of-annotation)))
+                  (rdebug-debug-message "Name: %S Content: %S" name contents)
                   (cond ((string= name "pre-prompt")
+                         ;; Strip of the trailing \n (this is probably
+                         ;; a bug in processor.rb).
+                         (if (string= (substring contents -1) "\n")
+                             (setq contents (substring contents 0 -1)))
+                         (setq output (concat output contents)))
+                        ((string= name "exited")
+                         (setq output (concat output contents)))
+                        ((string= name "prompt")
+                         ;; The first line is the annotation, the
+                         ;; second the command, and the rest is the
+                         ;; output.
+                         ;;
+                         ;; ^Z^Zprompt\np 10\n10\n
+                         ;;
+                         ;; Since `comint-process-echoes' is set the
+                         ;; line the user entered is removed, this
+                         ;; output will replace it.
                          (setq output (concat output contents)))
                         ((string= name "source")
                          (if (string-match gud-rdebug-marker-regexp
@@ -112,19 +141,14 @@
                         (t (rdebug-process-annotation name contents)))
                   (setq gud-marker-acc
                         (concat (substring gud-marker-acc 0 s)
-                                (substring gud-marker-acc end2))))
+                                (substring gud-marker-acc end-of-annotation))))
               ;; otherwise, save the partial annotation to a temporary,
               ;; and re-add it to gud-marker-acc after normal output has
               ;; been processed
               (setq tmp (substring gud-marker-acc s))
-              (setq gud-marker-acc (substring gud-marker-acc 0 s))))))
-
-      ;; TODO: end -> start?
-      (when (string-match rdebug-annotation-end-regexp gud-marker-acc)
-	;; save the beginning of gud-marker-acc to tmp, remove it and
-	;; restore it after normal output has been processed
-	(setq tmp (substring gud-marker-acc 0 (match-beginning 0)))
-	(setq gud-marker-acc (substring gud-marker-acc (match-beginning 0))))
+              (setq gud-marker-acc (substring gud-marker-acc 0 s)))
+            (unless (string= output "")
+              (rdebug-debug-message "Output: %S" output)))))
 
       ;; Display the source file where we want it, gud will only pick
       ;; an arbitrary window.
@@ -153,18 +177,6 @@
       (rdebug-debug-message "REM: %S" gud-marker-acc)
 
       output)))
-
-
-(defun rdebug-get-annotate-end-regexp (name)
-  (cond ((string= name "starting")
-	 "\\(stopped\\|exited\\)\n")
-	((string= name "pre-prompt")
-	 ;; TODO: The extra "\n" is probably
-	 ;; a bug in processor.rb.
-	 "\nprompt\n")
-	((string= name "source")
-	 "\n")
-	(t rdebug-annotation-end-regexp)))
 
 (defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.
@@ -696,6 +708,7 @@ and options used to invoke rdebug."
       ;; command-line is refered through dynamic scope.
       (gud-common-init command-line 'gud-rdebug-massage-args
                        'gud-rdebug-marker-filter 'gud-rdebug-find-file)
+      (setq comint-process-echoes t)
 
       ;; gud-common-init sets the rdebug process buffer name
       ;; incorrectly, because it can't parse the command line properly
