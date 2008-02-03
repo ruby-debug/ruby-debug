@@ -1,10 +1,10 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 
-# require 'rubygems'
+# begin require 'rubygems' rescue LoadError end
 # require 'ruby-debug'; Debugger.start
 
-# Test annotate handling.
+# Test the --emacs-basic option.
 class TestEmacsBasic < Test::Unit::TestCase
 
   @@SRC_DIR = File.dirname(__FILE__) unless 
@@ -14,13 +14,13 @@ class TestEmacsBasic < Test::Unit::TestCase
   
   include TestHelper
   
-  require 'stringio'
-
   def test_basic
+    testname='emacs-basic'
     Dir.chdir(@@SRC_DIR) do 
+      script = File.join('data', testname + '.cmd')
       assert_equal(true, 
-                   run_debugger('emacs-basic', 
-                                '--emacs-basic --script emacs-basic.cmd -- gcd.rb 3 5'))
+                   run_debugger(testname,
+                                "--emacs-basic --script #{script} -- gcd.rb 3 5"))
     end
   end
 end

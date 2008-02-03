@@ -1,3 +1,47 @@
+2008-02-03 12:34  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Remove Debugger.init. Expand Debugger.start,
+	  Debugger.stop and Debugger.started?
+
+2008-02-03 04:17  Rocky Bernstein
+
+	* cli/ruby-debug/commands/catchpoint.rb,
+	  cli/ruby-debug/commands/info.rb, test/raise.cmd,
+	  test/raise.right: Add some argument checking in setting
+	  catchpoints.
+	  Showing status on "info catch" is a little silly - we can't
+	  recover from
+	  an exception.
+
+2008-02-02 23:10  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/command.rb,
+	  cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/commands/catchpoint.rb,
+	  cli/ruby-debug/commands/control.rb,
+	  cli/ruby-debug/commands/edit.rb, cli/ruby-debug/commands/eval.rb,
+	  cli/ruby-debug/commands/help.rb, cli/ruby-debug/commands/info.rb,
+	  cli/ruby-debug/commands/list.rb, cli/ruby-debug/commands/save.rb,
+	  cli/ruby-debug/commands/script.rb,
+	  cli/ruby-debug/commands/settings.rb,
+	  cli/ruby-debug/commands/show.rb,
+	  cli/ruby-debug/commands/stepping.rb,
+	  cli/ruby-debug/commands/threads.rb, cli/ruby-debug/processor.rb,
+	  lib/ChangeLog, test/breakpoints.right, test/emacs-basic.right,
+	  test/pm.rb, test/post-mortem.cmd, test/post-mortem.right,
+	  test/test-emacs-basic.rb, test/test-init.rb, test/test-pm.rb,
+	  test/test-quit.rb: Remove commands in post-mortem which are not
+	  applicable, e.g."step",
+	  "next", "continue"...
+	  
+	  "No breakpoints have been set" is now an error message when
+	  trying to
+	  set a breakpoint.
+	  
+	  Add post-mortem test.
+	  
+	  Debug.init no longer exists.
+
 2008-02-02 18:16  Anders Lindgren
 
 	* emacs/rdebug-core.el: Changing window layout no longer clears the

@@ -1,24 +1,25 @@
 #!/usr/bin/env ruby
-require "test/unit"
-SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless
-  defined?(SRC_DIR)
-%w(ext lib cli).each do |dir|
-  $: <<  SRC_DIR + "../#{dir}"
-end
+require 'test/unit'
 
-require File.join(SRC_DIR, "helper.rb")
-include TestHelper
+# begin require 'rubygems' rescue LoadError end
+# require 'ruby-debug'; Debugger.start
 
-# Test of C extension ruby_debug.so
 class TestSetShow < Test::Unit::TestCase
-  require 'stringio'
+
+  @@SRC_DIR = File.dirname(__FILE__) unless 
+    defined?(@@SRC_DIR)
+
+  require File.join(@@SRC_DIR, 'helper')
+  include TestHelper
 
   # Test initial variables and setting/getting state.
   def test_basic
-    Dir.chdir(SRC_DIR) do 
+    testname='setshow'
+    Dir.chdir(@@SRC_DIR) do 
+      script = File.join('data', testname + '.cmd')
       assert_equal(true, 
-                   run_debugger("setshow", 
-                                "--script setshow.cmd -- gcd.rb 3 5"))
+                   run_debugger(testname,
+                                "--script #{script} -- gcd.rb 3 5"))
     end
   end
 end

@@ -1,15 +1,15 @@
 # Some common routines used in testing.
 
-require "fileutils"
-# require "diff/lcs"
-# require "diff/lcs/hunk"
+require 'fileutils'
+# require 'diff/lcs'
+# require 'diff/lcs/hunk'
 
 module TestHelper
 
   # FIXME: turn args into a hash.
   def run_debugger(testname, args='', outfile=nil, filter=nil, old_code=false,
                    debug_pgm='tdebug.rb')
-    rightfile = "#{testname}.right"
+    rightfile = File.join('data', "#{testname}.right")
     
     outfile = "#{testname}.out" unless outfile
 
@@ -60,7 +60,7 @@ module TestHelper
   # def diff_as_string(rightfile, checkfile, format=:unified, context_lines=3)
   #   right_data = File.read(rightfile)
   #   check_data = File.read(checkfile)
-  #   output = ""
+  #   output = ''
   #   diffs = Diff::LCS.diff(right_data, check_data)
   #   return output if diffs.empty?
   #   oldhunk = hunk = nil
@@ -81,12 +81,12 @@ module TestHelper
   #       end
   #     ensure
   #       oldhunk = hunk
-  #       output << "\n"
+  #       output << '\n'
   #     end
   #   end
   
   #   # Handle the last remaining hunk 
-  #   output << oldhunk.diff(format) << "\n"
+  #   output << oldhunk.diff(format) << '\n'
   # end
 
 end

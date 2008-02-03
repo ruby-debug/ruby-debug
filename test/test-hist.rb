@@ -1,20 +1,19 @@
 #!/usr/bin/env ruby
 require 'test/unit'
-require 'fileutils'
 
 # begin require 'rubygems' rescue LoadError end
-# require 'ruby-debug'; Debugger.init
-
-SRC_DIR = File.dirname(__FILE__) unless 
-  defined?(SRC_DIR)
-require File.join(SRC_DIR, 'helper')
-include TestHelper
+# require 'ruby-debug'; Debugger.start
 
 # Test history commands
 
 class TestHistory < Test::Unit::TestCase
 
-  require File.join(SRC_DIR, 'helper')
+  @@SRC_DIR = File.dirname(__FILE__) unless 
+    defined?(@@SRC_DIR)
+
+  require File.join(@@SRC_DIR, 'helper')
+  include TestHelper
+
   unless defined?(@@FILE_HISTORY)
     @@FILE_HISTORY = '.rdebug_hist'
   end
@@ -22,7 +21,7 @@ class TestHistory < Test::Unit::TestCase
   def test_basic
 
     # Set up history file to read from.
-    ENV['HOME']=SRC_DIR
+    ENV['HOME']=@@SRC_DIR
     ENV['RDEBUG'] = nil
 
     debugger_commands = ['show commands', 
@@ -31,8 +30,8 @@ class TestHistory < Test::Unit::TestCase
                          'quit unconditionally']
     debugger_output = 'test-history.out'
 
-    Dir.chdir(SRC_DIR) do
-      correct_lines = File.read('history.right').split(/\n/)
+    Dir.chdir(@@SRC_DIR) do
+      correct_lines = File.read(File.join('data', 'history.right')).split(/\n/)
       f = File.open(@@FILE_HISTORY, 'w')
       correct_lines[0.. -(debugger_commands.length+1)].each do |line|
         f.puts line

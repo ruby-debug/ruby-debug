@@ -1,3 +1,37 @@
+2008-02-02 23:10  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb,
+	  trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  trunk/cli/ruby-debug/commands/catchpoint.rb,
+	  trunk/cli/ruby-debug/commands/control.rb,
+	  trunk/cli/ruby-debug/commands/edit.rb,
+	  trunk/cli/ruby-debug/commands/eval.rb,
+	  trunk/cli/ruby-debug/commands/help.rb,
+	  trunk/cli/ruby-debug/commands/info.rb,
+	  trunk/cli/ruby-debug/commands/list.rb,
+	  trunk/cli/ruby-debug/commands/save.rb,
+	  trunk/cli/ruby-debug/commands/script.rb,
+	  trunk/cli/ruby-debug/commands/settings.rb,
+	  trunk/cli/ruby-debug/commands/show.rb,
+	  trunk/cli/ruby-debug/commands/stepping.rb,
+	  trunk/cli/ruby-debug/commands/threads.rb,
+	  trunk/cli/ruby-debug/processor.rb, ChangeLog,
+	  trunk/test/breakpoints.right, trunk/test/emacs-basic.right,
+	  trunk/test/pm.rb, trunk/test/post-mortem.cmd,
+	  trunk/test/post-mortem.right, trunk/test/test-emacs-basic.rb,
+	  trunk/test/test-init.rb, trunk/test/test-pm.rb,
+	  trunk/test/test-quit.rb: Remove commands in post-mortem which are
+	  not applicable, e.g."step",
+	  "next", "continue"...
+	  
+	  "No breakpoints have been set" is now an error message when
+	  trying to
+	  set a breakpoint.
+	  
+	  Add post-mortem test.
+	  
+	  Debug.init no longer exists.
+
 2008-02-02 09:27  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ext/ruby_debug.c, ruby-debug-base.rb,

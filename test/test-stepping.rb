@@ -1,26 +1,26 @@
 #!/usr/bin/env ruby
-require "test/unit"
-require "fileutils"
+require 'test/unit'
 
-# require "rubygems"
-# require "ruby-debug" ; Debugger.start
-
-SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless
-  defined?(SRC_DIR)
-
-require File.join(SRC_DIR, "helper.rb")
-include TestHelper
+# begin require 'rubygems' rescue LoadError end
+# require 'ruby-debug'; Debugger.start
 
 # Test that linetracing does something.
 class TestStepping < Test::Unit::TestCase
-  require 'stringio'
+
+  @@SRC_DIR = File.dirname(__FILE__) unless 
+    defined?(@@SRC_DIR)
+
+  require File.join(@@SRC_DIR, 'helper')
+  include TestHelper
 
   # Test commands in stepping.rb
   def test_basic
-    Dir.chdir(SRC_DIR) do 
+    testname='stepping'
+    Dir.chdir(@@SRC_DIR) do 
+      script = File.join('data', testname + '.cmd')
       assert_equal(true, 
-                   run_debugger("stepping", 
-                                "--script stepping.cmd -- gcd.rb 3 5"))
+                   run_debugger(testname,
+                                "--script #{script} -- gcd.rb 3 5"))
     end
   end
 end

@@ -3,24 +3,23 @@ require 'test/unit'
 require 'fileutils'
 
 # begin require 'rubygems' rescue LoadError end
-# require 'ruby-debug'; Debugger.init
-
-SRC_DIR = File.dirname(__FILE__) unless 
-  defined?(SRC_DIR)
-
-require File.join(SRC_DIR, 'helper')
-
-include TestHelper
+# require 'ruby-debug'; Debugger.start
 
 # Test annotate handling.
 class TestAnnotate < Test::Unit::TestCase
-  require 'stringio'
+  @@SRC_DIR = File.dirname(__FILE__) unless 
+    defined?(@@SRC_DIR)
+
+  require File.join(@@SRC_DIR, 'helper')
+  include TestHelper
 
   def test_basic
-    Dir.chdir(SRC_DIR) do 
+    testname='annotate'
+    Dir.chdir(@@SRC_DIR) do 
+      script = File.join('data', testname + '.cmd')
       assert_equal(true, 
-                   run_debugger('annotate',
-                                '--script annotate.cmd -- gcd.rb 3 5'))
+                   run_debugger(testname,
+                                "--script #{script} -- gcd.rb 3 5"))
     end
   end
 end

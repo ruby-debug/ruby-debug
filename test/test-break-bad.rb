@@ -1,26 +1,25 @@
 #!/usr/bin/env ruby
-require "test/unit"
-require "fileutils"
+require 'test/unit'
 
-# require "rubygems"
-# require "ruby-debug"; Debugger.start
-
-SRC_DIR = File.expand_path(File.dirname(__FILE__)) + "/" unless 
-  defined?(SRC_DIR)
-
-require File.join(SRC_DIR, "helper.rb")
-
-include TestHelper
+# begin require 'rubygems' rescue LoadError end
+# require 'ruby-debug'; Debugger.start
 
 # Test (mostly) invalid breakpoint commands
 class TestBadBreak < Test::Unit::TestCase
-  require 'stringio'
+
+  @@SRC_DIR = File.dirname(__FILE__) unless 
+    defined?(@@SRC_DIR)
+
+  require File.join(@@SRC_DIR, 'helper')
+  include TestHelper
 
   def test_basic
-    Dir.chdir(SRC_DIR) do 
+    testname='break-bad'
+    Dir.chdir(@@SRC_DIR) do 
+      script = File.join('data', testname + '.cmd')
       assert_equal(true, 
-                   run_debugger("break-bad", 
-                                "--script break-bad.cmd -- gcd.rb 3 5"))
+                   run_debugger(testname,
+                                "--script #{script} -- gcd.rb 3 5"))
     end
   end
 end

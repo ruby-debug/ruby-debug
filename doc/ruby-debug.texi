@@ -2952,7 +2952,7 @@ system even table hook is installed and some variables are set up to
 access thread frames.
 
 This needs to be done before enterining the debugger; therefore a call
-to the debugger issue a @code{Debugger.start} call if necessary;
+to the debugger issue a @code{Debugger.start} call if necessary.
 
 If called without a block, @code{Debugger.start}returns @code{true} if
 the debugger was already started. But if you want to know if the

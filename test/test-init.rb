@@ -2,7 +2,7 @@
 require 'test/unit'
 
 # begin require 'rubygems' rescue LoadError end
-# require 'ruby-debug'; Debugger.init
+# require 'ruby-debug'; Debugger.start
 
 # Test Debugger.init and setting up ruby-debug variables
 class TestDebuggerInit < Test::Unit::TestCase
@@ -24,7 +24,7 @@ class TestDebuggerInit < Test::Unit::TestCase
       ENV['EMACS'] = old_emacs
       ENV['COLUMNS'] = old_columns
 
-      expected = File.open('test-init.right').readlines
+      expected = File.open(File.join('data', 'test-init.right')).readlines
       assert_equal(expected, lines)
       File.delete(debugger_output) if expected == lines
     end
