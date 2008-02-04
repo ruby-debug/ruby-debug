@@ -65,6 +65,40 @@
 ;; Interface to gud.
 ;;
 
+(defvar rdebug-non-annotated-text-is-output nil)
+
+;; Problem: What happens if we receive "^Z^Zfoo\n^Z". Should we wait
+;; until we know that the trailing ^Z is part of a new annotation or
+;; not?
+
+(defun rdebug-marker-filter-next-item (string)
+  "The next item for the rdebug marker filter to process.
+
+Return (item . rest) or nil."
+  (rdebug-debug-message "ACC: %S" string)
+  (cond
+   ;; Empty line, we're done.
+   ((equal (length string) 0)
+    nil)
+   ;; A single ^Z, this could become a new annotation, so lets stop here.
+   ((string= string "\032")
+    nil)
+   (t
+    (let ((split-point
+           (cond ((string-match "\032\032" string)
+                  (let ((beg (match-beginning 0)))
+                    (if (equal beg 0)
+                        (if (string-match "\032\032" string 3)
+                            (match-beginning 0)
+                          (length string))
+                      beg)))
+                 ((eq (elt string (- (length string) 1)) ?\32)
+                  -1)
+                 (t
+                  (length string)))))
+      (cons (substring string 0 split-point) (substring string split-point))))))
+
+
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
 ;; might even receive a big chunk with several markers in it.  If we
@@ -73,82 +107,90 @@
 ;; filter.
 (defun gud-rdebug-marker-filter (string)
   "Filter function for process output of the rdebug Ruby debugger."
-  (rdebug-debug-enter "gud-rdebug-marker-filter"
+  (rdebug-debug-enter "gud-rdebug-marker-filter:"
     (rdebug-debug-message "GOT: %S" string)
+    (if rdebug-non-annotated-text-is-output
+        (rdebug-debug-message "  Output is default"))
     (setq gud-marker-acc (concat gud-marker-acc string))
     (rdebug-debug-message "TOT: %S" gud-marker-acc)
-    (let ((output "")		    ; Output to debugger shell window.
-          (tmp ""))
-      ;; ^Z^Z\n
-      ;; ^Z^Zfoo\n
-      ;; ^Z^Zsource foo.c:23\n
+    (let ((shell-output "")         ; Output to debugger shell window.
+          (done nil)
+          item)
+      ;; The following loop peels of one "item" at a time. An item is
+      ;; a un-annotated section or an annotation. (This is taken care
+      ;; of by the `rdebug-marker-filter-next-item' function.)
       ;;
-      ;; Note: Regexp:s are greedy, i.e. the char parts take overhand
-      ;; compared to the .* part.
-      (while (string-match "\032\032\\([-a-z]*\\).*\n" gud-marker-acc)
-        (rdebug-debug-message "ACC: %S" gud-marker-acc)
-        (if (not (equal (match-beginning 0) 0))
-            ;; Plain text preceeding annotation goes straight into the
-            ;; debugger shell window.
-            (progn
-              (setq output (concat output (substring gud-marker-acc
-                                                     0 (match-beginning 0))))
-              (setq gud-marker-acc (substring gud-marker-acc
-                                              (match-beginning 0))))
+      ;; An Annotation can be a one-liner (where anything following
+      ;; the annotation is treated as un-annotated text) or a full
+      ;; annotation (which stretches to the next annotation).
+      ;;
+      ;; The concept of one-liners (no phun intended) is to allow
+      ;; continuous output, a "starting" annotation simply sets up the
+      ;; environment for sending lines to the output window, any text
+      ;; following it right now, or in later chunks of data, is
+      ;; redirected to the output window.
+      (while (and (not done)
+                  (let ((pair (rdebug-marker-filter-next-item gud-marker-acc)))
+                    (rdebug-debug-message "Next item: %S" pair)
+                    (and pair
+                         (progn
+                           (setq item (car pair))
+                           (setq gud-marker-acc (cdr pair))
+                           t))))
+        ;; Note: Regexp:s are greedy, i.e. the char parts wins over
+        ;; the .* part.
+        (if (not (string-match "^\032\032\\([-a-z]*\\).*\n" item))
+            ;; Non-annotated text (or the content of one-liners) goes
+            ;; straight into the debugger shell window, or to the
+            ;; output window.
+            (if (and rdebug-non-annotated-text-is-output
+                     rdebug-use-separate-io-buffer)
+                (rdebug-process-annotation "starting" item)
+              (setq shell-output (concat shell-output item)))
           ;; Handle annotation.
-          (let* ((s (match-beginning 0))
-                 (end (match-end 0))
-                 (name (match-string 1 gud-marker-acc))
-                 ;; TODO: This is probably not complete...
+          (let* ((line-end (match-end 0))
+                 (name (match-string 1 item))
                  ;; "prompt" is needed to handle "quit" in the shell correctly.
-                 (one-liner (member name '("" "exited" "source" "prompt")))
-                 ;; Note: string-match returns start of match.
-                 (next-annotation (string-match "\032\032" gud-marker-acc end))
-                 (end-of-annotation (if one-liner end next-annotation)))
+                 (one-liner
+                  (member name
+                          '("" "exited" "source" "prompt" "starting")))
+                 (next-annotation (string-match "\032\032"
+                                                gud-marker-acc)))
+            ;; For one-liners, shuffle some text back to the accumulator.
+            (when one-liner
+              (setq gud-marker-acc (concat (substring item line-end)
+                                           gud-marker-acc))
+              (setq item (substring item 0 line-end)))
             (if (or next-annotation
                     one-liner)
                 ;; ok, annotation complete, process it and remove it
-                (let* ((contents (substring
-                                  gud-marker-acc end end-of-annotation)))
+                (let* ((contents (substring item line-end)))
                   (rdebug-debug-message "Name: %S Content: %S" name contents)
+                  ;; This is a global state flag, this allows us to
+                  ;; redirect any further text to the output buffer.
+                  (set
+                   (make-local-variable 'rdebug-non-annotated-text-is-output)
+                   (string= name "starting"))
                   (cond ((string= name "pre-prompt")
                          ;; Strip of the trailing \n (this is probably
                          ;; a bug in processor.rb).
                          (if (string= (substring contents -1) "\n")
                              (setq contents (substring contents 0 -1)))
-                         (setq output (concat output contents)))
-                        ((string= name "exited")
-                         (setq output (concat output contents)))
-                        ((string= name "prompt")
-                         ;; The first line is the annotation, the
-                         ;; second the command, and the rest is the
-                         ;; output.
-                         ;;
-                         ;; ^Z^Zprompt\np 10\n10\n
-                         ;;
-                         ;; Since `comint-process-echoes' is set the
-                         ;; line the user entered is removed, this
-                         ;; output will replace it.
-                         (setq output (concat output contents)))
+                         (setq shell-output (concat shell-output contents)))
                         ((string= name "source")
-                         (if (string-match gud-rdebug-marker-regexp
-                                           gud-marker-acc)
+                         (if (string-match gud-rdebug-marker-regexp item)
                              ;; Extract the frame position from the marker.
                              (setq gud-last-frame
-                                   (cons (match-string 1 gud-marker-acc)
+                                   (cons (match-string 1 item)
                                          (string-to-number
-                                          (match-string 2 gud-marker-acc))))))
-                        (t (rdebug-process-annotation name contents)))
-                  (setq gud-marker-acc
-                        (concat (substring gud-marker-acc 0 s)
-                                (substring gud-marker-acc end-of-annotation))))
-              ;; otherwise, save the partial annotation to a temporary,
-              ;; and re-add it to gud-marker-acc after normal output has
-              ;; been processed
-              (setq tmp (substring gud-marker-acc s))
-              (setq gud-marker-acc (substring gud-marker-acc 0 s)))
-            (unless (string= output "")
-              (rdebug-debug-message "Output: %S" output)))))
+                                          (match-string 2 item))))))
+                        (t (rdebug-process-annotation name contents))))
+              ;; This is not a one-liner, and we haven't seen the next
+              ;; annotation, so we have to treat this as a partial
+              ;; annotation. Save it and hope that the we can process
+              ;; it the next time we're called.
+              (setq gud-marker-acc (concat item gud-marker-acc))
+              (setq done t)))))
 
       ;; Display the source file where we want it, gud will only pick
       ;; an arbitrary window.
@@ -157,26 +199,11 @@
 
       (rdebug-internal-short-key-mode-on)
 
-      ;; Does the remaining text look like it might end with the
-      ;; beginning of another marker?  If it does, then keep it in
-      ;; gud-marker-acc until we receive the rest of it.  Since we
-      ;; know the full marker regexp above failed, it's pretty simple to
-      ;; test for marker starts.
-      (if (string-match "\032\032.*\\'" gud-marker-acc)
-	  (progn
-	    ;; Everything before the potential marker start can be output.
-	    (setq output (concat output (substring gud-marker-acc
-						   0 (match-beginning 0))))
-
-	    ;; Everything after, we save, to combine with later input.
-	    (setq gud-marker-acc
-		  (concat tmp (substring gud-marker-acc (match-beginning 0)))))
-	(setq output (concat output gud-marker-acc))
-        (setq gud-marker-acc tmp))
-
+      (unless (string= shell-output "")
+        (rdebug-debug-message "Output: %S" shell-output))
       (rdebug-debug-message "REM: %S" gud-marker-acc)
 
-      output)))
+      shell-output)))
 
 (defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.

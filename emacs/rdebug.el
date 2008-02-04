@@ -220,6 +220,13 @@ command invocation has an annotate options (\"--annotate 3\")."
   :type 'boolean
   :group 'rdebug)
 
+(defcustom rdebug-use-separate-io-buffer t
+  "*If non-nil, output goes to a dedicated windows.
+
+This only applies when `rdebug-many-windows' is non-nil."
+  :type 'boolean
+  :group 'rdebug)
+
 (defcustom rdebug-populate-common-keys-function
   'rdebug-populate-common-keys-standard
   "The function to call to populate key bindings common to all rdebug windows.
