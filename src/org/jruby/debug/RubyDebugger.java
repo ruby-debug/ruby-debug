@@ -114,6 +114,7 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="breakpoints", module=true)
     public static IRubyObject breakpoints(IRubyObject recv, Block block) {
+        debugger().checkStarted(recv);
         return debugger().getBreakpoints();
     }
 
@@ -129,6 +130,7 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="catchpoint", module=true)
     public static IRubyObject catchpoint(IRubyObject recv, Block block) {
+        debugger().checkStarted(recv);
         return debugger().getCatchpoint();
     }
 

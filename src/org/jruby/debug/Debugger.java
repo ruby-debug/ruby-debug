@@ -296,6 +296,7 @@ final class Debugger {
     }
 
     IRubyObject removeBreakpoint(IRubyObject recv, IRubyObject breakpointId) {
+        checkStarted(recv);
         int id = RubyFixnum.fix2int(breakpointId);
         RubyArray breakpointsA = ((RubyArray) breakpoints);
         for(int i = 0; i < breakpointsA.size(); i++) {
@@ -431,6 +432,7 @@ final class Debugger {
     }
     
     void setCatchpoint(IRubyObject recv, IRubyObject catchpoint) {
+        checkStarted(recv);
         if (catchpoint.isNil()) {
             this.catchpoint = catchpoint;
         } else {
