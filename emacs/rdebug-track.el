@@ -43,7 +43,7 @@
 ;;
 
 (defgroup rdebug-track nil
-  "Rdebug file tracking by watching the shell prompt."
+  "Ruby debug and rdebug file tracking by watching the shell prompt."
   :prefix "rdebug-track"
   :group 'shell)
 

@@ -1,6 +1,5 @@
 gcd.rb:4
 def gcd(a, b)
-# # $Id: setshow.cmd 346 2007-11-14 01:39:05Z rockyb $
 # # This tests the functioning of some set/show debugger commands
 # set debuggertesting on
 Currently testing the debugger is on.

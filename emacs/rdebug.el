@@ -194,6 +194,12 @@ This function is designed to be added to hooks, for example:
 
 (add-hook 'ruby-mode-hook 'rdebug-turn-on-debugger-support)
 
+;; This is needed, or at least the docstring part of it is needed to
+;; get the customization menu to work in Emacs 23.
+(defgroup rdebug nil
+  "The Ruby debugger"
+  :group 'processes
+  :group 'tools)
 
 ;; -------------------------------------------------------------------
 ;; User definable variables

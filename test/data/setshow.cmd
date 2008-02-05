@@ -1,4 +1,3 @@
-# $Id$
 # This tests the functioning of some set/show debugger commands
 set debuggertesting on
 ### *******************************
