@@ -10,7 +10,7 @@ module Debugger
         aprint ''
       else
         print '*** '
-        print *args
+        print(*args)
       end
     end
     
