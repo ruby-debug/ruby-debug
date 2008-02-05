@@ -246,6 +246,19 @@ menu. (The common map typically contains function key bindings.)"
                         '(:toggle
                           . rdebug-short-key-mode)))
 
+    (define-key map [menu-bar debugger options line2] '(menu-item "--"))
+
+    ;; ----------------
+    ;; Separate I/O buffer.
+
+    (define-key map [menu-bar debugger options io-buffer]
+      (rdebug-menu-item common-map
+                        "Separate I/O buffer"
+                        'rdebug-toggle-use-separate-io-buffer
+                        :button
+                        '(:toggle
+                          . rdebug-use-separate-io-buffer)))
+
     ;; --------------------
     ;; The optional secondary windows submenu.
 
@@ -304,7 +317,7 @@ menu. (The common map typically contains function key bindings.)"
          :button
          '(:radio
            . (eq rdebug-window-layout-function
-                 'rdebug-window-layout-rocky))))
+                 'rdebug-window-layout-rocky2))))
 
       (define-key map [menu-bar debugger layout stack]
         (rdebug-menu-item
@@ -538,6 +551,20 @@ debugger is active."
   "Use `customize' to edit the settings of the `rdebug' debugger."
   (interactive)
   (customize-group 'rdebug))
+
+
+;; -------------------------------------------------------------------
+;; Use separate I/O buffer
+;;
+
+(defun rdebug-toggle-use-separate-io-buffer ()
+  "Toggle `rdebug-use-separate-io-buffer'.
+This is used by the menu."
+  (interactive)
+  (setq rdebug-use-separate-io-buffer (not rdebug-use-separate-io-buffer))
+  (if (interactive-p)
+      (message "Issue M-x rdebug-restore-debugger-window-layout \
+RET to update display.")))
 
 
 ;; -------------------------------------------------------------------

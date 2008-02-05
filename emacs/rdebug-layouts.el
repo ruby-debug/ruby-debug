@@ -48,9 +48,10 @@ the window for more details."
   (other-window 1)
   (switch-to-buffer src-buf)
   (other-window 1)
-  (split-window nil 20)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "output" name))
+  (when rdebug-use-separate-io-buffer
+    (split-window nil 20)
+    (set-window-buffer
+     (selected-window) (rdebug-get-buffer "output" name)))
   (other-window 1))
 
 (defun rdebug-window-layout-rocky (src-buf name)
@@ -111,10 +112,11 @@ The debugger shell and the source code window is to the left."
   (other-window 1)
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "frame" name))
-  (other-window 1)
-  (split-window)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "output" name))
+  (when rdebug-use-separate-io-buffer
+    (other-window 1)
+    (split-window)
+    (set-window-buffer
+     (selected-window) (rdebug-get-buffer "output" name)))
   (other-window 1)
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "breakpoints" name))
@@ -132,10 +134,11 @@ The debugger shell and the source code window is to the left."
    (selected-window) (rdebug-get-buffer "variables" name))
   (other-window 1)
   (switch-to-buffer src-buf)
-  (split-window-horizontally)
-  (other-window 1)
-  (set-window-buffer
-   (selected-window) (rdebug-get-buffer "output" name))
+  (when rdebug-use-separate-io-buffer
+    (split-window-horizontally)
+    (other-window 1)
+    (set-window-buffer
+     (selected-window) (rdebug-get-buffer "output" name)))
   (other-window 1)
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "frame" name))
