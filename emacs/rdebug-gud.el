@@ -42,7 +42,8 @@
 
 
 (defun gud-rdebug-find-file (f)
-  "This routine rdebug and gud call when they see something they think is a Ruby program file."
+  "This routine rdebug and gud call when they encounter a Ruby
+program file."
   (find-file-noselect f 'nowarn))
 
 (defun rdebug-display-line (file line &optional move-arrow)
@@ -92,6 +93,19 @@ With a numeric argument, continue to that line number of the current file."
 This variable will have a string value which is either \"\",
 \"+\", or \"-\"; this string is be appended to the debugger
 stepping commands (\"next\", or \"step\").")
+
+(defun rdebug-pretty-print (expr)
+  "Run a debugger \"pp\" command on `expr'."
+  (interactive "s")
+  (gud-call (format "pp %s " expr)))
+
+(defun rdebug-pretty-print-region (from to)
+  "Run a debugger \"pp\" command on the marked region."
+  (interactive "r")
+  (if (> from to)
+      (let ((tem to))
+	(setq to from from tem)))
+  (rdebug-pretty-print (buffer-substring from to)))
 
 (defun rdebug-quit ()
   "Kill the debugger process associated with the current buffer.

@@ -447,13 +447,14 @@ This does not menus or prefix keys."
   ;; (define-key map "b" 'gud-break)
   (define-key map "c" 'rdebug-continue)
   ;; (define-key map "d" 'gud-remove)
+  (define-key map "e" 'rdebug-pretty-print-region)
   (define-key map "f" 'gud-finish)
   (define-key map "n" 'rdebug-next)
-  (define-key map "p" 'gud-print)
   (define-key map "q" 'rdebug-quit)
   (define-key map "r" 'rdebug-restart)
   (define-key map "R" 'rdebug-restart)
   (define-key map "s" 'rdebug-step)
+  (define-key map [mouse-3] 'rdebug-variables-pretty-print-mouse)
   )
 
 

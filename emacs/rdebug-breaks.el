@@ -48,7 +48,7 @@
     (define-key map "t" 'rdebug-toggle-breakpoint)
     (define-key map "i" 'rdebug-add-breakpoint-condition)
     (define-key map [insert] 'rdebug-add-breakpoint-condition)
-    (define-key map "\C-x\C-e" 'gud-print) ; FIXME show expression in msg area
+    ;; (define-key map "\C-x\C-e" 'gud-print) ; FIXME show expression in msg area
     (rdebug-populate-digit-keys map)
     (define-key map [(control m)] 'rdebug-goto-breakpoint)
     (define-key map [?d] 'rdebug-delete-breakpoint)

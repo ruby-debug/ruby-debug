@@ -523,7 +523,7 @@ switch to the \"debugger\" window configuration."
     (define-key map "b" 'gud-break)
     (define-key map "t" 'rdebug-toggle-source-breakpoint-enabled)
     (define-key map [insert] 'rdebug-short-key-mode)
-    (define-key map "p" 'gud-print)
+    ;;(define-key map "p" 'gud-print)
     (rdebug-populate-secondary-buffer-map-plain map)
     map)
   "Keymap used in `rdebug-internal-short-key-mode'.")
