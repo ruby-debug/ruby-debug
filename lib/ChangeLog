@@ -1,3 +1,13 @@
+2008-02-05 01:41  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-track.el,
+	  trunk/emacs/rdebug.el, ChangeLog, trunk/test/data/setshow.cmd,
+	  trunk/test/data/setshow.right: rdebug.el: Add a defgroup for
+	  rdebug so customization in Emacs 23 is possible.
+	  Some other minor doc fixes.
+	  setshow.* make sure we don't have an $Id line that we have to
+	  check against.
+
 2008-02-03 15:23  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, trunk/doc/ruby-debug.texi,

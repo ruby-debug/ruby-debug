@@ -1,3 +1,32 @@
+2008-02-05 16:30  Rocky Bernstein
+
+	* cli/ruby-debug/interface.rb: Remove "* used as prefix argument"
+	  warning.
+
+2008-02-05 07:52  Anders Lindgren
+
+	* emacs/rdebug-layouts.el, emacs/rdebug-source.el: Added 'Separate
+	  I/O buffer' to options menu. The window layouts now create an
+	  output buffer only when separate io buffer is enabled.
+
+2008-02-05 01:41  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-track.el, emacs/rdebug.el, lib/ChangeLog,
+	  test/data/setshow.cmd, test/data/setshow.right: rdebug.el: Add a
+	  defgroup for rdebug so customization in Emacs 23 is possible.
+	  Some other minor doc fixes.
+	  setshow.* make sure we don't have an $Id line that we have to
+	  check against.
+
+2008-02-04 21:50  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug.el: New variable
+	  'rdebug-use-separate-io-buffer' controls if output should go to
+	  shell window or the output window. Contiuous output can now be
+	  received from a running process. 'gud-rdebug-marker-filter'
+	  totally reworked (again) -- introduced the concept of one-liners
+	  and a new helper function.
+
 2008-02-03 20:26  Anders Lindgren
 
 	* emacs/rdebug-core.el, emacs/rdebug-regexp.el: Annotation filter

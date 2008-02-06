@@ -42,7 +42,8 @@
 
 
 (defun gud-rdebug-find-file (f)
-  (find-file-noselect f))
+  "This routine rdebug and gud call when they see something they think is a Ruby program file."
+  (find-file-noselect f 'nowarn))
 
 (defun rdebug-display-line (file line &optional move-arrow)
   (let ((oldpos (and gud-overlay-arrow-position

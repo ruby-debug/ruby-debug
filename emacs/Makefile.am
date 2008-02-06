@@ -35,6 +35,7 @@ lisp_files = rdebug.el \
 check_DATA = test/elk-test.el	\
 	test/test-cmd.el    	\
 	test/test-core.el   	\
+	test/test-gud.el   	\
 	test/test-indent.el 	\
 	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
@@ -57,9 +58,9 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-watch.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
-check: check-core check-gud check-indent check-regexp
+check: check-cmd check-core check-frames check-gud check-indent check-regexp
 
-check-gud: rdebug-gud.el
+check-cmd: rdebug-gud.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-cmd.el )
 
@@ -71,6 +72,10 @@ check-frames: rdebug-frames.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-frames.el )
 
+check-gud: rdebug-gud.el
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-gud.el )
+
 check-indent: $(lisp_files)
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-indent.el )
@@ -80,7 +85,7 @@ check-regexp: rdebug-regexp.el
 	$(EMACS) -batch -q -l test-regexp.el )
 endif
 
-PHONY = test check check-core check-gud check-indent check-regexp
+PHONY = test check check-cmd check-core check-frames check-gud check-indent check-regexp
 
 test: check
 
