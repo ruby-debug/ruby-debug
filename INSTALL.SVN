@@ -1,7 +1,8 @@
 Building and Installing ruby-debug from rubyforge's Subversion Repository (svn)
 
-The below are Unix-centric instructions. If you have Microsoft Windows or
-OSX some of the below may need adjusting. 
+The below are Unix-centric instructions. If you have Microsoft Windows see 
+the section on building Microsoft Windows.
+
 
 0. Prerequisites: To build the package you'll need at a minimum:
 
@@ -102,4 +103,52 @@ Then run:
   sudo make install   # Or arrange to do this as root
  
 
-  
+Microsoft Windows
+
+A problem here seems to be that the "One-click" install is compiled
+using Microsoft Visual Studio C 6 which is not sold anymore and is
+rather old. 
+
+Instead I suggest building via mingw/msys. 
+http://eigenclass.org/hiki.rb?cmd=view&p=cross+compiling+rcovrt&key=mingw has instructions on how to do. Some amendments to these instructions. 
+
+First, those instructions are a little GNU/Linux centric. If you are
+using Ubuntu or Debian, then this should be the easiest to follow the
+instructions. On Ubuntu or Debian there is a mingw3 Debian
+package. Installing that will give you the cross compiler that is a
+prerequisite. Alternatively if you are running MS Windows I notice
+that cygwin also has a mingw package. Or possibly you could use MinGW
+directly. For other OS's you might have to build a cross-compiler,
+i.e. gcc which emits win32 code and can create a win32 DLL.
+
+After you have a cross compiler you need to download the Ruby source
+and basically build a ruby interpreter. The cross-compile.sh script
+works although when I downloaded it, it had lots of blank space at the
+beginning which will mess up the Unix magic interpretation. That is
+remove the blanks in front of "#/bin/sh"
+
+On my system, this script fails in running "make ruby" because the
+fake.rb that got created needed to have a small change:
+
+	    ALT_SEPARATOR = "\"; \
+should be 
+	    ALT_SEPARATOR = "\\"; \
+
+After fixing this, run 
+  make ruby
+Also, I needed to run
+  make rubyw
+
+And then "make install" as indicated. 
+
+Once all of that's in place, the place you want be is in
+ruby-debug/trunk/ext/win32, not ruby-debug/ext. 
+
+So let's say you've installed the cross-compiled install ruby in
+/usr/local/ruby-mingw32/. Here then are the commands to build ruby-debug-base-xxx-mswin32.gem
+
+   cd .../ruby-debug/trunk/ext/win32 
+   ruby -I /usr/local/ruby-mingw32/lib/ruby/1.8/i386-mingw32 ../extconf.rb
+   make # Not rake
+   cd ../..   # back in ruby-debug/trunk
+   rake win32_gem
