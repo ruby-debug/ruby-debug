@@ -161,7 +161,7 @@ non-digit will start entry number from the beginning again."
     ;; The frame number and first type name, if present.
     ("^ *#\\([0-9]+\\) *\\(\\([a-zA-Z_][a-zA-Z0-9_]*\\)[.:]\\)?"
      (1 font-lock-constant-face)
-     (3 font-lock-type-face nil t))      ; t means optional.
+     (3 font-lock-type-face nil t))     ; t means optional.
     ;; File name and line number.
     ("at line \\(.*\\):\\([0-9]+\\)$"
      (1 font-lock-warning-face)

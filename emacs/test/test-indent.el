@@ -28,15 +28,20 @@
   (mapcar (lambda (lisp-file)
 	    (message lisp-file)
 	    (assert-nil (rdebug-test-reindent-one-file lisp-file)))
-	  '("../rdebug.el" 
+	  '("../rdebug.el"
 	    "../rdebug-breaks.el"
 	    "../rdebug-core.el"
+	    "../rdebug-dbg.el"
+	    "../rdebug-error.el"
+	    "../rdebug-frames.el"
 	    "../rdebug-gud.el"
 	    "../rdebug-help.el"
+	    "../rdebug-layouts.el"
 	    "../rdebug-output.el"
+	    "../rdebug-regexp.el"
+	    "../rdebug-secondary.el"
 	    "../rdebug-source.el"
 	    "../rdebug-track.el"
-	    "../rdebug-regexp.el"
 	    "../rdebug-varbuf.el"
 	    "../rdebug-vars.el"
 	    "../rdebug-watch.el"

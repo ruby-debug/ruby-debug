@@ -122,7 +122,7 @@ The debugger shell and the source code window is to the left."
    (selected-window) (rdebug-get-buffer "breakpoints" name))
   (other-window 1))
 
-; The default layout
+;; The default layout
 (defun rdebug-window-layout-standard (src-buf name)
   "The default rdebug window layout, see `rdebug' for more information."
   (delete-other-windows)
