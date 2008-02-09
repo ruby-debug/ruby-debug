@@ -69,8 +69,8 @@ static VALUE last_context = Qnil;
 static VALUE last_thread  = Qnil;
 static debug_context_t *last_debug_context = NULL;
 
-VALUE rdebug_threads_tbl = Qnil;
-VALUE mDebugger;
+VALUE rdebug_threads_tbl = Qnil; /* Context for each of the threads */
+VALUE mDebugger;                 /* Ruby Debugger Module object */
 
 static VALUE cThreadsTable;
 static VALUE cContext;
@@ -107,6 +107,17 @@ typedef struct locked_thread_t {
 
 static locked_thread_t *locked_head = NULL;
 static locked_thread_t *locked_tail = NULL;
+
+/* "Step", "Next" and "Finish" do their work by saving information
+   about where to stop next. reset_stopping_points removes/resets this
+   information. */
+inline static void
+reset_stepping_stop_points(debug_context_t *debug_context)
+{
+    debug_context->dest_frame = -1;
+    debug_context->stop_line  = -1;
+    debug_context->stop_next  = -1;
+}
 
 inline static VALUE
 real_class(VALUE klass)
@@ -764,12 +775,9 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                     debug_context->breakpoint = Qnil;
             }
 
-            /* reset all pointers */
-            debug_context->dest_frame = -1;
-            debug_context->stop_line = -1;
-            debug_context->stop_next = -1;
-
-            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
+	    reset_stepping_stop_points(debug_context);
+            call_at_line(context, debug_context, rb_str_new2(file), 
+			 INT2FIX(line));
         }
         break;
     }
@@ -904,9 +912,10 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             }
         }
 
-	/* If we stop the debugger, we may not be able to trace into code that has 
-	   an exception handler wrapped around it. So the alternative is to force the user
-	   to do his own Debugger.stop. */
+	/* If we stop the debugger, we may not be able to trace into
+	   code that has an exception handler wrapped around it. So
+	   the alternative is to force the user to do his own
+	   Debugger.stop. */
 #ifdef NORMAL_CODE_MOVING_AFTER_
         if( !NIL_P(rb_class_inherited_p(expn_class, rb_eSystemExit)) )
         {
@@ -973,9 +982,9 @@ debug_start(VALUE self)
         result = Qfalse;
     else
     {
+        locker             = Qnil;
         rdebug_breakpoints = rb_ary_new();
 	rdebug_catchpoints = rb_hash_new();
-        locker             = Qnil;
         rdebug_threads_tbl = threads_table_create();
 
         rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
@@ -1351,7 +1360,7 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
     if (0 != state) {
       VALUE errinfo = ruby_errinfo;
       debug_suspend(self);
-      debug_context->stop_next = -1;
+      reset_stepping_stop_points(debug_context);
       ruby_errinfo = Qnil;
       return errinfo;
     }
@@ -2220,8 +2229,10 @@ Init_ruby_debug()
     rb_define_module_function(mDebugger, "debug_at_exit", debug_at_exit, 0);
     rb_define_module_function(mDebugger, "post_mortem?", debug_post_mortem, 0);
     rb_define_module_function(mDebugger, "post_mortem=", debug_set_post_mortem, 1);
-    rb_define_module_function(mDebugger, "keep_frame_binding?", debug_keep_frame_binding, 0);
-    rb_define_module_function(mDebugger, "keep_frame_binding=", debug_set_keep_frame_binding, 1);
+    rb_define_module_function(mDebugger, "keep_frame_binding?", 
+			      debug_keep_frame_binding, 0);
+    rb_define_module_function(mDebugger, "keep_frame_binding=", 
+			      debug_set_keep_frame_binding, 1);
     rb_define_module_function(mDebugger, "track_frame_args?", 
 			      debug_track_frame_args, 0);
     rb_define_module_function(mDebugger, "track_frame_args=", 
@@ -2232,23 +2243,24 @@ Init_ruby_debug()
     cThreadsTable = rb_define_class_under(mDebugger, "ThreadsTable", rb_cObject);
 
     cDebugThread  = rb_define_class_under(mDebugger, "DebugThread", rb_cThread);
-    rb_define_singleton_method(cDebugThread, "inherited", debug_thread_inherited, 1);
+    rb_define_singleton_method(cDebugThread, "inherited", 
+			       debug_thread_inherited, 1);
 
     Init_context();
     Init_breakpoint();
 
-    idAtLine       = rb_intern("at_line");
     idAtBreakpoint = rb_intern("at_breakpoint");
     idAtCatchpoint = rb_intern("at_catchpoint");
+    idAtLine       = rb_intern("at_line");
     idAtTracing    = rb_intern("at_tracing");
     idList         = rb_intern("list");
 
     rb_mObjectSpace = rb_const_get(rb_mKernel, rb_intern("ObjectSpace"));
 
-    rb_global_variable(&rdebug_threads_tbl);
-    rb_global_variable(&rdebug_breakpoints);
-    rb_global_variable(&rdebug_catchpoints);
-    rb_global_variable(&locker);
     rb_global_variable(&last_context);
     rb_global_variable(&last_thread);
+    rb_global_variable(&locker);
+    rb_global_variable(&rdebug_breakpoints);
+    rb_global_variable(&rdebug_catchpoints);
+    rb_global_variable(&rdebug_threads_tbl);
 }

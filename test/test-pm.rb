@@ -29,4 +29,16 @@ class TestPM < Test::Unit::TestCase
                                 "--script #{script} --post-mortem pm.rb"))
     end
   end
+
+  # Test post-mortem handling
+  def test_pm_next
+    Dir.chdir(@@SRC_DIR) do 
+      ENV['COLUMNS'] = '80'
+      testname='post-mortem-next'
+      script = File.join('data', testname + '.cmd')
+      assert_equal(true, 
+                   run_debugger(testname,
+                                "--script #{script} --post-mortem pm.rb"))
+    end
+  end
 end

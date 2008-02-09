@@ -1,5 +1,5 @@
 # ***************************************************
-# This tests the quit.
+# This tests post-mortem handling.
 # ***************************************************
 set debuggertesting on
 continue

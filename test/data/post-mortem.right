@@ -1,7 +1,7 @@
 pm.rb:3
 def zero_div
 # # ***************************************************
-# # This tests the quit.
+# # This tests post-mortem handling.
 # # ***************************************************
 # set debuggertesting on
 Currently testing the debugger is on.
