@@ -333,7 +333,7 @@ Currently-active file is at the head of the list.")
   this value because secondary windows get recreated a lot")
 
 (defun rdebug-process-annotation (name contents)
-  (rdebug-debug-enter "rdebug-process-annotation"
+  (rdebug-debug-enter (format "rdebug-process-annotation %s" name)
     ;; Ruby-debug uses the name "starting" for process output (just like
     ;; GDB). However, it's better to present the buffer as "output" to
     ;; the user. Ditto for "display" and "watch".
@@ -345,35 +345,36 @@ Currently-active file is at the head of the list.")
            (setq name "frame"))
           ((string= name "error-begin")
            (setq name "error")))
-    (let ((buf (get-buffer-create
-                (format "*rdebug-%s-%s*" name gud-target-name)))
-          ;; Buffer local, doesn't survive the buffer change.
-          (comint-buffer gud-comint-buffer))
-;;; FIXME: figure out how to get rdebug-use-separate-io-buffer working
-;;;       (if (and (string= name "output") (not rdebug-use-separate-io-buffer))
-;;; 	  (insert contents)
-      ;;else
-      (with-current-buffer buf
-	(setq buffer-read-only t)
-	(let ((inhibit-read-only t)
-	      (setup-func (gethash name rdebug--annotation-setup-map)))
-	  (set (make-local-variable 'rdebug-current-line-number) 
-	       (line-number-at-pos))
-	  (cond ((string= name "output")
-		 (goto-char (point-max)))
-		((string= name "error")
-		 (goto-char (point-max))
-		 (message (chomp contents)))
-		(t (erase-buffer)))
-	  (insert contents)
-	  (when setup-func (funcall setup-func buf comint-buffer)))))))
+    (cond ((string= name "error")
+           (message (chomp contents)))
+          (t
+           (let ((setup-func (gethash name rdebug--annotation-setup-map)))
+             (when setup-func
+               (let ((buf (get-buffer-create
+                           (format "*rdebug-%s-%s*" name gud-target-name)))
+                     ;; Buffer local, doesn't survive the buffer change.
+                     (comint-buffer gud-comint-buffer))
+                 (with-current-buffer buf
+                   (setq buffer-read-only t)
+                   (let ((inhibit-read-only t))
+                     (set (make-local-variable 'rdebug-current-line-number)
+                          (line-number-at-pos))
+                     (cond ((string= name "output")
+                            (goto-char (point-max)))
+                           (t (erase-buffer)))
+                     (insert contents)
+                     (funcall setup-func buf comint-buffer))))))))))
+
 
 ;; -------------------------------------------------------------------
 ;; Windows.
 ;;
 
-(defun rdebug-setup-windows ()
+(defun rdebug-setup-windows (&optional erase)
   "Create the debugger user interface window layout.
+
+If ERASE is non-nil, the content of the windows are erased
+\(this does not apply to accumulative windows).
 
 This function displays the source file (or, in some cases, a
 buffer list) and creates the window layout. The variable
@@ -386,8 +387,9 @@ This is only used when `rdebug-many-windows' is non-nil."
     (pop-to-buffer gud-comint-buffer)
     (maphash
      (lambda (name func)
-       (unless (rdebug-get-buffer name gud-target-name)
-         (rdebug-process-annotation name "")))
+       (if (or erase
+               (not (rdebug-get-buffer name gud-target-name)))
+           (rdebug-process-annotation name "")))
      rdebug--annotation-setup-map)
     (let ((buf
            (cond (gud-last-last-frame
@@ -409,7 +411,7 @@ This is called when the debugger starts."
         (with-current-buffer buf
           (let ((inhibit-read-only t))
             (erase-buffer)))))
-  (rdebug-setup-windows))
+  (rdebug-setup-windows t))
 
 
 (defun rdebug-restore-debugger-window-layout ()

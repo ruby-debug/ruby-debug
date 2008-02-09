@@ -294,6 +294,8 @@ Rdebug provides the following predefined layout functions:
 
 * `rdebug-window-layout-standard'         -- See `rdebug'
 
+* `rdebug-window-layout-no-shell'         -- Standard + Display, no Shell
+
 * `rdebug-window-layout-conservative'     -- Source + Shell + Output
 
 * `rdebug-window-layout-stack-of-windows' -- Extra windows to the right

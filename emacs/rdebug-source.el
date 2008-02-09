@@ -281,6 +281,7 @@ menu. (The common map typically contains function key bindings.)"
     ;; Also, there might be other situations where the list might be
     ;; handy, e.g. completion.
     (let ((predefined '(rdebug-window-layout-standard
+                        rdebug-window-layout-no-shell
                         rdebug-window-layout-conservative
                         rdebug-window-layout-stack-of-windows
                         rdebug-window-layout-rocky
@@ -342,6 +343,18 @@ menu. (The common map typically contains function key bindings.)"
          '(:radio
            . (eq rdebug-window-layout-function
                  'rdebug-window-layout-conservative))))
+
+      (define-key map [menu-bar debugger layout no-shell]
+        (rdebug-menu-item
+         common-map
+         "No Shell"
+         (lambda ()
+           (interactive)
+           (rdebug-set-window-layout 'rdebug-window-layout-no-shell))
+         :button
+         '(:radio
+           . (eq rdebug-window-layout-function
+                 'rdebug-window-layout-no-shell))))
 
       (define-key map [menu-bar debugger layout standard]
         (rdebug-menu-item

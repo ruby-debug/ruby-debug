@@ -149,6 +149,14 @@ The debugger shell and the source code window is to the left."
   (other-window 1)
   (goto-char (point-max)))
 
+
+(defun rdebug-window-layout-no-shell (src-buf name)
+  "A rdebug window layout without a shell window, see `rdebug' for more information."
+  (delete-other-windows)
+  (set-window-buffer
+   (selected-window) (rdebug-get-buffer "watch" name))
+  (rdebug-window-layout-standard src-buf name))
+
 (provide 'rdebug-layouts)
 
 ;;; Local variables:
