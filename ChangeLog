@@ -1,3 +1,33 @@
+2008-02-09 11:55  Rocky Bernstein
+
+	* ext/ruby_debug.c, test/data/post-mortem-next.cmd,
+	  test/data/post-mortem-next.right, test/data/post-mortem.cmd,
+	  test/data/post-mortem.right, test/test-pm.rb: Fix bug where we
+	  entered debugger code if we "next" over code that
+	  goes raises an uncaught exception. Needed to reset stepping
+	  parameters. Added a routine to do so.
+
+2008-02-08 02:09  Rocky Bernstein
+
+	* INSTALL.SVN: Add instructions for building on MS Windows.
+
+2008-02-06 18:15  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-core.el,
+	  emacs/rdebug-gud.el, emacs/rdebug-source.el,
+	  emacs/rdebug-varbuf.el: Add routines to print a marked expression
+	  or a variable in the
+	  variables buffer. Not perfect but it's a start in the right
+	  direction.
+	  Add key bindings for this and to print a region selected via the
+	  mouse.
+
+2008-02-06 16:15  Rocky Bernstein
+
+	* ChangeLog, emacs/Makefile.am, emacs/rdebug-gud.el,
+	  emacs/test/test-gud.el, lib/ChangeLog: Add 'nowarn to
+	  find-file-noselect and test that we don't get a warning.
+
 2008-02-05 16:30  Rocky Bernstein
 
 	* cli/ruby-debug/interface.rb: Remove "* used as prefix argument"

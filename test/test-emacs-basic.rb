@@ -15,7 +15,7 @@ class TestEmacsBasic < Test::Unit::TestCase
   include TestHelper
   
   def test_basic
-    testname='emacs-basic'
+    testname='emacs_basic'
     Dir.chdir(@@SRC_DIR) do 
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 

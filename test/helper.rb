@@ -4,6 +4,9 @@ require 'fileutils'
 # require 'diff/lcs'
 # require 'diff/lcs/hunk'
 
+# begin require 'rubygems' rescue LoadError end
+# require 'ruby-debug'; Debugger.start
+
 module TestHelper
 
   # FIXME: turn args into a hash.
@@ -55,7 +58,28 @@ module TestHelper
     return true
   end
 
-
+  # FIXME: using this causes the same test to get run several times 
+  # and some tests fail probably because of a lack of environment isolation.
+  # Many tests follow a basic pattern: run the debugger with a given
+  # debugger script and compare output produced. The following creates
+  # this kind of test.
+  def add_test(base_name, src_dir, script_name=nil, cmd=nil, test_name=nil)
+    puts "+++ Adding #{base_name} ++++" if $DEBUG
+    test_name   = base_name unless test_name
+    script_name = File.join('data', test_name + '.cmd') unless script_name
+    cmd         = 'gcd.rb 3 5' unless cmd
+    eval <<-EOF
+    def test_#{test_name}
+      Dir.chdir(\"#{src_dir}\") do 
+        assert_equal(true, 
+                     run_debugger(\"#{base_name}\", 
+                                  \"--script #{script_name} -- #{cmd}\"))
+      end
+    end
+    EOF
+  end
+  module_function :add_test
+               
   # Adapted from the Ruby Cookbook, Section 6.10: Comparing two files.
   # def diff_as_string(rightfile, checkfile, format=:unified, context_lines=3)
   #   right_data = File.read(rightfile)

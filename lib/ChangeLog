@@ -1,3 +1,10 @@
+2008-02-06 16:15  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/Makefile.am,
+	  trunk/emacs/rdebug-gud.el, trunk/emacs/test/test-gud.el,
+	  ChangeLog: Add 'nowarn to find-file-noselect and test that we
+	  don't get a warning.
+
 2008-02-05 01:41  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/rdebug-track.el,

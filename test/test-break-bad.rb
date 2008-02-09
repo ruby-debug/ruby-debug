@@ -14,7 +14,7 @@ class TestBadBreak < Test::Unit::TestCase
   include TestHelper
 
   def test_basic
-    testname='break-bad'
+    testname='break_bad'
     Dir.chdir(@@SRC_DIR) do 
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
