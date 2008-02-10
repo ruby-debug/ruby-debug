@@ -56,8 +56,8 @@
 ;; Should go somehwere else
 (defun chomp(string)
   "Remove trailing \n if it's there"
-  (let ((s string)) 
-    (if (string= "\n" (substring s -1)) 
+  (let ((s string))
+    (if (string= "\n" (substring s -1))
 	(substring s 0 -1)
       s)))
 
@@ -65,7 +65,10 @@
 ;; Interface to gud.
 ;;
 
-(defvar rdebug-non-annotated-text-is-output nil)
+(defvar rdebug-non-annotated-text-kind nil
+  "Represent that non-annotated text is.
+This can be nil (plain shell output), :output or :info.")
+
 
 ;; Problem: What happens if we receive "^Z^Zfoo\n^Z". Should we wait
 ;; until we know that the trailing ^Z is part of a new annotation or
@@ -109,8 +112,8 @@ Return (item . rest) or nil."
   "Filter function for process output of the rdebug Ruby debugger."
   (rdebug-debug-enter "gud-rdebug-marker-filter:"
     (rdebug-debug-message "GOT: %S" string)
-    (if rdebug-non-annotated-text-is-output
-        (rdebug-debug-message "  Output is default"))
+    (if rdebug-non-annotated-text-kind
+        (rdebug-debug-message "  Text is %S" rdebug-non-annotated-text-kind))
     (setq gud-marker-acc (concat gud-marker-acc string))
     (rdebug-debug-message "TOT: %S" gud-marker-acc)
     (let ((shell-output "")         ; Output to debugger shell window.
@@ -143,10 +146,15 @@ Return (item . rest) or nil."
             ;; Non-annotated text (or the content of one-liners) goes
             ;; straight into the debugger shell window, or to the
             ;; output window.
-            (if (and rdebug-non-annotated-text-is-output
-                     rdebug-use-separate-io-buffer)
-                (rdebug-process-annotation "starting" item)
-              (setq shell-output (concat shell-output item)))
+            (cond ((and (eq rdebug-non-annotated-text-kind :output)
+                        rdebug-use-separate-io-buffer)
+                   (rdebug-process-annotation "starting" item))
+                  ((eq rdebug-non-annotated-text-kind :info)
+                   (rdebug-process-annotation "info" item))
+                  (t
+                   (if (eq rdebug-non-annotated-text-kind :cmd)
+                       (rdebug-info-cmd-process item))
+                   (setq shell-output (concat shell-output item))))
           ;; Handle annotation.
           (let* ((line-end (match-end 0))
                  (name (match-string 1 item))
@@ -169,8 +177,22 @@ Return (item . rest) or nil."
                   ;; This is a global state flag, this allows us to
                   ;; redirect any further text to the output buffer.
                   (set
-                   (make-local-variable 'rdebug-non-annotated-text-is-output)
-                   (string= name "starting"))
+                   (make-local-variable 'rdebug-non-annotated-text-kind)
+                   (cond ((string= name "starting") :output)
+                         ((string= name "prompt")
+                          (rdebug-info-cmd-clear)
+                          :cmd)
+                         ((string= name "exited")
+                          ;; "info" is an accumulating buffer, but
+                          ;; it's explicitly cleared at the beginning
+                          ;; of new output.
+                          (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
+                            (if buf
+                                (with-current-buffer buf
+                                  (let ((inhibit-read-only t))
+                                    (erase-buffer)))))
+                          :info)
+                         (t nil)))
                   (cond ((string= name "pre-prompt")
                          ;; Strip of the trailing \n (this is probably
                          ;; a bug in processor.rb).
@@ -325,6 +347,7 @@ Currently-active file is at the head of the list.")
       (puthash "variables"   'rdebug--setup-variables-buffer             map)
       (puthash "watch"       'rdebug--setup-watch-buffer                 map)
       (puthash "output"      'rdebug--setup-output-buffer                map)
+      (puthash "info"        'rdebug--setup-info-buffer                  map)
       (puthash "help"        'rdebug--setup-secondary-window-help-buffer map)
       map)))
 
@@ -345,13 +368,17 @@ Currently-active file is at the head of the list.")
            (setq name "frame"))
           ((string= name "error-begin")
            (setq name "error")))
+    ;; New "info"
+    (cond ((string= name "error")
+           (setq name "info"))
+          ((string= name "exited")
+           (setq name "info")))
     (cond ((string= name "error")
            (message (chomp contents)))
           (t
            (let ((setup-func (gethash name rdebug--annotation-setup-map)))
              (when setup-func
-               (let ((buf (get-buffer-create
-                           (format "*rdebug-%s-%s*" name gud-target-name)))
+               (let ((buf (rdebug-get-buffer name gud-target-name))
                      ;; Buffer local, doesn't survive the buffer change.
                      (comint-buffer gud-comint-buffer))
                  (with-current-buffer buf
@@ -359,11 +386,15 @@ Currently-active file is at the head of the list.")
                    (let ((inhibit-read-only t))
                      (set (make-local-variable 'rdebug-current-line-number)
                           (line-number-at-pos))
-                     (cond ((string= name "output")
-                            (goto-char (point-max)))
-                           (t (erase-buffer)))
+                     (if rdebug-accumulative-buffer
+                         (goto-char (point-max))
+                       (erase-buffer))
                      (insert contents)
-                     (funcall setup-func buf comint-buffer))))))))))
+                     (funcall setup-func buf comint-buffer))))))))
+    (cond ((and (string= name "info")
+                (not (string= contents "")))
+           (save-selected-window
+             (rdebug-display-info-buffer))))))
 
 
 ;; -------------------------------------------------------------------
@@ -387,9 +418,13 @@ This is only used when `rdebug-many-windows' is non-nil."
     (pop-to-buffer gud-comint-buffer)
     (maphash
      (lambda (name func)
-       (if (or erase
-               (not (rdebug-get-buffer name gud-target-name)))
-           (rdebug-process-annotation name "")))
+       (if erase
+           (let ((buf (rdebug-get-existing-buffer name gud-target-name)))
+             (if buf
+                 (with-current-buffer buf
+                   (let ((inhibit-read-only t))
+                     (erase-buffer))))))
+       (rdebug-process-annotation name ""))
      rdebug--annotation-setup-map)
     (let ((buf
            (cond (gud-last-last-frame
@@ -406,11 +441,6 @@ This is only used when `rdebug-many-windows' is non-nil."
 (defun rdebug-setup-windows-initially ()
   "Like `rdebug-setup-windows', but erase the content of accumulative windows.
 This is called when the debugger starts."
-  (let ((buf (get-buffer (format "*rdebug-output-%s*" gud-target-name))))
-    (if buf
-        (with-current-buffer buf
-          (let ((inhibit-read-only t))
-            (erase-buffer)))))
   (rdebug-setup-windows t))
 
 
@@ -500,6 +530,7 @@ switch to the \"debugger\" window configuration."
 (require 'rdebug-error)
 (require 'rdebug-frames)
 (require 'rdebug-help)
+(require 'rdebug-info)
 (require 'rdebug-output)
 (require 'rdebug-varbuf)
 (require 'rdebug-watch)

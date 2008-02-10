@@ -64,6 +64,10 @@
 (defvar rdebug-secondary-buffer nil
   "Non-nil for rdebug secondary buffers (e.g. the breakpoints buffer).")
 
+;; Currently, this is the "outout" and "info" buffers.
+(defvar rdebug-accumulative-buffer nil
+  "Non-nil for Rdebug secondary buffers that grow.")
+
 ;; This is used to ensure that the original frame configuration is
 ;; restored even when the user re-starts the debugger several times.
 (defvar rdebug-window-configuration-state 'original

@@ -35,6 +35,13 @@
 If the buffer doesn't exists it is created."
   (get-buffer-create (format "*rdebug-%s-%s*" name script-name)))
 
+
+(defun rdebug-get-existing-buffer (name script-name)
+  "Return a rdebug buffer for displaying NAME when debugging SCRIPT-NAME.
+Return nil if the buffer doesn't exists."
+  (get-buffer (format "*rdebug-%s-%s*" name script-name)))
+
+
 (defun rdebug-window-layout-conservative (src-buf name)
   "A conservative rdebug window layout with three windows.
 

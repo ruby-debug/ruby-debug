@@ -85,6 +85,7 @@
     (setq mode-name "RDEBUG Output")
     (setq buffer-read-only t)
     (set (make-local-variable 'rdebug-secondary-buffer) t)
+    (set (make-local-variable 'rdebug-accumulative-buffer) t)
     (use-local-map rdebug-output-mode-map)
     (set (make-local-variable 'rdebug-output-marker-number) old-marker-number)
     (run-mode-hooks 'rdebug-output-mode-hook)))

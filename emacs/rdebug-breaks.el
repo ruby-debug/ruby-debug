@@ -1,4 +1,4 @@
-;;; rdebug-breaks.el --- Ruby debugger frames buffer
+;;; rdebug-breaks.el --- Ruby debugger breakpints buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -115,8 +115,7 @@
     (with-current-buffer buf
       (let ((inhibit-read-only t)
 	    (old-line-number (buffer-local-value 'rdebug-current-line-number
-						 buf))
-	    (flag))
+						 buf)))
         (rdebug-breakpoints-mode)
         (goto-char (point-min))
         (while (not (eobp))
