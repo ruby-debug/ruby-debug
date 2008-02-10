@@ -446,6 +446,7 @@ This does not menus or prefix keys."
     (define-key map "C" 'rdebug-display-cmd-buffer)
     (define-key map "E" 'rdebug-display-error-buffer)
     (define-key map "F" 'rdebug-display-frame-buffer)
+    (define-key map "I" 'rdebug-display-info-buffer)
     (define-key map "O" 'rdebug-display-output-buffer)
     (define-key map "S" 'rdebug-display-source-buffer)
     (define-key map "V" 'rdebug-display-variables-buffer)

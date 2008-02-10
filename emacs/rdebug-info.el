@@ -87,7 +87,7 @@
       (when (string-match "^\\([a-z]+\\) .*\n" rdebug-info-cmd-acc)
         (rdebug-debug-message (match-string 1 rdebug-info-cmd-acc))
         (if (member (match-string 1 rdebug-info-cmd-acc)
-                    '("p" "e" "eval" "pp" "ps" "info"))
+                    '("p" "e" "eval" "pp" "pl" "ps" "info"))
             (progn
               (setq rdebug-info-cmd-state :accept)
               (setq s (substring rdebug-info-cmd-acc (match-end 0)))
