@@ -98,7 +98,8 @@
                         (erase-buffer))))))
           (setq rdebug-info-cmd-state :reject))))
     (when (eq rdebug-info-cmd-state :accept)
-      (rdebug-process-annotation "info" s))))
+      (with-no-warnings
+        (rdebug-process-annotation "info" s)))))
 
 
 ;; -------------------------------------------------------------------
