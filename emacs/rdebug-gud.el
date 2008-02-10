@@ -94,10 +94,36 @@ This variable will have a string value which is either \"\",
 \"+\", or \"-\"; this string is be appended to the debugger
 stepping commands (\"next\", or \"step\").")
 
-(defun rdebug-pretty-print (expr)
-  "Run a debugger \"pp\" command on `expr'."
+(defun rdebug-print-cmd (expr &optional cmd)
+  "Run a debugger print (pl, ps, pp, p) command on `expr'; `cmd'
+contains the command to run"
   (interactive "s")
-  (gud-call (format "pp %s " expr)))
+  (unless cmd (setq cmd "pp"))
+  (gud-call (format "%s %s " cmd expr)))
+
+(defun rdebug-print-list-region (from to)
+  "Run a debugger \"pl\" command on the marked region."
+  (interactive "r")
+  (if (> from to)
+      (let ((tem to))
+	(setq to from from tem)))
+  (rdebug-print-cmd (buffer-substring from to) "pl"))
+
+(defun rdebug-print-region (from to)
+  "Run a debugger \"p\" command on the marked region."
+  (interactive "r")
+  (if (> from to)
+      (let ((tem to))
+	(setq to from from tem)))
+  (rdebug-print-cmd (buffer-substring from to) "p"))
+
+(defun rdebug-print-sorted-region (from to)
+  "Run a debugger \"ps\" command on the marked region."
+  (interactive "r")
+  (if (> from to)
+      (let ((tem to))
+	(setq to from from tem)))
+  (rdebug-print-cmd (buffer-substring from to) "ps"))
 
 (defun rdebug-pretty-print-region (from to)
   "Run a debugger \"pp\" command on the marked region."
@@ -105,7 +131,7 @@ stepping commands (\"next\", or \"step\").")
   (if (> from to)
       (let ((tem to))
 	(setq to from from tem)))
-  (rdebug-pretty-print (buffer-substring from to)))
+  (rdebug-print-cmd (buffer-substring from to) "pp"))
 
 (defun rdebug-quit ()
   "Kill the debugger process associated with the current buffer.

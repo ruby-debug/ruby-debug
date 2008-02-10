@@ -34,7 +34,8 @@
     (define-key map "\r" 'rdebug-variables-edit)
     ;; (define-key map "e" 'rdebug-edit-variables-value)
     (define-key map [mouse-2] 'rdebug-variables-edit-mouse)
-    (define-key map "p" 'rdebug-variables-pretty-print)
+    (define-key map "e" 'rdebug-variables-print)
+    (define-key map "x" 'rdebug-variables-pretty-print)
     (rdebug-populate-secondary-buffer-map map)
 
     ;; --------------------
@@ -110,7 +111,6 @@ This function is intended to be bound to a mouse key"
        (list var value))))
   (gud-call (format "p %s=%s" var value)))
 
-
 (defun rdebug-variables-pretty-print (var)
   "Pretty print a variable in the variables buffer."
   (interactive
@@ -120,7 +120,7 @@ This function is intended to be bound to a mouse key"
        (when (looking-at "^\\(@?[a-zA-Z_0-9]+\\) *= *\\(.*\\)$")
          (setq var (match-string 1)))
        (list var))))
-  (rdebug-pretty-print var))
+  (rdebug-print-cmd var "pp"))
 
 (defun rdebug-variables-pretty-print-mouse (&optional event)
   "Assign a value to a variable displayed in the variables buffer.
@@ -129,6 +129,17 @@ This function is intended to be bound to a mouse key"
   (save-excursion
     (if event (posn-set-point (event-end event)))
     (call-interactively 'rdebug-variables-pretty-print)))
+
+(defun rdebug-variables-print (var)
+  "Print a variable in the variables buffer."
+  (interactive
+   (let ((var nil))
+     (save-excursion
+       (beginning-of-line)
+       (when (looking-at "^\\(@?[a-zA-Z_0-9]+\\) *= *\\(.*\\)$")
+         (setq var (match-string 1)))
+       (list var))))
+  (rdebug-print-cmd var "p"))
 
 (provide 'rdebug-varbuf)
 
