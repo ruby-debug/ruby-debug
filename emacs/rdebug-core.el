@@ -48,6 +48,7 @@
 (require 'rdebug)
 (require 'rdebug-dbg)
 (require 'rdebug-gud)
+(require 'rdebug-info)
 (require 'rdebug-layouts)
 (require 'rdebug-source)
 (require 'rdebug-regexp)

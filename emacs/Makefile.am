@@ -23,6 +23,7 @@ lisp_files = rdebug.el \
 	     rdebug-frames.el 	\
 	     rdebug-gud.el 	\
 	     rdebug-help.el 	\
+	     rdebug-info.el 	\
 	     rdebug-layouts.el	\
 	     rdebug-output.el 	\
              rdebug-regexp.el	\

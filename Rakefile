@@ -181,20 +181,20 @@ task :win32_gem do
   target = File.join(current_dir, "lib", SO_NAME)
   cp(source, target)
 
-  # Create the gem, then move it to pkg
-	Gem::Builder.new(win_spec).build
-	gem_file = "#{win_spec.name}-#{win_spec.version}-#{win_spec.platform}.gem"
+  # Create the gem, then move it to pkg.
+  Gem::Builder.new(win_spec).build
+  gem_file = "#{win_spec.name}-#{win_spec.version}-#{win_spec.platform}.gem"
   mv(gem_file, "pkg/#{gem_file}")
 
-  # Remove win extension fro top level directory	
-	rm(target)
+  # Remove win extension from top level directory.
+  rm(target)
 end
 
 desc "Publish ruby-debug to RubyForge."
 task :publish do 
   require 'rake/contrib/sshpublisher'
   
-  # Get ruby-debug path
+  # Get ruby-debug path.
   ruby_debug_path = File.expand_path(File.dirname(__FILE__))
 
   publisher = Rake::SshDirPublisher.new("kent@rubyforge.org",
