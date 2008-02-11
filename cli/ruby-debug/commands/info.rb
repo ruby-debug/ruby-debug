@@ -9,8 +9,8 @@ module Debugger
 integer argument, list info on that breakpoint.'],
        ['catch', 3, 'Exceptions that can be caught in the current stack frame'],
        ['display', 2, 'Expressions to display when program stops'],
-       ['files', 5, 'File names and timestamps of files read in'],
        ['file', 4, 'Info about a particular file read in'],
+       ['files', 5, 'File names and timestamps of files read in'],
        ['global_variables', 2, 'Global variables'],
        ['instance_variables', 2, 
         'Instance variables of the current stack frame'],
@@ -19,7 +19,17 @@ integer argument, list info on that breakpoint.'],
        ['locals', 2, 'Local variables of the current stack frame'],
        ['program', 2, 'Execution status of the program'],
        ['stack', 2, 'Backtrace of the stack'],
-       ['threads', 1, 'IDs of currently known threads'],
+       ['thread', 6,  'List info about thread NUM', '
+If no thread number is given, we list info for all threads. \'terse\' and \'verbose\' 
+options are possible. If terse, just give summary thread name information. See 
+"help info threads" for more detail about this summary information.
+
+If \'verbose\' appended to the end of the command, then the entire
+stack trace is given for each thread.'],
+       ['threads', 7, 'information of currently-known threads', '
+This information includes whether the thread is current (+), if it is
+suspended ($), or ignored (!).  The thread number and the top stack
+item. If \'verbose\' is given then the entire stack frame is shown.'],
        ['variables', 1, 
         'Local and instance variables of the current stack frame']
       ].map do |name, min, short_help, long_help| 
@@ -40,6 +50,14 @@ integer argument, list info on that breakpoint.'],
       ].map do |name, min, short_help, long_help|
       SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(InfoFileSubcommands)
+
+    InfoThreadSubcommands = 
+      [
+       ['terse', 1,   'summary information'],
+       ['verbose', 1, 'summary information and stack frame info'],
+      ].map do |name, min, short_help, long_help|
+      SubcmdStruct.new(name, min, short_help, long_help)
+    end unless defined?(InfoThreadSubcommands)
 
     def regexp
       /^\s* i(?:nfo)? (?:\s+(.*))?$/ix
@@ -300,15 +318,46 @@ integer argument, list info on that breakpoint.'],
         print_frame(idx)
       end
     end
-    
-    def info_threads(*args)
+
+    def info_thread_preamble(arg)
       if not @state.context
-        print "info threads not available here.\n"
+        errmsg "info threads not available here.\n"
+        return false, false
+      end
+      verbose = if arg
+        subcmd = find(InfoThreadSubcommands, arg)
+        unless subcmd
+          errmsg "'terse' or 'verbose' expected. Got '#{arg}'\n"
+          return false, false
+        end
+        'verbose' == subcmd.name
+      else
+        false
+      end
+      return true, verbose
+    end
+    private :info_thread_preamble
+      
+    def info_threads(*args)
+      ok, verbose = info_thread_preamble(args[0])
+      return unless ok
+      threads = Debugger.contexts.sort_by{|c| c.thnum}.each do |c|
+        display_context(c, !verbose)
+        print_frame(0, false, c) if verbose and not c.ignored?
+      end
+    end
+    
+    def info_thread(*args)
+      unless args[0]
+        info_threads(args[0])
         return
       end
-      threads = Debugger.contexts.sort_by{|c| c.thnum}.each do |c|
-        display_context(c)
-      end
+      ok, verbose = info_thread_preamble(args[1])
+      return unless ok
+      c = parse_thread_num("info thread" , args[0])
+      return unless c
+      display_context(c, !verbose)
+      print_frame(0, false, c) if verbose and not c.ignored?
     end
     
     def info_global_variables(*args)

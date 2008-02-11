@@ -75,10 +75,10 @@ module Debugger
       return call_str
     end
 
-    def print_frame(pos, adjust = false)
-      file = @state.context.frame_file(pos)
-      line = @state.context.frame_line(pos)
-      klass = @state.context.frame_class(pos)
+    def print_frame(pos, adjust = false, context=@state.context)
+      file = context.frame_file(pos)
+      line = context.frame_line(pos)
+      klass = context.frame_class(pos)
 
       unless Command.settings[:full_path]
         path_components = file.split(/[\\\/]/)

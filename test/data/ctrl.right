@@ -13,15 +13,16 @@ info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
 info catch -- Exceptions that can be caught in the current stack frame
 info display -- Expressions to display when program stops
-info files -- File names and timestamps of files read in
 info file -- Info about a particular file read in
+info files -- File names and timestamps of files read in
 info global_variables -- Global variables
 info instance_variables -- Instance variables of the current stack frame
 info line -- Line number and file name of current position in source file
 info locals -- Local variables of the current stack frame
 info program -- Execution status of the program
 info stack -- Backtrace of the stack
-info threads -- IDs of currently known threads
+info thread -- List info about thread NUM
+info threads -- information of currently-known threads
 info variables -- Local and instance variables of the current stack frame
 No frame selected.
 info breakpoints not available here.

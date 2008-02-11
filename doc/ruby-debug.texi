@@ -1567,7 +1567,8 @@ info line -- Current source position
 info locals -- Local variables of the current stack frame
 info program -- Execution status of the program
 info stack -- Backtrace of the stack
-info threads -- IDs of currently known threads
+info thread -- List info about thread NUM
+info threads -- information of currently known threads
 info variables -- local and instance variables
 @end example
 
@@ -2868,9 +2869,35 @@ running or not and why it stopped.
 @kindex info stack
 @item info stack
 Backtrace of the stack. An alias for @code{where}. @xref{Backtrace}.
-@kindex info threads
+@kindex info thread
+@item info thread @ovar{thread-number} @r{[} terse | verbose@r{]}
+If no thread number is given, we list info for all
+threads. @code{terse} and @code{verbose} options are possible. If terse,
+just give summary thread name information. See information under @code{info threads} for
+more detail about this summary information.
+
+If @code{verbose} is appended to the end of the command, then the entire
+stack trace is given for each thread.
+
+@kindex info threads @r{[} terse | verbose@r{]}
 @item info threads
-IDs of currently known threads
+
+List information about currently-known threads. This information
+includes whether the thread is current (+), if it is suspended ($), or
+ignored (!); the thread number and the top stack item. If
+@code{verbose} is given then the entire stack frame is shown. Here is
+an example:
+
+@smallexample
+(rdb:1) info threads
++ 1 #<Thread:0xb7cb7700 run>	./test/gcd.rb:4
+ !2 #<Debugger::DebugThread:0xb7734fbc sleep>	
+(rdb:1) 
+@end smallexample
+
+Thread 1 is the current thread since it has a plus sign in front. Thread 2 is
+ignored since it has a @code{!}.
+
 @kindex info variables
 @item info variables
 Local and instance variables.
