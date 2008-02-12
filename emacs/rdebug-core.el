@@ -67,8 +67,15 @@
 ;;
 
 (defvar rdebug-non-annotated-text-kind nil
-  "Represent that non-annotated text is.
-This can be nil (plain shell output), :output or :info.")
+  "Represent what non-annotated text is.
+
+This can be:
+ * nil     -- plain shell output
+ * :output -- output from the command being debugged
+ * :info   -- text for the \"info\" secondary window.
+ * :cmd    -- a command + result, which might go into the \"info\" window.
+
+See the function `rdebug-info-cmd-process' for details on :cmd.")
 
 
 ;; Problem: What happens if we receive "^Z^Zfoo\n^Z". Should we wait
