@@ -1,3 +1,20 @@
+2008-02-09 15:48  Rocky Bernstein
+
+	* trunk/ChangeLog, ChangeLog, trunk/test/data/break-bad.cmd,
+	  trunk/test/data/break-bad.right, trunk/test/data/break_bad.cmd,
+	  trunk/test/data/break_bad.right, trunk/test/data/emacs-basic.cmd,
+	  trunk/test/data/emacs-basic.right,
+	  trunk/test/data/emacs_basic.cmd,
+	  trunk/test/data/emacs_basic.right, trunk/test/helper.rb,
+	  trunk/test/test-break-bad.rb, trunk/test/test-emacs-basic.rb:
+	  helper.rb Failed attempt to DRY tests more. But save what we have
+	  which may someday in the future be used to go further. Minus to
+	  undercore in Data file names in preparation such time. (We'll use
+	  the
+	  filename as the test name).
+	  
+	  testing
+
 2008-02-06 16:15  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/Makefile.am,

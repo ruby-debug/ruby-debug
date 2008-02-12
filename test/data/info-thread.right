@@ -12,7 +12,7 @@ autoeval is off.
 + 1 #<Thread:0xb7ceb708 run>	./gcd.rb:4
 # info threads ver
 + 1 #<Thread:0xb7ceb708 run>	
-#0 at line gcd.rb:4
+	#0 at line gcd.rb:4
 # info thread 1 t
 + 1 #<Thread:0xb7ceb708 run>	./gcd.rb:4
 # info threads

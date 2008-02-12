@@ -1,3 +1,94 @@
+2008-02-11 02:29  Rocky Bernstein
+
+	* cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/commands/info.rb,
+	  cli/ruby-debug/commands/threads.rb, doc/ruby-debug.texi,
+	  test/data/ctrl.right, test/data/info-thread.cmd,
+	  test/data/info-thread.right, test/data/info.right,
+	  test/test-info-thread.rb: Add "info thread". Pound on "info
+	  threads" to make it more like
+	  pydb. In particular we can give stack traces for the threads.
+	  Towards
+	  addressing issue #12663.
+
+2008-02-10 20:46  Rocky Bernstein
+
+	* emacs/rdebug-info.el, emacs/rdebug-source.el: Add key to get to
+	  Info buffer. Add "pl" to list of print commands.
+
+2008-02-10 17:46  Rocky Bernstein
+
+	* Rakefile, emacs/Makefile.am, emacs/rdebug-core.el: Makefile.am,
+	  rdebug-core.el: require/add rdebug-info.el
+	  Rakefile: some indentation
+
+2008-02-10 16:06  Anders Lindgren
+
+	* emacs/rdebug-info.el: Got rid of warning. (Had to disabled it the
+	  hard way since rdebug-info calls a function in rdebug-core, but
+	  can't require it because that would lead to cyclic requires.)
+
+2008-02-10 16:01  Anders Lindgren
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-core.el,
+	  emacs/rdebug-info.el, emacs/rdebug-layouts.el,
+	  emacs/rdebug-output.el, emacs/rdebug-vars.el,
+	  emacs/test/test-indent.el: New secondary window 'info', which
+	  displays output of events and
+	  certain commands. The non-annotated-text system reworked to
+	  handle
+	  this. This should be seen as a proof of concept that we can pick
+	  up
+	  the output of, say, "pp". The end result could very well differ
+	  quite
+	  a lot from what we have now.
+	  
+	  New variable 'rdebug-accumulative-buffer', true for buffers that
+	  grow.
+	  Currently "output" and "info".
+
+2008-02-10 01:39  Rocky Bernstein
+
+	* emacs/rdebug-gud.el, emacs/rdebug-source.el,
+	  emacs/rdebug-varbuf.el: Add more variations of print commands:
+	  pl, ps, pp, and p.
+
+2008-02-09 22:20  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug-layouts.el,
+	  emacs/rdebug-source.el, emacs/rdebug.el: * New window layout "no
+	  shell". This is the "standard" layout with the
+	  "watch" window instead of the "debugger shell" window.
+	  
+	  * Fixed a problem where the Watch window was not initialized
+	  properly
+	  until the first annotation arrived.
+	  
+	  * Fixed a problem where we created far too many buffers, e.g
+	  *rdebug-stopping-test.rb* and *rdebug--test.rb*.
+
+2008-02-09 16:24  Anders Lindgren
+
+	* emacs/rdebug-frames.el, emacs/rdebug-layouts.el,
+	  emacs/test/test-indent.el: Indentation fixes, plus adding all
+	  rdebug-xxx.el files to the list of files to check.
+
+2008-02-09 15:48  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/data/break-bad.cmd,
+	  test/data/break-bad.right, test/data/break_bad.cmd,
+	  test/data/break_bad.right, test/data/emacs-basic.cmd,
+	  test/data/emacs-basic.right, test/data/emacs_basic.cmd,
+	  test/data/emacs_basic.right, test/helper.rb,
+	  test/test-break-bad.rb, test/test-emacs-basic.rb: helper.rb
+	  Failed attempt to DRY tests more. But save what we have
+	  which may someday in the future be used to go further. Minus to
+	  undercore in Data file names in preparation such time. (We'll use
+	  the
+	  filename as the test name).
+	  
+	  testing
+
 2008-02-09 11:55  Rocky Bernstein
 
 	* ext/ruby_debug.c, test/data/post-mortem-next.cmd,

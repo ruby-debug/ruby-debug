@@ -30,16 +30,16 @@ module Debugger
       print_frame(@state.frame_pos, true)
     end
     
-    def get_frame_call(prefix, pos)
-      id = @state.context.frame_method(pos)
-      klass = @state.context.frame_class(pos)
+    def get_frame_call(prefix, pos, context)
+      id = context.frame_method(pos)
+      klass = context.frame_class(pos)
       call_str = ""
       if id
-        args = @state.context.frame_args(pos)
-        locals = @state.context.frame_locals(pos)
+        args = context.frame_args(pos)
+        locals = context.frame_locals(pos)
         if Command.settings[:callstyle] != :short && klass
           if Command.settings[:callstyle] == :tracked
-            arg_info = @state.context.frame_args_info(pos)
+            arg_info = context.frame_args_info(pos)
           end
           call_str << "#{klass}." 
         end
@@ -89,7 +89,7 @@ module Debugger
       end
 
       frame_num = "#%d " % pos
-      call_str = get_frame_call(frame_num, pos)
+      call_str = get_frame_call(frame_num, pos, context)
       file_line = "at line %s:%d\n" % [CommandProcessor.canonic_file(file), line]
       print frame_num
       unless call_str.empty?

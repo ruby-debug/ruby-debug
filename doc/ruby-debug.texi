@@ -2889,14 +2889,46 @@ ignored (!); the thread number and the top stack item. If
 an example:
 
 @smallexample
-(rdb:1) info threads
-+ 1 #<Thread:0xb7cb7700 run>	./test/gcd.rb:4
- !2 #<Debugger::DebugThread:0xb7734fbc sleep>	
+(rdb:7) info threads
+  1 #<Thread:0xb7d08704 sleep>	./test/thread1.rb:27
+ !2 #<Debugger::DebugThread:0xb7782e4c sleep>	
+  3 #<Thread:0xb777e220 sleep>	./test/thread1.rb:11
+  4 #<Thread:0xb777e144 sleep>	./test/thread1.rb:11
+  5 #<Thread:0xb777e07c sleep>	./test/thread1.rb:11
+  6 #<Thread:0xb777dfb4 sleep>	./test/thread1.rb:11
++ 7 #<Thread:0xb777deec run>	./test/thread1.rb:14
 (rdb:1) 
 @end smallexample
 
-Thread 1 is the current thread since it has a plus sign in front. Thread 2 is
-ignored since it has a @code{!}.
+Thread 7 is the current thread since it has a plus sign in front. Thread 2 is
+ignored since it has a @code{!}. A ``verbose'' listing of the above:
+
+@smallexample
+(rdb:7) info threads verbose
+  1 #<Thread:0xb7d08704 sleep>	
+	#0 Integer.join at line test/thread1.rb:27
+	#1 at line test/thread1.rb:27
+ !2 #<Debugger::DebugThread:0xb7782e4c sleep>	
+  3 #<Thread:0xb777e220 sleep>	
+	#0 sleep(count#Fixnum) at line test/thread1.rb:11
+	#1 Object.fn(count#Fixnum, i#Fixnum) at line test/thread1.rb:11
+	#2 at line test/thread1.rb:23
+  4 #<Thread:0xb777e144 sleep>	
+	#0 sleep(count#Fixnum) at line test/thread1.rb:11
+	#1 Object.fn(count#Fixnum, i#Fixnum) at line test/thread1.rb:11
+	#2 at line test/thread1.rb:23
+  5 #<Thread:0xb777e07c sleep>	
+	#0 sleep(count#Fixnum) at line test/thread1.rb:11
+	#1 Object.fn(count#Fixnum, i#Fixnum) at line test/thread1.rb:11
+	#2 at line test/thread1.rb:23
+  6 #<Thread:0xb777dfb4 sleep>	
+	#0 sleep(count#Fixnum) at line test/thread1.rb:11
+	#1 Object.fn(count#Fixnum, i#Fixnum) at line test/thread1.rb:11
+	#2 at line test/thread1.rb:23
++ 7 #<Thread:0xb777deec run>	
+	#0 Object.fn(count#Fixnum, i#Fixnum) at line test/thread1.rb:14
+	#1 at line test/thread1.rb:23
+@end smallexample
 
 @kindex info variables
 @item info variables

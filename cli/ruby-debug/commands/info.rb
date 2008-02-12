@@ -343,7 +343,12 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
       return unless ok
       threads = Debugger.contexts.sort_by{|c| c.thnum}.each do |c|
         display_context(c, !verbose)
-        print_frame(0, false, c) if verbose and not c.ignored?
+        if verbose and not c.ignored?
+          (0...c.stack_size).each do |idx|
+            print "\t"
+            print_frame(idx, false, c)
+          end
+        end
       end
     end
     
@@ -357,7 +362,12 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
       c = parse_thread_num("info thread" , args[0])
       return unless c
       display_context(c, !verbose)
-      print_frame(0, false, c) if verbose and not c.ignored?
+      if verbose and not c.ignored?
+        (0...c.stack_size).each do |idx|
+          print "\t"
+          print_frame(idx, false, c) 
+        end
+      end
     end
     
     def info_global_variables(*args)
