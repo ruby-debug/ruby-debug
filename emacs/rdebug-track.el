@@ -76,9 +76,6 @@ as gud-mode does for debugging C programs with gdb."
   "^(\\([-a-zA-Z0-9_/.]*\\):\\([0-9]+\\)):[ \t]?\\(.*\n\\)"
   "Regular expression rdebug-track uses to find a stack trace entry.")
 
-(defconst rdebug-track-input-prompt "\n(+rdb:\\([0-9]+\\|post-mortem\\))+ *"
-  "Regular expression rdebug-track uses to recognize a rdebug prompt.")
-
 (defconst rdebug-track-track-range 10000
   "Max number of characters from end of buffer to search for stack entry.")
 
@@ -121,7 +118,7 @@ as gud-mode does for debugging C programs with gdb."
 Activity is disabled if the buffer-local variable
 `rdebug-track-do-tracking-p' is nil.
 
-We depend on the rdebug input prompt matching `rdebug-track-input-prompt'
+We depend on the rdebug input prompt matching `rdebug-input-prompt-regexp'
 at the beginning of the line."
   ;; Instead of trying to piece things together from partial text
   ;; (which can be almost useless depending on Emacs version), we
@@ -145,7 +142,7 @@ at the beginning of the line."
                (block-str (buffer-substring block-start procmark))
                target target_fname target_lineno target_buffer)
 
-          (if (not (string-match rdebug-track-input-prompt block-str))
+          (if (not (string-match rdebug-input-prompt-regexp block-str))
               (rdebug-track-overlay-arrow nil)
             ;;else
             (setq target (rdebug-track-get-source-buffer block-str))
@@ -339,7 +336,7 @@ window layout is used."
     (rdebug-populate-common-keys (current-local-map))
     (rdebug-populate-debugger-menu (current-local-map))
       
-    (setq comint-prompt-regexp "^(rdb:-) ")
+    (setq comint-prompt-regexp (concat "^" rdebug-input-prompt-regexp))
     (setq paragraph-start comint-prompt-regexp)
 
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)

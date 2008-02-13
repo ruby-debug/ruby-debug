@@ -111,6 +111,10 @@ Program-location lines look like this:
   "Group position in `rdebug--stack-frame-regexp' that matches
   the line number.")
 
+(defconst rdebug-input-prompt-regexp "(+rdb:\\([0-9]+\\|post-mortem\\)) "
+  "Regular expression to recognize a rdebug prompt. Some uses may
+  prepend an anchor to the front ")
+
 
 
 ;; -------------------------------------------------------------------
