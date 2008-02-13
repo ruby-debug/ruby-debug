@@ -713,8 +713,6 @@ This function is designed to be used in a user hook, for example:
            "Down N stack frames (numeric arg).")
   (gud-def gud-finish "finish"      "\C-f"
            "Finish executing current function.")
-  (gud-def gud-print  "p %e"        "\C-p"
-           "Evaluate Ruby expression at point.")
   (gud-def gud-source-resync "up 0" "\C-l"
            "Show current source window")
   (gud-def gud-remove "clear %d%f:%l" "\C-d"
@@ -731,6 +729,8 @@ This function is designed to be used in a user hook, for example:
   (gud-def gud-where   "where"
            "T" "Show stack trace.")
   (local-set-key "\C-i" 'gud-gdb-complete-command))
+  (local-set-key "\C-c\C-n" 'comint-next-prompt)
+  (local-set-key "\C-c\C-p" 'comint-previous-prompt)
 
 
 ;;;###autoload
@@ -822,7 +822,7 @@ and options used to invoke rdebug."
       (rdebug-populate-common-keys (current-local-map))
       (rdebug-populate-debugger-menu (current-local-map))
 
-      (setq comint-prompt-regexp "^(rdb:-) ")
+      (setq comint-prompt-regexp "^(rdb:\\(.+\\)) ")
       (setq paragraph-start comint-prompt-regexp)
 
       (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)

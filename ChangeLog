@@ -1,3 +1,25 @@
+2008-02-13 13:08  Rocky Bernstein
+
+	* Rakefile: Newer rubygems depricates Gem::Platform::WIN32
+
+2008-02-13 03:47  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-gud.el, emacs/rdebug-vars.el:
+	  Add ability to show print output as a tooltip. This is more a
+	  proof-of-concept than a finished product.
+
+2008-02-12 05:34  Anders Lindgren
+
+	* emacs/rdebug-core.el: Better documentation for
+	  rdebug-non-annotated-text-kind.
+
+2008-02-12 02:06  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/commands/info.rb, doc/ruby-debug.texi,
+	  lib/ChangeLog, test/data/info-thread.right, test/thread1.rb: Fix
+	  bug in "info thread verbose" which wasn't showing full traceback.
+
 2008-02-11 02:29  Rocky Bernstein
 
 	* cli/ruby-debug/commands/frame.rb,

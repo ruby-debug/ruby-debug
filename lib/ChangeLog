@@ -1,3 +1,11 @@
+2008-02-12 02:06  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/frame.rb,
+	  trunk/cli/ruby-debug/commands/info.rb, trunk/doc/ruby-debug.texi,
+	  ChangeLog, trunk/test/data/info-thread.right,
+	  trunk/test/thread1.rb: Fix bug in "info thread verbose" which
+	  wasn't showing full traceback.
+
 2008-02-09 15:48  Rocky Bernstein
 
 	* trunk/ChangeLog, ChangeLog, trunk/test/data/break-bad.cmd,
