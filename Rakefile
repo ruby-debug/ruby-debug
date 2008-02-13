@@ -170,7 +170,8 @@ task :default => [:package]
 # Windows specification
 win_spec = base_spec.clone
 win_spec.extensions = []
-win_spec.platform = Gem::Platform::WIN32
+## win_spec.platform = Gem::Platform::WIN32 # deprecated
+win_spec.platform = 'mswin32'
 win_spec.files += ["lib/#{SO_NAME}"]
 
 desc "Create Windows Gem"
