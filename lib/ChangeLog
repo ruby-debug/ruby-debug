@@ -1,3 +1,8 @@
+2008-02-13 17:32  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-core.el, ChangeLog: Set up
+	  keys for comint-next-prompt and comint-previous-prompt.
+
 2008-02-12 02:06  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/frame.rb,

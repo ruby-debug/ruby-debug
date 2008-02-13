@@ -1,3 +1,14 @@
+2008-02-13 17:58  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-regexp.el,
+	  emacs/rdebug-track.el: Use rdebug-input-prompt-regexp rather than
+	  duplicate strings. Set comint-next/previous-prompt
+
+2008-02-13 17:32  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-core.el, lib/ChangeLog: Set up keys for
+	  comint-next-prompt and comint-previous-prompt.
+
 2008-02-13 13:08  Rocky Bernstein
 
 	* Rakefile: Newer rubygems depricates Gem::Platform::WIN32

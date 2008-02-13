@@ -174,7 +174,7 @@ module Debugger
 
     # The prompt shown before reading a command.
     def prompt(context)
-      p = '(rdb:%s) ' % (context.dead?  ? 'port-mortem' : context.thnum)
+      p = '(rdb:%s) ' % (context.dead?  ? 'post-mortem' : context.thnum)
       p = afmt("pre-prompt")+p+"\n"+afmt("prompt") if 
         Debugger.annotate.to_i > 2
       return p
