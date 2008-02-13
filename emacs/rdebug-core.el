@@ -182,6 +182,7 @@ Return (item . rest) or nil."
                 ;; ok, annotation complete, process it and remove it
                 (let* ((contents (substring item line-end)))
                   (rdebug-debug-message "Name: %S Content: %S" name contents)
+		  
                   ;; This is a global state flag, this allows us to
                   ;; redirect any further text to the output buffer.
                   (set
@@ -232,6 +233,15 @@ Return (item . rest) or nil."
       (unless (string= shell-output "")
         (rdebug-debug-message "Output: %S" shell-output))
       (rdebug-debug-message "REM: %S" gud-marker-acc)
+
+      ;; Process rdebug-call messages
+      (if (car rdebug-call-queue)
+	  (progn 
+	    ;; FIXME: tooltip is hardcoded, should be a callback routine stored inside
+	    ;; rdebug-call-queue. Also we should strip off the command from the 
+	    ;; beginning of the output. Or maybe not? 
+	    (tooltip-show shell-output)
+	    (setq rdebug-call-queue (cdr rdebug-call-queue))))
 
       shell-output)))
 
@@ -691,6 +701,7 @@ This function is designed to be used in a user hook, for example:
   ;; own "Debugger" menu.
 
   ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
+  (set (make-local-variable 'rdebug-call-queue) '())
 
   (gud-def gud-args   "info args" "a"
            "Show arguments of current stack frame.")

@@ -70,6 +70,13 @@ program file."
 ;; Rdebug commands.
 ;;
 
+(defun rdebug-call (cmd)
+  "Set up a call to the debugger where we'll pick up the answer
+as the next shell output."
+  (with-current-buffer gud-comint-buffer
+    (setq rdebug-call-queue (append rdebug-call-queue (list cmd)))
+    (gud-call cmd)))
+
 (defun rdebug-continue (&optional arg)
   "Run a debugger \"continue\" command.
 
@@ -99,7 +106,7 @@ stepping commands (\"next\", or \"step\").")
 contains the command to run"
   (interactive "s")
   (unless cmd (setq cmd "pp"))
-  (gud-call (format "%s %s " cmd expr)))
+  (rdebug-call (format "%s %s " cmd expr)))
 
 (defun rdebug-print-list-region (from to)
   "Run a debugger \"pl\" command on the marked region."

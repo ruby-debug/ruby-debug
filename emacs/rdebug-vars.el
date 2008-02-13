@@ -64,7 +64,7 @@
 (defvar rdebug-secondary-buffer nil
   "Non-nil for rdebug secondary buffers (e.g. the breakpoints buffer).")
 
-;; Currently, this is the "outout" and "info" buffers.
+;; Currently, this is the "output" and "info" buffers.
 (defvar rdebug-accumulative-buffer nil
   "Non-nil for Rdebug secondary buffers that grow.")
 
@@ -74,6 +74,11 @@
   "Represent the window layout that currently is in use.
 Can be `original' or `debugger'.")
 
+;; FIXME instead of just a a list of commands it should a list of pairs
+;; command and lambda callback routine to call with the shell output.
+(defvar rdebug-call-queue '()
+  "List of commands queued up for results of a gud-call. This a
+  buffer local variable to redebug command buffers.")
 
 ;; -------------------------------------------------------------------
 ;; The end.
