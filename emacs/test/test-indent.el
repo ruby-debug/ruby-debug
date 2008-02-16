@@ -30,6 +30,7 @@
 	    (assert-nil (rdebug-test-reindent-one-file lisp-file)))
 	  '("../rdebug.el"
 	    "../rdebug-breaks.el"
+	    "../rdebug-cmd.el"
 	    "../rdebug-core.el"
 	    "../rdebug-dbg.el"
 	    "../rdebug-error.el"

@@ -47,6 +47,7 @@
 
 (require 'rdebug)
 (require 'rdebug-dbg)
+(require 'rdebug-cmd)
 (require 'rdebug-gud)
 (require 'rdebug-info)
 (require 'rdebug-layouts)
@@ -695,50 +696,6 @@ This function is designed to be used in a user hook, for example:
       (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
               rdebug-debugger-support-minor-mode-map-when-deactive))))
 
-(defun rdebug-command-initialization ()
-  "Initialization of command buffer common to `rdebug' and
-`rdebug-track-attach'."
-
-  ;; This opens up "Gud" menu, which isn't used since we've got our
-  ;; own "Debugger" menu.
-
-  (message "fooo")
-  ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
-  (set (make-local-variable 'rdebug-call-queue) '())
-  (make-local-variable 'rdebug-source-location-ring-size) ; ...to global val.
-  (set (make-local-variable 'rdebug-source-location-ring) 
-       (make-ring rdebug-source-location-ring-size))
-  (set (make-local-variable 'rdebug-source-location-ring-index) 0)
-
-  (gud-def gud-args   "info args" "a"
-           "Show arguments of current stack frame.")
-  (gud-def gud-break  "break %d%f:%l""\C-b"
-           "Set breakpoint at current line.")
-  (gud-def gud-cont   "continue"   "\C-r"
-           "Continue with display.")
-  (gud-def gud-down   "down %p"     ">"
-           "Down N stack frames (numeric arg).")
-  (gud-def gud-finish "finish"      "\C-f"
-           "Finish executing current function.")
-  (gud-def gud-source-resync "up 0" "\C-l"
-           "Show current source window")
-  (gud-def gud-remove "clear %d%f:%l" "\C-d"
-           "Remove breakpoint at current line")
-  (gud-def gud-quit    "quit"       "Q"
-           "Quit debugger.")
-
-  (gud-def gud-statement "eval %e" "\C-e"
-           "Execute Ruby statement at point.")
-  (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
-           "Set temporary breakpoint at current line.")
-  (gud-def gud-up     "up %p"
-           "<" "Up N stack frames (numeric arg).")
-  (gud-def gud-where   "where"
-           "T" "Show stack trace.")
-  (local-set-key "\C-i" 'gud-gdb-complete-command))
-(local-set-key "\C-c\C-n" 'comint-next-prompt)
-(local-set-key "\C-c\C-p" 'comint-previous-prompt)
-
 
 ;;;###autoload
 (defun rdebug (command-line)
@@ -890,29 +847,6 @@ and options used to invoke rdebug."
                    (gud-call (format "enable %s" (nth 1 entry)))))
              (gud-call (format "break %s:%d" file line)))))))
 
-
-(defun rdebug-previous-location (&optional backward)
-  "Cycle backwards through source location stopping history."
-  (interactive)
-  (with-current-buffer gud-comint-buffer
-    (setq rdebug-source-location-ring-index 
-	  (if backward
-	      (ring-minus1 rdebug-source-location-ring-index 
-			   (ring-length rdebug-source-location-ring))
-	    (ring-plus1 rdebug-source-location-ring-index 
-			(ring-length rdebug-source-location-ring))))
-    (let* ((frame (ring-ref rdebug-source-location-ring 
-			    rdebug-source-location-ring-index))
-	   (file (car frame))
-	   (line (cdr frame)))
-      (rdebug-display-line file line)
-      (message (format "%d %s:%d" rdebug-source-location-ring-index file line)))))
-    
-
-(defun rdebug-next-location ()
-  "Cycle forwards through rdebug source location stopping history."
-  (interactive)
-  (rdebug-previous-location t))
 
 (defun rdebug-customize ()
   "Use `customize' to edit the settings of the `rdebug' debugger."
