@@ -906,7 +906,7 @@ and options used to invoke rdebug."
 	   (file (car frame))
 	   (line (cdr frame)))
       (rdebug-display-line file line)
-      (message (format "%s %d" file line)))))
+      (message (format "%d %s:%d" rdebug-source-location-ring-index file line)))))
     
 
 (defun rdebug-next-location ()
