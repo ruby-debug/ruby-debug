@@ -450,28 +450,25 @@ Currently-active file is at the head of the list.")
           ((string= name "error-begin")
            (setq name "error")))
     ;; New "info"
-    (cond ((string= name "error")
-           (setq name "info"))
-          ((string= name "exited")
-           (setq name "info")))
-    (cond ((string= name "error")
-           (message (chomp contents)))
-          (t
-           (let ((setup-func (gethash name rdebug--annotation-setup-map)))
-             (when setup-func
-               (let ((buf (rdebug-get-buffer name gud-target-name))
-                     ;; Buffer local, doesn't survive the buffer change.
-                     (comint-buffer gud-comint-buffer))
-                 (with-current-buffer buf
-                   (setq buffer-read-only t)
-                   (let ((inhibit-read-only t))
-                     (set (make-local-variable 'rdebug-current-line-number)
-                          (line-number-at-pos))
-                     (if rdebug-accumulative-buffer
-                         (goto-char (point-max))
-                       (erase-buffer))
-                     (insert contents)
-                     (funcall setup-func buf comint-buffer))))))))
+    (if (string= name "exited")
+        (setq name "info"))
+    (if (string= name "error")
+        (message (chomp contents)))
+    (let ((setup-func (gethash name rdebug--annotation-setup-map)))
+      (when setup-func
+        (let ((buf (rdebug-get-buffer name gud-target-name))
+              ;; Buffer local, doesn't survive the buffer change.
+              (comint-buffer gud-comint-buffer))
+          (with-current-buffer buf
+            (setq buffer-read-only t)
+            (let ((inhibit-read-only t))
+              (set (make-local-variable 'rdebug-current-line-number)
+                   (line-number-at-pos))
+              (if rdebug-accumulative-buffer
+                  (goto-char (point-max))
+                (erase-buffer))
+              (insert contents)
+              (funcall setup-func buf comint-buffer))))))
     (cond ((and (string= name "info")
                 (not (string= contents "")))
            (save-selected-window
