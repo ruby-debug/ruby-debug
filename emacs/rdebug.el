@@ -311,6 +311,11 @@ Rdebug provides the following predefined layout functions:
     (function :tag "Other"            function))
   :group 'rdebug)
 
+(defcustom rdebug-source-location-ring-size 150
+  "Size of rdebug position history ring."
+  :type 'integer
+  :group 'rdebug)
+
 
 ;; -------------------------------------------------------------------
 ;; The end.

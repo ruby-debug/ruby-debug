@@ -74,11 +74,17 @@
   "Represent the window layout that currently is in use.
 Can be `original' or `debugger'.")
 
-;; FIXME instead of just a a list of commands it should a list of pairs
+;; FIXME instead of just a list of commands it should a list of pairs
 ;; command and lambda callback routine to call with the shell output.
 (defvar rdebug-call-queue '()
   "List of commands queued up for results of a gud-call. This a
   buffer local variable to redebug command buffers.")
+
+(defvar rdebug-source-location-ring nil
+  "Ring of the last `rdebug-source-location-ring-size' positions we've stopped at")
+
+(defvar rdebug-source-location-ring-index 0
+  "Position in `rdebug-source-location-ring' of where we are")
 
 ;; -------------------------------------------------------------------
 ;; The end.

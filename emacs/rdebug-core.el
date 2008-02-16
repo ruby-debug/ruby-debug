@@ -211,10 +211,12 @@ Return (item . rest) or nil."
                         ((string= name "source")
                          (if (string-match gud-rdebug-marker-regexp item)
                              ;; Extract the frame position from the marker.
-                             (setq gud-last-frame
-                                   (cons (match-string 1 item)
-                                         (string-to-number
-                                          (match-string 2 item))))))
+                             (progn 
+			       (setq gud-last-frame
+				     (cons (match-string 1 item)
+					   (string-to-number
+					    (match-string 2 item))))
+			       (ring-insert rdebug-source-location-ring gud-last-frame))))
                         (t (rdebug-process-annotation name contents))))
               ;; This is not a one-liner, and we haven't seen the next
               ;; annotation, so we have to treat this as a partial
@@ -700,8 +702,13 @@ This function is designed to be used in a user hook, for example:
   ;; This opens up "Gud" menu, which isn't used since we've got our
   ;; own "Debugger" menu.
 
+  (message "fooo")
   ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
   (set (make-local-variable 'rdebug-call-queue) '())
+  (make-local-variable 'rdebug-source-location-ring-size) ; ...to global val.
+  (set (make-local-variable 'rdebug-source-location-ring) 
+       (make-ring rdebug-source-location-ring-size))
+  (set (make-local-variable 'rdebug-source-location-ring-index) 0)
 
   (gud-def gud-args   "info args" "a"
            "Show arguments of current stack frame.")
@@ -883,6 +890,29 @@ and options used to invoke rdebug."
                    (gud-call (format "enable %s" (nth 1 entry)))))
              (gud-call (format "break %s:%d" file line)))))))
 
+
+(defun rdebug-previous-location (&optional backward)
+  "Cycle backwards through source location stopping history."
+  (interactive)
+  (with-current-buffer gud-comint-buffer
+    (setq rdebug-source-location-ring-index 
+	  (if backward
+	      (ring-minus1 rdebug-source-location-ring-index 
+			   (ring-length rdebug-source-location-ring))
+	    (ring-plus1 rdebug-source-location-ring-index 
+			(ring-length rdebug-source-location-ring))))
+    (let* ((frame (ring-ref rdebug-source-location-ring 
+			    rdebug-source-location-ring-index))
+	   (file (car frame))
+	   (line (cdr frame)))
+      (rdebug-display-line file line)
+      (message (format "%s %d" file line)))))
+    
+
+(defun rdebug-next-location ()
+  "Cycle forwards through rdebug source location stopping history."
+  (interactive)
+  (rdebug-previous-location t))
 
 (defun rdebug-customize ()
   "Use `customize' to edit the settings of the `rdebug' debugger."
