@@ -69,37 +69,6 @@
         (rdebug-info-mode)
 	(goto-line old-line-number)))))
 
-(defvar rdebug-info-cmd-acc "")
-(defvar rdebug-info-cmd-state :wait
-  ":wait, :accept, or :reject")
-
-(defun rdebug-info-cmd-clear ()
-  (rdebug-debug-enter "rdebug-info-cmd-clear"
-    (setq rdebug-info-cmd-acc "")
-    (setq rdebug-info-cmd-state :wait)))
-
-(defun rdebug-info-cmd-process (s)
-  "Process a shell command and its output and maybe send it to the info buffer."
-  (rdebug-debug-enter (format "rdebug-info-cmd-process %S" s)
-    (when (eq rdebug-info-cmd-state :wait)
-      (setq rdebug-info-cmd-acc (concat rdebug-info-cmd-acc s))
-      (rdebug-debug-message "ACC: %S" rdebug-info-cmd-acc)
-      (when (string-match "^\\([a-z]+\\) .*\n" rdebug-info-cmd-acc)
-        (rdebug-debug-message (match-string 1 rdebug-info-cmd-acc))
-        (if (member (match-string 1 rdebug-info-cmd-acc)
-                    '("p" "e" "eval" "pp" "pl" "ps" "info"))
-            (progn
-              (setq rdebug-info-cmd-state :accept)
-              (setq s (substring rdebug-info-cmd-acc (match-end 0)))
-              (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
-                (if buf
-                    (with-current-buffer buf
-                      (let ((inhibit-read-only t))
-                        (erase-buffer))))))
-          (setq rdebug-info-cmd-state :reject))))
-    (when (eq rdebug-info-cmd-state :accept)
-      (with-no-warnings
-        (rdebug-process-annotation "info" s)))))
 
 
 ;; -------------------------------------------------------------------

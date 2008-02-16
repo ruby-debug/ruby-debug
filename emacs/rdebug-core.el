@@ -76,12 +76,8 @@ This can be:
  * :info   -- text for the \"info\" secondary window.
  * :cmd    -- a command + result, which might go into the \"info\" window.
 
-See the function `rdebug-info-cmd-process' for details on :cmd.")
+See the function `rdebug-cmd-process' for details on :cmd.")
 
-
-;; Problem: What happens if we receive "^Z^Zfoo\n^Z". Should we wait
-;; until we know that the trailing ^Z is part of a new annotation or
-;; not?
 
 (defun rdebug-marker-filter-next-item (string)
   "The next item for the rdebug marker filter to process.
@@ -95,12 +91,16 @@ Return (item . rest) or nil."
    ;; A single ^Z, this could become a new annotation, so lets stop here.
    ((string= string "\032")
     nil)
+   ;; A half-baked annotation, lets stop here.
+   ((and (string-match "^\032\032" string)
+         (not (string-match "\n" string)))
+    nil)
    (t
     (let ((split-point
            (cond ((string-match "\032\032" string)
                   (let ((beg (match-beginning 0)))
                     (if (equal beg 0)
-                        (if (string-match "\032\032" string 3)
+                        (if (string-match "^\032\032" string 2)
                             (match-beginning 0)
                           (length string))
                       beg)))
@@ -162,7 +162,7 @@ Return (item . rest) or nil."
                    (rdebug-process-annotation "info" item))
                   (t
                    (if (eq rdebug-non-annotated-text-kind :cmd)
-                       (rdebug-info-cmd-process item))
+                       (rdebug-cmd-process item))
                    (setq shell-output (concat shell-output item))))
           ;; Handle annotation.
           (let* ((line-end (match-end 0))
@@ -181,16 +181,19 @@ Return (item . rest) or nil."
             (if (or next-annotation
                     one-liner)
                 ;; ok, annotation complete, process it and remove it
-                (let* ((contents (substring item line-end)))
-                  (rdebug-debug-message "Name: %S Content: %S" name contents)
-		  
+                (let* ((contents (substring item line-end))
+                       (old-kind rdebug-non-annotated-text-kind))
+                  (rdebug-debug-message "Name: %S Content: %S Kind: %S"
+                                        name contents
+                                        rdebug-non-annotated-text-kind)
+
                   ;; This is a global state flag, this allows us to
                   ;; redirect any further text to the output buffer.
                   (set
                    (make-local-variable 'rdebug-non-annotated-text-kind)
                    (cond ((string= name "starting") :output)
                          ((string= name "prompt")
-                          (rdebug-info-cmd-clear)
+                          (rdebug-cmd-clear)
                           :cmd)
                          ((string= name "exited")
                           ;; "info" is an accumulating buffer, but
@@ -203,6 +206,13 @@ Return (item . rest) or nil."
                                     (erase-buffer)))))
                           :info)
                          (t nil)))
+
+                  (when (and (eq old-kind :cmd)
+                             (not (eq rdebug-non-annotated-text-kind :cmd)))
+                    (rdebug-debug-message
+                     "New kind: %S" rdebug-non-annotated-text-kind)
+                    (rdebug-cmd-done))
+
                   (cond ((string= name "pre-prompt")
                          ;; Strip of the trailing \n (this is probably
                          ;; a bug in processor.rb).
@@ -237,16 +247,66 @@ Return (item . rest) or nil."
         (rdebug-debug-message "Output: %S" shell-output))
       (rdebug-debug-message "REM: %S" gud-marker-acc)
 
-      ;; Process rdebug-call messages
-      (if (car rdebug-call-queue)
-	  (progn 
-	    ;; FIXME: tooltip is hardcoded, should be a callback routine stored inside
-	    ;; rdebug-call-queue. Also we should strip off the command from the 
-	    ;; beginning of the output. Or maybe not? 
-	    (tooltip-show shell-output)
-	    (setq rdebug-call-queue (cdr rdebug-call-queue))))
-
       shell-output)))
+
+;; ----------------------------------------
+;; Handle command output.
+;;
+
+(defvar rdebug-cmd-acc "")
+(defvar rdebug-cmd-state :wait
+  ":wait, :accept, or :reject")
+
+;; Called when a new command starts.
+(defun rdebug-cmd-clear ()
+  (rdebug-debug-enter "rdebug-cmd-clear"
+    (setq rdebug-cmd-acc "")
+    (setq rdebug-cmd-state :wait)))
+
+;; Called with command output, this can be called any number of times.
+(defun rdebug-cmd-process (s)
+  "Process a shell command and its output and maybe send it to the info buffer."
+  (rdebug-debug-enter (format "rdebug-cmd-process %S" s)
+    (setq rdebug-cmd-acc (concat rdebug-cmd-acc s))
+    (when (eq rdebug-cmd-state :wait)
+      (rdebug-debug-message "ACC: %S" rdebug-cmd-acc)
+      (when (string-match "^\\([a-z]+\\) .*\n" rdebug-cmd-acc)
+        (rdebug-debug-message (match-string 1 rdebug-cmd-acc))
+        (if (member (match-string 1 rdebug-cmd-acc)
+                    '("p" "e" "eval" "pp" "pl" "ps" "info"))
+            (progn
+              (setq rdebug-cmd-state :accept)
+              (setq s (substring rdebug-cmd-acc (match-end 0)))
+              (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
+                (if buf
+                    (with-current-buffer buf
+                      (let ((inhibit-read-only t))
+                        (erase-buffer))))))
+          (setq rdebug-cmd-state :reject))))
+    (when (eq rdebug-cmd-state :accept)
+      (with-no-warnings
+        (rdebug-process-annotation "info" s)))))
+
+;; Called when command has finished.
+(defun rdebug-cmd-done ()
+  (rdebug-debug-enter
+      (format "rdebug-cmd-done %S %S" rdebug-cmd-acc rdebug-call-queue)
+    (let ((saved-cmd (car-safe rdebug-call-queue))
+          (text rdebug-cmd-acc))
+      (when saved-cmd
+        ;; FIXME: tooltip is hardcoded, should be a callback routine
+        ;; stored inside rdebug-call-queue. Also we should strip off
+        ;; the command from the beginning of the output. Or maybe not?
+        (if (and (>= (length text)
+                     (length saved-cmd))
+                 (string= saved-cmd (substring text 0 (length saved-cmd))))
+            (progn
+              (setq text (substring text (+ 1 (length saved-cmd))))))
+        (rdebug-debug-message "Text: %S" text)
+        (tooltip-show text)
+        (setq rdebug-call-queue (cdr rdebug-call-queue))))))
+
+;; --------------------
 
 (defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.
