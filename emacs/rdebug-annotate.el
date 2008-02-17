@@ -98,8 +98,6 @@ Return (item . rest) or nil."
                   (length string)))))
       (cons (substring string 0 split-point) (substring string split-point))))))
 
-(defvar rdebug-cmd-acc "")
-
 ;; There's no guarantee that Emacs will hand the filter the entire
 ;; marker at once; it could be broken up across several strings.  We
 ;; might even receive a big chunk with several markers in it.  If we
@@ -200,7 +198,7 @@ Return (item . rest) or nil."
                              (not (eq rdebug-non-annotated-text-kind :cmd)))
                     (rdebug-debug-message
                      "New kind: %S" rdebug-non-annotated-text-kind)
-		    (rdebug-cmd-done rdebug-cmd-acc))
+		    (rdebug-cmd-done))
 
                   (cond ((string= name "pre-prompt")
                          ;; Strip of the trailing \n (this is probably
@@ -280,56 +278,55 @@ place for processing."
              (rdebug-display-info-buffer))))))
 
 
-(defvar rdebug-cmd-state :wait
-  ":wait, :accept, or :reject")
+;; ------------------------------------------------------------
+;; Command output parser.
+;;
+
+(defvar rdebug-cmd-acc ""
+  "The accumulated output of the current command.
+
+Note, on some systems the external process echoes the command,
+which is included in the output.")
 
 ;; Called when a new command starts.
 (defun rdebug-cmd-clear ()
+  "Called when the Rdebug filter find the start of a new commands."
   (rdebug-debug-enter "rdebug-cmd-clear"
-    (setq rdebug-cmd-acc "")
-    (setq rdebug-cmd-state :wait)))
+    (setq rdebug-cmd-acc "")))
 
 ;; Called with command output, this can be called any number of times.
 (defun rdebug-cmd-process (s)
-  "Process a shell command and its output and maybe send it to the info buffer."
+  "Called when the Rdebug filter find the command output.
+This may be called any number of times."
   (rdebug-debug-enter (format "rdebug-cmd-process %S" s)
-    (setq rdebug-cmd-acc (concat rdebug-cmd-acc s))
-    (when (eq rdebug-cmd-state :wait)
-      (rdebug-debug-message "ACC: %S" rdebug-cmd-acc)
-      (when (string-match "^\\([a-z]+\\) .*\n" rdebug-cmd-acc)
-        (rdebug-debug-message (match-string 1 rdebug-cmd-acc))
-        (if (member (match-string 1 rdebug-cmd-acc)
-                    '("p" "e" "eval" "pp" "pl" "ps" "info"))
-            (progn
-              (setq rdebug-cmd-state :accept)
-              (setq s (substring rdebug-cmd-acc (match-end 0)))
-              (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
-                (if buf
-                    (with-current-buffer buf
-                      (let ((inhibit-read-only t))
-                        (erase-buffer))))))
-          (setq rdebug-cmd-state :reject))))
-    (when (eq rdebug-cmd-state :accept)
-      (with-no-warnings
-        (rdebug-process-annotation "info" s)))))
+    (setq rdebug-cmd-acc (concat rdebug-cmd-acc s))))
 
 ;; Called when command has finished.
-(defun rdebug-cmd-done (text)
-  (rdebug-debug-enter
-      (format "rdebug-cmd-done %S %S" text rdebug-call-queue)
-    (let ((saved-cmd (car-safe rdebug-call-queue)))
-      (when saved-cmd
-        ;; FIXME: tooltip is hardcoded, should be a callback routine
-        ;; stored inside rdebug-call-queue. Also we should strip off
-        ;; the command from the beginning of the output. Or maybe not?
-        (if (and (>= (length text)
-                     (length saved-cmd))
-                 (string= saved-cmd (substring text 0 (length saved-cmd))))
-            (progn
-              (setq text (substring text (+ 1 (length saved-cmd))))))
-        (rdebug-debug-message "Text: %S" text)
-        (rdebug-temp-show text)
-        (setq rdebug-call-queue (cdr rdebug-call-queue))))))
+(defun rdebug-cmd-done ()
+  "Called when the Rdebug filter find the end of a commands."
+  (rdebug-debug-enter "rdebug-cmd-done"
+    ;; car-safe is used since rdebug-call-queue can be empty.
+    (let ((entry (car-safe rdebug-call-queue))
+          (text rdebug-cmd-acc))
+      (when entry
+        (rdebug-debug-message "Entry: %S Acc:%S" rdebug-call-queue rdebug-cmd-acc)
+        (setq rdebug-call-queue (cdr rdebug-call-queue))
+        (let ((saved-cmd (car entry))
+              (options (cdr entry)))
+          ;; In cast the external process echoed the actual command,
+          ;; remove it.
+          (if (and (>= (length text)
+                       (length saved-cmd))
+                   (string= saved-cmd (substring text 0 (length saved-cmd))))
+              (progn
+                (setq text (substring text (+ 1 (length saved-cmd))))))
+          (rdebug-debug-message "Text: %S" text)
+          ;; Optionally display the result.
+          (if (memq :tooltip options)
+              (rdebug-temp-show text))
+          (if (memq :info options)
+              (rdebug-process-annotation "info" text)))))))
+
 
 ;; -------------------------------------------------------------------
 ;; The end.

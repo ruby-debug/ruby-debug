@@ -56,7 +56,6 @@
   (use-local-map rdebug-info-mode-map)
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
-  (set (make-local-variable 'rdebug-accumulative-buffer) t)
   (run-mode-hooks 'rdebug-info-mode-hook))
 
 (defun rdebug--setup-info-buffer (buf comint-buffer)
@@ -68,7 +67,6 @@
 						 buf)))
         (rdebug-info-mode)
 	(goto-line old-line-number)))))
-
 
 
 ;; -------------------------------------------------------------------

@@ -70,11 +70,16 @@ program file."
 ;; Rdebug commands.
 ;;
 
-(defun rdebug-call (cmd)
-  "Set up a call to the debugger where we'll pick up the answer
-as the next shell output."
+(defun rdebug-call (cmd &rest options)
+  "Register a debugger command whose output should be handled spcially.
+
+OPTIONS is zero or more indicators what should happen with the
+output. The following are supported:
+ * :tooltip -- Show the result in a tool-tip.
+ * :info    -- Show the result in the info secondary buffer."
   (with-current-buffer gud-comint-buffer
-    (setq rdebug-call-queue (append rdebug-call-queue (list cmd)))
+    (setq rdebug-call-queue
+          (append rdebug-call-queue (list (cons cmd options))))
     (gud-call cmd)))
 
 (defun rdebug-continue (&optional arg)
@@ -106,7 +111,7 @@ stepping commands (\"next\", or \"step\").")
 contains the command to run"
   (interactive "s")
   (unless cmd (setq cmd "pp"))
-  (rdebug-call (format "%s %s " cmd expr)))
+  (rdebug-call (format "%s %s " cmd expr) :tooltip))
 
 (defun rdebug-print-list-region (from to)
   "Run a debugger \"pl\" command on the marked region."
@@ -139,6 +144,24 @@ contains the command to run"
       (let ((tem to))
 	(setq to from from tem)))
   (rdebug-print-cmd (buffer-substring from to) "pp"))
+
+
+;;
+;; The following two commands should be seen as proof-of-concept
+;; functions for the info buffer.
+;;
+
+(defun rdebug-pretty-print-to-buffer (s)
+  "Pretty print expression to the info buffer."
+  (interactive "sPretty print: ")
+  (rdebug-call (format "pp %s" s) :info))
+
+(defun rdebug-pretty-print-region-to-buffer (from to)
+  "Pretty print expression in region to the info buffer."
+  (interactive "r")
+  (rdebug-call (format "pp %s" (buffer-substring from to)) :info))
+
+
 
 (defun rdebug-quit ()
   "Kill the debugger process associated with the current buffer.
