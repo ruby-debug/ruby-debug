@@ -60,6 +60,9 @@ module Debugger
     
     # if <tt>true</tt>, checks the modification time of source files and reloads if it was modified
     attr_accessor :reload_source_on_change
+
+    attr_accessor :last_exception
+    Debugger.last_exception = nil
     
     #
     # Interrupts the current thread
@@ -138,6 +141,7 @@ module Debugger
       Debugger.suspend
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
+      Debugger.last_exception = exp
       handler.at_line(exp.__debug_context, exp.__debug_file, exp.__debug_line)
     ensure
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing

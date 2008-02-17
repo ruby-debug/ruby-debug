@@ -286,6 +286,9 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
         return
       elsif @state.context.dead? 
         print "The program crashed.\n"
+        if Debugger.last_exception
+          print("Exception: #{Debugger.last_exception.inspect}\n")
+        end
         return
       end
       

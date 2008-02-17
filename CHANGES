@@ -4,44 +4,49 @@
   remove Debugger.stop on exit exception raise. May allow catchpoints
   to work and tracing user code handling Exit exceptions
 
+- "rdebug --post-mortem" now really catches uncaught exceptions and
+  brings you to post-mortem handling. "info program" shows the exception.
+
+- Add Debugger.last_exception which is set in post-mortem.
+
 - Change Debugger.start to save things (like $0 and ARGV) necessary to
   allow restart. It now takes an optional option argument.
   The old Debugger.start is now renamed to Debugger.start_)
 
-- fix bug in "info variables" when string had embedded %s'
+- "info" command additions and changes 
+  * fix bug in "info variables" when string had embedded %s'
+  * "info program" now shows uncaugh exception information
+  * "info files" show what Ruby files are loaded
+  * "info file xxx" specific file information (e.g. time, # of lines, SHA1)
+  * "info catch" - Exceptions that can be caught in the current stack frame.
+  * "info "variables" shows "self" and class variables
+  * "info threads verbose" shows stack trace of all threads
+  * "info thread d verbose" shows stack trace of thread d.
 
-- Number keys move stack position in Emacs stack secondary buffer.
+- Long information added to commands with subcommands: show, set,
+  info, enable, and disable. For example "help info xxx" will give
+  more detailed information about the "info xxx" command.
+
+- Emacs interaction drastically reworked, expanded, and improved.
 
 - --emacs is now --emacs-basic while --emacs 3 now implies emacs-basic
   ----annotate=3 --post-mortem --no-control --no-start --no-quit
 
-- split off breakpoint code in ruby_debug.c. We now allow setting breakpoints
-  at valid trace lines. 
-
-- preface ruby_debug global Ruby variables with rdebug_.
-
-- self and class variables are listed by "info variables"
-
 - add "var cl[ass]" command. Note "var const" can no longer be
   abbreviated "var c"; use "var co" (or const or constant).
-
-- columnize now pulled in from a separate package.
 
 - add "condition" command. Allow removal of condition.
 
 - $0 == __FILE__ when running rdebug should work -- most of the
   time. See comments in code for a better solution.
 
-- gdb "show commands" added. (Shows command history). Bug in history
-  saving fixed.
+- rdebug command history can be displayed with "show commands". Fix a bug
+  in history saving.
+
+- columnize now pulled in from a separate package.
 
 - split of line caching to an external gem. We now only allow setting
   breakpoints on lines where it makes sense to do so.
-
-- Add "info files" and "info file xxx". Which shows file information.
-
-- "rdebug --post-mortem" now really catches uncaught exceptions and
-  brings you to post-mortem handling.
 
 - allow catching multiple exceptions. 
   INCOMPATIBLE CHANGE: varible Debugger.catchpoint a String was turned
@@ -49,7 +54,10 @@
   longer exists. Debugger.set_catchpoint was turned into 
   Debugger.add_catchpoint
 
-- "info catch" added.
+- split off breakpoint code in ruby_debug.c.
+
+- preface ruby_debug global Ruby variables with rdebug_.
+
 
 0.10.0
 - '-r' option can be used to require additional libraries.

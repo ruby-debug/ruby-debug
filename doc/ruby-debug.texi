@@ -2865,7 +2865,8 @@ Local variables of the current stack frame.
 @kindex info program
 @item info program
 Display information about the status of your program: whether it is
-running or not and why it stopped.
+running or not and why it stopped. If an unhandled exception occurred,
+the exception class and @code{to_s} method is called.
 @kindex info stack
 @item info stack
 Backtrace of the stack. An alias for @code{where}. @xref{Backtrace}.
@@ -3052,6 +3053,10 @@ as many times as you called the @code{Debugger.start} method.}
 @item Debugger.run_script(@var{debugger-command-file}, out = handler.interface)
 @vindex @code{Debugger.run_script}
 Reads/runs the given file containing debugger commands. @code{.rdebugrc} is run this way.
+
+@item Debugger.last_exception
+@vindex @code{Debugger.last_exception}
+If not @code{nil}, this contains @code{$!} from the last exception.
 
 @end table
 
