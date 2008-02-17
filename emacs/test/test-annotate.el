@@ -73,7 +73,7 @@
 ;;; ABC")
 
   ;; Some systems (read: Mac) echoes the command.
-  (setq rdebug-call-queue '("pp 100"))
+  (setq rdebug-call-queue '(("pp 100" :tooltip)))
   (assert-filter "pp 100\n100\n(rdb:1) " "\
 prompt
 pp 100\n100
@@ -82,7 +82,7 @@ pp 100\n100
                  '("100\n"))
 
   ;; Some systems don't echo the command.
-  (setq rdebug-call-queue '("pp 100"))
+  (setq rdebug-call-queue '(("pp 100" :tooltip)))
   (assert-filter "100\n(rdb:1) " "\
 prompt
 100
