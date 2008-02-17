@@ -1,4 +1,4 @@
-;;; rdebug-breaks.el --- Ruby debugger breakpoints buffer.
+;;; Ruby debugger breakpoints buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -350,11 +350,6 @@ secondary window or nil if none found."
                   (gdb-put-breakpoint-icon (nth 2 entry)
                                            (number-to-string (nth 1 entry))))))))))
 
-(defun rdebug-test-test ()
-  (interactive)
-  (rdebug-breakpoints-update-icons (rdebug-all-breakpoints)))
-
-
 (defun rdebug-breakpoint-list-member (file line list)
   (let ((res nil))
     (dolist (entry list)
@@ -392,5 +387,3 @@ secondary window or nil if none found."
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
-
-;;; rdebug-breaks.el ends here
