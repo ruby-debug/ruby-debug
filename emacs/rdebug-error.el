@@ -30,6 +30,18 @@
 
 (require 'rdebug-dbg)
 (require 'rdebug-secondary)
+(require 'rdebug-source)
+
+;; Should go somehwere else
+(defun chomp(string)
+  "Remove trailing \n if it's there"
+  (if (> (length string) 0)
+      (let ((s string))
+	(if (string= "\n" (substring s -1))
+	    (substring s 0 -1)
+	  s))
+    ""))
+  
 
 (defun rdebug-display-error-buffer ()
   "Display the rdebug error buffer."
@@ -55,11 +67,17 @@
   (use-local-map rdebug-error-mode-map)
   (run-mode-hooks 'rdebug-error-mode-hook))
 
-(defun rdebug--setup-error-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-error-buffer"
+(defun rebug-setup-error-buffer (buf comint-buffer)
+  (rdebug-debug-enter "rebug-setup-error-buffer"
     (with-current-buffer buf
       (rdebug-error-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
+
+(defun rdebug-errmsg (msg)
+;;;   (with-current-buffer (rdebug-get-buffer "error" gud-target-name)
+;;;     (goto-char (point-max))
+;;;     (insert msg))
+  (message (chomp msg)))
 
 (provide 'rdebug-error)
 

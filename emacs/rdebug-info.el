@@ -1,4 +1,4 @@
-;;; rdebug-breaks.el --- Ruby debugger info buffer.
+;;; Ruby debugger info buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -80,5 +80,3 @@
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
-
-;;; rdebug-info.el ends here

@@ -46,267 +46,13 @@
 (require 'cl)
 
 (require 'rdebug)
+(require 'rdebug-annotate)
 (require 'rdebug-dbg)
 (require 'rdebug-cmd)
-(require 'rdebug-gud)
-(require 'rdebug-info)
 (require 'rdebug-layouts)
 (require 'rdebug-source)
 (require 'rdebug-regexp)
 (require 'rdebug-vars)
-
-;; Should go somehwere else
-(defun chomp(string)
-  "Remove trailing \n if it's there"
-  (let ((s string))
-    (if (string= "\n" (substring s -1))
-	(substring s 0 -1)
-      s)))
-
-;; -------------------------------------------------------------------
-;; Interface to gud.
-;;
-
-(defvar rdebug-non-annotated-text-kind nil
-  "Represent what non-annotated text is.
-
-This can be:
- * nil     -- plain shell output
- * :output -- output from the command being debugged
- * :info   -- text for the \"info\" secondary window.
- * :cmd    -- a command + result, which might go into the \"info\" window.
-
-See the function `rdebug-cmd-process' for details on :cmd.")
-
-
-(defun rdebug-marker-filter-next-item (string)
-  "The next item for the rdebug marker filter to process.
-
-Return (item . rest) or nil."
-  (rdebug-debug-message "ACC: %S" string)
-  (cond
-   ;; Empty line, we're done.
-   ((equal (length string) 0)
-    nil)
-   ;; A single ^Z, this could become a new annotation, so lets stop here.
-   ((string= string "\032")
-    nil)
-   ;; A half-baked annotation, lets stop here.
-   ((and (string-match "^\032\032" string)
-         (not (string-match "\n" string)))
-    nil)
-   (t
-    (let ((split-point
-           (cond ((string-match "\032\032" string)
-                  (let ((beg (match-beginning 0)))
-                    (if (equal beg 0)
-                        (if (string-match "^\032\032" string 2)
-                            (match-beginning 0)
-                          (length string))
-                      beg)))
-                 ((eq (elt string (- (length string) 1)) ?\32)
-                  -1)
-                 (t
-                  (length string)))))
-      (cons (substring string 0 split-point) (substring string split-point))))))
-
-
-;; There's no guarantee that Emacs will hand the filter the entire
-;; marker at once; it could be broken up across several strings.  We
-;; might even receive a big chunk with several markers in it.  If we
-;; receive a chunk of text which looks like it might contain the
-;; beginning of a marker, we save it here between calls to the
-;; filter.
-(defun gud-rdebug-marker-filter (string)
-  "Filter function for process output of the rdebug Ruby debugger."
-  (rdebug-debug-enter "gud-rdebug-marker-filter:"
-    (rdebug-debug-message "GOT: %S" string)
-    (if rdebug-non-annotated-text-kind
-        (rdebug-debug-message "  Text is %S" rdebug-non-annotated-text-kind))
-    (setq gud-marker-acc (concat gud-marker-acc string))
-    (rdebug-debug-message "TOT: %S" gud-marker-acc)
-    (let ((shell-output "")         ; Output to debugger shell window.
-          (done nil)
-          item)
-      ;; The following loop peels of one "item" at a time. An item is
-      ;; a un-annotated section or an annotation. (This is taken care
-      ;; of by the `rdebug-marker-filter-next-item' function.)
-      ;;
-      ;; An Annotation can be a one-liner (where anything following
-      ;; the annotation is treated as un-annotated text) or a full
-      ;; annotation (which stretches to the next annotation).
-      ;;
-      ;; The concept of one-liners (no phun intended) is to allow
-      ;; continuous output, a "starting" annotation simply sets up the
-      ;; environment for sending lines to the output window, any text
-      ;; following it right now, or in later chunks of data, is
-      ;; redirected to the output window.
-      (while (and (not done)
-                  (let ((pair (rdebug-marker-filter-next-item gud-marker-acc)))
-                    (rdebug-debug-message "Next item: %S" pair)
-                    (and pair
-                         (progn
-                           (setq item (car pair))
-                           (setq gud-marker-acc (cdr pair))
-                           t))))
-        ;; Note: Regexp:s are greedy, i.e. the char parts wins over
-        ;; the .* part.
-        (if (not (string-match "^\032\032\\([-a-z]*\\).*\n" item))
-            ;; Non-annotated text (or the content of one-liners) goes
-            ;; straight into the debugger shell window, or to the
-            ;; output window.
-            (cond ((and (eq rdebug-non-annotated-text-kind :output)
-                        rdebug-use-separate-io-buffer)
-                   (rdebug-process-annotation "starting" item))
-                  ((eq rdebug-non-annotated-text-kind :info)
-                   (rdebug-process-annotation "info" item))
-                  (t
-                   (if (eq rdebug-non-annotated-text-kind :cmd)
-                       (rdebug-cmd-process item))
-                   (setq shell-output (concat shell-output item))))
-          ;; Handle annotation.
-          (let* ((line-end (match-end 0))
-                 (name (match-string 1 item))
-                 ;; "prompt" is needed to handle "quit" in the shell correctly.
-                 (one-liner
-                  (member name
-                          '("" "exited" "source" "prompt" "starting")))
-                 (next-annotation (string-match "\032\032"
-                                                gud-marker-acc)))
-            ;; For one-liners, shuffle some text back to the accumulator.
-            (when one-liner
-              (setq gud-marker-acc (concat (substring item line-end)
-                                           gud-marker-acc))
-              (setq item (substring item 0 line-end)))
-            (if (or next-annotation
-                    one-liner)
-                ;; ok, annotation complete, process it and remove it
-                (let* ((contents (substring item line-end))
-                       (old-kind rdebug-non-annotated-text-kind))
-                  (rdebug-debug-message "Name: %S Content: %S Kind: %S"
-                                        name contents
-                                        rdebug-non-annotated-text-kind)
-
-                  ;; This is a global state flag, this allows us to
-                  ;; redirect any further text to the output buffer.
-                  (set
-                   (make-local-variable 'rdebug-non-annotated-text-kind)
-                   (cond ((string= name "starting") :output)
-                         ((string= name "prompt")
-                          (rdebug-cmd-clear)
-                          :cmd)
-                         ((string= name "exited")
-                          ;; "info" is an accumulating buffer, but
-                          ;; it's explicitly cleared at the beginning
-                          ;; of new output.
-                          (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
-                            (if buf
-                                (with-current-buffer buf
-                                  (let ((inhibit-read-only t))
-                                    (erase-buffer)))))
-                          :info)
-                         (t nil)))
-
-                  (when (and (eq old-kind :cmd)
-                             (not (eq rdebug-non-annotated-text-kind :cmd)))
-                    (rdebug-debug-message
-                     "New kind: %S" rdebug-non-annotated-text-kind)
-                    (rdebug-cmd-done))
-
-                  (cond ((string= name "pre-prompt")
-                         ;; Strip of the trailing \n (this is probably
-                         ;; a bug in processor.rb).
-                         (if (string= (substring contents -1) "\n")
-                             (setq contents (substring contents 0 -1)))
-                         (setq shell-output (concat shell-output contents)))
-                        ((string= name "source")
-                         (if (string-match gud-rdebug-marker-regexp item)
-                             ;; Extract the frame position from the marker.
-                             (progn 
-			       (setq gud-last-frame
-				     (cons (match-string 1 item)
-					   (string-to-number
-					    (match-string 2 item))))
-			       (ring-insert rdebug-source-location-ring gud-last-frame))))
-                        (t (rdebug-process-annotation name contents))))
-              ;; This is not a one-liner, and we haven't seen the next
-              ;; annotation, so we have to treat this as a partial
-              ;; annotation. Save it and hope that the we can process
-              ;; it the next time we're called.
-              (setq gud-marker-acc (concat item gud-marker-acc))
-              (setq done t)))))
-
-      ;; Display the source file where we want it, gud will only pick
-      ;; an arbitrary window.
-      (if gud-last-frame
-          (rdebug-pick-source-window))
-
-      (rdebug-internal-short-key-mode-on)
-
-      (unless (string= shell-output "")
-        (rdebug-debug-message "Output: %S" shell-output))
-      (rdebug-debug-message "REM: %S" gud-marker-acc)
-
-      shell-output)))
-
-;; ----------------------------------------
-;; Handle command output.
-;;
-
-(defvar rdebug-cmd-acc "")
-(defvar rdebug-cmd-state :wait
-  ":wait, :accept, or :reject")
-
-;; Called when a new command starts.
-(defun rdebug-cmd-clear ()
-  (rdebug-debug-enter "rdebug-cmd-clear"
-    (setq rdebug-cmd-acc "")
-    (setq rdebug-cmd-state :wait)))
-
-;; Called with command output, this can be called any number of times.
-(defun rdebug-cmd-process (s)
-  "Process a shell command and its output and maybe send it to the info buffer."
-  (rdebug-debug-enter (format "rdebug-cmd-process %S" s)
-    (setq rdebug-cmd-acc (concat rdebug-cmd-acc s))
-    (when (eq rdebug-cmd-state :wait)
-      (rdebug-debug-message "ACC: %S" rdebug-cmd-acc)
-      (when (string-match "^\\([a-z]+\\) .*\n" rdebug-cmd-acc)
-        (rdebug-debug-message (match-string 1 rdebug-cmd-acc))
-        (if (member (match-string 1 rdebug-cmd-acc)
-                    '("p" "e" "eval" "pp" "pl" "ps" "info"))
-            (progn
-              (setq rdebug-cmd-state :accept)
-              (setq s (substring rdebug-cmd-acc (match-end 0)))
-              (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
-                (if buf
-                    (with-current-buffer buf
-                      (let ((inhibit-read-only t))
-                        (erase-buffer))))))
-          (setq rdebug-cmd-state :reject))))
-    (when (eq rdebug-cmd-state :accept)
-      (with-no-warnings
-        (rdebug-process-annotation "info" s)))))
-
-;; Called when command has finished.
-(defun rdebug-cmd-done ()
-  (rdebug-debug-enter
-      (format "rdebug-cmd-done %S %S" rdebug-cmd-acc rdebug-call-queue)
-    (let ((saved-cmd (car-safe rdebug-call-queue))
-          (text rdebug-cmd-acc))
-      (when saved-cmd
-        ;; FIXME: tooltip is hardcoded, should be a callback routine
-        ;; stored inside rdebug-call-queue. Also we should strip off
-        ;; the command from the beginning of the output. Or maybe not?
-        (if (and (>= (length text)
-                     (length saved-cmd))
-                 (string= saved-cmd (substring text 0 (length saved-cmd))))
-            (progn
-              (setq text (substring text (+ 1 (length saved-cmd))))))
-        (rdebug-debug-message "Text: %S" text)
-        (tooltip-show text)
-        (setq rdebug-call-queue (cdr rdebug-call-queue))))))
-
-;; --------------------
 
 (defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.
@@ -414,65 +160,43 @@ example when the debugger starts."
   "Queue of Makefile temp files awaiting execution.
 Currently-active file is at the head of the list.")
 
+(defun rdebug-goto-traceback-line (pt)
+  "Displays the location in a source file of the Ruby traceback line."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position)))
+	  (gud-comint-buffer (current-buffer)))
+      (when (string-match rdebug-traceback-line-re s)
+        (rdebug-display-line
+         (substring s (match-beginning 1) (match-end 1))
+         (string-to-number (substring s (match-beginning 2) (match-end 2))))
+        ))))
+
+(defun rdebug-goto-dollarbang-traceback-line (pt)
+  "Displays the location in a source file of the Ruby $! traceback line."
+  (interactive "d")
+  (save-excursion
+    (goto-char pt)
+    (let ((s (buffer-substring (line-beginning-position) (line-end-position)))
+	  (gud-comint-buffer (current-buffer)))
+      (when (string-match rdebug-dollarbang-traceback-line-re s)
+        (rdebug-display-line
+         (substring s (match-beginning 1) (match-end 1))
+         (string-to-number (substring s (match-beginning 2) (match-end 2))))
+        ))))
 
 ;; -------------------------------------------------------------------
-;; Annotation and secondary buffers.
+;; Secondary buffers.
 ;;
 
-(defvar rdebug--annotation-setup-map
-  (progn
-    (define-hash-table-test 'str-hash 'string= 'sxhash)
-    (let ((map (make-hash-table :test 'str-hash)))
-      (puthash "breakpoints" 'rdebug--setup-breakpoints-buffer           map)
-      (puthash "frame"       'rdebug--setup-frame-buffer                 map)
-      (puthash "variables"   'rdebug--setup-variables-buffer             map)
-      (puthash "watch"       'rdebug--setup-watch-buffer                 map)
-      (puthash "output"      'rdebug--setup-output-buffer                map)
-      (puthash "info"        'rdebug--setup-info-buffer                  map)
-      (puthash "help"        'rdebug--setup-secondary-window-help-buffer map)
-      map)))
-
-(defvar rdebug-current-line-number 1
-  "The line number in a secondary window that you were in. We need to save
-  this value because secondary windows get recreated a lot")
-
-(defun rdebug-process-annotation (name contents)
-  (rdebug-debug-enter (format "rdebug-process-annotation %s" name)
-    ;; Ruby-debug uses the name "starting" for process output (just like
-    ;; GDB). However, it's better to present the buffer as "output" to
-    ;; the user. Ditto for "display" and "watch".
-    (cond ((string= name "starting")
-           (setq name "output"))
-          ((string= name "display")
-           (setq name "watch"))
-          ((string= name "stack")
-           (setq name "frame"))
-          ((string= name "error-begin")
-           (setq name "error")))
-    ;; New "info"
-    (if (string= name "exited")
-        (setq name "info"))
-    (if (string= name "error")
-        (message (chomp contents)))
-    (let ((setup-func (gethash name rdebug--annotation-setup-map)))
-      (when setup-func
-        (let ((buf (rdebug-get-buffer name gud-target-name))
-              ;; Buffer local, doesn't survive the buffer change.
-              (comint-buffer gud-comint-buffer))
-          (with-current-buffer buf
-            (setq buffer-read-only t)
-            (let ((inhibit-read-only t))
-              (set (make-local-variable 'rdebug-current-line-number)
-                   (line-number-at-pos))
-              (if rdebug-accumulative-buffer
-                  (goto-char (point-max))
-                (erase-buffer))
-              (insert contents)
-              (funcall setup-func buf comint-buffer))))))
-    (cond ((and (string= name "info")
-                (not (string= contents "")))
-           (save-selected-window
-             (rdebug-display-info-buffer))))))
+(require 'rdebug-secondary)
+(require 'rdebug-breaks)
+(require 'rdebug-frames)
+(require 'rdebug-help)
+(require 'rdebug-output)
+(require 'rdebug-varbuf)
+(require 'rdebug-watch)
 
 
 ;; -------------------------------------------------------------------
@@ -571,152 +295,6 @@ switch to the \"debugger\" window configuration."
   (rdebug-set-window-configuration-state 'original)
   (message
    "Type `M-x rdebug-display-debugger-window-configuration RET' to restore."))
-
-
-(defun rdebug-goto-traceback-line (pt)
-  "Displays the location in a source file of the Ruby traceback line."
-  (interactive "d")
-  (save-excursion
-    (goto-char pt)
-    (let ((s (buffer-substring (line-beginning-position) (line-end-position)))
-	  (gud-comint-buffer (current-buffer)))
-      (when (string-match rdebug-traceback-line-re s)
-        (rdebug-display-line
-         (substring s (match-beginning 1) (match-end 1))
-         (string-to-number (substring s (match-beginning 2) (match-end 2))))
-        ))))
-
-(defun rdebug-goto-dollarbang-traceback-line (pt)
-  "Displays the location in a source file of the Ruby $! traceback line."
-  (interactive "d")
-  (save-excursion
-    (goto-char pt)
-    (let ((s (buffer-substring (line-beginning-position) (line-end-position)))
-	  (gud-comint-buffer (current-buffer)))
-      (when (string-match rdebug-dollarbang-traceback-line-re s)
-        (rdebug-display-line
-         (substring s (match-beginning 1) (match-end 1))
-         (string-to-number (substring s (match-beginning 2) (match-end 2))))
-        ))))
-
-;; -------------------------------------------------------------------
-;; Secondary buffers.
-;;
-
-(require 'rdebug-secondary)
-(require 'rdebug-breaks)
-(require 'rdebug-error)
-(require 'rdebug-frames)
-(require 'rdebug-help)
-(require 'rdebug-info)
-(require 'rdebug-output)
-(require 'rdebug-varbuf)
-(require 'rdebug-watch)
-
-
-;; -------------------------------------------------------------------
-;; Source short key mode.
-;;
-;; When this minor mode is active and the debugger is running, the
-;; source window displaying the current debugger frame is marked as
-;; read-only and the short keys of the secondary windows can be used,
-;; for example, you can use the space-bar to single-step the program.
-
-;; Implementation note:
-;;
-;; This is presented to the user as one global minor mode. However,
-;; under the surface the real work is done by another, non-global,
-;; minor mode named "local short key mode". This is activated and
-;; deactivated appropriately by the Rdebug filter functions.
-
-(defvar rdebug-internal-short-key-mode-map
-  (let ((map (make-sparse-keymap)))
-    (define-key map "b" 'gud-break)
-    (define-key map "t" 'rdebug-toggle-source-breakpoint-enabled)
-    (define-key map [insert] 'rdebug-short-key-mode)
-    ;;(define-key map "p" 'gud-print)
-    (rdebug-populate-secondary-buffer-map-plain map)
-    map)
-  "Keymap used in `rdebug-internal-short-key-mode'.")
-
-(defvar rdebug-original-read-only :off
-  "The value `buffer-read-only' should be restored to after short key mode.
-
-When :off, the mode is not active.")
-
-;; Implementation note: This is the mode that does all the work, it's
-;; local to the buffer that is affected.
-(define-minor-mode rdebug-internal-short-key-mode
-  "Minor mode with short keys for source buffers for the `rdebug' debugger.
-The buffer is read-only when the minor mode is active.
-
-Note that this is for internal use only, please use the global
-mode `rdebug-short-key-mode'.
-
-\\{rdebug-internal-short-key-mode-map}"
-  :group 'rdebug
-  :global nil
-  :init-value nil
-  :lighter " ShortKeys"
-  :keymap rdebug-internal-short-key-mode-map
-  (make-local-variable 'rdebug-original-read-only)
-  ;; Note, without the third state, :off, activating the mode more
-  ;; than once would overwrite the real original value.
-  (if rdebug-internal-short-key-mode
-      (progn
-        (if (eq rdebug-original-read-only :off)
-            (setq rdebug-original-read-only buffer-read-only))
-        (setq buffer-read-only t))
-    (setq buffer-read-only rdebug-original-read-only)
-    (setq rdebug-original-read-only :off)))
-
-
-(defun rdebug-turn-on-short-key-mode ()
-  "Turn on `rdebug-short-key-mode'.
-
-This function is designed to be used in a user hook, for example:
-
-    (add-hook 'rdebug-mode-hook 'rdebug-turn-on-short-key-mode)"
-  (interactive)
-  (rdebug-short-key-mode 1))
-
-
-(defun rdebug-short-key-mode-maybe-activate ()
-  (if rdebug-short-key-mode
-      (rdebug-internal-short-key-mode-on)
-    (rdebug-internal-short-key-mode-off)))
-
-
-(defun rdebug-internal-short-key-mode-off ()
-  "Turn off `rdebug-internal-short-key-mode' in all buffers."
-  (rdebug-debug-enter "rdebug-internal-short-key-mode-off"
-    (save-current-buffer
-      (dolist (buf (buffer-list))
-        (set-buffer buf)
-        (if rdebug-internal-short-key-mode
-            (rdebug-internal-short-key-mode -1))))))
-
-(defun rdebug-buffer-killed-p (buffer)
-  "Return t if BUFFER is killed."
-  (not (buffer-name buffer)))
-
-(defun rdebug-internal-short-key-mode-on ()
-  "Turn on `rdebug-internal-short-key-mode' in the current debugger frame."
-  (rdebug-debug-enter "rdebug-internal-short-key-mode-on"
-    (save-current-buffer
-      (if (and gud-comint-buffer
-               (not (rdebug-buffer-killed-p gud-comint-buffer)))
-          (set-buffer gud-comint-buffer))
-      (let ((frame (or gud-last-frame
-                       gud-last-last-frame)))
-        (if (and frame
-                 rdebug-short-key-mode)
-            (ignore-errors
-              ;; `gud-find-file' calls `error' if it doesn't find the file.
-              (let ((buffer (gud-find-file (car frame))))
-                (save-current-buffer
-                  (set-buffer buffer)
-                  (rdebug-internal-short-key-mode 1)))))))))
 
 
 ;; -------------------------------------------------------------------

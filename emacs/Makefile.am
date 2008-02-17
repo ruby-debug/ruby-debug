@@ -16,6 +16,7 @@
 #$Id: Makefile.am,v 1.10 2007/04/13 00:59:33 rockyb Exp $
 
 lisp_files = rdebug.el \
+	     rdebug-annotate.el	\
 	     rdebug-breaks.el 	\
 	     rdebug-cmd.el 	\
 	     rdebug-core.el 	\
@@ -29,6 +30,7 @@ lisp_files = rdebug.el \
 	     rdebug-output.el 	\
              rdebug-regexp.el	\
 	     rdebug-secondary.el\
+	     rdebug-shortkey.el \
 	     rdebug-source.el	\
 	     rdebug-track.el 	\
 	     rdebug-varbuf.el   \
@@ -37,11 +39,14 @@ lisp_files = rdebug.el \
 check_DATA = test/elk-test.el	\
 	test/test-cmd.el    	\
 	test/test-core.el   	\
+	test/test-error.el   	\
+	test/test-filter.el   	\
 	test/test-gud.el   	\
 	test/test-indent.el 	\
 	test/test-regexp.el
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc 		\
+	     rdebug-annotate.elc	\
 	     rdebug-breaks.elc 		\
 	     rdebug-cmd.elc 		\
 	     rdebug-core.elc 		\
@@ -55,6 +60,7 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-output.elc 		\
              rdebug-regexp.elc		\
 	     rdebug-secondary.elc	\
+	     rdebug-shortkey.elc	\
 	     rdebug-source.elc		\
 	     rdebug-track.elc 		\
 	     rdebug-varbuf.elc 		\
@@ -62,7 +68,7 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-watch.elc
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
-check: check-cmd check-core check-frames check-gud check-indent check-regexp
+check: check-cmd check-core check-filter check-frames check-gud check-indent check-regexp
 
 check-cmd: rdebug-gud.el
 	(cd $(srcdir)/test && \
@@ -71,6 +77,14 @@ check-cmd: rdebug-gud.el
 check-core: rdebug-core.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-core.el )
+
+check-error: rdebug-error.el
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-error.el )
+
+check-filter: rdebug-annotate.el
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-filter.el )
 
 check-frames: rdebug-frames.el
 	(cd $(srcdir)/test && \

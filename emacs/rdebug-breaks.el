@@ -1,4 +1,4 @@
-;;; rdebug-breaks.el --- Ruby debugger breakpints buffer.
+;;; rdebug-breaks.el --- Ruby debugger breakpoints buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -21,8 +21,6 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
-
-;; See the manual and the file `rdebug.el' for more information.
 
 ;; This file contains code dealing with the breakpoints secondary buffer.
 

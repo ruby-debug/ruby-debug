@@ -92,7 +92,7 @@
   (with-current-buffer gud-comint-buffer
     (rdebug-goto-source-location 
      (ring-plus1 rdebug-source-location-ring-index 
-		  (ring-length rdebug-source-location-ring)))))
+		 (ring-length rdebug-source-location-ring)))))
     
 
 (defun rdebug-next-location ()
@@ -101,7 +101,7 @@
   (with-current-buffer gud-comint-buffer
     (rdebug-goto-source-location 
      (ring-minus1 rdebug-source-location-ring-index 
-		 (ring-length rdebug-source-location-ring)))))
+		  (ring-length rdebug-source-location-ring)))))
 
 (provide 'rdebug-cmd)
 

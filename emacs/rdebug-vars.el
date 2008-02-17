@@ -38,6 +38,10 @@
 
 ;;; Code:
 
+(defvar rdebug-current-line-number 1
+  "The line number in a secondary window that you were in. We need to save
+  this value because secondary windows get recreated a lot")
+
 (defvar rdebug-debug-active nil
   "Non-nil when rdebug should emit internal debug output to *Xrdebug*.")
 
