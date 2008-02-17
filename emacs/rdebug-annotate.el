@@ -42,10 +42,11 @@
   "Represent what non-annotated text is.
 
 This can be:
- * nil     -- plain shell output
- * :output -- output from the command being debugged
- * :info   -- text for the \"info\" secondary window.
- * :cmd    -- a command + result, which might go into the \"info\" window.
+ * nil      -- plain shell output
+ * :output  -- output from the command being debugged
+ * :info    -- text for the \"info\" secondary window.
+ * :message -- message the text to the echo area.
+ * :cmd     -- a command + result, which might go into the \"info\" window.
 
 See the function `rdebug-cmd-process' for details on :cmd.")
 
@@ -184,15 +185,16 @@ Return (item . rest) or nil."
                           (rdebug-cmd-clear)
                           :cmd)
                          ((string= name "exited")
-                          ;; "info" is an accumulating buffer, but
-                          ;; it's explicitly cleared at the beginning
-                          ;; of new output.
-                          (let ((buf (rdebug-get-existing-buffer "info" gud-target-name)))
-                            (if buf
-                                (with-current-buffer buf
-                                  (let ((inhibit-read-only t))
-                                    (erase-buffer)))))
-                          :info)
+                          ;; Create a fake command whose output we
+                          ;; handle in the cmd system. (We might not
+                          ;; receive all of the message at once, we we
+                          ;; need some kind of accumukator, which the
+                          ;; cmd system provides.)
+                          (rdebug-cmd-clear)
+                          (setq rdebug-call-queue
+                                (cons '("***exited***" :message)
+                                      rdebug-call-queue))
+                          :cmd)
                          (t nil)))
 
                   (when (and (eq old-kind :cmd)
@@ -326,7 +328,13 @@ This may be called any number of times."
           (if (memq :tooltip options)
               (rdebug-temp-show text))
           (if (memq :info options)
-              (rdebug-process-annotation "info" text)))))))
+              (rdebug-process-annotation "info" text))
+          (when (memq :message options)
+            ;; Remove trailing newlines (chomp).
+            (while (and (> (length text) 0)
+                        (eq (elt text (- (length text) 1)) ?\n))
+              (setq text (substring text 0 -1)))
+            (message text)))))))
 
 
 ;; -------------------------------------------------------------------
