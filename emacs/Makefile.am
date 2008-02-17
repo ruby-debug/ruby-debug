@@ -37,10 +37,10 @@ lisp_files = rdebug.el \
 	     rdebug-vars.el 	\
 	     rdebug-watch.el
 check_DATA = test/elk-test.el	\
+	test/test-annotate.el  	\
 	test/test-cmd.el    	\
 	test/test-core.el   	\
 	test/test-error.el   	\
-	test/test-filter.el   	\
 	test/test-gud.el   	\
 	test/test-indent.el 	\
 	test/test-regexp.el
@@ -69,14 +69,19 @@ ELCFILES   = rdebug.elc 		\
 if INSTALL_EMACS_LISP
 lisp_LISP = $(lisp_files)
 CHECK_FILES = \
+	check-annotate \
 	check-cmd \
 	check-core \
-	check-filter \
+	check-error \
 	check-frames \
 	check-gud \
 	check-indent \
 	check-regexp
 check: $(CHECK_FILES)
+
+check-annotate: rdebug-annotate.el
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-annotate.el )
 
 check-cmd: rdebug-gud.el
 	(cd $(srcdir)/test && \
@@ -89,10 +94,6 @@ check-core: rdebug-core.el
 check-error: rdebug-error.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-error.el )
-
-check-filter: rdebug-annotate.el
-	(cd $(srcdir)/test && \
-	$(EMACS) -batch -q -l test-filter.el )
 
 check-frames: rdebug-frames.el
 	(cd $(srcdir)/test && \

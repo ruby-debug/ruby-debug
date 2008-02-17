@@ -11,8 +11,8 @@
 (make-variable-buffer-local 'gud-rdebug-marker-acc)
 
 (defun regexp-breakpoint-test (location-str pos-str enabled-str file-str line-str)
-  "Test to see that location-str parses rdebug--breakpoint-regexp properly"
-  (assert-equal 0 (string-match rdebug--breakpoint-regexp location-str))
+  "Test to see that location-str parses rdebug-breakpoint-regexp properly"
+  (assert-equal 0 (string-match rdebug-breakpoint-regexp location-str))
   (assert-equal pos-str
 		(substring location-str (match-beginning 1)  (match-end 1)))
   (assert-equal enabled-str
@@ -70,8 +70,8 @@ No breakpoints
 ABC")))
 
 (defun regexp-stack-test (location-str pos-str file-str line-str)
-  "Test to see that location-str parses rdebug--stack-frame-regexp properly"
-  (assert-equal 0 (string-match rdebug--stack-frame-regexp location-str))
+  "Test to see that location-str parses rdebug-stack-frame-regexp properly"
+  (assert-equal 0 (string-match rdebug-stack-frame-regexp location-str))
   (assert-equal pos-str
 		(substring location-str (match-beginning 2)  (match-end 2)))
   (assert-equal file-str

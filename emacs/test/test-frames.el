@@ -24,7 +24,7 @@
       (let* ((b (line-beginning-position)) (e (line-end-position))
 	     (s (buffer-substring b e))
 	     (file nil) (line nil))
-	(assert-nonnil (string-match rdebug--stack-frame-regexp s))
+	(assert-nonnil (string-match rdebug-stack-frame-regexp s))
 	(assert-equal "/tmp/gcd.rb" (rdebug-stack-buffer-field
 				     s b
 				     rdebug-stack-frame-file-group
@@ -37,7 +37,7 @@
 	(setq b (line-beginning-position))
 	(setq e (line-end-position))
 	(setq s (buffer-substring b e))
-	(assert-nonnil (string-match rdebug--stack-frame-2nd-regexp s))
+	(assert-nonnil (string-match rdebug-stack-frame-2nd-regexp s))
 	(assert-equal "/foo/bar/custom_require.rb" 
 		      (rdebug-stack-buffer-field
 		       s b

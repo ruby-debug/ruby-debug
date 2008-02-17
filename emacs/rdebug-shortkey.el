@@ -1,4 +1,5 @@
-;;; Ruby debugger (short and simple) key bindings and minor mode.
+;;; rdebug-watch.el --- Ruby debugger (short and simple) key bindings
+;;; and minor mode.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -152,3 +153,5 @@ This function is designed to be used in a user hook, for example:
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
+
+;;; rdebug-shortkey.el ends here

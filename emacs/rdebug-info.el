@@ -78,3 +78,5 @@
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
+
+;;; rdebug-info.el ends here

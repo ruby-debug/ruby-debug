@@ -1,4 +1,5 @@
-;;; Ruby debugger output filtering - which include annotation handling.
+;;; rdebug-annotate.el --- Ruby debugger output filtering - which
+;;; includes annotation handling.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -337,3 +338,5 @@ This may be called any number of times."
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
+
+;;; rdebug-annotate.el ends here

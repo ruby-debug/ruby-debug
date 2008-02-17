@@ -561,3 +561,5 @@ RET to update display.")))
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
+
+;;; rdebug-source.el ends here
