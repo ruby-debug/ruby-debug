@@ -539,42 +539,6 @@ debugger is active."
 
 
 ;; -------------------------------------------------------------------
-;; Source short key mode.
-;;
-;; When this minor mode is active and the debugger is running, the
-;; source window displaying the current debugger frame is marked as
-;; read-only and the short keys of the secondary windows can be used,
-;; for example, you can use the space-bar to single-step the program.
-
-;; Implementation note:
-;;
-;; This is presented to the user as one global minor mode. However,
-;; under the surface the real work is done by another, non-global,
-;; minor mode named "local short key mode". This is activated and
-;; deactivated appropriately by the Rdebug filter functions.
-
-;; Implementation note: This is the user-level command. It only
-;; controls if `rdebug-internal-short-key-mode' should be activated or
-;; not.
-
-(define-minor-mode rdebug-short-key-mode
-  "When enabled, short keys can be used in source buffers in `rdebug'."
-  :group 'rdebug
-  :global t
-  :init-value nil
-  ;; Unless the debugger is running, activating this doesn't do
-  ;; anything.
-  (if (featurep 'rdebug-core)
-      (with-no-warnings
-        (rdebug-short-key-mode-maybe-activate))))
-
-(defun rdebug-customize ()
-  "Use `customize' to edit the settings of the `rdebug' debugger."
-  (interactive)
-  (customize-group 'rdebug))
-
-
-;; -------------------------------------------------------------------
 ;; Use separate I/O buffer
 ;;
 
@@ -597,5 +561,3 @@ RET to update display.")))
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
-
-;;; rdebug-source.el ends here

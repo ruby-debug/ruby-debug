@@ -42,6 +42,21 @@
 ;; minor mode named "local short key mode". This is activated and
 ;; deactivated appropriately by the Rdebug filter functions.
 
+;; Implementation note: This is the user-level command. It only
+;; controls if `rdebug-internal-short-key-mode' should be activated or
+;; not.
+
+(define-minor-mode rdebug-short-key-mode
+  "When enabled, short keys can be used in source buffers in `rdebug'."
+  :group 'rdebug
+  :global t
+  :init-value nil
+  ;; Unless the debugger is running, activating this doesn't do
+  ;; anything.
+  (if (featurep 'rdebug-core)
+      (with-no-warnings
+        (rdebug-short-key-mode-maybe-activate))))
+
 (defvar rdebug-internal-short-key-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map "b" 'gud-break)
