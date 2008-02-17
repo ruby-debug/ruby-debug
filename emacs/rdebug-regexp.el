@@ -59,7 +59,7 @@ Program-location lines look like this:
   "\\(\\([a-z][-a-z]*\\)?\n\\|source \\)"
   "Regular expression to match the start of an annotation.")
 
-(defconst rdebug--breakpoint-regexp
+(defconst rdebug-breakpoint-regexp
   "^\\ +\\([0-9]+\\) \\([yn]\\) +at +\\(.+\\):\\([0-9]+\\)\\( if .*\\)?$"
   "Regexp to recognize breakpoint lines in rdebug breakpoint buffers.")
 
@@ -81,34 +81,34 @@ Program-location lines look like this:
   "^[ \t]+[[]?\\([^:]+\\):\\([0-9]+\\):in `.*'"
   "Regular expression that describes a Ruby traceback line from $! list.")
 
-(defconst rdebug--stack-frame-1st-regexp
+(defconst rdebug-stack-frame-1st-regexp
   "^\\(-->\\|   \\) +#\\([0-9]+\\)\\(.*\\)"
   "Regexp to match the first line of a stack frame in rdebug stack buffers.")
 
 (defconst rdebug-stack-frame-number-group 2
-  "Group position in `rdebug--stack-frame-1st-regexp' that
+  "Group position in `rdebug-stack-frame-1st-regexp' that
   matches the frame number.")
 
-(defconst rdebug--stack-frame-2nd-regexp
+(defconst rdebug-stack-frame-2nd-regexp
   "\s+at line +\\([^:]+\\):\\([0-9]+\\)$"
   "Regexp to match the second line of a stack frame in rdebug stack buffers.")
 
 (defconst rdebug-stack-frame-2nd-file-group 1
-  "Group position in `rdebug--stack-frame-2nd-regexp' that
+  "Group position in `rdebug-stack-frame-2nd-regexp' that
   matches the file name.")
 
 (defconst rdebug-stack-frame-2nd-line-group 2
-  "Group position in `rdebug--stack-frame-2nd-regexp' that
+  "Group position in `rdebug-stack-frame-2nd-regexp' that
   matches the line number.")
-(defconst rdebug--stack-frame-regexp
-  (concat rdebug--stack-frame-1st-regexp rdebug--stack-frame-2nd-regexp)
+(defconst rdebug-stack-frame-regexp
+  (concat rdebug-stack-frame-1st-regexp rdebug-stack-frame-2nd-regexp)
   "Regexp to recognize a stack frame line in rdebug stack buffers.")
 
 (defconst rdebug-stack-frame-file-group 4
-  "Group position in `rdebug--stack-frame-regexp' that matches the file name.")
+  "Group position in `rdebug-stack-frame-regexp' that matches the file name.")
 
 (defconst rdebug-stack-frame-line-group 5
-  "Group position in `rdebug--stack-frame-regexp' that matches
+  "Group position in `rdebug-stack-frame-regexp' that matches
   the line number.")
 
 (defconst rdebug-input-prompt-regexp "(+rdb:\\([0-9]+\\|post-mortem\\)) "

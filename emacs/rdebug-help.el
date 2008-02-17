@@ -53,8 +53,8 @@
   (interactive)
   (rdebug-display-secondary-buffer "help"))
 
-(defun rdebug--setup-secondary-window-help-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-secondary-window-help-buffer"
+(defun rdebug-setup-secondary-window-help-buffer (buf comint-buffer)
+  (rdebug-debug-enter "rdebug-setup-secondary-window-help-buffer"
     (with-current-buffer buf
       (rdebug-secondary-window-help-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer)

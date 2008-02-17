@@ -1,4 +1,5 @@
-;;; rdebug-varbuf.el --- Ruby debugger variables buffer
+;;; rdebug-varbuf.el --- This file contains code dealing with the Ruby
+;;; debugger's "variables" secondary buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -23,8 +24,6 @@
 ;;; Commentary:
 
 ;; See the manual and the file `rdebug.el' for more information.
-
-;; This file contains code dealing with the variables secondary buffer.
 
 ;;; Code:
 
@@ -82,8 +81,8 @@
   (use-local-map rdebug-variables-mode-map)
   (run-mode-hooks 'rdebug-variables-mode-hook))
 
-(defun rdebug--setup-variables-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-variables-buffer"
+(defun rdebug-setup-variables-buffer (buf comint-buffer)
+  (rdebug-debug-enter "rdebug-setup-variables-buffer"
     (with-current-buffer buf
       (rdebug-variables-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))

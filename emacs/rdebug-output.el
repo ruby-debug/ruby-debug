@@ -90,8 +90,8 @@
     (set (make-local-variable 'rdebug-output-marker-number) old-marker-number)
     (run-mode-hooks 'rdebug-output-mode-hook)))
 
-(defun rdebug--setup-output-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-output-buffer"
+(defun rdebug-setup-output-buffer (buf comint-buffer)
+  (rdebug-debug-enter "rdebug-setup-output-buffer"
     (with-current-buffer buf
       (rdebug-output-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))

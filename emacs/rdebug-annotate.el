@@ -48,18 +48,18 @@ This can be:
 
 See the function `rdebug-cmd-process' for details on :cmd.")
 
-(defvar rdebug--annotation-setup-map
+(defvar rdebug-annotation-setup-map
   (progn
     (define-hash-table-test 'str-hash 'string= 'sxhash)
     (let ((map (make-hash-table :test 'str-hash)))
-      (puthash "breakpoints" 'rdebug--setup-breakpoints-buffer           map)
-      ;;(puthash "error"       'rdebug-setup-error-buffer                  map)
-      (puthash "frame"       'rdebug--setup-frame-buffer                 map)
-      (puthash "variables"   'rdebug--setup-variables-buffer             map)
-      (puthash "watch"       'rdebug--setup-watch-buffer                 map)
-      (puthash "output"      'rdebug--setup-output-buffer                map)
-      (puthash "info"        'rdebug--setup-info-buffer                  map)
-      (puthash "help"        'rdebug--setup-secondary-window-help-buffer map)
+      (puthash "breakpoints" 'rdebug-setup-breakpoints-buffer           map)
+      ;;(puthash "error"       'rdebug-setup-error-buffer               map)
+      (puthash "frame"       'rdebug-setup-frame-buffer                 map)
+      (puthash "variables"   'rdebug-setup-variables-buffer             map)
+      (puthash "watch"       'rdebug-setup-watch-buffer                 map)
+      (puthash "output"      'rdebug-setup-output-buffer                map)
+      (puthash "info"        'rdebug-setup-info-buffer                  map)
+      (puthash "help"        'rdebug-setup-secondary-window-help-buffer map)
       map)))
 
 (defun rdebug-temp-show (text)
@@ -257,7 +257,7 @@ place for processing."
         (setq name "info"))
     (if (string= name "error")
         (rdebug-errmsg contents))
-    (let ((setup-func (gethash name rdebug--annotation-setup-map)))
+    (let ((setup-func (gethash name rdebug-annotation-setup-map)))
       (when setup-func
         (let ((buf (rdebug-get-buffer name gud-target-name))
               ;; Buffer local, doesn't survive the buffer change.

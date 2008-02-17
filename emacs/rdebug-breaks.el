@@ -1,4 +1,5 @@
-;;; Ruby debugger breakpoints buffer.
+;;; rdebug-breaks.el --- This file contains code dealing with the Ruby
+;;; debugger's breakpoints and the breakpoint secondary buffer.  
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -107,9 +108,11 @@
   (run-mode-hooks 'rdebug-breakpoints-mode-hook))
 
 
-(defun rdebug--setup-breakpoints-buffer (buf comint-buffer)
-  "Detects breakpoint lines and sets up keymap and mouse navigation."
-  (rdebug-debug-enter "rdebug--setup-breakpoints-buffer"
+(defun rdebug-setup-breakpoints-buffer (buf comint-buffer)
+  "Detect breakpoint lines and set up keymap and mouse navigation.
+Argument BUF is the buffer to set up.
+Argument COMINT-BUFFER is the assocaited gud process buffer."
+  (rdebug-debug-enter "rdebug-setup-breakpoints-buffer"
     (with-current-buffer buf
       (let ((inhibit-read-only t)
 	    (old-line-number (buffer-local-value 'rdebug-current-line-number
@@ -118,7 +121,7 @@
         (goto-char (point-min))
         (while (not (eobp))
           (let ((b (line-beginning-position)) (e (line-end-position)))
-            (when (string-match rdebug--breakpoint-regexp
+            (when (string-match rdebug-breakpoint-regexp
                                 (buffer-substring b e))
               (add-text-properties b e
                                    (list 'mouse-face 'highlight
@@ -147,7 +150,7 @@ Buffer-local to the debugger shell window.")
     (goto-char (point-min))
     (let ((res '()))
       (while (not (eobp))
-        (when (looking-at rdebug--breakpoint-regexp)
+        (when (looking-at rdebug-breakpoint-regexp)
           (push (list :file
                       ;; Break point number
                       (string-to-number (match-string 1))
@@ -184,12 +187,13 @@ or
 
 
 (defun rdebug-file-and-line-arg ()
+  "Return the current file and line number as a list."
   (save-excursion
     (beginning-of-line)
     (list (buffer-file-name) (+ 1 (count-lines (point-min) (point))))))
 
 (defun rdebug-breakpoints-on-line (file line)
-  "Return a list of the breakpoint on the current source line."
+  "Return a list of the breakpoints on the file FILE and current source LINE."
   (let ((res '()))
     (dolist (entry (rdebug-all-breakpoints))
       (if (and (eq (nth 0 entry) :file)
@@ -200,7 +204,7 @@ or
 
 
 (defun rdebug-toggle-source-breakpoint (file line)
-  "Toggle break point on current source line."
+  "Toggle break point in FILE on current source LINE."
   (interactive (rdebug-file-and-line-arg))
   (cond ((eq major-mode 'rdebug-breakpoints-mode)
          (rdebug-delete-breakpoint))
@@ -215,7 +219,7 @@ or
 
 
 (defun rdebug-toggle-source-breakpoint-enabled (file line)
-  "Enable or disable a break point on the current source line."
+  "Enable or disable a breakpoint in FILE on the current source LINE."
   (interactive (rdebug-file-and-line-arg))
   (cond ((eq major-mode 'rdebug-breakpoints-mode)
          (rdebug-toggle-breakpoint))
@@ -245,17 +249,18 @@ or
     (if pt
         (goto-char pt))
     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
-      (when (string-match rdebug--breakpoint-regexp s)
+      (when (string-match rdebug-breakpoint-regexp s)
         (let ((bpnum (substring s (match-beginning 1) (match-end 1))))
           (gud-call (format "delete %s" bpnum)))))))
 
 (defun rdebug-goto-breakpoint (pt)
-  "Displays the location in a source file of the selected breakpoint."
+  "Displays the location in a source file of the selected breakpoint.
+Argument PT indicates the file and line where the breakpoint should be set."
   (interactive "d")
   (save-excursion
     (goto-char pt)
     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
-      (when (string-match rdebug--breakpoint-regexp s)
+      (when (string-match rdebug-breakpoint-regexp s)
         (rdebug-display-line
          (substring s (match-beginning 3) (match-end 3))
          (string-to-number (substring s (match-beginning 4) (match-end 4))))
@@ -276,18 +281,18 @@ secondary window or nil if none found."
   (save-excursion
     (goto-char pt)
     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
-      (if (string-match rdebug--breakpoint-regexp s)
+      (if (string-match rdebug-breakpoint-regexp s)
 	  (substring s (match-beginning 1) (match-end 1))
 	nil))))
 
 (defun rdebug-toggle-breakpoint (&optional pt)
-  "Toggles the breakpoint at PT in the breakpoints buffer."
+  "Toggle the breakpoint at PT in the breakpoints buffer."
   (interactive "d")
   (save-excursion
     (if pt
         (goto-char pt))
     (let ((s (buffer-substring (line-beginning-position) (line-end-position))))
-      (when (string-match rdebug--breakpoint-regexp s)
+      (when (string-match rdebug-breakpoint-regexp s)
         (let* ((enabled
                 (string= (substring s (match-beginning 2) (match-end 2)) "y"))
                (cmd (if enabled "disable" "enable"))
@@ -387,3 +392,7 @@ secondary window or nil if none found."
 ;;; Local variables:
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
+
+(provide 'rdebug-breaks)
+
+;;; rdebug-breaks.el ends here

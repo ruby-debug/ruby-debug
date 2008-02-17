@@ -1,4 +1,5 @@
-;;; Ruby debugger info buffer.
+;;; rdebug-info.el --- This file contains code dealing with the Ruby
+;;; debugger's info secondary buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -24,7 +25,6 @@
 
 ;; See the manual and the file `rdebug.el' for more information.
 
-;; This file contains code dealing with the info secondary buffer.
 
 ;;; Code:
 
@@ -58,9 +58,9 @@
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (run-mode-hooks 'rdebug-info-mode-hook))
 
-(defun rdebug--setup-info-buffer (buf comint-buffer)
+(defun rdebug-setup-info-buffer (buf comint-buffer)
   "Setup the Rdebug debugger info buffer."
-  (rdebug-debug-enter "rdebug--setup-info-buffer"
+  (rdebug-debug-enter "rdebug-setup-info-buffer"
     (with-current-buffer buf
       (let ((inhibit-read-only t)
 	    (old-line-number (buffer-local-value 'rdebug-current-line-number

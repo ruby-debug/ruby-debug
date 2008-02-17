@@ -1,4 +1,5 @@
-;;; rdebug-watch.el --- Ruby debugger watch buffer
+;;; rdebug-watch.el --- This file contains code dealing with the Ruby
+;;; debugger's watch (AKA display) secondary buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -21,11 +22,7 @@
 ;; Boston, MA 02111-1307, USA.
 
 ;;; Commentary:
-
 ;; See the manual and the file `rdebug.el' for more information.
-
-;; This file contains code dealing with the watch (a.k.a display)
-;; secondary buffer.
 
 ;;; Code:
 
@@ -82,14 +79,17 @@
   (use-local-map rdebug-watch-mode-map)
   (run-mode-hooks 'rdebug-watch-mode-hook))
 
-(defun rdebug--setup-watch-buffer (buf comint-buffer)
-  (rdebug-debug-enter "rdebug--setup-watch-buffer"
+(defun rdebug-setup-watch-buffer (buf comint-buffer)
+  "Set up the rdebug debugger watch secondary buffer.
+
+This buffer contains display expressions.  BUF is the buffer to set up and COMINT-BUFFER be the assocated gud process buffer."
+  (rdebug-debug-enter "rdebug-setup-watch-buffer"
     (with-current-buffer buf
       (rdebug-watch-mode)
       (set (make-local-variable 'gud-comint-buffer) comint-buffer))))
 
 (defun rdebug-watch-add (expr)
-  "Add an expression to watch in the `rdebug' Ruby debugger."
+  "Add EXPR to watch in the `rdebug' Ruby debugger."
   (interactive "sRuby expression: ")
   (if (not (string= expr ""))
       (gud-call (format "display %s" expr))))
@@ -104,7 +104,9 @@
         (gud-call (format "undisplay %s" (match-string 1))))))
 
 (defun rdebug-watch-edit (number expr)
-  "Edit a display expression in the `rdebug' Ruby debugger."
+  "Edit a display expression in the `rdebug' Ruby debugger.
+Argument NUMBER is the display expression number.
+Argument EXPR is the expression for display number NUMBER."
   (interactive
    (let ((number nil)
          (expr nil))

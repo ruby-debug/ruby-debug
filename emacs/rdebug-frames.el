@@ -81,10 +81,10 @@
 		;;else
                 (buffer-substring (line-beginning-position 2)
                                   (line-end-position 2)))))
-      (when (or (string-match rdebug--stack-frame-regexp s)
+      (when (or (string-match rdebug-stack-frame-regexp s)
 		;; need to match 1st line last to get the match position right
-		(and s2 (string-match rdebug--stack-frame-2nd-regexp s2)
-		     (string-match rdebug--stack-frame-1st-regexp s)))
+		(and s2 (string-match rdebug-stack-frame-2nd-regexp s2)
+		     (string-match rdebug-stack-frame-1st-regexp s)))
         (let ((frame (substring s (match-beginning 2) (match-end 2))))
           (gud-call (concat "frame " frame)))))))
 
@@ -189,7 +189,7 @@ non-digit will start entry number from the beginning again."
 
 ;; Note: This function can't restore the original point alone, since
 ;; the point is already at the end of the buffer when this is called.
-(defun rdebug--setup-frame-buffer (buf comint-buffer)
+(defun rdebug-setup-frame-buffer (buf comint-buffer)
   "Find the current frame and display the corresponding source line.
 
 Also, cleans the buffer somewhat and sets up help for the font-lock rules."
@@ -203,7 +203,7 @@ Also, cleans the buffer somewhat and sets up help for the font-lock rules."
           (beginning-of-line)
           (setq overlay-arrow-position (make-marker))
           (set-marker overlay-arrow-position (point))
-          (when (looking-at rdebug--stack-frame-1st-regexp)
+          (when (looking-at rdebug-stack-frame-1st-regexp)
             (setq rdebug-frames-current-frame-number
                   (string-to-number (match-string rdebug-stack-frame-number-group)))))
         ;; Remove initial '   '  or '-->'.

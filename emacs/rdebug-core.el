@@ -1,4 +1,5 @@
-;;; rdebug-core.el --- Ruby debugger user interface.
+;;; rdebug-core.el --- Core parts of the Ruby debugger user
+;;; interface. It pulls in other parts of the debugger.
 
 ;; Copyright (C) 2006, 2007, 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007, 2008 Anders Lindgren
@@ -24,8 +25,6 @@
 
 ;; See the manual and the file `rdebug.el' for more information.
 
-;; This file implements the core of the debugger.
-
 ;;; Code:
 
 ;; -------------------------------------------------------------------
@@ -34,7 +33,7 @@
 
 (if (< emacs-major-version 22)
     (error
-     "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d."
+     "This version of rdebug.el needs at least Emacs 22 or greater - you have version %d"
      emacs-major-version))
 
 
@@ -57,7 +56,8 @@
 (defun rdebug-get-script-name (args)
   "Pick out the script name from the command line.
 Return a list of that and whether the annotate option was set.
-Initially annotate should be set to nil."
+Initially annotate should be set to nil.
+Argument ARGS contains a tokenized list of the command line."
   ;; Parse the following:
   ;;
   ;;  [ruby ruby-options] rdebug rdebug-options script-name script-options
@@ -210,7 +210,7 @@ If ERASE is non-nil, the content of the windows are erased
 \(this does not apply to accumulative windows).
 
 This function displays the source file (or, in some cases, a
-buffer list) and creates the window layout. The variable
+buffer list) and creates the window layout.  The variable
 `rdebug-window-layout-function' controls the function that is
 used to perform the actual layout.
 
@@ -227,7 +227,7 @@ This is only used when `rdebug-many-windows' is non-nil."
                    (let ((inhibit-read-only t))
                      (erase-buffer))))))
        (rdebug-process-annotation name ""))
-     rdebug--annotation-setup-map)
+     rdebug-annotation-setup-map)
     (let ((buf
            (cond (gud-last-last-frame
                   (gud-find-file (car gud-last-last-frame)))
@@ -410,7 +410,7 @@ and options used to invoke rdebug."
 
 
       ;; Add the buffer-displaying commands to the Gud buffer,
-      ;; FIXME: combine with code in rdebug-track.el; make common 
+      ;; FIXME: combine with code in rdebug-track.el; make common
       ;; command buffer mode map.
       (let ((prefix-map (make-sparse-keymap)))
         (define-key (current-local-map) gud-key-prefix prefix-map)
