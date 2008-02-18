@@ -123,9 +123,6 @@ non-digit will start entry number from the beginning again."
       (setq rdebug-goto-entry-acc ""))
   (rdebug-goto-frame-n-internal (this-command-keys)))
 
-(defvar rdebug-frames-current-frame-number nil
-  "The frame number of the selected frame.")
-
 (defun rdebug-frames-match-current-line (limit)
   (and rdebug-frames-current-frame-number
        (re-search-forward

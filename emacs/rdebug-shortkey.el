@@ -120,6 +120,9 @@ mode `rdebug-short-key-mode'.
               (let ((buffer (gud-find-file (car frame))))
                 (save-current-buffer
                   (set-buffer buffer)
+		  ;; Make gud-comint-buffer local
+		  (if gud-comint-buffer 
+		      (make-local-variable 'gud-comint-buffer))
                   (rdebug-internal-short-key-mode 1)))))))))
 
 

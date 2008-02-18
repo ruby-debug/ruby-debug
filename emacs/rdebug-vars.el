@@ -51,6 +51,9 @@
 (defvar rdebug-debugger-window-configuration nil
   "The saved window layout of the debugger.")
 
+(defvar rdebug-frames-current-frame-number nil
+  "The frame number of the selected frame.")
+
 (defvar rdebug-goto-entry-acc "")
 
 (defvar rdebug-output-marker-number 0

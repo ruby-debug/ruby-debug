@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'gud)
+(require 'gdb-ui)
 (require 'rdebug-dbg)
 (require 'rdebug-error)
 (require 'rdebug-info)
@@ -64,10 +65,23 @@ See the function `rdebug-cmd-process' for details on :cmd.")
       (puthash "help"        'rdebug-setup-secondary-window-help-buffer map)
       map)))
 
+(defun rdebug-set-frame-top-arrow ()
+  "Set the fringe arrow to indicate the top frame"
+  (if gud-last-frame
+      (with-current-buffer (gud-find-file (car gud-last-frame))
+	(setq fringe-indicator-alist
+	      '((overlay-arrow . right-triangle))))))
+
+(defun rdebug-set-frame-not-top-arrow ()
+  "Set the fringe arrow to indicate a frame other than the top frame"
+  (if gud-last-frame
+      (with-current-buffer (gud-find-file (car gud-last-frame))
+	(setq fringe-indicator-alist
+	      '((overlay-arrow . hollow-right-triangle))))))
+
 (defun rdebug-temp-show (text)
   "Arrange to show string as in sort of temporary way. Perhaps like a tooltip"
-  (tooltip-show text)
-)
+  (tooltip-show text))
 
 (defun rdebug-marker-filter-next-item (string)
   "The next item for the rdebug marker filter to process.
@@ -229,7 +243,10 @@ Return (item . rest) or nil."
       ;; Display the source file where we want it, gud will only pick
       ;; an arbitrary window.
       (if gud-last-frame
-          (rdebug-pick-source-window))
+	  (progn (rdebug-pick-source-window)
+		 (if (equal 0 rdebug-frames-current-frame-number)
+		     (rdebug-set-frame-top-arrow)
+		   (rdebug-set-frame-not-top-arrow))))
 
       (rdebug-internal-short-key-mode-on)
 
