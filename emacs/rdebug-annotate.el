@@ -226,12 +226,10 @@ Return (item . rest) or nil."
                         ((string= name "source")
                          (if (string-match gud-rdebug-marker-regexp item)
                              ;; Extract the frame position from the marker.
-                             (progn 
 			       (setq gud-last-frame
 				     (cons (match-string 1 item)
 					   (string-to-number
-					    (match-string 2 item))))
-			       (ring-insert rdebug-source-location-ring gud-last-frame))))
+					    (match-string 2 item))))))
                         (t (rdebug-process-annotation name contents))))
               ;; This is not a one-liner, and we haven't seen the next
               ;; annotation, so we have to treat this as a partial
@@ -245,7 +243,18 @@ Return (item . rest) or nil."
       (if gud-last-frame
 	  (progn (rdebug-pick-source-window)
 		 (if (equal 0 rdebug-frames-current-frame-number)
-		     (rdebug-set-frame-top-arrow)
+		     (progn 
+		       (rdebug-set-frame-top-arrow)
+		       ;; Switching frames shouldn't save a new ring
+		       ;; position. Also make sure no position is different. 
+		       ;; Perhaps duplicates should be controlled by an option.
+		       (if (equal 0 rdebug-frames-current-frame-number)
+			   (unless (and (not (ring-empty-p rdebug-source-location-ring))
+				    (equal (ring-ref rdebug-source-location-ring 0)
+					   gud-last-frame))
+			     (ring-insert rdebug-source-location-ring 
+					gud-last-frame))))
+		   ;; else
 		   (rdebug-set-frame-not-top-arrow))))
 
       (rdebug-internal-short-key-mode-on)

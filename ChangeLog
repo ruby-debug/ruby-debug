@@ -1,3 +1,166 @@
+2008-02-18 04:49  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-frames.el,
+	  emacs/rdebug-shortkey.el, emacs/rdebug-vars.el: Make
+	  gud-comint-buffer local in the source file.
+	  Frame indicator is hollow except when it's the top frame.
+
+2008-02-17 23:51  Rocky Bernstein
+
+	* doc/emacs-notes.txt: Note as to how some of the emacs code is
+	  structured.
+
+2008-02-17 22:45  Anders Lindgren
+
+	* emacs/test/test-annotate.el: Fixed broken case (rdebug-call-queue
+	  is now a list of lists).
+
+2008-02-17 22:42  Anders Lindgren
+
+	* emacs/rdebug-annotate.el: Exit messages now go to the echo area.
+	  New command kind supported in rdebug-call-queue, :message.
+
+2008-02-17 22:00  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-annotate.el, emacs/rdebug-dbg.el,
+	  emacs/rdebug-info.el, emacs/rdebug-shortkey.el,
+	  emacs/rdebug-source.el, emacs/test/test-annotate.el,
+	  emacs/test/test-filter.el, emacs/test/test-frames.el,
+	  emacs/test/test-regexp.el: test-filter.el -> test-annotate.el
+	  Reinstate the ";;; redebug-xxx.el ends here" and ;;;
+	  rdebug-xxx.el --- at the
+	  thop.
+
+2008-02-17 21:25  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-shortkey.el,
+	  emacs/rdebug-source.el: Move short-key mode from source into
+	  short-key.
+	  Makefile.am: reduce redundancy a tad.
+
+2008-02-17 17:52  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-breaks.el,
+	  emacs/rdebug-core.el, emacs/rdebug-frames.el,
+	  emacs/rdebug-help.el, emacs/rdebug-info.el,
+	  emacs/rdebug-output.el, emacs/rdebug-regexp.el,
+	  emacs/rdebug-varbuf.el, emacs/rdebug-watch.el: Replace
+	  rdebug--... with rdebug-. Run checkdoc and deal with some of
+	  those errors.
+
+2008-02-17 14:56  Anders Lindgren
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-gud.el,
+	  emacs/rdebug-info.el, emacs/rdebug-vars.el: The rdebug-call-queue
+	  system reworked, each entry is now a list of the
+	  command and options telling the system what it should do with the
+	  output. Currently, :tooltip and :info are supported, but more can
+	  easily be added (including support for lambda-expression, if
+	  needed).
+	  
+	  The info buffer now only displays things if explicitly asked to
+	  do so.
+	  
+	  Two proof-of-concept functions added,
+	  rdebug-pretty-print-to-buffer
+	  and rdebug-pretty-print-region-to-buffer. Note that the user
+	  interface
+	  might differ in the future (we don't want too many user-level
+	  function.)
+	  
+	  The info buffer is no longer treated as accumulative, this
+	  simplifies
+	  the rdebug-cmd-XXX functions, but the user has to wait until the
+	  command has terminated until the output is displayed in the info
+	  buffer.
+
+2008-02-17 13:57  Rocky Bernstein
+
+	* CHANGES, cli/ruby-debug/commands/info.rb, doc/ruby-debug.texi,
+	  lib/ruby-debug-base.rb, test/data/post-mortem.right: Add
+	  Debugger.last_exception. Show exception in post-mortem when "info
+	  program"
+	  is issued. Reorganize list of major changes better.
+
+2008-02-17 10:35  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el: Improve comment.
+
+2008-02-17 10:32  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el: Remove rdebug-test-test which doesn't
+	  seem to be used.
+
+2008-02-17 03:57  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-core.el: Move some
+	  breakpoint-related code from rdebug-core.el to rdebug-breaks.el
+
+2008-02-17 02:40  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-annotate.el,
+	  emacs/rdebug-breaks.el, emacs/rdebug-cmd.el,
+	  emacs/rdebug-core.el, emacs/rdebug-error.el,
+	  emacs/rdebug-info.el, emacs/rdebug-shortkey.el,
+	  emacs/rdebug-vars.el, emacs/test/test-error.el,
+	  emacs/test/test-filter.el, emacs/test/test-regexp.el: Create
+	  functions for showing temporary messages and error messages -
+	  don't call show-tooltip() or message() directy.
+	  
+	  Break out annotations and shortkeys from rdebug-core. Break out
+	  filter
+	  test from regular-expression tests. Add chomp test.
+
+2008-02-16 21:03  Anders Lindgren
+
+	* emacs/rdebug-core.el: The error buffer should work correctly
+	  again (untested)
+
+2008-02-16 20:56  Anders Lindgren
+
+	* emacs/rdebug-core.el, emacs/rdebug-info.el,
+	  emacs/test/test-regexp.el: Moved handling of command output out
+	  from gud-rdebug-marker-filter. It
+	  is now handled by rdebug-cmd-XXX (which used to be located in
+	  rdebug-info.el.) Tooltip handling is now more robust, e.g. it
+	  works
+	  when more than one annotation is received at once, or if the
+	  annotation arrives in split packages.
+	  
+	  In case the external process echoes the command, it is stipped
+	  away
+	  before it is presented as a tooltip.
+	  
+	  Test of filter function reworked. New cases added to handle
+	  command
+	  output. All filter tests are now tested twice, once when the
+	  entire
+	  block is sent at once, one where the block is sent in character
+	  by
+	  character.
+
+2008-02-16 17:38  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-cmd.el, emacs/rdebug-core.el,
+	  emacs/test/test-indent.el: Add routine to go to a particular
+	  history location. Break out command buffer
+	  things into its own file.
+
+2008-02-16 13:47  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Show ring number when moving positions.
+
+2008-02-16 04:18  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-source.el,
+	  emacs/rdebug-vars.el, emacs/rdebug.el: Save stopping points and
+	  give a way to move around in them.
+
+2008-02-13 21:47  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/processor.rb, lib/ChangeLog:
+	  processor.rb: spelled "post-mortem" incorrectly in prompt.
+
 2008-02-13 17:58  Rocky Bernstein
 
 	* emacs/rdebug-core.el, emacs/rdebug-regexp.el,
