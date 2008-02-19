@@ -13,7 +13,7 @@ module Debugger
     end
     
     def aprint(msg)
-      print afmt(msg) if Debugger.annotate.to_i > 1
+      print afmt(msg) if Debugger.annotate.to_i > 2
     end
 
     # FIXME: use delegate? 
@@ -98,7 +98,7 @@ module Debugger
       file_line = "%s:%s\n%s" % [canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
       # FIXME: use annotations routines
-      if Debugger.annotate.to_i > 1
+      if Debugger.annotate.to_i > 2
         file_line = "\032\032source #{file_line}"
       elsif ENV['EMACS']
         file_line = "\032\032#{file_line}"
@@ -278,13 +278,15 @@ module Debugger
       aprint('stopped') if Debugger.annotate.to_i > 2
       if context.dead?
         unless @debugger_context_was_dead
-          aprint('exited') if Debugger.annotate.to_i > 2
-          print "The program finished.\n" if Debugger.annotate.to_i > 1
+          if Debugger.annotate.to_i > 2
+            aprint('exited') 
+            print "The program finished.\n" 
+          end
           @debugger_context_was_dead = true
         end
       end
 
-      if Debugger.annotate.to_i > 1
+      if Debugger.annotate.to_i > 2
         # if we are here, the stack frames have changed outside the
         # command loop (e.g. after a "continue" command), so we show
         # the annotations again
@@ -391,8 +393,10 @@ module Debugger
       commands = control_cmds.map{|cmd| cmd.new(state) }
 
       unless @debugger_context_was_dead
-        aprint 'exited'  if Debugger.annotate.to_i > 2
-        print "The program finished.\n" if Debugger.annotate.to_i > 1
+        if Debugger.annotate.to_i > 2
+          aprint 'exited'  
+          print "The program finished.\n" 
+        end
         @debugger_context_was_dead = true
       end
 

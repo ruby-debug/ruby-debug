@@ -341,7 +341,7 @@ window layout is used."
 
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
             rdebug-debugger-support-minor-mode-map-when-active)
-    (gud-call "set annotate 2")
+    (gud-call "set annotate 3")
     (gud-call "frame 0")
     (when rdebug-many-windows
       (rdebug-setup-windows))

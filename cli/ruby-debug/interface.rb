@@ -4,7 +4,7 @@ module Debugger
     # Common routine for reporting debugger error messages.
     # Derived classed may want to override this to capture output.
     def errmsg(*args)
-      if Debugger.annotate.to_i > 1
+      if Debugger.annotate.to_i > 2
         aprint 'error-begin'
         print(*args)
         aprint ''
@@ -69,7 +69,7 @@ module Debugger
 
     # Things to do before quitting
     def finalize
-      if Debugger.method_defined?("annotate") and Debugger.annotate.to_i > 1
+      if Debugger.method_defined?("annotate") and Debugger.annotate.to_i > 2
         print "\032\032exited\n\n" 
       end
       if Debugger.respond_to?(:save_history)
