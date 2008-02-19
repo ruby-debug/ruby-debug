@@ -69,6 +69,7 @@
            "<" "Up N stack frames (numeric arg).")
   (gud-def gud-where   "where"
            "T" "Show stack trace.")
+  (local-set-key [M-insert] 'rdebug-internal-short-key-mode)
   (local-set-key "\C-i" 'gud-gdb-complete-command)
   (local-set-key "\C-c\C-n" 'comint-next-prompt)
   (local-set-key "\C-c\C-p" 'comint-previous-prompt))

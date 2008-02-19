@@ -1,3 +1,23 @@
+2008-02-19 15:20  Rocky Bernstein
+
+	* cli/ruby-debug/commands/settings.rb,
+	  cli/ruby-debug/commands/show.rb, doc/ruby-debug.texi,
+	  test/data/ctrl.right: Add "show post-mortem". Note "show port"
+	  now requires 3 letters: "show por"
+	  to distinguish it from "show post-mortem".
+
+2008-02-19 13:56  Rocky Bernstein
+
+	* cli/ruby-debug/interface.rb, cli/ruby-debug/processor.rb,
+	  emacs/rdebug-track.el: remove annotate=2. Emacs code can now
+	  redirect output to command or to buffer.
+	  rdebug-track.el
+
+2008-02-18 19:56  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-annotate.el, lib/ChangeLog: Frame
+	  switching shouldn't be recorded in position history ring.
+
 2008-02-18 04:49  Rocky Bernstein
 
 	* emacs/rdebug-annotate.el, emacs/rdebug-frames.el,
