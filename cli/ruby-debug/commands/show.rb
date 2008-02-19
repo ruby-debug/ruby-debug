@@ -130,7 +130,7 @@ module Debugger
       when /^port$/
         return "server port is #{Debugger::PORT}."
       when /^post-mortem$/
-        on_off = Debugger.post_mortem
+        on_off = Debugger.post_mortem?
         return "post-mortem handling is #{show_onoff(on_off)}."
       when /^trace$/
         on_off = Command.settings[:stack_trace_on_error]
@@ -174,7 +174,8 @@ show history size -- Show the size of the command history"],
        ['linetrace+', 10, 
         "Show if consecutive lines should be different are shown in tracing"],
        ['listsize', 3, "Show number of source lines to list by default"],
-       ['port', 1, "Show server port"],
+       ['port', 3, "Show server port"],
+       ['post-mortem', 3, "Show whether we go into post-mortem debugging on an uncaught exception"],
        ['trace', 1, 
         "Show if a stack trace is displayed when 'eval' raises exception"],
        ['version', 1, 

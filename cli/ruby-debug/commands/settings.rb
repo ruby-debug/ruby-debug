@@ -43,6 +43,8 @@ set history size -- Set the size of the command history"],
        "Set line execution tracing"],
        ['listsize', 3, false,
        "Set number of source lines to list by default"],
+#        ['post-mortem', 3, true,
+#        "Set whether we do post-mortem handling on an uncaught exception"],
        ['trace', 1, true,
         "Display stack trace when 'eval' raises exception"],
        ['width', 1, false,
@@ -160,6 +162,15 @@ set history size -- Set the size of the command history"],
                 else
                   return
                 end
+#               when /^post-mortem$/
+#                 unless Debugger.post_mortem? == set_on
+#                   if set_on
+#                     Debugger.post_mortem
+#                   else
+#                     errmsg "Can't turn off post-mortem once it is on.\n"
+#                     return
+#                   end
+#                 end
               when /^width$/
                 width = get_int(args[0], "Set width", 10, nil, 80)
                 if width

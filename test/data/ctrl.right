@@ -57,6 +57,7 @@ show linetrace -- Show line execution tracing
 show linetrace+ -- Show if consecutive lines should be different are shown in tracing
 show listsize -- Show number of source lines to list by default
 show port -- Show server port
+show post-mortem -- Show whether we go into post-mortem debugging on an uncaught exception
 show trace -- Show if a stack trace is displayed when 'eval' raises exception
 show version -- Show what version of the debugger this is
 show width -- Show the number of characters the debugger thinks are in a line

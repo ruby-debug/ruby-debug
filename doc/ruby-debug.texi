@@ -2574,6 +2574,7 @@ allows you to see the current value.
 * Linetrace::            line execution tracing
 * Linetrace+::           line tracing style
 * Listsize::             Number of lines to try to show in a 'list' command
+* Post-mortem::          Whether post-mortem handling is in effect.
 * Trace::                Display stack trace when 'eval' raises exception
 * Width::                Number of characters the debugger thinks are in a line
 @end menu
@@ -2803,6 +2804,14 @@ Set number of lines to try to show in a @code{list} command.
 @kindex show listsize
 @item show listsize
 Shows the list-size setting.
+@end table
+
+@node Post-mortem
+@subsection Show Post-mortem handling
+@table @code
+@kindex show post-mortem
+Shows wither post-mortem debuggign is in effect. Right now we don't
+have the ability to change the state inside the debugger.
 @end table
 
 @node Trace
