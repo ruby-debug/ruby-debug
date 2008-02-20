@@ -388,6 +388,8 @@ and options used to invoke rdebug."
                        'gud-rdebug-marker-filter 'gud-rdebug-find-file)
       (setq comint-process-echoes t)
 
+      (setq rdebug-mode-line-string "running")
+
       ;; gud-common-init sets the rdebug process buffer name
       ;; incorrectly, because it can't parse the command line properly
       ;; to pick out the script name. So we'll do it here and rename

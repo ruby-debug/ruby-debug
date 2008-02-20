@@ -103,6 +103,7 @@
   (use-local-map rdebug-breakpoints-mode-map)
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (setq mode-line-process 'rdebug-mode-line-process)
   (set (make-local-variable 'font-lock-defaults)
        '(rdebug-breakpoints-font-lock-keywords))
   (run-mode-hooks 'rdebug-breakpoints-mode-hook))

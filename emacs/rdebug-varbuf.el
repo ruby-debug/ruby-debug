@@ -76,6 +76,7 @@
   (setq buffer-read-only t)
   (setq truncate-lines t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (setq mode-line-process 'rdebug-mode-line-process)
   (set (make-local-variable 'font-lock-defaults)
        '(rdebug-variables-font-lock-keywords))
   (use-local-map rdebug-variables-mode-map)

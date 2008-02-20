@@ -526,7 +526,8 @@ This does not menus or prefix keys."
   :global nil
   :init-value nil
   :keymap rdebug-debugger-support-minor-mode-map-when-deactive
-  ())
+  (setq mode-line-process (and rdebug-debugger-support-minor-mode
+                               'rdebug-mode-line-process)))
 
 
 ;;;###autoload

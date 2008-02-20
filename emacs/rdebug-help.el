@@ -45,6 +45,7 @@
   (setq mode-name "RDEBUG Help")
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (setq mode-line-process 'rdebug-mode-line-process)
   (use-local-map rdebug-secondary-window-help-mode-map)
   (run-mode-hooks 'rdebug-secondary-window-help-mode-hook))
 

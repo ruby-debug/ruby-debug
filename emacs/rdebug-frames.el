@@ -179,6 +179,7 @@ non-digit will start entry number from the beginning again."
   (setq major-mode 'rdebug-frames-mode)
   (setq mode-name "RDEBUG Stack Frames")
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (setq mode-line-process 'rdebug-mode-line-process)
   (use-local-map rdebug-frames-mode-map)
   (set (make-local-variable 'font-lock-defaults)
        '(rdebug-frames-font-lock-keywords))

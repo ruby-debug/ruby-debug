@@ -56,6 +56,7 @@
   (use-local-map rdebug-info-mode-map)
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (setq mode-line-process 'rdebug-mode-line-process)
   (run-mode-hooks 'rdebug-info-mode-hook))
 
 (defun rdebug-setup-info-buffer (buf comint-buffer)

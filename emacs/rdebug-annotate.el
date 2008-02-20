@@ -204,6 +204,7 @@ Return (item . rest) or nil."
                           ;; receive all of the message at once, we we
                           ;; need some kind of accumukator, which the
                           ;; cmd system provides.)
+                          (setq rdebug-mode-line-string "exited")
                           (rdebug-cmd-clear)
                           (setq rdebug-call-queue
                                 (cons '("***exited***" :message)

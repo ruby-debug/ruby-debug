@@ -64,6 +64,7 @@
   (setq mode-name "RDEBUG Error")
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
+  (setq mode-line-process 'rdebug-mode-line-process)
   (use-local-map rdebug-error-mode-map)
   (run-mode-hooks 'rdebug-error-mode-hook))
 

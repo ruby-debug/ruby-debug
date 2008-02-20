@@ -101,6 +101,22 @@ This is buffer local variable to the rdebug shell buffer.")
 (defvar rdebug-source-location-ring-index 0
   "Position in `rdebug-source-location-ring' of where we are")
 
+
+(defvar rdebug-mode-line-string nil)
+
+(defvar rdebug-mode-line-process
+  '(:eval
+    (if (and gud-comint-buffer
+             (buffer-name gud-comint-buffer)
+             (get-buffer-process gud-comint-buffer)
+             rdebug-mode-line-string)
+        (concat ":" rdebug-mode-line-string)))
+  "A string representing the current debugger state, or nil.
+The mode line is displayed in all source and secondary buffers.")
+;; Needed to get :eval to work.
+(put 'rdebug-mode-line-process 'risky-local-variable t)
+
+
 ;; -------------------------------------------------------------------
 ;; The end.
 ;;
