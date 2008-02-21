@@ -35,6 +35,7 @@
 	    "../rdebug-dbg.el"
 	    "../rdebug-error.el"
 	    "../rdebug-frames.el"
+	    "../rdebug-fns.el"
 	    "../rdebug-gud.el"
 	    "../rdebug-help.el"
 	    "../rdebug-info.el"

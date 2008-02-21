@@ -22,6 +22,7 @@ lisp_files = rdebug.el \
 	     rdebug-core.el 	\
 	     rdebug-dbg.el 	\
 	     rdebug-error.el 	\
+	     rdebug-fns.el 	\
 	     rdebug-frames.el 	\
 	     rdebug-gud.el 	\
 	     rdebug-help.el 	\
@@ -40,7 +41,7 @@ check_DATA = test/elk-test.el	\
 	test/test-annotate.el  	\
 	test/test-cmd.el    	\
 	test/test-core.el   	\
-	test/test-error.el   	\
+	test/test-fns.el   	\
 	test/test-gud.el   	\
 	test/test-indent.el 	\
 	test/test-regexp.el
@@ -52,6 +53,7 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-core.elc 		\
 	     rdebug-dbg.elc 		\
 	     rdebug-error.elc		\
+	     rdebug-fns.elc		\
 	     rdebug-gud.elc 		\
 	     rdebug-frames.elc 		\
 	     rdebug-help.elc 		\
@@ -72,7 +74,7 @@ CHECK_FILES = \
 	check-annotate \
 	check-cmd \
 	check-core \
-	check-error \
+	check-fns \
 	check-frames \
 	check-gud \
 	check-indent \
@@ -91,9 +93,9 @@ check-core: rdebug-core.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-core.el )
 
-check-error: rdebug-error.el
+check-fns: rdebug-fns.el
 	(cd $(srcdir)/test && \
-	$(EMACS) -batch -q -l test-error.el )
+	$(EMACS) -batch -q -l test-fns.el )
 
 check-frames: rdebug-frames.el
 	(cd $(srcdir)/test && \

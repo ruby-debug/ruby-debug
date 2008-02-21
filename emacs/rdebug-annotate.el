@@ -32,6 +32,7 @@
 (require 'gdb-ui)
 (require 'rdebug-dbg)
 (require 'rdebug-error)
+(require 'rdebug-fns)
 (require 'rdebug-info)
 (require 'rdebug-layouts)
 (require 'rdebug-regexp)
@@ -64,20 +65,6 @@ See the function `rdebug-cmd-process' for details on :cmd.")
       (puthash "info"        'rdebug-setup-info-buffer                  map)
       (puthash "help"        'rdebug-setup-secondary-window-help-buffer map)
       map)))
-
-(defun rdebug-set-frame-top-arrow ()
-  "Set the fringe arrow to indicate the top frame"
-  (if gud-last-frame
-      (with-current-buffer (gud-find-file (car gud-last-frame))
-	(setq fringe-indicator-alist
-	      '((overlay-arrow . right-triangle))))))
-
-(defun rdebug-set-frame-not-top-arrow ()
-  "Set the fringe arrow to indicate a frame other than the top frame"
-  (if gud-last-frame
-      (with-current-buffer (gud-find-file (car gud-last-frame))
-	(setq fringe-indicator-alist
-	      '((overlay-arrow . hollow-right-triangle))))))
 
 (defun rdebug-temp-show (text)
   "Arrange to show string as in sort of temporary way. Perhaps like a tooltip"
@@ -254,20 +241,19 @@ Return (item . rest) or nil."
       ;; an arbitrary window.
       (if gud-last-frame
 	  (progn (rdebug-pick-source-window)
+		 (if gud-last-frame 
+		     (rdebug-set-frame-arrow 
+		      (gud-find-file (car gud-last-frame))))
 		 (if (equal 0 rdebug-frames-current-frame-number)
 		     (progn 
-		       (rdebug-set-frame-top-arrow)
 		       ;; Switching frames shouldn't save a new ring
 		       ;; position. Also make sure no position is different. 
 		       ;; Perhaps duplicates should be controlled by an option.
-		       (if (equal 0 rdebug-frames-current-frame-number)
-			   (unless (and (not (ring-empty-p rdebug-source-location-ring))
+		       (unless (and (not (ring-empty-p rdebug-source-location-ring))
 				    (equal (ring-ref rdebug-source-location-ring 0)
 					   gud-last-frame))
-			     (ring-insert rdebug-source-location-ring 
-					gud-last-frame))))
-		   ;; else
-		   (rdebug-set-frame-not-top-arrow))))
+			 (ring-insert rdebug-source-location-ring 
+				      gud-last-frame))))))
 
       (rdebug-internal-short-key-mode-on)
 

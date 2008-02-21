@@ -29,19 +29,9 @@
 ;;; Code:
 
 (require 'rdebug-dbg)
+(require 'rdebug-fns)
 (require 'rdebug-secondary)
 (require 'rdebug-source)
-
-;; Should go somehwere else
-(defun chomp(string)
-  "Remove trailing \n if it's there"
-  (if (> (length string) 0)
-      (let ((s string))
-	(if (string= "\n" (substring s -1))
-	    (substring s 0 -1)
-	  s))
-    ""))
-  
 
 (defun rdebug-display-error-buffer ()
   "Display the rdebug error buffer."
