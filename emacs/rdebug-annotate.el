@@ -237,15 +237,14 @@ Return (item . rest) or nil."
               (setq gud-marker-acc (concat item gud-marker-acc))
               (setq done t)))))
 
-      (if gud-last-frame
-	  (progn 
-	    ;; Display the source file where we want it, gud will only pick
-	    ;; an arbitrary window.
-	    (rdebug-pick-source-window)
-	    (rdebug-set-frame-arrow (gud-find-file (car gud-last-frame)))
-	    (if (equal 0 rdebug-frames-current-frame-number)
-		(rdebug-add-location-to-ring gud-last-frame 
-					 rdebug-source-location-ring))))
+      (when gud-last-frame
+	;; Display the source file where we want it, gud will only pick
+	;; an arbitrary window.
+	(rdebug-pick-source-window)
+	(rdebug-set-frame-arrow (gud-find-file (car gud-last-frame)))
+	(if (equal 0 rdebug-frames-current-frame-number)
+	    (rdebug-add-location-to-ring gud-last-frame 
+					 rdebug-source-location-ring)))
       (rdebug-internal-short-key-mode-on)
 
       (unless (string= shell-output "")
@@ -333,11 +332,10 @@ This may be called any number of times."
               (options (cdr entry)))
           ;; In cast the external process echoed the actual command,
           ;; remove it.
-          (if (and (>= (length text)
-                       (length saved-cmd))
-                   (string= saved-cmd (substring text 0 (length saved-cmd))))
-              (progn
-                (setq text (substring text (+ 1 (length saved-cmd))))))
+          (when (and (>= (length text)
+			 (length saved-cmd))
+		     (string= saved-cmd (substring text 0 (length saved-cmd))))
+	    (setq text (substring text (+ 1 (length saved-cmd)))))
           (rdebug-debug-message "Text: %S" text)
           ;; Optionally display the result.
           (if (memq :tooltip options)

@@ -87,10 +87,10 @@
     (let* ((frame (ring-ref rdebug-source-location-ring ring-position))
 	   (file (car frame))
 	   (line (cdr frame)))
-      (if file
-	  (progn (rdebug-display-line file line)
-		 (message (format "%d %s:%d" rdebug-source-location-ring-index 
-				  file line)))))))
+      (when file
+	(rdebug-display-line file line)
+	(message (format "%d %s:%d" rdebug-source-location-ring-index 
+			 file line))))))
     
 (defun rdebug-previous-location ()
   "Cycle backwards through source location stopping history."
