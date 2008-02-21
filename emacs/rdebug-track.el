@@ -154,13 +154,16 @@ at the beginning of the line."
               (setq target_lineno (car target))
               (setq target_buffer (cadr target))
               (setq target_fname (buffer-file-name target_buffer))
+	      (setq gud-last-frame (cons target_fname target_lineno))
               (switch-to-buffer-other-window target_buffer)
               (goto-line target_lineno)
               (rdebug-debug-message "rdebug-track: line %s, file %s"
                                     target_lineno target_fname)
               (rdebug-track-overlay-arrow t)
+	      ;; (rdebug-set-frame-arrow (gud-find-file target_fname))
               (pop-to-buffer origbuf t)
-              )
+	      (rdebug-add-location-to-ring gud-last-frame 
+					   rdebug-source-location-ring))
 
             ;; Delete processed annotations from buffer.
             (save-excursion
@@ -265,6 +268,9 @@ This function is designed to be added to hooks, for example:
   (interactive)
   (set (make-local-variable 'gud-last-last-frame) nil)
   (set (make-local-variable 'gud-last-frame) nil)
+  (set (make-local-variable 'gud-comint-buffer) (current-buffer))
+  (rdebug-command-initialization)
+
   (rdebug-track-mode 1))
 
 

@@ -47,14 +47,15 @@ program file."
   (find-file-noselect f 'nowarn))
 
 (defun rdebug-display-line (file line &optional move-arrow)
-  (let ((oldpos (and gud-overlay-arrow-position
-                     (marker-position gud-overlay-arrow-position)))
-        (oldbuf (and gud-overlay-arrow-position
-                     (marker-buffer gud-overlay-arrow-position))))
-    (gud-display-line file line)
-    (unless move-arrow
-      (when gud-overlay-arrow-position
-        (set-marker gud-overlay-arrow-position oldpos oldbuf)))))
+  (if file 
+      (let ((oldpos (and gud-overlay-arrow-position
+			 (marker-position gud-overlay-arrow-position)))
+	    (oldbuf (and gud-overlay-arrow-position
+			 (marker-buffer gud-overlay-arrow-position))))
+	(gud-display-line file line)
+	(unless move-arrow
+	  (when gud-overlay-arrow-position
+	    (set-marker gud-overlay-arrow-position oldpos oldbuf))))))
 
 (defun rdebug-stepping (step-or-next &optional arg)
   (or arg (setq arg 1))

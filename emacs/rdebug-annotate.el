@@ -237,24 +237,14 @@ Return (item . rest) or nil."
               (setq gud-marker-acc (concat item gud-marker-acc))
               (setq done t)))))
 
-      ;; Display the source file where we want it, gud will only pick
-      ;; an arbitrary window.
       (if gud-last-frame
-	  (progn (rdebug-pick-source-window)
-		 (if gud-last-frame 
-		     (rdebug-set-frame-arrow 
-		      (gud-find-file (car gud-last-frame))))
-		 (if (equal 0 rdebug-frames-current-frame-number)
-		     (progn 
-		       ;; Switching frames shouldn't save a new ring
-		       ;; position. Also make sure no position is different. 
-		       ;; Perhaps duplicates should be controlled by an option.
-		       (unless (and (not (ring-empty-p rdebug-source-location-ring))
-				    (equal (ring-ref rdebug-source-location-ring 0)
-					   gud-last-frame))
-			 (ring-insert rdebug-source-location-ring 
-				      gud-last-frame))))))
-
+	  (progn 
+	    ;; Display the source file where we want it, gud will only pick
+	    ;; an arbitrary window.
+	    (rdebug-pick-source-window)
+	    (rdebug-set-frame-arrow (gud-find-file (car gud-last-frame))))
+	    (rdebug-add-location-to-ring gud-last-frame 
+					 rdebug-source-location-ring))
       (rdebug-internal-short-key-mode-on)
 
       (unless (string= shell-output "")

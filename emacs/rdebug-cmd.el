@@ -69,7 +69,10 @@
            "<" "Up N stack frames (numeric arg).")
   (gud-def gud-where   "where"
            "T" "Show stack trace.")
+
   (local-set-key [M-insert] 'rdebug-internal-short-key-mode)
+  (local-set-key [M-up] 'rdebug-previous-location)
+  (local-set-key [M-down] 'rdebug-next-location)
   (local-set-key "\C-i" 'gud-gdb-complete-command)
   (local-set-key "\C-c\C-n" 'comint-next-prompt)
   (local-set-key "\C-c\C-p" 'comint-previous-prompt))
@@ -84,8 +87,10 @@
     (let* ((frame (ring-ref rdebug-source-location-ring ring-position))
 	   (file (car frame))
 	   (line (cdr frame)))
-      (rdebug-display-line file line)
-      (message (format "%d %s:%d" rdebug-source-location-ring-index file line)))))
+      (if file
+	  (progn (rdebug-display-line file line)
+		 (message (format "%d %s:%d" rdebug-source-location-ring-index 
+				  file line)))))))
     
 (defun rdebug-previous-location ()
   "Cycle backwards through source location stopping history."

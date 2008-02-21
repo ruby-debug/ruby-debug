@@ -45,7 +45,19 @@
 	      (substring s 0 -1)
 	    s))
       "")))
-  
+
+(defun rdebug-add-location-to-ring (frame location-history-ring)
+  "Add FRAME to LOCATION-HISTORY-RING if we are on the
+top frame and have a frame to add."
+  (if (equal 0 rdebug-frames-current-frame-number)
+      (progn 
+	;; Switching frames shouldn't save a new ring
+	;; position. Also make sure no position is different. 
+	;; Perhaps duplicates should be controlled by an option.
+	(unless (and (not (ring-empty-p location-history-ring))
+		     (equal (ring-ref location-history-ring 0) frame))
+	  (ring-insert location-history-ring  frame)))))
+
 (defun rdebug-set-frame-top-arrow (&optional buf)
   "Set the fringe arrow to indicate the top frame"
   (with-current-buffer buf
