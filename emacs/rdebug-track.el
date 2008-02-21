@@ -88,8 +88,10 @@ as gud-mode does for debugging C programs with gdb."
 (require 'custom)
 (require 'cl)
 (require 'compile)
+(require 'gud)
 (require 'shell)
 (require 'rdebug-breaks)
+(require 'rdebug-cmd)
 (require 'rdebug-core)
 
 
@@ -160,7 +162,7 @@ at the beginning of the line."
               (rdebug-debug-message "rdebug-track: line %s, file %s"
                                     target_lineno target_fname)
               (rdebug-track-overlay-arrow t)
-	      ;; (rdebug-set-frame-arrow (gud-find-file target_fname))
+	      (rdebug-set-frame-top-arrow (current-buffer))
               (pop-to-buffer origbuf t)
 	      (rdebug-add-location-to-ring gud-last-frame 
 					   rdebug-source-location-ring))
@@ -229,7 +231,7 @@ problem as best as we can determine."
   :group 'rdebug
   :type 'string)
 
-(define-minor-mode rdebug-track-mode ()
+(define-minor-mode rdebug-track-mode
   "Minor mode for tracking ruby debugging inside a process shell."
   :init-value nil
   ;; The indicator for the mode line.
@@ -282,6 +284,8 @@ This function is designed to be added to hooks, for example:
   (rdebug-track-toggle-stack-tracking 0)
   (if (local-variable-p 'gud-last-frame)
       (setq gud-last-frame nil))
+  (while (not (ring-empty-p rdebug-source-location-ring))
+    (ring-remove rdebug-source-location-ring))
   (remove-hook 'comint-output-filter-functions
 	       'rdebug-track-track-stack-file))
 
