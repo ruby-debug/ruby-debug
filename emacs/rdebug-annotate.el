@@ -182,7 +182,6 @@ Return (item . rest) or nil."
                   (set
                    (make-local-variable 'rdebug-non-annotated-text-kind)
                    (cond ((string= name "starting")
-                          (setq rdebug-mode-line-string "running")
                           :output)
                          ((string= name "prompt")
                           (rdebug-cmd-clear)
@@ -193,7 +192,7 @@ Return (item . rest) or nil."
                           ;; receive all of the message at once, we we
                           ;; need some kind of accumukator, which the
                           ;; cmd system provides.)
-                          (setq rdebug-mode-line-string "exited")
+                          (setq rdebug-inferior-status "exited")
                           (rdebug-cmd-clear)
                           (setq rdebug-call-queue
                                 (cons '("***exited***" :message)
@@ -209,18 +208,18 @@ Return (item . rest) or nil."
 
                   ;; Process the annotation.
                   (cond ((string= name "starting")
-                          (setq rdebug-mode-line-string "running"))
+                          (setq rdebug-inferior-status "running"))
                         ((string= name "stopped")
-                          (setq rdebug-mode-line-string "stopped"))
+                          (setq rdebug-inferior-status "stopped"))
                         ((string= name "exited")
-                          (setq rdebug-mode-line-string "exited"))
+                          (setq rdebug-inferior-status "exited"))
                         ((string= name "pre-prompt")
                          ;; Strip of the trailing \n (this is probably
                          ;; a bug in processor.rb).
                          (if (string= (substring contents -1) "\n")
                              (setq contents (substring contents 0 -1)))
                          (if (string-match "post-mortem" contents)
-                             (setq rdebug-mode-line-string "crashed"))
+                             (setq rdebug-inferior-status "crashed"))
                          (setq shell-output (concat shell-output contents)))
                         ((string= name "source")
                          (if (string-match gud-rdebug-marker-regexp item)
@@ -294,6 +293,27 @@ place for processing."
            (save-selected-window
              (rdebug-display-info-buffer))))))
 
+
+;; ------------------------------------------------------------
+;; Mode line displayer.
+;;
+
+;; The variable rdebug-mode-line-process uses this to generate the
+;; actual string to display.
+(defun rdebug-display-inferior-status ()
+  "Return a (propertized) string, or nil, to be displayed in the mode line."
+  (if (and gud-comint-buffer
+           (buffer-name gud-comint-buffer)
+           (get-buffer-process gud-comint-buffer)
+           rdebug-inferior-status)
+      (let ((s rdebug-inferior-status))
+        (cond ((string= rdebug-inferior-status "running")
+               (setq s (propertize s 'face font-lock-type-face)))
+              (t
+               (setq s (propertize s 'face font-lock-warning-face))))
+        (concat ":" s))
+    ;; No process, don't display anything.
+    nil))
 
 ;; ------------------------------------------------------------
 ;; Command output parser.
