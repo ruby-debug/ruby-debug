@@ -205,6 +205,8 @@ Also, cleans the buffer somewhat and sets up help for the font-lock rules."
           (when (looking-at rdebug-stack-frame-1st-regexp)
             (setq rdebug-frames-current-frame-number
                   (string-to-number (match-string rdebug-stack-frame-number-group)))
+	    (when gud-last-frame
+	      (rdebug-set-frame-arrow (gud-find-file (car gud-last-frame))))
 	    (rdebug-set-frame-arrow buf)))
         ;; Remove initial '   '  or '-->'.
         (save-excursion
