@@ -321,7 +321,7 @@ switch to the \"debugger\" window configuration."
     (when (and (or (eq rdebug-restore-original-window-configuration t)
                    (and (eq rdebug-restore-original-window-configuration :many)
                         rdebug-many-windows))
-               (or (null (get-buffer-process gud-comint-buffer))
+               (or (rdebug-dead-process-p)
                    (eq process (get-buffer-process gud-comint-buffer)))
                (eq rdebug-window-configuration-state 'debugger)
                (not (eq (process-status process) 'run)))

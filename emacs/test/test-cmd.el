@@ -15,6 +15,9 @@
 (defun gud-call (command)
   (setq last-gud-call command))
 
+(defun rdebug-call (command)
+  (setq last-gud-call command))
+
 (deftest "rdebug-goto-frame-test"
   (let ((buf (generate-new-buffer "testing")))
     (save-excursion

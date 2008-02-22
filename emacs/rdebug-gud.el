@@ -33,8 +33,9 @@
 ;;
 
 (require 'gud)
-(require 'rdebug-vars)
+(require 'rdebug-error)
 (require 'rdebug-regexp)
+(require 'rdebug-vars)
 
 
 (defun gud-rdebug-massage-args (file args)
@@ -63,7 +64,7 @@ program file."
   ;; (setq rdebug-stepping-prefix ""))
   (unless (member rdebug-stepping-prefix '("" "+" "-"))
     (setq rdebug-stepping-prefix ""))
-  (gud-call (format "%s%s %d" step-or-next rdebug-stepping-prefix arg)))
+  (rdebug-call (format "%s%s %d" step-or-next rdebug-stepping-prefix arg)))
 
 
 
@@ -71,17 +72,27 @@ program file."
 ;; Rdebug commands.
 ;;
 
-(defun rdebug-call (cmd &rest options)
-  "Register a debugger command whose output should be handled spcially.
+(defun rdebug-call (cmd)
+  "Run a debugger command with some error checking."
+  (if (rdebug-dead-process-p)
+      (rdebug-errmsg 
+       "Can't find a live debugger process buffer to feed the command to.")
+    (gud-call cmd)))
+
+(defun rdebug-call-return (cmd &rest options)
+  "Register a debugger command whose output should be handled specially.
 
 OPTIONS is zero or more indicators what should happen with the
 output. The following are supported:
  * :tooltip -- Show the result in a tool-tip.
  * :info    -- Show the result in the info secondary buffer."
-  (with-current-buffer gud-comint-buffer
-    (setq rdebug-call-queue
-          (append rdebug-call-queue (list (cons cmd options))))
-    (gud-call cmd)))
+  (if (rdebug-dead-process-p)
+      (rdebug-errmsg 
+       "Can't find a live debugger process buffer to feed the command to.")
+    (with-current-buffer gud-comint-buffer
+      (setq rdebug-call-queue
+	    (append rdebug-call-queue (list (cons cmd options))))
+      (gud-call cmd))))
 
 (defun rdebug-continue (&optional arg)
   "Run a debugger \"continue\" command.
@@ -89,8 +100,8 @@ output. The following are supported:
 With a numeric argument, continue to that line number of the current file."
   (interactive "p")
   (if arg
-      (gud-call (format "continue %d" arg))
-    (gud-call (format "continue"))))
+      (rdebug-call (format "continue %d" arg))
+    (rdebug-call (format "continue"))))
 
 
 (defun rdebug-next (&optional arg)
@@ -112,7 +123,7 @@ stepping commands (\"next\", or \"step\").")
 contains the command to run"
   (interactive "s")
   (unless cmd (setq cmd "pp"))
-  (rdebug-call (format "%s %s " cmd expr) :tooltip))
+  (rdebug-call-return (format "%s %s " cmd expr) :tooltip))
 
 (defun rdebug-print-list-region (from to)
   "Run a debugger \"pl\" command on the marked region."
@@ -155,12 +166,12 @@ contains the command to run"
 (defun rdebug-pretty-print-to-buffer (s)
   "Pretty print expression to the info buffer."
   (interactive "sPretty print: ")
-  (rdebug-call (format "pp %s" s) :info))
+  (rdebug-call-return (format "pp %s" s) :info))
 
 (defun rdebug-pretty-print-region-to-buffer (from to)
   "Pretty print expression in region to the info buffer."
   (interactive "r")
-  (rdebug-call (format "pp %s" (buffer-substring from to)) :info))
+  (rdebug-call-return (format "pp %s" (buffer-substring from to)) :info))
 
 
 
@@ -171,7 +182,7 @@ When `rdebug-many-windows' is active, the original window layout
 is restored."
   (interactive)
   (if (yes-or-no-p "Really quit? ")
-      (gud-call "quit unconditionally")))
+      (rdebug-call "quit unconditionally")))
 
 (defun rdebug-restart ()
   "Restart the debugged Ruby script.
@@ -179,7 +190,7 @@ is restored."
 An exec restart is used."
   (interactive)
   (if (yes-or-no-p "Restart? ")
-      (gud-call "restart")))
+      (rdebug-call "restart")))
 
 (defun rdebug-set-stepping-prefix ()
   "Set the granularity of stepping on the subsequent 'next' or 'step' command.

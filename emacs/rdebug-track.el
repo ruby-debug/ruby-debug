@@ -163,6 +163,7 @@ at the beginning of the line."
                                     target_lineno target_fname)
               (rdebug-track-overlay-arrow t)
 	      (rdebug-set-frame-top-arrow (current-buffer))
+              (set (make-local-variable 'gud-comint-buffer) origbuf)
               (pop-to-buffer origbuf t)
 	      (rdebug-add-location-to-ring gud-last-frame 
 					   rdebug-source-location-ring))

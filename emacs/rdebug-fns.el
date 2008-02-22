@@ -34,7 +34,7 @@
 (defun chomp(string &optional multiple)
   "Remove trailing \n if it's there"
   (if multiple
-      (progn 
+      (progn
 	(while (and (> (length string) 0)
 		    (eq (elt string (- (length string) 1)) ?\n))
 	  (setq string (substring string 0 -1)))
@@ -46,30 +46,35 @@
 	    s))
       "")))
 
+(defun rdebug-dead-process-p ()
+  "Return true if the rdebug comint-process is dead or exited."
+  ;; FIXME? Use a variable in gud-comint-buffer's status?
+  (or (not gud-comint-buffer) 
+      (null (get-buffer-process gud-comint-buffer))))
+
 (defun rdebug-add-location-to-ring (frame location-history-ring)
-  "Add FRAME to LOCATION-HISTORY-RING if we are on the
-top frame and have a frame to add."
+  "Add FRAME to LOCATION-HISTORY-RING if we are on the top frame and have a frame to add."
   ;; Switching frames shouldn't save a new ring
-  ;; position. Also make sure no position is different. 
+  ;; position. Also make sure no position is different.
   ;; Perhaps duplicates should be controlled by an option.
   (unless (and (not (ring-empty-p location-history-ring))
 	       (equal (ring-ref location-history-ring 0) frame))
     (ring-insert location-history-ring  frame)))
 
 (defun rdebug-set-frame-top-arrow (buf)
-  "Set the fringe arrow to indicate the top frame"
+  "Set the fringe arrow in BUF to indicate the top frame."
   (with-current-buffer buf
     (setq fringe-indicator-alist
 	  '((overlay-arrow . right-triangle)))))
 
 (defun rdebug-set-frame-not-top-arrow (buf)
-  "Set the fringe arrow to indicate a frame other than the top frame"
+  "Set the fringe arrow in BUF to indicate a frame other than the top frame."
   (with-current-buffer buf
     (setq fringe-indicator-alist
 	  '((overlay-arrow . hollow-right-triangle)))))
 
 (defun rdebug-set-frame-arrow (buf)
-  "Set the fringe arrow" 
+  "Set the fringe arrow in buffer BUF."
   (if (equal 0 rdebug-frames-current-frame-number)
       (rdebug-set-frame-top-arrow buf)
     (rdebug-set-frame-not-top-arrow buf)))
