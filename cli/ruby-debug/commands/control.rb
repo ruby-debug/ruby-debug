@@ -59,7 +59,7 @@ module Debugger
       rescue
         print "Failed to change initial directory #{Debugger::INITIAL_DIR}"
       end
-      if not File.exists?(prog_script)
+      if not File.exist?(File.expand_path(prog_script))
         errmsg "Ruby program #{prog_script} doesn't exist\n"
         return
       end
