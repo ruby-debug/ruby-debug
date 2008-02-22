@@ -283,6 +283,7 @@ place for processing."
             (let ((inhibit-read-only t))
               (set (make-local-variable 'rdebug-current-line-number)
                    (line-number-at-pos))
+              (set (make-local-variable 'gud-last-frame) gud-last-frame)
               (if rdebug-accumulative-buffer
                   (goto-char (point-max))
                 (erase-buffer))
