@@ -50,7 +50,8 @@
   "Return true if the rdebug comint-process is dead or exited."
   ;; FIXME? Use a variable in gud-comint-buffer's status?
   (or (not gud-comint-buffer) 
-      (null (get-buffer-process gud-comint-buffer))))
+      (null (get-buffer-process gud-comint-buffer))
+      (not (member (process-status gud-comint-buffer) '(run open)))))
 
 (defun rdebug-add-location-to-ring (frame location-history-ring)
   "Add FRAME to LOCATION-HISTORY-RING if we are on the top frame and have a frame to add."

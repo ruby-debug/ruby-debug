@@ -16,12 +16,18 @@
   (assert-equal "hi\n" (chomp "hi\n\n"))
   (assert-equal "hi" (chomp "hi\n\n" t)))
 
+(deftest "test-dead-process-p"
+  (assert-equal t (rdebug-dead-process-p))
+  (let ((gud-comint-buffer nil))
+    (assert-equal t (rdebug-dead-process-p))))
+
 ;; -------------------------------------------------------------------
 ;; Build and run the test suite.
 ;;
 
 (build-suite "rdebug-gud-suite"
-	     "test-chomp")
+	     "test-chomp"
+	     "test-dead-process-p")
 
 (run-elk-test "rdebug-gud-suite"
               "test some rdebug-error code")
