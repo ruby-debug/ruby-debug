@@ -92,13 +92,15 @@ EOB
     opts.separator ""
     opts.separator "Options:"
     opts.on("-A", "--annotate LEVEL", Integer, "Set annotation level") do 
-      |Debugger.annotate|
+      |annotate|
+        Debugger.annotate = annotate
     end
     opts.on("-c", "--client", "Connect to remote debugger") do 
       options.client = true
     end
     opts.on("--cport PORT", Integer, "Port used for control commands") do 
-      |options.cport|
+      |cport|
+      options.cport = cport
     end
     opts.on("-d", "--debug", "Set $DEBUG=true") {$DEBUG = true}
     opts.on("--emacs LEVEL", Integer,
@@ -115,7 +117,8 @@ EOB
       ENV['EMACS'] = '1'
     end
     opts.on('-h', '--host HOST', 'Host name used for remote debugging') do
-      |options.host|
+      |host|
+      options.host = host
     end
     opts.on('-I', '--include PATH', String, 'Add PATH to $LOAD_PATH') do |path|
       $LOAD_PATH.unshift(path)
@@ -143,7 +146,8 @@ EOB
       options.nx = true
     end
     opts.on('-p', '--port PORT', Integer, 'Port used for remote debugging') do 
-      |options.port|
+      |port|
+      options.port = port
     end
     opts.on('-r', '--require SCRIPT', String,
             'Require the library, before executing your script') do |name|
@@ -155,14 +159,16 @@ EOB
     end
     opts.on('--restart-script FILE', String, 
             'Name of the script file to run. Erased after read') do 
-      |options.restart_script| 
+      |restart_script|
+      options.restart_script = restart_script
       unless File.exists?(options.restart_script)
         puts "Script file '#{options.restart_script}' is not found"
         exit
       end
     end
     opts.on('--script FILE', String, 'Name of the script file to run') do 
-      |options.script| 
+      |script|
+      options.script = script
       unless File.exists?(options.script)
         puts "Script file '#{options.script}' is not found"
         exit

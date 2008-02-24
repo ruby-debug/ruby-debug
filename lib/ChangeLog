@@ -1,3 +1,11 @@
+2008-02-24 16:14  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug, trunk/emacs/rdebug-regexp.el,
+	  ChangeLog, trunk/rdbg.rb: Minor changes.
+	  rdbg.rb: don't need $DEBUG test any more
+	  rdebug-regexp.el: go over with checkdoc
+	  bin/rdebug: use PATH_SEPARATOR (for 'doze again)
+
 2008-02-24 04:51  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
