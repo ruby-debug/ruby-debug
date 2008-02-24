@@ -15,7 +15,7 @@ require File.join(SRC_DIR, '..', 'cli', 'ruby-debug')
 $:.shift; $:.shift; $:.shift
 
 def cheap_diff(got_lines, correct_lines)
-  # puts got_lines
+  puts got_lines if $DEBUG
   correct_lines.each_with_index do |line, i|
     correct_lines[i].chomp!
     if got_lines[i] != correct_lines[i]
@@ -24,7 +24,12 @@ def cheap_diff(got_lines, correct_lines)
       puts "need: #{correct_lines[i]}"
       return false
     end
-    return correct_lines.size == got_lines.size
+    if correct_lines.size != got_lines.size
+      puts("difference in number of lines: " + 
+           "#{correct_lines.size} vs. #{got_lines.size}")
+      return false
+    end
+    return true
   end
 end
 
@@ -43,7 +48,13 @@ class TestHelp < Test::Unit::TestCase
       got_lines = op.string.split("\n")
       right_file = File.join('data', "#{testbase}.right")
       correct_lines = File.readlines(right_file)
-      assert cheap_diff(got_lines, correct_lines)
+      result = cheap_diff(got_lines, correct_lines)
+      unless result
+        puts '-' * 80
+        puts got_lines 
+        puts '-' * 80
+      end
+      assert result 
     end
   end
 end

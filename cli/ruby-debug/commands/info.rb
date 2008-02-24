@@ -9,7 +9,13 @@ module Debugger
 integer argument, list info on that breakpoint.'],
        ['catch', 3, 'Exceptions that can be caught in the current stack frame'],
        ['display', 2, 'Expressions to display when program stops'],
-       ['file', 4, 'Info about a particular file read in'],
+       ['file', 4, 'Info about a particular file read in',
+'
+After the file name is supplied, you can list file attributes that
+you wish to see.
+
+Attributes include: "all", "basic", "breakpoint", "lines", "mtime", "path" 
+and "sha1".'],
        ['files', 5, 'File names and timestamps of files read in'],
        ['global_variables', 2, 'Global variables'],
        ['instance_variables', 2, 
@@ -38,15 +44,16 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
 
     InfoFileSubcommands = 
       [
-       ['all', 1, 'Argument file information'],
+       ['all', 1, 
+        'All file information available - breakpoints, lines, mtime, path, and sha1'],
        ['basic', 2, 
         'basic information - path, number of lines'],
-       ['breakpoints', 2, 'trace line numbers',
+       ['breakpoints', 2, 'Show trace line numbers',
         'These are the line number where a breakpoint can be set.'],
-       ['lines', 1, 'Number of lines in the file'],
-       ['mtime', 1, 'Modification time of file'],
-       ['path', 4, 'Full file path name for file'],
-       ['sha1', 1, 'SHA1 Hash of contents of the file']
+       ['lines', 1, 'Show number of lines in the file'],
+       ['mtime', 1, 'Show modification time of file'],
+       ['path', 4, 'Show full file path name for file'],
+       ['sha1', 1, 'Show SHA1 hash of contents of the file']
       ].map do |name, min, short_help, long_help|
       SubcmdStruct.new(name, min, short_help, long_help)
     end unless defined?(InfoFileSubcommands)
@@ -425,7 +432,20 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
           end
           if subcmd
             str = subcmd.short_help + '.'
-            str += "\n" + subcmd.long_help if subcmd.long_help
+            if 'file' == subcmd.name and args[2]
+              s = args[2]
+              subsubcmd = InfoFileSubcommands.find do |try_subcmd|
+                (s.size >= try_subcmd.min) and
+                  (try_subcmd.name[0..s.size-1] == s)
+              end
+              if subsubcmd
+                str += "\n" + subsubcmd.short_help + '.'
+              else
+                str += "\nInvalid file attribute #{args[2]}."
+              end
+            else
+              str += "\n" + subcmd.long_help if subcmd.long_help
+            end
             return str
           else
             return "Invalid 'info' subcommand '#{args[1]}'."

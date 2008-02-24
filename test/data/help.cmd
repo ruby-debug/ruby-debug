@@ -10,6 +10,11 @@ help foo
 help set listsize
 help show anno
 help show foo
+help info file
+help info file all
+help info file br
+help info files
+
 # FIXME - the below should work
 # help 
 # help step

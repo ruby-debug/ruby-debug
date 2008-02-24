@@ -89,7 +89,10 @@ we'll just pick a visible buffer to bury and replace."
                                (buffer-local-value 'gud-target-name
                                                    gud-comint-buffer))
                           gud-target-name))
-         (buf-name (format "*rdebug-%s-%s*" name target-name))
+         (buf-name 
+	  (cond ((and (string= "cmd" name) gud-comint-buffer)
+		 (buffer-name gud-comint-buffer))
+		(t (format "*rdebug-%s-%s*" name target-name))))
          (buf (get-buffer buf-name))
          (orig-win (selected-window)))
     (if (null buf)

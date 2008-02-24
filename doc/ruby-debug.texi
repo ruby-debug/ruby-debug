@@ -216,7 +216,9 @@ not exist so issuing a method call of @code{triangle} will raise a
 number. Here it is 1 which is usually the case for the main thread. If
 the program has died and you are in post-mortem debugging, there is no
 thread number. In this situation, the string @code{post-mortem} is
-used in place of a thread number.
+used in place of a thread number. If the program has terminated
+normally, the string this position will be @code{ctrl}. The commands
+which are available change depending on the program state.
 
 The first command, @code{list} (@pxref{List}), prints 10 lines
 centered around the current line; the current line here is line 4 and
@@ -768,8 +770,9 @@ debugging in them.
 @menu
 * Stack Shows Scope Nesting::
 * More Frequent Evaluations per Line::
-* Bouncing Around with Iterators::
+* Bouncing Around in Blocks (e.g. Iterators)::
 * No Parameter Values in a Call Stack::
+* Lines You Can Stop At::
 @end menu
 
 @node Stack Shows Scope Nesting
@@ -948,8 +951,8 @@ breakpoint position, rather than a file and line number. Because
 method @code{gcd} is in the outermost scope, we use @code{Object} as the
 class name.
 
-@node Bouncing Around with Iterators
-@subsection Bouncing Around with Iterators
+@node Bouncing Around in Blocks (e.g. Iterators)
+@subsection Bouncing Around in Blocks (e.g. Iterators)
 
 When debugging languages with coroutines like Python and Ruby, a
 method call may not necessarily go to the first statement after the
@@ -1033,6 +1036,46 @@ name and the @emph{current} class of the object.
 
 It has been contemplated that a style might be added which saves on
 call shorter ``scalar'' types of values and the class name. 
+
+@node Lines You Can Stop At
+@subsection Lines You Can Stop At
+As with the duplicate stops per control (e.g. @code{if} statement),
+until tools like debuggers get more traction among core ruby
+developers there are going to be weirdnesses. Here we describe the
+stopping locations which effects the breakpoint line numbers you can
+stop at. 
+
+Consider the following little Ruby program.
+
+@smallexample
+'Yes it does' =~ /
+(Yes) \s+
+it  \s+
+does
+/ix 
+puts $1
+@end smallexample
+
+The stopping points that Ruby records are the last two lines, lines 5
+and 6. If you run @code{ruby -rtracer} on this file you'll see that
+this is so:
+
+@smallexample
+$ ruby -rtracer lines.rb
+#0:lines.rb:5::-: /ix 
+#0:lines.rb:6::-: puts $1
+#0:lines.rb:6:Kernel:>: puts $1
+#0:lines.rb:6:IO:>: puts $1
+Yes#0:lines.rb:6:IO:<: puts $1
+#0:lines.rb:6:IO:>: puts $1
+
+#0:lines.rb:6:IO:<: puts $1
+#0:lines.rb:6:Kernel:<: puts $1
+@end smallexample
+
+Inside @code{ruby-debug} you an get a list of stoppable lines for a
+file using the @code{info file} command with the attribute
+@code{breakpoints}.
 
 @ifset FINISHED
 To be continued...
@@ -1473,13 +1516,13 @@ input it presents a prompt of the form
 @code{(rdb:}@emph{x}@code{)}. If debugging locally, @emph{x} will be
 the thread number. Usual the main thread is 1, so often you'll see
 @code{(rdb:1)}. In the control interface though @emph{x} will be
-@code{ctl}.
+@code{ctrl} and in post-mortem debugging @code{post-mortem}.
 
 In the local interface, whenever @code{ruby-debug} gives an error
 message such as for an invalid command, or an invalid location
-postion, it will generally preface the message with @code{***
-}. However if annotation mode is on that the message is put in a
-@code{begin-error} annotation and no @code{***} appears.
+postion, it will generally preface the message with
+@code{***}. However if annotation mode is on that the message is put
+in a @code{begin-error} annotation and no @code{***} appears.
 
 @node Help
 @section Getting help (@samp{help})
@@ -1559,17 +1602,19 @@ List of info subcommands:
 --  
 info args -- Argument variables of current stack frame
 info breakpoints -- Status of user-settable breakpoints
+info catch -- Exceptions that can be caught in the current stack frame
 info display -- Expressions to display when program stops
+info file -- Info about a particular file read in
 info files -- File names and timestamps of files read in
-info global_variables -- global variables
-info instance_variables -- instance variables
-info line -- Current source position
+info global_variables -- Global variables
+info instance_variables -- Instance variables of the current stack frame
+info line -- Line number and file name of current position in source file
 info locals -- Local variables of the current stack frame
 info program -- Execution status of the program
 info stack -- Backtrace of the stack
 info thread -- List info about thread NUM
-info threads -- information of currently known threads
-info variables -- local and instance variables
+info threads -- information of currently-known threads
+info variables -- Local and instance variables of the current stack frame
 @end example
 
 @example
@@ -1601,7 +1646,7 @@ integer argument, list info on that breakpoint.
 @table @code
 @kindex quit @r{[}unconditionally@r{]}
 @kindex q @r{(@code{quit})}
-@item quit 
+@item quit @r{[}unconditionally@r{]}
 @item exit
 @itemx q
 

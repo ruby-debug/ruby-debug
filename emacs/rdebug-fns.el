@@ -60,7 +60,7 @@
   ;; Perhaps duplicates should be controlled by an option.
   (unless (and (not (ring-empty-p location-history-ring))
 	       (equal (ring-ref location-history-ring 0) frame))
-    (ring-insert location-history-ring  frame)))
+    (ring-insert location-history-ring frame)))
 
 (defun rdebug-set-frame-top-arrow (buf)
   "Set the fringe arrow in BUF to indicate the top frame."

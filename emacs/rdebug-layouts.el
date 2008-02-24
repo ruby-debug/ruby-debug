@@ -22,11 +22,12 @@
 
 ;;; Commentary:
 
-;; See the manual and the file `rdebug.el' for more information.
-
 ;; This is file contains the window layouts that come with rdebug; the
 ;; code where can be consulted as a guide for creating other window
 ;; layouts.
+
+;; See the manual and the file `rdebug.el' for overall information on
+;; the ruby debugger rdebug.
 
 ;;; Code:
 
@@ -49,7 +50,8 @@ This window layout mimics the traditional debugger shell and
 source window layout, it only add one secondary window.
 Initially, the secondary window displays output of the debugged
 process, but any secondary buffer can be displayed, press `?' in
-the window for more details."
+the window for more details.
+Argument SRC-BUF the buffer containing the Ruby source program that was initially run.  NAME is the name of that buffer."
   (delete-other-windows)
   (split-window-horizontally)
   (other-window 1)
@@ -64,10 +66,11 @@ the window for more details."
 (defun rdebug-window-layout-rocky (src-buf name)
   "Rocky's window layout.
 
-3 windows. The source window is on top 4/5 of height. The
+3 windows.  The source window is on top 4/5 of height.  The
 bottom is split between the command windows and a stack window.
 
-See `rdebug' for more information."
+See `rdebug' for more information.
+Argument SRC-BUF the buffer containing the Ruby source program that was initially run.  NAME is the name of that buffer."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 4) 5))
   (set-window-buffer
@@ -81,8 +84,9 @@ See `rdebug' for more information."
   (goto-char (point-max)))
 
 (defun rdebug-window-layout-rocky2 (src-buf name)
-  "The standard window without the output window, see `rdebug'
-for more information."
+  "This layout is standard window without the output window, see `rdebug'.
+for more information.
+Argument SRC-BUF is the NAME of the buffer containing the Ruby source program that was initially run."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 3) 4))
   (set-window-buffer
@@ -103,7 +107,8 @@ for more information."
 
 (defun rdebug-window-layout-stack-of-windows (src-buf name)
   "A rdebug window layout with several secondary windows to the right.
-The debugger shell and the source code window is to the left."
+The debugger shell and the source code window is to the left.
+Argument SRC-BUF the buffer containing the Ruby source program that was initially run.  NAME is the name of that buffer."
   (delete-other-windows)
   (split-window-horizontally)
   (split-window nil 20)
@@ -131,7 +136,8 @@ The debugger shell and the source code window is to the left."
 
 ;; The default layout
 (defun rdebug-window-layout-standard (src-buf name)
-  "The default rdebug window layout, see `rdebug' for more information."
+  "The default rdebug window layout, see `rdebug' for more information.
+Argument SRC-BUF the buffer containing the Ruby source program that was initially run.  NAME is the name of that buffer."
   (delete-other-windows)
   (split-window nil ( / ( * (window-height) 3) 4))
   (split-window nil ( / (window-height) 3))
@@ -158,7 +164,8 @@ The debugger shell and the source code window is to the left."
 
 
 (defun rdebug-window-layout-no-shell (src-buf name)
-  "A rdebug window layout without a shell window, see `rdebug' for more information."
+  "A rdebug window layout without a shell window.
+Argument SRC-BUF the buffer containing the Ruby source program that was initially run.  NAME is the name of that buffer."
   (delete-other-windows)
   (set-window-buffer
    (selected-window) (rdebug-get-buffer "watch" name))
@@ -170,4 +177,4 @@ The debugger shell and the source code window is to the left."
 ;;; eval:(put 'rdebug-debug-enter 'lisp-indent-hook 1)
 ;;; End:
 
-;;; rdebug-layout.el ends here
+;;; rdebug-layouts.el ends here

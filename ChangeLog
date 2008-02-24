@@ -1,3 +1,97 @@
+2008-02-23 21:55  Rocky Bernstein
+
+	* emacs/rdebug-fns.el, emacs/test/test-fns.el: More stringent test
+	  on rdebug-data-process-p. Add a unit test of this too. At least a
+	  start at one.
+
+2008-02-22 12:57  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el: Make gud-last-frame buffer local to all
+	  secondary buffers.
+
+2008-02-22 12:44  Rocky Bernstein
+
+	* emacs/rdebug-frames.el: Set source frame arrow type (top or not)
+	  in processing the stack frame
+	  annotation. Even though there is another setting in the anotation
+	  filter hook, we can't remove it in main annotation filter because
+	  we
+	  can't assume annotate=3.
+
+2008-02-22 09:31  Rocky Bernstein
+
+	* cli/ruby-debug/commands/control.rb: Need to handle glob expansion
+	  in program script on restart.
+	  File.exists? -> File.exist?
+
+2008-02-22 06:50  Anders Lindgren
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-core.el,
+	  emacs/rdebug-vars.el: Process status is now in color. Renamed
+	  rdebug-mode-line-status to rdebug-inferior-status to be more like
+	  gdb-ui. Moved some complexity from rdebug-mode-line-process to a
+	  new function rdebug-display-inferior-status.
+
+2008-02-22 02:40  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-fns.el, emacs/rdebug-gud.el,
+	  emacs/rdebug-track.el, emacs/test/test-cmd.el: Add some error
+	  checking around gud-call - like dead or nonexistent process.
+	  Set gud-comint-buffer for rdebug-track
+	  rdebug-call -> rdebug-call-return. rdebug-call is just the call
+	  part.
+
+2008-02-21 19:26  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-cmd.el,
+	  emacs/rdebug-shortkey.el: A couple of (if .. (progn ...)) turned
+	  into (when ...).
+
+2008-02-21 19:00  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-fns.el,
+	  emacs/rdebug-track.el: More work on the simple rdebug-track mode
+	  with respect to location
+	  ring handling. A couple of out-and-out bugs removed.
+
+2008-02-21 16:27  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-cmd.el,
+	  emacs/rdebug-fns.el, emacs/rdebug-gud.el, emacs/rdebug-track.el:
+	  Bang on rdebug-track.el to get to work better. Basically added
+	  gud-call-frame,
+	  position tracking and more common initialization for key
+	  bindings.
+
+2008-02-21 02:56  Rocky Bernstein
+
+	* ChangeLog, emacs/Makefile.am, emacs/rdebug-annotate.el,
+	  emacs/rdebug-error.el, emacs/rdebug-fns.el,
+	  emacs/rdebug-frames.el, emacs/rdebug-vars.el,
+	  emacs/test/test-error.el, emacs/test/test-fns.el,
+	  emacs/test/test-indent.el, lib/ChangeLog: Fringe for frame buffer
+	  the same as in source code. Move
+	  miscellaneous small functions to a new file. Reduce duplication
+	  of
+	  "chomp" code.
+
+2008-02-20 17:16  Anders Lindgren
+
+	* emacs/rdebug-annotate.el: Process status is now 'running',
+	  'stopped', 'exited', and 'crashed'. (Detecting the crash
+	  situation is a hack, the prompt is checked if it contains
+	  'post-mortem'...)
+
+2008-02-20 07:09  Anders Lindgren
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-breaks.el,
+	  emacs/rdebug-core.el, emacs/rdebug-error.el,
+	  emacs/rdebug-frames.el, emacs/rdebug-help.el,
+	  emacs/rdebug-info.el, emacs/rdebug-output.el,
+	  emacs/rdebug-source.el, emacs/rdebug-varbuf.el,
+	  emacs/rdebug-vars.el, emacs/rdebug-watch.el: Debugger status is
+	  now displayed in the mode line of source and secondary buffers.
+
 2008-02-19 23:44  Rocky Bernstein
 
 	* CHANGES, ChangeLog, bin/rdebug, emacs/rdebug-cmd.el,

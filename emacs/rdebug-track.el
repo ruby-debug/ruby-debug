@@ -295,7 +295,7 @@ This function is designed to be added to hooks, for example:
 ;; The `attach' function.
 ;;
 
-(defun rdebug-track-attach (&optional name)
+(defun rdebug-track-attach (&optional name rename-shell)
   "Do things to make the current process buffer work like a
 rdebug command buffer. In particular, the buffer is renamed,
 gud-mode is set, and rdebug-track-mode is turned on, among other
@@ -319,6 +319,12 @@ window layout is used."
     (rdebug-track-mode 1)
     (rdebug-command-initialization)
 
+    (when name
+      (if rename-shell 
+	  (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name)))
+      (setq gud-target-name name)
+      (setq gud-comint-buffer (current-buffer)))
+
     ;; Setup exit callback so that the original frame configuration
     ;; can be restored.
     (let ((process (get-buffer-process gud-comint-buffer)))
@@ -328,12 +334,8 @@ window layout is used."
 	(set-process-sentinel process
 			      'rdebug-process-sentinel)))
     
-    (when name
-      (setq gud-target-name name)
-      (setq gud-comint-buffer (current-buffer)))
     (when gud-last-frame
       (setq gud-last-last-frame gud-last-frame))
-    (rename-buffer (format "*rdebug-cmd-%s*" gud-target-name))
 
     ;; Add the buffer-displaying commands to the Gud buffer,
     ;; FIXME: combine with code in rdebug-track.el; make common 
@@ -352,6 +354,7 @@ window layout is used."
 
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
             rdebug-debugger-support-minor-mode-map-when-active)
+
     (gud-call "set annotate 3")
     (gud-call "frame 0")
     (when rdebug-many-windows
