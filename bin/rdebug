@@ -53,7 +53,7 @@ def whence_file(prog_script)
     # Don't search since this name has path separator components
     return prog_script
   end
-  for dirname in ENV['PATH'].split(':') do
+  for dirname in ENV['PATH'].split(File::PATH_SEPARATOR) do
     prog_script_try = File.join(dirname, prog_script)
     return prog_script_try if File.exist?(prog_script_try)
   end

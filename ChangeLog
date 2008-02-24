@@ -1,3 +1,27 @@
+2008-02-24 04:51  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, doc/ruby-debug.texi,
+	  emacs/rdebug-fns.el, emacs/rdebug-layouts.el,
+	  emacs/rdebug-secondary.el, emacs/rdebug-track.el,
+	  emacs/test/test-fns.el, lib/ChangeLog, test/data/help.cmd,
+	  test/data/help.right, test/test-help.rb: CLI: Add long help for
+	  "info file".
+	  
+	  test/test-help.rb: Make test failures easier to fix and more like
+	  the
+	  other tests.
+	  
+	  emacs/test: finish testing all of the funcitons in rdebug-fns.el
+	  
+	  rdebug-layouts.el: Make checkdoc clean.
+	  rdebug-track.el: don't need to rename shell buffer. Do it as an
+	  option only.
+	  rdebug-secondary.el: get rid of hoaky buffer finding for at least
+	  gud-comint-buf. (Should probably do others as well)
+	  
+	  DOC: Note weird line stopping locations. Describe what "ctrl" in
+	  prompt means.
+
 2008-02-23 21:55  Rocky Bernstein
 
 	* emacs/rdebug-fns.el, emacs/test/test-fns.el: More stringent test

@@ -27,7 +27,6 @@ module RDebugRunner
   end
   module_function :runner
 end
-if __FILE__ == $0 or
-    ($DEBUG and ['rcov', 'rdebug'].include?(File.basename($0)))
+if __FILE__ == $0 
   RDebugRunner.runner
 end
