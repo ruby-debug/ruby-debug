@@ -48,7 +48,7 @@ module Debugger
           line.chomp!
           Readline::HISTORY << line
         end
-      end if File.exists?(@histfile)
+      end if File.exist?(@histfile)
       @restart_file = nil
     end
 
@@ -133,7 +133,7 @@ module Debugger
 #           line.chomp!
 #           Readline::HISTORY << line
 #         end
-#       end if File.exists?(@histfile)
+#       end if File.exist?(@histfile)
       @restart_file = nil
     end
     
