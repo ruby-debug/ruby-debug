@@ -1,3 +1,8 @@
+2008-02-24 16:36  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/bin/rdebug, ChangeLog: rdebug; make more
+	  Ruby 1.9 compatible.
+
 2008-02-24 16:14  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/bin/rdebug, trunk/emacs/rdebug-regexp.el,

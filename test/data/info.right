@@ -46,7 +46,7 @@ Breakpoint 1 file ./gcd.rb, line 10
 # break 12
 Breakpoint 2 file ./gcd.rb, line 12
 # info break 10
-*** No breakpoints found among list given
+*** No breakpoints found among list given.
 # info break 1
 Num Enb What
   1 y   at gcd.rb:10
@@ -58,4 +58,8 @@ Num Enb What
 Num Enb What
   1 y   at gcd.rb:10
   2 y   at gcd.rb:12
+# info file ./gcd.rb break
+File ./gcd.rb
+	breakpoint line numbers:
+4  6  7  10  12  13  15  18
 # quit

@@ -116,7 +116,7 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
           a = args.map{|a| a.to_i}
           brkpts = brkpts.select{|b| a.member?(b.id)}
           if brkpts.empty?
-            errmsg "No breakpoints found among list given\n"
+            errmsg "No breakpoints found among list given.\n"
             return
           end
         end
@@ -217,7 +217,7 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
         breakpoints = LineCache.trace_line_numbers(file)
         if breakpoints
           print "\tbreakpoint line numbers:\n" 
-          print columnize(breakpoints, self.class.settings[:width])
+          print columnize(breakpoints.to_a.sort, self.class.settings[:width])
         end
       end
 

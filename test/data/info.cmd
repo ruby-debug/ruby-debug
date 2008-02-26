@@ -17,4 +17,5 @@ info break 10
 info break 1
 info break 1 2
 info break
+info file ./gcd.rb break
 quit
