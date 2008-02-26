@@ -1,3 +1,9 @@
+2008-02-26 00:57  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
+	  ChangeLog, trunk/test/data/info.cmd, trunk/test/data/info.right:
+	  Fix bug in "info file xxx breakpoints".
+
 2008-02-24 16:36  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/bin/rdebug, ChangeLog: rdebug; make more

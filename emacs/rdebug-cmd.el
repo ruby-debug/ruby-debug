@@ -31,8 +31,7 @@
 (require 'ring)
 
 (defun rdebug-command-initialization ()
-  "Initialization of command buffer common to `rdebug' and
-`rdebug-track-attach'."
+  "Initialization of command buffer common to `rdebug' and`rdebug-track-attach'."
 
   ;; This opens up "Gud" menu, which isn't used since we've got our
   ;; own "Debugger" menu.
@@ -40,9 +39,10 @@
 
   (set (make-local-variable 'rdebug-call-queue) '())
   (make-local-variable 'rdebug-source-location-ring-size) ; ...to global val.
-  (set (make-local-variable 'rdebug-source-location-ring) 
+  (set (make-local-variable 'rdebug-source-location-ring)
        (make-ring rdebug-source-location-ring-size))
-  (set (make-local-variable 'rdebug-source-location-ring-index) 0)
+  (make-local-variable 'rdebug-source-location-ring-index)
+  (rdebug-clear-source-location)
 
   (gud-def gud-args   "info args" "a"
            "Show arguments of current stack frame.")
@@ -71,17 +71,26 @@
            "T" "Show stack trace.")
 
   (local-set-key [M-insert] 'rdebug-internal-short-key-mode)
-  (local-set-key [M-up] 'rdebug-previous-location)
-  (local-set-key [M-down] 'rdebug-next-location)
-  (local-set-key "\C-i" 'gud-gdb-complete-command)
+  (local-set-key [M-down]   'rdebug-newer-location)
+  (local-set-key [M-up]     'rdebug-older-location)
+  (local-set-key [M-S-down] 'rdebug-newest-location)
+  (local-set-key [M-S-up]   'rdebug-oldest-location)
+  (local-set-key "\C-i"     'gud-gdb-complete-command)
   (local-set-key "\C-c\C-n" 'comint-next-prompt)
   (local-set-key "\C-c\C-p" 'comint-previous-prompt))
 
 ;; stopping location motion routines.
 
+(defun rdebug-clear-source-location ()
+  "Clear out all source locations in `Go to the source location of the first stopping point."
+  (interactive)
+  (setq rdebug-source-location-ring-index -1)
+  (while (not (ring-empty-p rdebug-source-location-ring))
+    (ring-remove rdebug-source-location-ring)))
+
 (defun rdebug-goto-source-location (ring-position)
-  "Go the source position `ring-position' in the stopping history."
-  (interactive "p")
+  "Go the source position RING-POSITION in the stopping history."
+  (interactive "NSource location ring position (0 is oldest): ")
   (with-current-buffer gud-comint-buffer
     (setq rdebug-source-location-ring-index ring-position)
     (let* ((frame (ring-ref rdebug-source-location-ring ring-position))
@@ -89,25 +98,36 @@
 	   (line (cdr frame)))
       (when file
 	(rdebug-display-line file line)
-	(message (format "%d %s:%d" rdebug-source-location-ring-index 
+	(message (format "%d %s:%d" rdebug-source-location-ring-index
 			 file line))))))
     
-(defun rdebug-previous-location ()
-  "Cycle backwards through source location stopping history."
+(defun rdebug-newer-location ()
+  "Cycle through source location stopping history to get the next newer (more recently visited) location."
   (interactive)
   (with-current-buffer gud-comint-buffer
-    (rdebug-goto-source-location 
-     (ring-plus1 rdebug-source-location-ring-index 
+    (rdebug-goto-source-location
+     (ring-plus1 rdebug-source-location-ring-index
 		 (ring-length rdebug-source-location-ring)))))
-    
 
-(defun rdebug-next-location ()
-  "Cycle forward through source location stopping history."
+(defun rdebug-older-location ()
+  "Cycle through source location stopping history to get the next older (least recently visited) location."
   (interactive)
   (with-current-buffer gud-comint-buffer
-    (rdebug-goto-source-location 
-     (ring-minus1 rdebug-source-location-ring-index 
+    (rdebug-goto-source-location
+     (ring-minus1 rdebug-source-location-ring-index
 		  (ring-length rdebug-source-location-ring)))))
+
+(defun rdebug-newest-location ()
+  "Go to the source location of the first stopping point."
+  (interactive)
+  (rdebug-goto-source-location (- (ring-length rdebug-source-location-ring) 1)))
+    
+(defun rdebug-oldest-location ()
+  "Go to the source location where we are currently stopped.
+
+This is the same as issuing a 'frame 0' command but we also (re)set the ring pointer."
+  (interactive)
+  (rdebug-goto-source-location 0))
 
 (provide 'rdebug-cmd)
 

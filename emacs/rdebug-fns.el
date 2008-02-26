@@ -59,8 +59,20 @@
   ;; position. Also make sure no position is different.
   ;; Perhaps duplicates should be controlled by an option.
   (unless (and (not (ring-empty-p location-history-ring))
-	       (equal (ring-ref location-history-ring 0) frame))
-    (ring-insert location-history-ring frame)))
+	       (equal (ring-ref location-history-ring 
+				(ring-length location-history-ring)) frame))
+    (ring-insert-at-beginning location-history-ring frame)))
+
+(defun rdebug-newest-location ()
+  "Go to the oldest source position location."
+  (interactive)
+  (ring-ref rdebug-source-location-ring 
+	    (ring-length rdebug-source-location-ring)))
+
+(defun rdebug-oldest-location ()
+  "Go to the newest source position location."
+  (interactive)
+  (ring-ref rdebug-source-location-ring 0))
 
 (defun rdebug-set-frame-top-arrow (buf)
   "Set the fringe arrow in BUF to indicate the top frame."

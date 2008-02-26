@@ -1,3 +1,9 @@
+2008-02-26 00:57  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,
+	  test/data/info.cmd, test/data/info.right: Fix bug in "info file
+	  xxx breakpoints".
+
 2008-02-25 12:39  Rocky Bernstein
 
 	* cli/ruby-debug/interface.rb: File.exists? -> File.exist? for Ruby

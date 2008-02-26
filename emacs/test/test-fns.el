@@ -18,9 +18,12 @@
     ;; Trying to add the same entry should not again.
     (rdebug-add-location-to-ring 'first location-ring)
     (assert-equal 1 (ring-length location-ring))
+
+    ;; Second should go in as last item.
     (rdebug-add-location-to-ring 'second location-ring)
-    (assert-equal 'first (ring-ref location-ring 1))
-    (assert-equal 'second (ring-ref location-ring 0))))
+    (assert-equal 'second (ring-ref location-ring 1))
+    ;; First item is still 0.
+    (assert-equal 'first  (ring-ref location-ring 0))))
 
 (deftest "test-chomp"
   (assert-equal "" (chomp ""))
