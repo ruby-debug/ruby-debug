@@ -137,7 +137,8 @@ module Debugger
     end
     
     def handle_post_mortem(exp)
-      return if exp.__debug_context.stack_size == 0
+      return if !exp || !exp.__debug_context || 
+        exp.__debug_context.stack_size == 0
       Debugger.suspend
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
