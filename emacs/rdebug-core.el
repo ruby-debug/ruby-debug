@@ -25,6 +25,8 @@
 
 ;; See the manual and the file `rdebug.el' for more information.
 
+;; This file implements the core of the debugger.
+
 ;;; Code:
 
 ;; -------------------------------------------------------------------
@@ -54,10 +56,10 @@
 (require 'rdebug-vars)
 
 (defun rdebug-get-script-name (args)
-  "Pick out the script name from the command line.
-Return a list of that and whether the annotate option was set.
-Initially annotate should be set to nil.
-Argument ARGS contains a tokenized list of the command line."
+  "Parse command line.  A list containing the script name, and
+whether the annotate option was set is returned.  Initially
+annotate should be set to nil.  Argument ARGS contains a
+tokenized list of the command line."
   ;; Parse the following:
   ;;
   ;;  [ruby ruby-options] rdebug rdebug-options script-name script-options
@@ -100,26 +102,6 @@ Argument ARGS contains a tokenized list of the command line."
                (setq name arg)))))
          (and name
               (list name annotate-p)))))
-
-;; From Emacs 23
-(unless (fboundp 'split-string-and-unquote)
-  (defun split-string-and-unquote (string &optional separator)
-    "Split the STRING into a list of strings.
-It understands Emacs Lisp quoting within STRING, such that
-  (split-string-and-unquote (combine-and-quote-strings strs)) == strs
-The SEPARATOR regexp defaults to \"\\s-+\"."
-    (let ((sep (or separator "\\s-+"))
-          (i (string-match "[\"]" string)))
-      (if (null i)
-          (split-string string sep t)	; no quoting:  easy
-        (append (unless (eq i 0) (split-string (substring string 0 i) sep t))
-                (let ((rfs (read-from-string string i)))
-                  (cons (car rfs)
-                        (with-no-warnings
-                          (split-string-and-unquote (substring string (cdr rfs))
-                                                    sep))))))))
-  )
-
 
 ;; -------------------------------------------------------------------
 ;; Window configuration state support.
@@ -230,13 +212,11 @@ This is only used when `rdebug-many-windows' is non-nil."
      rdebug-annotation-setup-map)
     (let ((buf
            (cond (gud-last-last-frame
-                  (gud-find-file (car gud-last-last-frame)))
-                 (gud-target-name
-                  (gud-find-file gud-target-name))
-                 (t
-                  ;; Put buffer list in window if we
-                  ;; can't find a source file.
-                  (list-buffers-noselect)))))
+		  (gud-find-file (car gud-last-last-frame)))
+		 (gud-target-name
+		  (gud-find-file gud-target-name)))))
+      ;; Put buffer list in window if we can't find a source file.
+      (unless buf (setq buf (list-buffers-noselect)))
       (funcall rdebug-window-layout-function buf gud-target-name))))
 
 
@@ -332,9 +312,41 @@ switch to the \"debugger\" window configuration."
               rdebug-debugger-support-minor-mode-map-when-deactive))))
 
 
+;; Perform initializations common to all debuggers.
+;; The first arg is the specified command line,
+;; which starts with the program to debug.
+;; The other three args specify the values to use
+;; for local variables in the debugger buffer.
+(defun rdebug-common-init (rdebug-buffer-name rdebug-cmd-buffer target-name 
+					      program args
+					      marker-filter
+					      &optional find-file)
+  (if rdebug-cmd-buffer
+      (progn 
+	(pop-to-buffer rdebug-cmd-buffer)
+	(when (and rdebug-cmd-buffer (get-buffer-process rdebug-cmd-buffer))
+	  (error "This program is already being debugged"))
+	(apply 'make-comint rdebug-buffer-name program nil args)
+	(or (bolp) (newline)))
+    (pop-to-buffer (setq rdebug-cmd-buffer 
+			 (apply 'make-comint rdebug-buffer-name program nil
+				args))))
+    
+  ;; Since comint clobbered the mode, we don't set it until now.
+  (gud-mode)
+  (set (make-local-variable 'gud-target-name) target-name)
+  (set (make-local-variable 'gud-marker-filter) marker-filter)
+  (set (make-local-variable 'gud-minor-mode) 'rdebug)
+  (set (make-local-variable 'gud-last-frame) nil)
+  (set (make-local-variable 'gud-last-last-frame) nil)
+
+  (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
+  (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
+  (gud-set-buffer))
+
 ;;;###autoload
 (defun rdebug (command-line)
-  "Run the rdebug Ruby debugger and start the Emacs user interface.
+  "Invoke the rdebug Ruby debugger using string COMMAND-LINE and start the Emacs user interface.
 
 By default, the \"standard\" user window layout looks like the following:
 
@@ -378,26 +390,22 @@ and options used to invoke rdebug."
                                     (gud-rdebug-massage-args "1" words)))
            (target-name (file-name-nondirectory (car script-name-annotate-p)))
            (annotate-p (cadr script-name-annotate-p))
-           (rdebug-buffer-name (format "*rdebug-cmd-%s*" target-name))
-           (rdebug-buffer (get-buffer rdebug-buffer-name))
+           (cmd-buffer-name (format "rdebug-cmd-%s" target-name))
+           (rdebug-cmd-buffer-name (format "*%s*" cmd-buffer-name))
+           (rdebug-cmd-buffer (get-buffer rdebug-cmd-buffer-name))
+	   (program (car words))
+	   (args (cdr words))
            (gud-chdir-before-run nil))
 
       ;; `gud-rdebug-massage-args' needs whole `command-line'.
       ;; command-line is refered through dynamic scope.
-      (gud-common-init command-line 'gud-rdebug-massage-args
-                       'gud-rdebug-marker-filter 'gud-rdebug-find-file)
+      (rdebug-common-init cmd-buffer-name rdebug-cmd-buffer target-name 
+			  program args
+			  'gud-rdebug-marker-filter
+			  'gud-rdebug-find-file)
       (setq comint-process-echoes t)
 
       (setq rdebug-inferior-status "running")
-
-      ;; gud-common-init sets the rdebug process buffer name
-      ;; incorrectly, because it can't parse the command line properly
-      ;; to pick out the script name. So we'll do it here and rename
-      ;; that buffer. The buffer we want to rename happens to be the
-      ;; current buffer.
-      (setq gud-target-name target-name)
-      (when rdebug-buffer (kill-buffer rdebug-buffer))
-      (rename-buffer rdebug-buffer-name)
 
       (rdebug-command-initialization)
 

@@ -15,6 +15,8 @@ autoeval is off.
 Breakpoint 1 file ./gcd.rb, line 6
 # break 10
 Breakpoint 2 file ./gcd.rb, line 10
+# break 11
+*** Line 11 is not a stopping point in file "gcd.rb".
 # continue
 Breakpoint 1 at gcd.rb:6
 gcd.rb:6

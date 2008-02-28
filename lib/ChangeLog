@@ -1,3 +1,13 @@
+2008-02-26 17:31  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-cmd.el,
+	  trunk/emacs/rdebug-fns.el, trunk/emacs/rdebug-source.el,
+	  trunk/emacs/rdebug-vars.el, trunk/emacs/test/test-fns.el,
+	  ChangeLog: Go over source location positioning. 0 is now the
+	  oldest (first) position. Add M-S-down and M-S-up for first and
+	  last. More tests needed in test-fns.el and need to prompt on wrap
+	  around.
+
 2008-02-26 00:57  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,

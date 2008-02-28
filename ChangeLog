@@ -1,3 +1,12 @@
+2008-02-26 17:31  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-cmd.el, emacs/rdebug-fns.el,
+	  emacs/rdebug-source.el, emacs/rdebug-vars.el,
+	  emacs/test/test-fns.el, lib/ChangeLog: Go over source location
+	  positioning. 0 is now the oldest (first) position. Add M-S-down
+	  and M-S-up for first and last. More tests needed in test-fns.el
+	  and need to prompt on wrap around.
+
 2008-02-26 00:57  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/commands/info.rb, lib/ChangeLog,
