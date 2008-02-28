@@ -215,8 +215,8 @@ This is only used when `rdebug-many-windows' is non-nil."
 		  (gud-find-file (car gud-last-last-frame)))
 		 (gud-target-name
 		  (gud-find-file gud-target-name)))))
-      ;; Put buffer list in window if we can't find a source file.
-      (unless buf (setq buf (list-buffers-noselect)))
+      ;; Put a buffer in window if we can't find a source file.
+      (unless buf (setq buf (get-buffer-create "*scratch*")))
       (funcall rdebug-window-layout-function buf gud-target-name))))
 
 
