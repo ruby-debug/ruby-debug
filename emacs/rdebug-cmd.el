@@ -76,7 +76,7 @@
   (local-set-key [M-up]     'rdebug-older-location)
   (local-set-key [M-S-down] 'rdebug-newest-location)
   (local-set-key [M-S-up]   'rdebug-oldest-location)
-  (local-set-key "\C-i"     'gud-gdb-complete-command)
+  ;; (local-set-key "\C-i"     'gud-gdb-complete-command)
   (local-set-key "\C-c\C-n" 'comint-next-prompt)
   (local-set-key "\C-c\C-p" 'comint-previous-prompt))
 
