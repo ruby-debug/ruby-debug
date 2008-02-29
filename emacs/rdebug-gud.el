@@ -34,6 +34,7 @@
 
 (require 'gud)
 (require 'rdebug-error)
+(require 'rdebug-fns)
 (require 'rdebug-regexp)
 (require 'rdebug-vars)
 
@@ -202,9 +203,22 @@ As long as repeated next or step commands are given, they inherit this setting.
 (defun rdebug-step (&optional arg)
   "Run a debugger \"next\" command, respecting `rdebug-stepping-prefix'.
 
-With a numeric argument, continue to that line number of the current file."
+With a numeric ARG, continue to that line number of the current file."
   (interactive "p")
   (rdebug-stepping "step" arg))
+
+(defun rdebug-newer-frame ()
+  "Run a debugger \"down\" command to an older frame. 
+
+If we try to go down from frame 0, wrap to the end of the file"
+  (interactive)
+  (let* ((buf-name (rdebug-get-secondary-buffer-name "frame"))
+         (buf (get-buffer buf-name)))
+    (with-current-buffer buf
+      ;; Should we add a mode to disable wrapping? 
+      (if (equal rdebug-frames-current-frame-number 0)
+	  (rdebug-call "frame -1")
+	(rdebug-call "down 1")))))
 
 ;; -- Reset support
 

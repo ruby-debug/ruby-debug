@@ -50,8 +50,8 @@
            "Set breakpoint at current line.")
   (gud-def gud-cont   "continue"   "\C-r"
            "Continue with display.")
-  (gud-def gud-down   "down %p"     ">"
-           "Down N stack frames (numeric arg).")
+;;;   (gud-def gud-down   "down %p"     "<"
+;;;            "Down N stack frames (numeric arg).")
   (gud-def gud-finish "finish"      "\C-f"
            "Finish executing current function.")
   (gud-def gud-source-resync "up 0" "\C-l"
@@ -65,11 +65,12 @@
            "Execute Ruby statement at point.")
   (gud-def gud-tbreak "tbreak %d%f:%l"  "\C-t"
            "Set temporary breakpoint at current line.")
-  (gud-def gud-up     "up %p"
-           "<" "Up N stack frames (numeric arg).")
+  (gud-def gud-up  "up %p"
+           ">" "Up N stack frames to a newer frame (numeric arg).")
   (gud-def gud-where   "where"
            "T" "Show stack trace.")
 
+  (local-set-key "<"        'rdebug-newer-frame)
   (local-set-key [M-insert] 'rdebug-internal-short-key-mode)
   (local-set-key [M-down]   'rdebug-newer-location)
   (local-set-key [M-up]     'rdebug-older-location)

@@ -85,14 +85,7 @@ secondary buffer, bury it replacing with the requested
 buffer. Failing that, if there is secondary buffer visible, that
 is replaced instead.  And finally failing all of the preceding,
 we'll just pick a visible buffer to bury and replace."
-  (let* ((target-name (or (and gud-comint-buffer
-                               (buffer-local-value 'gud-target-name
-                                                   gud-comint-buffer))
-                          gud-target-name))
-         (buf-name 
-	  (cond ((and (string= "cmd" name) gud-comint-buffer)
-		 (buffer-name gud-comint-buffer))
-		(t (format "*rdebug-%s-%s*" name target-name))))
+  (let* ((buf-name (rdebug-get-secondary-buffer-name name))
          (buf (get-buffer buf-name))
          (orig-win (selected-window)))
     (if (null buf)
@@ -128,7 +121,7 @@ we'll just pick a visible buffer to bury and replace."
 
 
 (defun rdebug-display-source-window-categorize (win)
-  "Return how suitable this window is to display the source buffer.
+  "Return how suitable this window WIN is to display the source buffer.
 The higher score the better."
   (let ((buffer (window-buffer win)))
     (cond ((eq buffer gud-comint-buffer)
@@ -141,6 +134,7 @@ The higher score the better."
            2))))
 
 (defun rdebug-display-pick-source-window ()
+  "Return the window that should get replaced by the source window."
   (rdebug-debug-enter "rdebug-display-pick-source-window"
     (let ((candidate nil)
           (candidate-score -1))
@@ -154,7 +148,7 @@ The higher score the better."
       candidate)))
 
 (defun rdebug-frame-source-buffer (frame)
-  "Return the buffer corresponding to guds frame, or nil"
+  "Return the buffer corresponding to the source file given in FRAME, or nil if none."
   (and frame
        gud-comint-buffer
        (save-current-buffer
@@ -163,7 +157,7 @@ The higher score the better."
 
 
 (defun rdebug-current-source-buffer ()
-  "Return the latest source buffer, or nil"
+  "Return the latest source buffer, or nil."
   (or (rdebug-frame-source-buffer gud-last-frame)
       (rdebug-frame-source-buffer gud-last-last-frame)))
 
@@ -208,6 +202,7 @@ The higher score the better."
     (delete-window)))
 
 (defun rdebug-goto-entry-try (str)
+  "See if thre is an entry with number STR.  If not return nil."
   (goto-char (point-min))
   (if (re-search-forward (concat "^[^0-9]*\\(" str "\\)[^0-9]") nil t)
       (progn
@@ -240,11 +235,11 @@ The higher score the better."
 
 Breakpoints, Display expressions and Stack Frames all have
 numbers associated with them which are distinct from line
-numbers. In a secondary buffer, this function is usually bound to
-a numeric key which will position you at that entry number. To
-go to an entry above 9, just keep entering the number. For
+numbers.  In a secondary buffer, this function is usually bound to
+a numeric key which will position you at that entry number.  To
+go to an entry above 9, just keep entering the number.  For
 example, if you press 1 and then 9, you should jump to entry
-1 (if it exists) and then 19 (if that exists). Entering any
+1 (if it exists) and then 19 (if that exists).  Entering any
 non-digit will start entry number from the beginning again."
   (interactive)
   (if (not (eq last-command 'rdebug-goto-entry-n))

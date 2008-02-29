@@ -46,13 +46,6 @@
 	    s))
       "")))
 
-(defun rdebug-dead-process-p ()
-  "Return true if the rdebug comint-process is dead or exited."
-  ;; FIXME? Use a variable in gud-comint-buffer's status?
-  (or (not gud-comint-buffer) 
-      (null (get-buffer-process gud-comint-buffer))
-      (not (member (process-status gud-comint-buffer) '(run open)))))
-
 (defun rdebug-add-location-to-ring (frame location-history-ring)
   "Add FRAME to LOCATION-HISTORY-RING if we are on the top frame and have a frame to add."
   ;; Switching frames shouldn't save a new ring
@@ -62,6 +55,24 @@
 	       (equal (ring-ref location-history-ring 
 				(ring-length location-history-ring)) frame))
     (ring-insert-at-beginning location-history-ring frame)))
+
+(defun rdebug-dead-process-p ()
+  "Return true if the rdebug comint-process is dead or exited."
+  ;; FIXME? Use a variable in gud-comint-buffer's status?
+  (or (not gud-comint-buffer) 
+      (null (get-buffer-process gud-comint-buffer))
+      (not (member (process-status gud-comint-buffer) '(run open)))))
+
+(defun rdebug-get-secondary-buffer-name (name)
+  "Get the rdebug NAME secondary buffer. If none found return nil."
+  (let ((target-name 
+	 (or (and gud-comint-buffer
+		  (buffer-local-value 'gud-target-name
+				      gud-comint-buffer))
+	     gud-target-name)))
+    (cond ((and (string= "cmd" name) gud-comint-buffer)
+	   (buffer-name gud-comint-buffer))
+	  (t (format "*rdebug-%s-%s*" name target-name)))))
 
 (defun rdebug-newest-location ()
   "Go to the oldest source position location."

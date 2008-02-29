@@ -203,7 +203,7 @@ Also, cleans the buffer somewhat and sets up help for the font-lock rules."
           (setq overlay-arrow-position (make-marker))
           (set-marker overlay-arrow-position (point))
           (when (looking-at rdebug-stack-frame-1st-regexp)
-            (setq rdebug-frames-current-frame-number
+            (set (make-local-variable 'rdebug-frames-current-frame-number)
                   (string-to-number (match-string rdebug-stack-frame-number-group)))
 	    (when gud-last-frame
 	      (rdebug-set-frame-arrow (gud-find-file (car gud-last-frame))))
