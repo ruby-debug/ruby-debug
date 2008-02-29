@@ -115,8 +115,11 @@
   (interactive)
   (with-current-buffer gud-comint-buffer
     (rdebug-goto-source-location
-     (ring-minus1 rdebug-source-location-ring-index
-		  (ring-length rdebug-source-location-ring)))))
+     (if (or (not rdebug-source-location-ring-index) 
+	     (< rdebug-source-location-ring-index 0))
+	 0
+       (ring-minus1 rdebug-source-location-ring-index
+		    (ring-length rdebug-source-location-ring))))))
 
 (defun rdebug-newest-location ()
   "Go to the source location of the first stopping point."

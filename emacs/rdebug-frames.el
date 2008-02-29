@@ -194,7 +194,8 @@ non-digit will start entry number from the beginning again."
 Also, cleans the buffer somewhat and sets up help for the font-lock rules."
   (rdebug-debug-enter "rdebug-setup-stack-buffer"
     (with-current-buffer buf
-      (let ((inhibit-read-only t))
+      (let ((inhibit-read-only t)
+	    (current-frame-number 0))
         (rdebug-frames-mode)
         (set (make-local-variable 'gud-comint-buffer) comint-buffer)
         (goto-char (point-min))
@@ -203,8 +204,13 @@ Also, cleans the buffer somewhat and sets up help for the font-lock rules."
           (setq overlay-arrow-position (make-marker))
           (set-marker overlay-arrow-position (point))
           (when (looking-at rdebug-stack-frame-1st-regexp)
+	    (setq current-frame-number 
+		  (string-to-number 
+		   (match-string rdebug-stack-frame-number-group)))
             (set (make-local-variable 'rdebug-frames-current-frame-number)
-                  (string-to-number (match-string rdebug-stack-frame-number-group)))
+		 current-frame-number)
+	    (with-current-buffer comint-buffer
+	      (setq rdebug-frames-current-frame-number current-frame-number))
 	    (when gud-last-frame
 	      (rdebug-set-frame-arrow (gud-find-file (car gud-last-frame))))
 	    (rdebug-set-frame-arrow buf)))
