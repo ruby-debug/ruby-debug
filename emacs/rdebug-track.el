@@ -272,6 +272,13 @@ This function is designed to be added to hooks, for example:
   (set (make-local-variable 'gud-last-last-frame) nil)
   (set (make-local-variable 'gud-last-frame) nil)
   (set (make-local-variable 'gud-comint-buffer) (current-buffer))
+
+  (set (make-local-variable 'gud-marker-filter) 'gud-rdebug-marker-filter)
+  (set (make-local-variable 'gud-minor-mode) 'rdebug)
+  (set (make-local-variable 'comint-prompt-regexp) (concat "^" rdebug-input-prompt-regexp))
+  
+  (set (make-local-variable 'gud-find-file) 'gud-rdebug-find-file)
+
   (rdebug-command-initialization)
 
   (rdebug-track-mode 1))
@@ -305,17 +312,18 @@ window layout is used."
   (rdebug-debug-enter "rdebug-set-windows"
     (rdebug-set-window-configuration-state 'debugger t)
 
-    ;; from gud-common-init
+    ;; from rdebug-common-init
     (gud-mode)
     (set (make-local-variable 'gud-marker-filter) 'gud-rdebug-marker-filter)
+    (set (make-local-variable 'gud-minor-mode) 'rdebug)
+    (set (make-local-variable 'gud-last-frame) nil)
+    (set (make-local-variable 'gud-last-last-frame) nil)
+
     (set (make-local-variable 'gud-find-file) 'gud-rdebug-find-file)
-    (setq gud-last-last-frame nil)
     (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
     (gud-set-buffer)
     ;;
 
-    (set (make-local-variable 'gud-last-last-frame) nil)
-    (set (make-local-variable 'gud-last-frame) nil)
     (rdebug-track-mode 1)
     (rdebug-command-initialization)
 
@@ -340,16 +348,22 @@ window layout is used."
     ;; Add the buffer-displaying commands to the Gud buffer,
     ;; FIXME: combine with code in rdebug-track.el; make common 
     ;; command buffer mode map.
-    (let ((prefix-map (make-sparse-keymap)))
-      (define-key (current-local-map) gud-key-prefix prefix-map)
+    (let ((prefix-map (make-sparse-keymap))
+	  (map (current-local-map)))
+      (define-key map [M-down] 'rdebug-newer-location)
+      (define-key map [M-up] 'rdebug-older-location)
+      (define-key map [M-S-down] 'rdebug-newest-location)
+      (define-key map [M-S-up] 'rdebug-oldest-location)
+      (define-key map  gud-key-prefix prefix-map)
       (define-key prefix-map "t" 'rdebug-goto-traceback-line)
       (define-key prefix-map "!" 'rdebug-goto-dollarbang-traceback-line)
+
       (rdebug-populate-secondary-buffer-map-plain prefix-map))
     
     (rdebug-populate-common-keys (current-local-map))
     (rdebug-populate-debugger-menu (current-local-map))
       
-    (setq comint-prompt-regexp (concat "^" rdebug-input-prompt-regexp))
+    (set (make-local-variable 'comint-prompt-regexp) (concat "^" rdebug-input-prompt-regexp))
     (setq paragraph-start comint-prompt-regexp)
 
     (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
