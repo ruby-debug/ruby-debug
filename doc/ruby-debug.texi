@@ -2299,6 +2299,33 @@ code on that line.
 @item break @var{filename}:@var{linenum}
 Set a breakpoint at line @var{linenum} in source file @var{filename}.
 
+What may be a little tricky when specifying the filename is getting
+the name recognized by the debugger. If you get a message the message
+@code{No source file named ..}, then you may need to qualify the
+name more fully. To see what files are loaded you can use @code{info
+files} or @code{info file} commands. If you want the name @code{rdebug} thinks
+of as the current file, use @code{info line}.
+
+Here's an example
+@example
+$ @b{rdebug ~/ruby/gcd.rb 3 5}
+/home/rocky/ruby/gcd.rb:4   # Note this is the file name
+def gcd(a, b)
+(rdb:1) @b{break gcd.rb:6}
+*** No source file named gcd.rb
+(rdb:1) @b{info line}
+Line 4 of "/home/rocky/ruby/gcd.rb"
+(rdb:1) @b{break /home/rocky/ruby/gcd.rb:6}
+Breakpoint 1 file /home/rocky/ruby/gcd.rb, line 6
+(rdb:1) @b{break ~/ruby/gcd.rb:10}  # tilde expansion also works
+Breakpoint 2 file /home/rocky/ruby/gcd.rb, line 10
+(rdb:1) @b{info file gcd.rb}
+File gcd.rb is not cached
+(rdb:1) @b{info file /home/rocky/ruby/gcd.rb}
+File /home/rocky/ruby/gcd.rb
+         19 lines
+@end example
+
 @item break @var{class}:@var{method}
 Set a breakpoint in class @var{class} method @var{method}. You can
 also use a period @code{.} instead of a colon @code{:}. Note that two
@@ -2995,22 +3022,36 @@ Local and instance variables.
 @cindex post-mortem debugging
 
 It is also to possible enter the debugger when you have an uncaught
-exception. This is called post-mortem debugging. In this state many of
-the debugger commands for examining variables and moving around in the
-stack will still work. However some commands such as those which imply
-a continuation of running code will no longer work.
+exception that is about to terminate our program. This is called
+@emph{post-mortem debugging}. In this state many, of the debugger commands
+for examining variables and moving around in the stack still
+work. However some commands, such as those which imply a continuation
+of running code, no longer work.
 
-To set up post-mortem debugging you need to call
-@code{Debugger.post_mortem} and it works in two ways. Called without a
-block, it installs a global @code{at_exit} hook that intercepts
-exceptions not handled by your Ruby script.
+The most reliable to set up post-mortem debugging is to use the
+@code{--post-mortem} option in invoking @code{rdebug}. This
+traps/wraps at the debugger ``load'' of your Ruby script.  When
+this is done, your program is stopped after the exception takes place,
+but before the stack has been unraveled. (Alas, it would be nice to
+if one could allow resetting the exception and continuing, but details
+of code in Ruby 1.8's @code{eval.c} prevent this.)
 
-If however you know that a particular block of code raises an
-exception you can enable post-mortem mode by wrapping this block
-inside a @code{Debugger.post_mortem} block
+If however you haven't invoked @code{rdebug} at the outset, but
+instead call @code{ruby-debug} from inside your program, to set up
+post-mortem debugging you need to call
+@code{Debugger.post_mortem}. This method can be called in two
+ways. Called without a block, it installs a global @code{at_exit} hook
+that intercepts exceptions not handled by your Ruby script. In
+contrast to using the @code{--post-mortem} option, when this hook
+occurs after the call stack has been rolled back. (I'm not sure if
+this in fact makes any difference operationally; I'm just stating it
+because that's how it works.)
+
+If you know that a particular block of code raises an exception you
+can enable post-mortem mode by wrapping this block inside a
+@code{Debugger.post_mortem} block
 
 @smallexample
-@cartouche
 def offender
   1/0 
 end
@@ -3022,8 +3063,10 @@ Debugger.post_mortem do
   offender
   ...
 end
-@end cartouche
 @end smallexample 
+
+Once inside the debugger in post-mortem debugging, the prompt should
+be @code{(rd:post-mortem)}.
 
 @node Debugger Module and Class
 @chapter The Debugger Module and Class
