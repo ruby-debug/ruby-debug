@@ -106,20 +106,36 @@
   "Cycle through source location stopping history to get the next newer (more recently visited) location."
   (interactive)
   (with-current-buffer gud-comint-buffer
-    (rdebug-goto-source-location
-     (ring-plus1 rdebug-source-location-ring-index
-		 (ring-length rdebug-source-location-ring)))))
-
+    (if (equal (+ 1 rdebug-source-location-ring-index)
+	       (ring-length rdebug-source-location-ring))
+	(progn
+	  (message "At newest - Will set to wrap to oldest.")
+	  (setq rdebug-source-location-ring-index -1))
+      ;; else
+      (rdebug-goto-source-location
+       (if (> rdebug-source-location-ring-index 
+	      (ring-length rdebug-source-location-ring))
+	   0
+	 ;; else
+	 (ring-plus1 rdebug-source-location-ring-index
+		     (ring-length rdebug-source-location-ring)))))))
+  
 (defun rdebug-older-location ()
   "Cycle through source location stopping history to get the next older (least recently visited) location."
   (interactive)
   (with-current-buffer gud-comint-buffer
-    (rdebug-goto-source-location
-     (if (or (not rdebug-source-location-ring-index) 
-	     (< rdebug-source-location-ring-index 0))
-	 0
-       (ring-minus1 rdebug-source-location-ring-index
-		    (ring-length rdebug-source-location-ring))))))
+    (if (equal rdebug-source-location-ring-index 0)
+	(progn
+	  (message "At oldest - Will set to wrap to newest.")
+	  (setq rdebug-source-location-ring-index -1))
+      ;; else 
+      (rdebug-goto-source-location
+       (if (or (not rdebug-source-location-ring-index) 
+	       (< rdebug-source-location-ring-index 0))
+	   0
+	 ;; else
+	 (ring-minus1 rdebug-source-location-ring-index
+		      (ring-length rdebug-source-location-ring)))))))
 
 (defun rdebug-newest-location ()
   "Go to the source location of the first stopping point."
