@@ -1,4 +1,4 @@
-c#!/usr/bin/env ruby
+#!/usr/bin/env ruby
 require 'test/unit'
 
 # Test of C extension ruby_debug.so

@@ -54,7 +54,7 @@ Num Enb What
   3 y   at Object:gcd
 	breakpoint already hit 1 time
 # break foo
-Unknown command
+*** Invalid breakpoint location: foo.
 # info break
 Num Enb What
   1 y   at gcd.rb:6

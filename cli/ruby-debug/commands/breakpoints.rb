@@ -5,8 +5,8 @@ module Debugger
     def regexp
       / ^\s*
         b(?:reak)?
-        (?: \s+ #{Position_regexp})?
-        (?:\s+ if\s+(.+))?
+        (?: \s+ #{Position_regexp})? \s*
+        (?:\s+ (.*))?
         $
       /x
     end
@@ -16,6 +16,18 @@ module Debugger
         line, _, _, expr = @match.captures
       else
         _, file, line, expr = @match.captures
+      end
+      if expr 
+        if expr !~ /^\s*if\s+(.+)/
+          if file or line
+            errmsg "Expecting 'if' in breakpoint condition; got: #{expr}.\n"
+          else
+            errmsg "Invalid breakpoint location: #{expr}.\n"
+          end
+          return
+        else
+          expr = $1
+        end
       end
 
       brkpt_filename = nil

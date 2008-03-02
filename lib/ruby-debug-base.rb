@@ -7,7 +7,7 @@ module Debugger
   # Default options to Debugger.start
   DEFAULT_START_SETTINGS = { 
     :init => true # Set $0 and save ARGV? 
-  }
+  } unless defined?(DEFAULT_START_SETTINGS)
 
   class Context
     def interrupt
