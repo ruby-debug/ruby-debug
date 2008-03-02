@@ -8,9 +8,10 @@ class TestBinding < Test::Unit::TestCase
   SRC_DIR = File.expand_path(File.dirname(__FILE__)) unless 
     defined?(SRC_DIR)
   %w(ext lib).each do |dir|
-    $: <<  File.join(SRC_DIR, '..', '..', dir)
+    $:.unshift File.join(SRC_DIR, '..', '..', dir)
   end
   require File.join(SRC_DIR, '..', '..', 'lib', 'ruby-debug-base')
+  $:.shift; $:.shift
 
   def test_basic
     def inside_fn

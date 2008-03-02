@@ -1,11 +1,12 @@
-#!/usr/bin/env ruby
+c#!/usr/bin/env ruby
 require 'test/unit'
 
 # Test of C extension ruby_debug.so
 class TestRubyDebug < Test::Unit::TestCase
-  $:.unshift File.dirname(__FILE__) + '/../../ext'
-  $:.unshift File.dirname(__FILE__) + '/../../lib'
+  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
+  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
   require 'ruby_debug'
+  $:.shift; $:.shift
 
   include Debugger
 
@@ -13,7 +14,7 @@ class TestRubyDebug < Test::Unit::TestCase
   def test_current_context
     assert_equal(false, Debugger.started?, 
                  'debugger should not initially be started.')
-    Debugger.start
+    Debugger.start_
     assert(Debugger.started?, 
            'debugger should now be started.')
     assert_equal(__LINE__, Debugger.current_context.frame_line)
@@ -37,7 +38,7 @@ class TestRubyDebug < Test::Unit::TestCase
   def test_debugger_base
     assert_equal(false, Debugger.started?, 
                  'Debugger should not initially be started.')
-    Debugger.start
+    Debugger.start_
     assert(Debugger.started?, 
            'Debugger should now be started.')
     assert_equal(false, Debugger.debug,
@@ -56,7 +57,7 @@ class TestRubyDebug < Test::Unit::TestCase
 
   # Test breakpoint handling
   def test_breakpoints
-    Debugger.start
+    Debugger.start_
     assert_equal(0, Debugger.breakpoints.size,
                  'There should not be any breakpoints set.')
     brk = Debugger.add_breakpoint(__FILE__, 1)
