@@ -3031,7 +3031,7 @@ for examining variables and moving around in the stack still
 work. However some commands, such as those which imply a continuation
 of running code, no longer work.
 
-The most reliable to set up post-mortem debugging is to use the
+The most reliable way to set up post-mortem debugging is to use the
 @code{--post-mortem} option in invoking @code{rdebug}. See @ref{rdebug
 command-line options}. This traps/wraps at the debugger ``load'' of
 your Ruby script.  When this is done, your program is stopped after
