@@ -3355,7 +3355,8 @@ OSX some of the below may need adjusting.
 * Package Checkout::
 * Trying Out::
 * Running Regression Tests::
-* Building the documentation and Emacs files::
+* Building the Documentation and Emacs files::
+* Building for Microsoft Windows::
 @end menu
 
 @node Prerequisites
@@ -3476,7 +3477,7 @@ line that ends something like:
 The number of seconds, tests, and assertions may be different from the
 above. However you @emph{should} see exactly ``0 failures, 0 errors.''
 
-@node Building the documentation and Emacs files
+@node Building the Documentation and Emacs files
 @section Building the Documentation and Testing/Installing Emacs Files
 
 Of course, I recommend you read the ruby-debug manual that comes with
@@ -3494,6 +3495,62 @@ Then run:
   sudo make install   # Or arrange to do this as root
 @end smallexample
 
+@node Building for Microsoft Windows
+@section Building for Microsoft Windows
+
+Microsoft Windows is ``special'' and building @code{ruby-debug-base}
+on it requires extra care. A problem here seems to be that the
+``One-click'' install is compiled using Microsoft Visual Studio C, version 6
+which is not sold anymore and is rather old.
+
+Instead I suggest building via mingw/msys.
+@url{http://eigenclass.org/hiki.rb?cmd=view&p=cross+compiling+rcovrt&key=mingw}
+has instructions on how to do. Some amendments to these instructions.
+
+First, those instructions are a little GNU/Linux centric. If you are
+using Ubuntu or Debian, then this should be the easiest to follow the
+instructions. On Ubuntu or Debian there is a mingw3 Debian
+package. Installing that will give you the cross compiler that is a
+prerequisite. Alternatively if you are running MS Windows I notice
+that cygwin also has a mingw package. Or possibly you could use MinGW
+directly. For other OS's you might have to build a cross-compiler,
+i.e. gcc which emits win32 code and can create a win32 DLL.
+
+After you have a cross compiler you need to download the Ruby source
+and basically build a ruby interpreter. The cross-compile.sh script
+works although when I downloaded it, it had lots of blank space at the
+beginning which will mess up the Unix magic interpretation. That is
+remove the blanks in front of @code{#/bin/sh}.
+
+On my system, this script fails in running @code{make ruby} because the
+fake.rb that got created needed to have a small change:
+
+@smallexample
+
+	    ALT_SEPARATOR = "\"; \
+@end smallexample
+should be:
+@smallexample
+	    ALT_SEPARATOR = "\\"; \
+@end smallexample
+
+After fixing this, run @code{make ruby}. Also, I needed to run
+@code{make rubyw}.
+
+And then @code{make install} as indicated. 
+
+Once all of that's in place, the place you want be is in
+@code{ruby-debug/trunk/ext/win32}, not @code{ruby-debug/ext}. 
+
+So let's say you've installed the cross-compiled install ruby in
+@code{/usr/local/ruby-mingw32/}. Here then are the commands to build @code{ruby-debug-base-}@emph{xxx}@code{-mswin32.gem}:
+@smallexample
+   cd .../ruby-debug/trunk/ext/win32 
+   ruby -I /usr/local/ruby-mingw32/lib/ruby/1.8/i386-mingw32 ../extconf.rb
+   make # Not rake
+   cd ../..   # back in ruby-debug/trunk
+   rake win32_gem
+@end smallexample
 
 @node Class Module Index
 @unnumbered Class, Module Method Index
