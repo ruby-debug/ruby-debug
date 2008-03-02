@@ -87,7 +87,6 @@ This is the @value{EDITION} Edition, @value{UPDATED}
 * Debugger Command Reference::  rdebug command reference
 * Post-Mortem Debugging::       Debugging on an uncaught exception
 * Debugger Module and Class::   ruby-debug's Debugger module and class
-* GNU Emacs::                   Using @code{ruby-debug} from GNU Emacs
 
 Appendix
 * Using from Subversion::
@@ -95,8 +94,6 @@ Appendix
 Indexes (nodes containing large menus)
 * Class Module Index::        An item for Class, Module, and Methods.
 * Command Index::             An item for each command name.
-* Emacs Key Binding Index::   An item for each Emacs Key Binding.
-* Emacs Command Index::       An item for each Emacs Debugger Command.
 * General Index::             An item for each concept.
 @end menu
 
@@ -236,8 +233,9 @@ the initial number of lines, 10, use the @code{set listsize} command
 (@pxref{Listsize}). To see the entire program in one shot, we gave an
 explicit starting and ending line number.
 
-If you use a front-end to the debugger such as the Emacs interface
-(@pxref{GNU Emacs}), you probably won't use @code{list} all that much.
+If you use a front-end to the debugger such as the Emacs interface,
+@c (@pxref{GNU Emacs})
+you probably won't use @code{list} all that much.
 
 Now let us step through the program.
 
@@ -1214,13 +1212,17 @@ Set @code{$DEBUG} to @code{true}. This option is compatible with
 Ruby's.
 
 @item --emacs
-Activates GNU Emacs mode (@pxref{GNU Emacs}). Debugger output is tagged in
-such a way to allow GNU Emacs to track where you are in the code.
+Activates GNU Emacs mode.
+@c @pxref{GNU Emacs}. 
+Debugger output is tagged in such a way to allow GNU Emacs to track
+where you are in the code.
 
 @item --emacs-basic
-Activates full GNU Emacs mode (@pxref{GNU Emacs}). Is the equivalent
-of setting the options @code{--emacs-basic}, @code{annotate=3},
-@code{--no-stop}, @code{-no-control} and @code{--post-mortem}.
+Activates full GNU Emacs mode.
+@c (@pxref{GNU Emacs}). 
+This is the equivalent of setting the options @code{--emacs-basic},
+@code{annotate=3}, @code{--no-stop}, @code{-no-control} and
+@code{--post-mortem}.
 
 @item -h | --host @var{host-address}
 Connect host address for remote debugging.
@@ -1995,7 +1997,8 @@ You can print other portions of source files by giving an explicit
 position as a parameter to the list command.
 
 If you use @value{DBG} through its Emacs interface, you may prefer to
-use Emacs facilities to view source; @pxref{GNU Emacs}.
+use Emacs facilities to view source. 
+@c @pxref{GNU Emacs}.
 
 @kindex list @ovar{line-number}
 @kindex l @r{(@code{list})}
@@ -2301,12 +2304,12 @@ Set a breakpoint at line @var{linenum} in source file @var{filename}.
 
 What may be a little tricky when specifying the filename is getting
 the name recognized by the debugger. If you get a message the message
-@code{No source file named ..}, then you may need to qualify the
-name more fully. To see what files are loaded you can use @code{info
+``@code{No source file named ...}'', then you may need to qualify the
+name more fully. To see what files are loaded you can use the @code{info
 files} or @code{info file} commands. If you want the name @code{rdebug} thinks
 of as the current file, use @code{info line}.
 
-Here's an example
+Here's an example:
 @example
 $ @b{rdebug ~/ruby/gcd.rb 3 5}
 /home/rocky/ruby/gcd.rb:4   # Note this is the file name
@@ -3029,12 +3032,13 @@ work. However some commands, such as those which imply a continuation
 of running code, no longer work.
 
 The most reliable to set up post-mortem debugging is to use the
-@code{--post-mortem} option in invoking @code{rdebug}. This
-traps/wraps at the debugger ``load'' of your Ruby script.  When
-this is done, your program is stopped after the exception takes place,
-but before the stack has been unraveled. (Alas, it would be nice to
-if one could allow resetting the exception and continuing, but details
-of code in Ruby 1.8's @code{eval.c} prevent this.)
+@code{--post-mortem} option in invoking @code{rdebug}. See @ref{rdebug
+command-line options}. This traps/wraps at the debugger ``load'' of
+your Ruby script.  When this is done, your program is stopped after
+the exception takes place, but before the stack has been
+unraveled. (Alas, it would be nice to if one could allow resetting the
+exception and continuing, but details of code in Ruby 1.8's
+@code{eval.c} prevent this.)
 
 If however you haven't invoked @code{rdebug} at the outset, but
 instead call @code{ruby-debug} from inside your program, to set up
@@ -3066,7 +3070,7 @@ end
 @end smallexample 
 
 Once inside the debugger in post-mortem debugging, the prompt should
-be @code{(rd:post-mortem)}.
+be @code{(rdb:post-mortem)}.
 
 @node Debugger Module and Class
 @chapter The Debugger Module and Class
@@ -3340,736 +3344,6 @@ Returns a binding of @var{n}-th call frame.
 
 @end table
 
-@node GNU Emacs
-@chapter Using @code{ruby-debug} from GNU Emacs
-
-@menu
-* autoloaded functions::
-* Debugger Buffers:: 
-* Emacs Debugger Commands::
-* Emacs with Annotate:: A richer debugging environment
-@end menu
-
-@cindex @value{Emacs}
-A special interface which comes with Ruby that allows you to use
-@value{Emacs} to view (and edit) the source files for the program you
-are debugging with @value{DBG}. However you must be using
-@value{Emacs} version 21, but with @value{Emacs} version 22 or 23
-there are even more debugging features available. @code{M-x
-show-emacs-version} inside @value{Emacs} will tell you what version
-you are running.
-
-To use this interface, you to load @code{rdebug.el}. 
-
-@smallexample
-  (require 'rdebug)
-@end smallexample 
-
-Once this is done, some commands become autoloaded. In particular
-@kbd{rdebug}, @kbd{rdebug-turn-on-debugger-support}, 
-@kbd{turn-on-rdebugtrack-mode} and @kbd{rdebug-track-attach}.
-
-@node autoloaded functions
-@section Autoloaded functions
-
-@menu
-* Emacs rdebug:: Invoke the ruby debugger initially
-* Emacs shell tracking mode::  Entering rdebug from an existing shell buffer
-@end menu
-
-@node Emacs rdebug
-@subsection Emacs rdebug
-
-Use the command @kbd{M-x rdebug} in @sc{gnu} Emacs to start debugging.
-Give the executable file you want to debug as an argument. Make sure
-to use the version that comes with this package as this is newer than
-that supplied with @value{Emacs}.
-
-The @kbd{rdebug} command starts @value{DBG} as a subprocess of Emacs,
-with input and output through a newly created Emacs buffer.
-
-Using @value{DBG} under Emacs is just like using @value{DBG}
-normally except for two things:
-
-@itemize @bullet
-@item
-All ``terminal'' input and output goes through the GNU Emacs buffer.
-@end itemize
-
-This applies both to @value{DBG} commands and their output, and to the input
-and output done by the program you are debugging.
-
-This is useful because it means that you can copy the text of previous
-commands and input them again; you can even use parts of the output
-in this way.
-
-All the facilities of GNU Emacs' Shell mode are available for interacting
-with your script.  In particular, you can send signals the usual
-way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
-stop.
-
-@node Emacs shell tracking mode
-@subsection Entering rdebug from an existing shell buffer
-
-Many times it's not feasible to enter the debugger from the outset. Instead a call to the debugger is put inside the program. See @xref{Unit Testing Session}.
-
-It is also possible in GNU emacs to use a (``comint'') shell and set a
-mode to watch for @value{DBG} prompts and track the source code in
-another window. @xref{Interactive Shell, , Shell, Emacs, The @value{Emacs}
-Manual}.
-
-To enable, this run @kbd{M-x turn-on-rdebug-track-mode}. There is some overhead
-involved in scanning output, so if you are not debugging Ruby programs
-you probably want to turn this off which can be done via the M-x
-@code{turn-off-rdebugtrack} command.
-
-If you want to use even more integration and tracking, run @kbd{M-x
-rdebug-track-attach} and then inside the debugger give the debugger
-command @kbd{set annotate 3}. Emacs interaction when annotate is in effect is described in @xref{Emacs with Annotate}.
-
-@node Debugger Buffers
-@section Debugger Buffers
-
-@menu
-* Debugger Command Buffer:: 
-* Emacs Source::  Commands from the source script
-@end menu
-
-@node Debugger Command Buffer
-@subsection Emacs Debugger Command buffer
-
-Each time @value{DBG} displays a stack frame, Emacs automatically finds the
-source file for that frame and puts an arrow (@samp{=>}) at the
-left margin of the current line.  Emacs uses a separate buffer for
-source display, and splits the screen to show both your @value{DBG} session
-and the source.
-
-Explicit @value{DBG} @code{list} or search commands still produce output as
-usual, but you probably have no reason to use them from GNU Emacs.
-
-@quotation
-@emph{Warning:} If the directory where your script resides is not your
-current directory, it can be easy to confuse Emacs about the location of
-the source files, in which case the auxiliary display buffer does not
-appear to show your source.  @value{DBG} can find programs by searching your
-environment's @code{PATH} variable, so the @value{DBG} input and output
-session proceeds normally; but Emacs does not get enough information
-back from @value{DBG} to locate the source files in this situation.  To
-avoid this problem, either start @value{DBG} mode from the directory where
-your script resides, or specify an absolute file name when prompted for the
-@kbd{M-x gdb} argument.
-
-A similar confusion can result if you use the @value{DBG} @code{file} command to
-switch to debugging a program in some other location, from an existing
-@value{DBG} buffer in Emacs.
-@end quotation
-
-@noindent
-(preceded by @kbd{M-:} or @kbd{ESC :}, or typed in the @code{*scratch*} buffer, or
-in your @file{.emacs} file).
-
-In the @value{DBG} I/O buffer, you can use the Emacs commands listed
-below in addition to the standard Shell mode commands. The I/O buffer
-name name is usually @code{*gud-}@emph{script-name}@code{*}, where
-@emph{script-name} is the name of the script you are debugging.
-
-Many of the commands listed below are also bound to a second key
-sequence which also can be used in the also be used in the source
-script. These are listed in @ref{Emacs Source}.
-
-In secondary buffers many commands are available the corresponding
-final keystroke. For example @code{C-c n} in a secondary buffer is
-@code{n}.
-
-@table @kbd
-@item C-h m
-Describe the features of Emacs' @value{DBG} Mode.
-
-@item C-x C-a C-b (gud-break)
-@pindex C-x C-a C-b (gud-break)
-Set breakpoint at current line.
-
-@item C-x C-a C-d (gud-remove)
-@pindex C-x C-a C-d (gud-remove)
-Remove breakpoint at current line.
-
-@item C-x C-a C-l (gud-refresh)
-@pindex C-x C-a C-d (gud-refresh)
-Fix up a possibly garbled display, and redraw the arrow.
-
-@item C-c RET (comint-copy-old-input)
-@pindex C-c RET (comint-copy-old-input)
-Insert after prompt old input at point as new input to be edited.
-Calls `comint-get-old-input' to get old input.
-
-@item C-c n (gud-next)
-@pindex C-c n (gud-next)
-Step one line, skipping functions. (Step over).
-
-@item C-x C-a C-o (comint-delete-output)
-@pindex C-c n (comint-delete-output)
-Delete all output from interpreter since last input. Does not delete
-the prompt.
-
-@item C-x C-a C-r (gud-cont)
-
-@item C-c SPC (gud-step @var{arg})
-@pindex C-c SPC (gud-step @var{arg})
-@itemx C-x C-a C-s (gud-step @var{arg})
-@pindex C-x C-a C-s (gud-step @var{arg})
-Step one source line. Same as @value{DBG} @code{step} command. The
-@value{Emacs} command name is @code{gud-step} and @code{C-x C-a C-s}
-is an alternate binding which can be used in the source
-script. @xref{Step}.
-
-With a numeric argument, run that many times.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
-
-
-@item C-x C-a C-t (gud-tbreak @var{arg})
-Set temporary breakpoint at current line.
-
-@item C-x C-a C-w (backward-kill-word)
-@item C-x C-a C-x (comint-get-next-from-history)
-@item C-x C-a C-z (comint-stop-subjob)
-Stop the current subjob.
-This command also kills the pending input
-between the process mark and point.
-
-WARNING: if there is no current subjob, you can end up suspending
-the top-level process running in the buffer.  If you accidentally do
-this, use M-x comint-continue-subjob to resume the process.  (This
-is not a problem with most shells, since they ignore this signal.)
-
-@item C-x C-a C-\ (comint-quit-subjob)
-Send quit signal to the current subjob.
-This command also kills the pending input
-between the process mark and point.
-
-@item C-c +   (gud-step-plus)
-Run @code{step+}.
-
-@item C-c .   (comint-insert-previous-argument @var{index})
-Insert the indexth argument from the previous Comint command-line at point.
-Spaces are added at beginning and/or end of the inserted string if
-necessary to ensure that it's separated from adjacent arguments.
-Interactively, if no prefix argument is given, the last argument is inserted.
-Repeated interactive invocations will cycle through the same argument
-from progressively earlier commands (using the value of index specified
-with the first command).
-
-@item C-c < (gud-up) 
-Go up a stack frame. With a numeric argument, go up that many
-stack frames. Same @value{DBG} @code{up} command.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
-
-@item C-c >	(gud-down)
-Go down a stack frame.  Same as @value{DBG} @code{down}.
-With a numeric argument, go down that many stack frames.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
-
-@item C-c ?	(rdebug-display-secondary-window-help-buffer)
-Display the rdebug help buffer.
-
-@item C-c B	(rdebug-display-breakpoints-buffer)
-Display the rdebug breakpoints buffer.
-
-@item C-x C-a C	(rdebug-display-cmd-buffer)
-Display the rdebug command buffer.
-
-@item C-c O	(rdebug-display-output-buffer)
-Display the rdebug output buffer.
-
-@item C-c R	(gud-run)
-@itemx C-c r	(gud run)
-Restart or run the script. Same as @value{DBG} @code{run} command.
-
-@item C-c S	(gud-source-resync)
-@item C-c T	(rdebug-display-stack-buffer)
-Display the rdebug stack buffer.
-@item C-c V	(rdebug-display-variables-buffer)
-Display the rdebug variables buffer.
-
-@item C-c W	(rdebug-display-watch-buffer)
-Display the rdebug watch buffer.
-
-@item C-c f	(gud-finish @var{arg})
-@pindex C-c f	(gud-finish @var{arg})
-Finish executing current function.
-
-@itemx C-x C-a C-f (gud-finish)
-@pindex C-x C-a C-f (gud-finish)
-Finish executing current function. The same as @value{DBG}
-@code{finish} command. @xref{Finish}.
-
-@item C-c n	(gud-next)
-@pindex C-c n	(gud-next)
-Execute to next source line in this function, skipping all function
-calls. Same as @value{DBG} @code{next} command.  @xref{Next}.
-
-With a numeric argument, run that many times.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
-
-@item C-c q	(gud-quit)
-
-@item C-x C-a C-l
-Resynchronize the current position with the source window. The
-@value{Emacs} command name is @code{gud-refresh} and @code{C-x C-a
-C-l} is an alternate binding which also can be used in the source script.
-
-@item C-c a
-Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
-stack frame. Same as @value{DBG} @code{info args} command. The
-@value{Emacs} command name is @code{gud-args} and @code{C-x C-a a} is
-an alternate binding which also can be used in the source script.
-
-@item C-c T
-Show stack trace. Same as @value{DBG} @code{where} command. The
-@value{Emacs} command name is @code{gud-where} and @code{C-x C-a T} is
-an alternate binding which can be used in the source
-script. @xref{Backtrace}.
-
-@end table
-
-In any source file, the Emacs command @kbd{C-x SPC} (@code{gud-break})
-tells @value{DBG} to set a breakpoint on the source line point is on.
-
-If you accidentally delete the source-display buffer, an easy way to get
-it back is to type the command @code{frame} in the @value{DBG} buffer, to
-request a frame display; when you run under Emacs, this recreates
-the source buffer if necessary to show you the context of the current
-frame.
-
-The source files displayed in Emacs are in ordinary Emacs buffers
-which are visiting the source files in the usual way.  You can edit
-the files with these buffers if you wish; but keep in mind that @value{DBG}
-communicates with Emacs in terms of line numbers.  If you add or
-delete lines from the text, the line numbers that @value{DBG} knows cease
-to correspond properly with the code.
-
-@xref{Debugger Operation, , , Emacs, The @value{Emacs}
-Manual}.
-
-@node Emacs Source
-@subsection Commands from the source script
-
-@table @kbd
-@item C-x SPC
-
-tells @value{DBG} to set a breakpoint on the source
-line point is on. (@code{gud-break}) 
-
-@item C-x C-a t	
-
-@code{gud-linetrace}
-
-@item C-x C-a C-f
-Restart or run the script. Same as @value{DBG} @code{run} command. The
-@value{Emacs} command name is @code{gud-finish}. In the corresponding
-I/O buffer, @code{C-c R} is an alternate binding.
-
-@item C-x C-a T	
-Show stack trace. Same as @value{DBG} @code{where} command. In the
-corresponding I/O buffer, @code{C-c T} is an alternate
-binding. @xref{Backtrace}.
-
-@item C-x C-a <	
-
-Go up a stack frame. With a numeric argument, go up that many
-stack frames. Same @value{DBG} @code{up} command.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs} Manual}.
-
-The @value{Emacs} command name is @code{gud-up}. In the corresponding
-I/O buffer, @code{C-c <} is an alternate binding.
-
-@item C-x C-a >	
-
-Go down a stack frame.  Same as @value{DBG} @code{down}.
-With a numeric argument, go down that many stack frames.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
-
-The @value{Emacs} command name is @code{gud-down}. In the
-corresponding I/O buffer, @code{C-c >} is an alternate binding.
-
-@item C-x C-a C-t
-
-@code{gud-tbreak}
-
-@item C-x C-a C-s
-
-Step one source line. Same as @value{DBG} @code{step}
-command. @xref{Step}.
-
-With a numeric argument, run that many times.
-@xref{Arguments, , Numeric Arguments, Emacs, The @value{Emacs}
-Manual}.
-
-The @value{Emacs} command name is @code{gud-step}. In the
-corresponding I/O buffer, @code{C-x C-a C-s} is an alternate binding.
-
-@item C-x C-a C-e
-
-@code{gud-statement}
-
-@item C-x C-a R	
-Restart or run the script. Same as @value{DBG} @code{run} command. The
-@value{Emacs} command name is @code{gud-run}. In the corresponding I/O
-buffer, @code{C-c R} is an alternate binding.
-
-@item C-x C-a C-d
-Delete breakpoint. @code{gud-remove}
-
-@item C-x C-a C-p
-
-@code{gud-print}
-
-@item C-x C-a C-n
-
-Execute to next source line in this function, skipping all function
-calls. Same as @value{DBG} @code{next} command.  With a numeric
-argument, run that many times.  @xref{Arguments, , Numeric Arguments,
-Emacs, The @value{Emacs} Manual}.
-
-The @value{Emacs} command name is @code{gud-next}. In the
-corresponding I/O buffer, @code{C-x C-a C-n} is an alternate binding.
-
-@item C-x C-a f	C-f
-
-@code{gud-finish}
-
-@item C-x C-a C-r
-Continue execution of your script Same as @value{DBG} @code{continue}
-command. The @value{Emacs} command name is @code{gud-cont}. In the
-corresponding I/O buffer, @code{C-x C-a C-r} is an alternate binding. See
-@ref{Continue}.
-
-@item C-x C-a C-b
-
-@code{gud-break}
-
-@item C-x C-a a	
-
-@code{gud-args}
-Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
-stack frame. Same as @value{DBG} @code{info args} command.  The
-@value{Emacs} command name is @code{gud-args}. In the corresponding
-I/O buffer, @code{C-c a} is an alternate binding which also can be
-used in the source script.
-
-@item C-x C-a C-l
-Move to current position in this source window. The @value{Emacs}
-command name is @code{gud-refresh}. In the corresponding I/O buffer,
-@code{C-x C-a C-l} is an alternate binding.
-
-@end table
-
-@node Emacs Debugger Commands
-@section Emacs Debugger Commands
-
-@menu
-* Emacs Debugger Common Commands::
-* Emacs Debugger Breakpoint Buffer Commands::
-* Emacs Debugger Stack Buffer Commands::
-* Emacs Debugger Variable Buffer Commands::
-* Emacs Debugger Watch Buffer Commands::
-* Emacs GUD Commands::
-@end menu
-
-@node Emacs Debugger Common Commands
-@subsection Emacs Debugger Common Commands
-
-The commands in this section are used to make a secondary buffer
-visible. If the buffer doesn't exist, nothing is done.
-The way the buffer is made visible is follows the following
-rules tried in order:
-
-@enumerate
-@item
-If the buffer doesn't exist, do nothing. 
-@item 
-If the buffer is already displayed, switch to it. 
-@item 
-If the current buffer is a
-secondary buffer, bury it replacing with the requested
-buffer. 
-@item 
-If there is secondary buffer visible, that
-is replaced instead.  
-@item 
-Just pick a visible buffer to bury and replace.
-                            @end enumerate
-
-The commands are also have key bindings that end in an uppercase
-letter. This letter is given in parenthesis. When in one of the
-secondary buffers, the uppercase letter is bound to the command as well.
-
-@table @kbd
-
-@item (rdebug-display-breakpoints-buffer) (@kbd{B})
-@findex rdebug-display-breakpoints-buffer (@kbd{B})
-Display the rdebug breakpoints buffer.  Bound to: @kbd{C-x C-a B},
-@kbd{<menu-bar> <debugger> <view> <breakpoints>}. Secondary buffers:
-@kbd{O}.
-
-@item (rdebug-display-cmd-buffer) (@kbd{C})
-@findex rdebug-display-cmd-buffer (@kbd{C})
-Display the debugger command buffer.
-
-Bound to: @kbd{C-x C-a C}, @kbd{<menu-bar> <debugger> <view> <shell>}.
-
-@item (rdebug-display-output-buffer) (@kbd{O})
-@findex rdebug-display-output-buffer (@kbd{?})
-Display the debugger output buffer.
-
-Bound to: @kbd{C-x C-a O}, @kbd{<menu-bar> <debugger> <view>
-<output>}. Secondary buffers: @kbd{O}.
-
-@item (rdebug-display-secondary-window-help-buffer) (@kbd{?})
-@findex rdebug-display-secondary-window-help-buffer (@kbd{?})
-
-@item (rdebug-display-stack-buffer) (@kbd{T})
-@findex rdebug-display-stack-buffer (@kbd{T})
-Display the debugger stack buffer. Bound to: @kbd{C-x C-a T},
-@kbd{<menu-bar> <debugger> <view> <stack>}. Secondary buffers: @kbd{T}.
-
-@item (rdebug-display-variables-buffer) (@kbd{V})
-@findex rdebug-display-variables-buffer (@kbd{V})
-Display the debugger variables buffer. Bound to: @kbd{C-x C-a V},
-@kbd{<menu-bar> <debugger> <view> <variables>}.  Secondary buffers:
-@kbd{V}.
-
-@item (rdebug-display-watch-buffer) (@kbd{W})
-@findex rdebug-display-watch-buffer (@kbd{W})
-Display the debugger variables buffer. Bound to: @kbd{C-x C-a W},
-@kbd{<menu-bar> <debugger> <view> <watch>}. Secondary buffers: @kbd{V}.
-
-@item (rdebug-display-debugger-window-configuration)
-@findex rdebug-display-debugger-window-configuration
-Display the current layout of windows of the rdebug Ruby debugger.
-@item (rdebug-display-original-window-configuration)
-@findex rdebug-display-original-window-configuration
-Display the layout of windows prior to starting the rdebug Ruby
-debugger.  This function is called upon quitting the debugger and
-@var{rdebug-many-windows} is not nil.
-@item (rdebug-goto-entry-n)
-@findex rdebug-goto-entry-n
-Breakpoints, Display expressions and Stack Frames all have
-numbers associated with them which are distinct from line
-numbers. In a secondary buffer, this function is usually bound to
-a numeric key. which will position you at that entry number. To
-go to an entry above 9, just keep entering the number. For
-example, if you press 1 and then 9, you should jump to entry
-1 (if it exists) and then 19 (if that exists). Entering any
-non-digit will start entry number from the beginning again.
-@item (rdebug-quit) - q
-@findex rdebug-quit (q)
-Kill the debugger process associated with the buffer.
-
-When @var{rdebug-many-windows} is active, the original window layout is
-restored.
-@item (rdebug-restore-windows)
-@findex rdebug-restore-windows
-Display the initial ruby debugger window layout.
-
-@end table
-
-
-@node Emacs Debugger Breakpoint Buffer Commands
-@subsection Emacs Debugger Breakpoint Buffer Commands
-
-@table @kbd
-@item (rdebug-goto-breakpoint)
-@findex rdebug-goto-breakpoint
-@item (rdebug-goto-breakpoint-mouse)
-@findex rdebug-goto-breakpoint-mouse
-@item (rdebug-breakpoints-mode)
-@findex rdebug-breakpoints-mode
-Major mode for displaying breakpoints in a secondary window. Uses
-@var{rdebug-breakpoints-mode-map}.
-@end table
-
-@node Emacs Debugger Stack Buffer Commands
-@subsection Emacs Debugger Stack Buffer Commands
-
-@table @kbd
-@item (rdebug-goto-stack-frame)
-@findex rdebug-goto-stack-frame
-@item (rdebug-frames-mode)
-@findex rdebug-frames-mode
-Major mode for displaying the stack trace. Uses
-@var{rdebug-frames-mode-map}.
-@end table
-
-@node Emacs Debugger Variable Buffer Commands
-@subsection Emacs Debugger Variable Buffer Commands
-
-@table @kbd
-@item (rdebug-variables-edit)
-@findex rdebug-variables-edit
-@end table
-
-@node Emacs Debugger Watch Buffer Commands
-@subsection Emacs Debugger Watch Buffer Commands
-
-@table @kbd
-@item (rdebug-watch-add)
-@findex rdebug-watch-add
-Add a display expression.
-@item (rdebug-watch-delete)
-@findex rdebug-watch-delete
-Delete a display expression.
-@item (rdebug-watch-edit)
-@findex rdebug-watch-edit
-Edit a display expression.
-@item (rdebug-watch-mode)
-@findex rdebug-watch-mode
-Major mode for displaying the display expressions. Uses
-@var{rdebug-watch-mode-map}.
-@end table
-
-@node Emacs GUD Commands
-@subsection Emacs Debugger GUD Commands
-
-@table @kbd
-@item (comint-copy-old-input)
-@findex comint-copy-old-input
-Insert after prompt old input at point as new input to be edited.
-Calls `comint-get-old-input' to get old input.
-@item (comint-delete-output)
-@findex comint-delete-output
-Delete all output from interpreter since last input.
-Does not delete the prompt.
-@item (gud-break)
-@findex gud-break
-Set a breakpoint on the source line point is on.
-@item (gud-cont) - c
-@findex gud-cont (c)
-Continue execution. 
-@item (gud-next) - n
-@findex gud-next (n)
-Step one line, skipping functions. (Step over).
-@item (gud-refresh)
-@findex gud-refresh
-Fix up a possibly garbled display, and redraw the arrow.
-@item (gud-remove)
-@findex gud-remove
-Remove breakpoint at current line.
-@item (gud-step) - s
-@findex gud-step (s)
-Step one statement. (Step into)
-@item (gud-step-plus) - + 
-@findex gud-step-plus (+)
-Run @code{step+}---like @code{gud-step} but ensure we go to a new
-line.
-@item (gud-tbreak @var{arg})
-@findex gud-tbreak
-Set temporary breakpoint at current line.
-@end table
-
-@node Emacs with Annotate
-@section A richer debugging environment using @code{--annotate}
-
-When @code{--annotate 3} is added as an option to the @code{rdebug}
-command, extra information is passed between @value{Emacs} and
-@value{DBG}.  For each debug session several internal buffers set up
-and constantly updated. They contain information about the current
-state of the program. The names of the buffers start @code{*rdebug-};
-they are:
-
-@itemize @bullet
-@item @code{*rdebug-breakpoints-@emph{program-name}*}
-
-A buffer containing breakpoint information.
-
-@item @code{*rdebug-watch-@emph{program-name}*}
-
-A buffer containing display expressions (@pxref{DisplayCommands}).
-@item @code{*rdebug-output-@emph{program-name}*}
-
-A buffer containing output produced in running the program so far.
-@item @code{*rdebug-stack-@emph{program-name}*}
-
-The call stack for the current thread
-@item @code{*rdebug-variables-@emph{program-name}*}
-
-A buffer containing local variables (@code{local_variables}) and
-instance variables (@code{instance_variables}).
-@end itemize
-@kindex secondary buffers.
-These are called @emph{secondary buffers}.
-
-Because screen real-estate is limited, some of these buffers may be
-visible in a frame and some not. There are commands to switch to these
-buffers moving to the visible frame if the buffer is visible, or
-replacing the secondary buffer that the command was issued from with
-the desired secondary buffer.
-
-Capital letters move between secondary buffers as mentioned above (jump
-to if visible or replace a secondary if not).
-
-@table @kbd
-@item SPACE
-step (edebug compatible)
-@item <
-up    (Gud uses this and Emacs uses M-< for beginning of buffer)
-@item >  
-down  (Gud uses this and Emacs uses M-> for beginning of buffer)
-@item ?
-help
-@item B 
-goto/display breakpoints buffer
-@item C
-goto/display command buffer
-@item O
-goto/display program output
-@item S
-goto/display source window
-@item T
-goto/display stack-buffer (Perl uses T for stack trace)
-@item V
-goto/display variables buffer
-@item W
-goto/display watch buffer
-@item b
-set breakpoint (edebug compatible)
-@item c
-continue  (edebug compatible)
-@item d
-remove break
-@item f
-finish
-@item n
-next  (edebug compatible)
-@item p 
-print
-@item q
-quit (edebug compatible)
-@item r
-restart
-@item s
-step
-@end table
-
-Some secondary buffers may have specific commands applicable, but
-there are very few of these.
-
-@verbatim
-Buffer specific commands
-  Stack buffer
-  return: set frame at this position
-
-  variables buffer
-  return: edit the variable's value
-
-  breakpoints:
-  return toggle breakpoint (enable/disable it)
-@end verbatim
-
 @node Using from Subversion
 @appendix Building and Installing from rubyforge's Subversion Repository
 
@@ -4228,14 +3502,6 @@ Then run:
 @node Command Index
 @unnumbered Command Index
 @printindex ky
-
-@node Emacs Key Binding Index
-@unnumbered Emacs Key Binding Index
-@printindex pg
-
-@node Emacs Command Index
-@unnumbered Emacs Command Index
-@printindex fn
 
 @node General Index
 @unnumbered General Index

@@ -23,22 +23,25 @@ EXTRA_DIST = $(man1_MANS)  \
         hanoi.rb primes.rb test-tri2.rb tri3.rb triangle.rb \
 	ruby-debug.info ruby-debug.html ruby-debug.pdf
 
-info_TEXINFOS = ruby-debug.texi 
+info_TEXINFOS = ruby-debug.texi rdebug-emacs.texi
 
 all: $(INFO_DEPS) $(man1_MANS) html pdf
 
-pdf: ruby-debug.pdf 
+pdf: ruby-debug.pdf rdebug-emacs.pdf
 
-txt: ruby-debug.txt 
+txt: ruby-debug.txt rdebug-emacs.txt
 
-ps: ruby-debug.ps 
+ps: ruby-debug.ps rdebug-emacs.ps
 
 man: $(man1_MANS)
 
-html: ruby-debug.html
+html: ruby-debug.html rdebug-emacs.html
 
 ruby-debug.html: ruby-debug.texi
 	texi2html $(srcdir)/ruby-debug.texi || true
+
+rdebug-emacs.html: rdebug-emacs.texi
+	texi2html $(srcdir)/rdebug-emacs.texi || true
 
 %.ps.gz: %.ps
 	gzip -9c $< > $@
