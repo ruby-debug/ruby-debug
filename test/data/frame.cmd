@@ -17,5 +17,7 @@ up 2
 where
 down 2
 where
+frame 0 thread 3
+frame 0 thread 1
 # finish
 quit

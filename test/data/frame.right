@@ -43,5 +43,9 @@ if a > b
 # where
     #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 --> #1 at line gcd.rb:18
+# frame 0 thread 3
+*** Thread 3 doesn't exist.
+# frame 0 thread 1
+#0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 # # finish
 # quit

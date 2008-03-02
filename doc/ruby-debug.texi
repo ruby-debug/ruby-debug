@@ -548,7 +548,7 @@ Notice in the above to get the value of variable @code{n}, I have to
 use a print command like @code{p n}; If I entered just @code{n}, that
 would be taken to mean the debugger command ``next''. In the current
 scope, variable @code{i_args} is not defined. However I can change to
-the topmost frame by using the @code{frame} command. Just as with
+the top-most frame by using the @code{frame} command. Just as with
 arrays, -1 means the last one. Alternatively using frame number 3
 would have been the same thing; so would issuing @code{up 3}.
 
@@ -2224,9 +2224,9 @@ a front end also watching over things.
 @end table
 
 @table @code
-@kindex frame @ovar{n}
+@kindex frame @ovar{n} @r{[}thread @var{thread-num}@r{]}
 @cindex current stack frame
-@item frame @ovar{n}
+@item frame @ovar{n} @r{[}thread @var{thread-num}@r{]}
 The @code{frame} command allows you to move from one stack frame to
 another, and to print the stack frame you select.  @var{n} is the
 the stack frame number;  @code{frame 0} then will always show the
@@ -2240,6 +2240,9 @@ Without an argument, @code{frame} prints the current stack
 frame. Since the current position is redisplayed, it may trigger a
 resyncronization if there is a front end also watching over
 things. 
+
+If a thread number is given then we set the context for evaluating
+expressions to that frame of that thread. 
 @end table
 
 @node Stopping

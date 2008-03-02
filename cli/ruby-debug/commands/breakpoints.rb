@@ -6,7 +6,7 @@ module Debugger
       / ^\s*
         b(?:reak)?
         (?: \s+ #{Position_regexp})? \s*
-        (?:\s+ (.*))?
+        (?: \s+ (.*))? \s*
         $
       /x
     end

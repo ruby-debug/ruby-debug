@@ -1,10 +1,11 @@
 module Debugger
   # Mix-in module to assist in command parsing.
   module FrameFunctions # :nodoc:
-    def adjust_frame(frame_pos, absolute)
+    def adjust_frame(frame_pos, absolute, context=@state.context)
+      @state.frame_pos = 0 if context != @state.context
       if absolute
         if frame_pos < 0
-          abs_frame_pos = @state.context.stack_size + frame_pos
+          abs_frame_pos = context.stack_size + frame_pos
         else
           abs_frame_pos = frame_pos
         end
@@ -12,7 +13,7 @@ module Debugger
         abs_frame_pos = @state.frame_pos + frame_pos
       end
 
-      if abs_frame_pos >= @state.context.stack_size then
+      if abs_frame_pos >= context.stack_size then
         errmsg "Adjusting would put us beyond the oldest (initial) frame.\n"
         return
       elsif abs_frame_pos < 0 then
@@ -24,8 +25,8 @@ module Debugger
         @state.frame_pos = abs_frame_pos
       end
       
-      @state.file = @state.context.frame_file(@state.frame_pos)
-      @state.line = @state.context.frame_line(@state.frame_pos)
+      @state.file = context.frame_file(@state.frame_pos)
+      @state.line = context.frame_line(@state.frame_pos)
       
       print_frame(@state.frame_pos, true)
     end
@@ -193,7 +194,11 @@ module Debugger
   
   class FrameCommand < Command # :nodoc:
     def regexp
-      /^\s* f(?:rame)? (?:\s+ (.*))? \s*$/x
+      / ^\s* 
+        f(?:rame)? 
+        (?: \s+ (\S+))? \s*
+        (?: thread \s+ (.*))? \s*
+        $/x
     end
 
     def execute
@@ -204,7 +209,16 @@ module Debugger
         pos = get_int(@match[1], "Frame")
         return unless pos
       end
-      adjust_frame(pos, true)
+      if @match[2]
+        context = parse_thread_num('frame', @match[2])
+        unless context
+          errmsg "Thread #{@match[2]} doesn't exist.\n"
+          return
+        end
+      else
+        context = @state.context
+      end
+      adjust_frame(pos, true, context)
     end
 
     class << self
@@ -214,12 +228,20 @@ module Debugger
 
       def help(cmd)
         %{
-          f[rame] frame-number
+          f[rame] frame-number [thread thread-number]
           Move the current frame to the specified frame number.
 
           A negative number indicates position from the other end.  So
           'frame -1' moves to the oldest frame, and 'frame 0' moves to
           the newest frame.
+
+          Without an argument, the command prints the current stack
+          frame. Since the current position is redisplayed, it may trigger a
+          resyncronization if there is a front end also watching over
+          things. 
+
+          If a thread number is given then we set the context for evaluating
+          expressions to that frame of that thread. 
         }
       end
     end

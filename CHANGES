@@ -47,6 +47,8 @@
   o "info threads verbose" shows stack trace of all threads
   o "info thread d verbose" shows stack trace of thread d.
 
+ * frame command now accepts an optional thread number argument
+
  * Long information added to commands with subcommands: show, set,
    info, enable, and disable. For example "help info xxx" will give
    more detailed information about the "info xxx" command.
@@ -65,9 +67,6 @@
    in history saving.
 
 - Emacs interaction drastically reworked, expanded, and improved.
-
-
-
 
 0.10.0
 - '-r' option can be used to require additional libraries.
