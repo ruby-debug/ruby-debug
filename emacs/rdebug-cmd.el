@@ -127,7 +127,8 @@
     (if (equal rdebug-source-location-ring-index 0)
 	(progn
 	  (message "At oldest - Will set to wrap to newest.")
-	  (setq rdebug-source-location-ring-index -1))
+	  (setq rdebug-source-location-ring-index 
+		(+ 1 (ring-length rdebug-source-location-ring))))
       ;; else 
       (rdebug-goto-source-location
        (if (or (not rdebug-source-location-ring-index) 
