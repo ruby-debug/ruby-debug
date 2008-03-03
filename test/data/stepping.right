@@ -18,10 +18,7 @@ gcd.rb:6
 if a > b
 # set forcestep on
 force-stepping is on.
-# step-
-gcd.rb:10
-return nil if a <= 0
-# step-
+# step- ; step-
 gcd.rb:10
 return nil if a <= 0
 # set forcestep off
@@ -32,7 +29,7 @@ force-stepping is off.
 # n 2
 gcd.rb:12
 if a == 1 or b-a == 0
-# step
+# step   
 gcd.rb:15
 return gcd(b-a, a)
 # where
@@ -48,7 +45,7 @@ if a == 1 or b-a == 0
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:12
     #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
     #2 at line gcd.rb:18
-# next+
+# next+	
 gcd.rb:15
 return gcd(b-a, a)
 # # finish

@@ -7,16 +7,15 @@ next
 where
 step a
 set forcestep on
-step-
-step-
+step- ; step-
 set forcestep off
 where
 n 2
-step
+step   
 where
 step 3
 step+
 where
-next+
+next+	
 # finish
 quit
