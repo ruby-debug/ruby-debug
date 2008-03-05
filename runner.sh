@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-ruby=${RUBY:-ruby}
+ruby=${RUBY:-ruby1.9}
 dir=`dirname $0`
-rdebug=${RDEBUG:-${dir}/bin/rdebug}
-$ruby -I${dir}/ext:${dir}/lib:${dir}/cli -- $rdebug $*
+rdebug=debug19
+$ruby -I${dir}/lib:${dir}/cli -d -w -r$rdebug $*
 exit $?

@@ -18,7 +18,9 @@ module Debugger
     self.need_context          = true
     
     def regexp
-      /^\s*n(?:ext)?([+-])?(?:\s+(.*))?$/
+      /^\s* n(?:ext)? 
+        ([+-])?(?:\s+(\S+))? 
+        \s*$/x
     end
 
     def execute
@@ -48,7 +50,9 @@ module Debugger
     self.need_context         = true
     
     def regexp
-      /^\s*s(?:tep)?([+-])?(?:\s+(.*))?$/
+      /^\s* s(?:tep)?
+        ([+-])?(?:\s+(\S+))?
+        \s*$/x
     end
 
     def execute

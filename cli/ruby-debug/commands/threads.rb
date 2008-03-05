@@ -25,7 +25,7 @@ module Debugger
     end
 
     def parse_thread_num_for_cmd(subcmd, arg)
-      c = parse_thread_num
+      c = parse_thread_num(subcmd, arg)
       return nil unless c
       case 
       when nil == c
@@ -33,7 +33,7 @@ module Debugger
       when @state.context == c
         errmsg "It's the current thread.\n"
       when c.ignored?
-        errmgs "Can't #{subcmd} to the debugger thread.\n"
+        errmsg "Can't #{subcmd} to the debugger thread #{arg}.\n"
       else # Everything is okay
         return c
       end
