@@ -1160,6 +1160,7 @@ Options for the @code{rdebug} are shown in the following list.
 
 @menu
 * rdebug command-line options::   Options you can pass to rdebug
+* rdebug default options::        How to Set Default Command-Line Options
 @end menu
 
 @node rdebug command-line options
@@ -1315,6 +1316,36 @@ option automatically sets @code{--server} option.
 Turn on line tracing.
 
 @end table
+
+@node rdebug default options
+@subsection How to Set Default Command-Line Options
+
+@DBG{} has many command-line options; it seems that some people want
+to set them differently from the our defaults. For example, some
+people may want @code{--no-quit --no-control} to be the default
+behavior. One could write a wrapper script or set a shell alias to
+handle this. @DBG{} has another way to do this as well. Before
+processing command options if the file @code{$HOME/.rdboptrc} is found
+it is loaded. If you want to set the defaults in some other way, you
+can put Ruby code here and set variable @code{options} which is an
+OpenStruct. For example here's how you'd set @code{-no-quit} and
+change the default control port to 5000.
+
+@smallexample
+# This file contains how you want the default options to ruby-debug
+# to be set. Any Ruby code can be put here.
+#
+# debugger # Uncomment if you want to debug rdebug!
+options.control = false
+options.port = 5000
+puts "rocky's rdboptrc run"
+@end smallexample
+
+Here are the default values in @code{options}
+@smallexample
+#<OpenStruct server=false, client=false, frame_bind=false, cport=8990, tracing=false, nx=false, post_mortem=false, port=8989, verbose_long=false, annotate=nil, control=true, restart_script=nil, quit=true, no_rewrite_program=false, stop=true, script=nil, host=nil, wait=false>
+@end smallexample
+
 
 @node Command Files
 @section Command files

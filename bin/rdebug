@@ -3,7 +3,7 @@
 
 require 'rubygems'
 require 'optparse'
-require "ostruct"
+require 'ostruct'
 require 'ruby-debug'
 
 def debug_program(options)
@@ -35,7 +35,7 @@ def debug_program(options)
            Debugger::PROG_SCRIPT
          end
   end
-  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop)
+  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, options.stop)
   if bt
     if options.post_mortem
       Debugger.handle_post_mortem(bt)
@@ -68,9 +68,9 @@ options = OpenStruct.new(
   'cport'              => Debugger::PORT + 1,
   'frame_bind'         => false,
   'host'               => nil,
-  'no-quit'            => false,
-  'no-rewrite-program' => false,
-  'no-stop'            => false,
+  'quit'               => true,
+  'no_rewrite_program' => false,
+  'stop'               => true,
   'nx'                 => false,
   'port'               => Debugger::PORT,
   'post_mortem'        => false,
@@ -110,7 +110,7 @@ EOB
       ENV['EMACS'] = '1'
       ENV['COLUMNS'] = '120' if ENV['COLUMNS'].to_i < 120
       options.control = false
-      options.noquit = true
+      options.quit = false
       options.post_mortem = true
     end
     opts.on('--emacs-basic', 'Activates basic Emacs mode') do 
@@ -133,14 +133,14 @@ EOB
       options.control = false
     end
     opts.on('--no-quit', 'Do not quit when script finishes') do
-      options.noquit = true
+      options.quit = false
     end
     opts.on('--no-rewrite-program',
             'Do not set $0 to the program being debugged') do 
-      options.no_dollar_0 = true
+      options.no_rewrite_program = true
     end
     opts.on('--no-stop', 'Do not stop when script is loaded') do 
-      options.nostop = true
+      options.stop = false
     end
     opts.on('-nx', 'Not run debugger initialization files (e.g. .rdebugrc') do
       options.nx = true
@@ -204,7 +204,26 @@ EOB
   end
   return opts
 end
-  
+
+# What file is used for debugger startup commands.
+unless defined?(OPTS_INITFILE)
+  if RUBY_PLATFORM =~ /mswin/
+    # Of course MS Windows has to be different
+    OPTS_INITFILE = 'rdbopt.ini'
+    HOME_DIR =  (ENV['HOME'] || 
+                 ENV['HOMEDRIVE'].to_s + ENV['HOMEPATH'].to_s).to_s
+  else
+    OPTS_INITFILE = '.rdboptrc'
+    HOME_DIR = ENV['HOME'].to_s
+  end
+end
+begin
+  initfile = File.join(HOME_DIR, OPTS_INITFILE)
+  eval(File.read(initfile)) if 
+    File.exist?(initfile)
+rescue
+end
+
 opts = process_options(options)
 begin
   if not defined? Debugger::ARGV
@@ -278,9 +297,9 @@ else
 
     # activate post-mortem
     Debugger.post_mortem if options.post_mortem
-    Debugger.tracing = options.nostop = true if options.tracing
+    Debugger.tracing = options.stop = false if options.tracing
 
-    if options.noquit
+    if !options.quit
       if Debugger.started?
         until Debugger.stop do end
       end

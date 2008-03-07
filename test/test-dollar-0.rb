@@ -16,7 +16,8 @@ class TestDollar0 < Test::Unit::TestCase
   def test_basic
     testname='breakpoints'
     Dir.chdir(@@SRC_DIR) do 
-
+      home_save = ENV['HOME']
+      ENV['HOME'] = '.'
       assert_equal(true, 
                    run_debugger('dollar-0', 
                                 '-nx --no-stop ./dollar-0.rb',
@@ -32,6 +33,7 @@ class TestDollar0 < Test::Unit::TestCase
                                 '-nx --no-stop ' + 
                                 File.join('..', 'test', 'dollar-0.rb'),
                                 nil, nil, false, '../bin/rdebug'))
+      ENV['HOME'] = home_save
     end
   end
 end
