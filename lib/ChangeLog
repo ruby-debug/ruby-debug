@@ -1,3 +1,30 @@
+2008-03-02 04:20  Rocky Bernstein
+
+	* trunk/cli/ruby-debug/commands/breakpoints.rb, ruby-debug-base.rb,
+	  trunk/test/base/base.rb, trunk/test/data/breakpoints.right,
+	  trunk/test/data/emacs_basic.right: Better error message for an
+	  invalid break command.
+
+2008-02-28 05:06  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-core.el,
+	  trunk/emacs/rdebug-fns.el, ChangeLog,
+	  trunk/test/data/breakpoints.cmd,
+	  trunk/test/data/breakpoints.right: breakpoints.{cmd,right}: test
+	  for an invalid stopping line number
+	  rdebug-fns.el: move generic split-string-and-unquote from
+	  rdebug-core.
+	  rdebug-core.el: Add rdebug-common-init to replace
+	  gud-common-init. Is
+	  simpler, and finds files better via debugger output/annotations.
+	  Fix bug in rdebug-setup-windows: gud-find-file can return nil,
+	  and
+	  we still need to set buf.
+
+2008-02-27 04:04  Rocky Bernstein
+
+	* ruby-debug-base.rb: Slightly more robust handle_post_mortem.
+
 2008-02-26 17:31  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/rdebug-cmd.el,

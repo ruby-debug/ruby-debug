@@ -35,6 +35,8 @@
  * script now search using PATH for ruby program if the program not found
    and doesn't have path characters in it.
 
+ * Use ~/.rdboptrc (rdbopt.ini on MS Windows) to change default options.
+
 - rdebug (CLI)
 
  *  "info" command additions and changes 

@@ -1,3 +1,131 @@
+2008-03-07 04:26  Rocky Bernstein
+
+	* Rakefile, bin/rdebug, doc/ruby-debug.texi, test/test-dollar-0.rb:
+	  Use ~/.rdboptrc (rdbopt.ini on MS Windows) to change default
+	  options.
+
+2008-03-03 04:14  Rocky Bernstein
+
+	* cli/ruby-debug/commands/control.rb,
+	  cli/ruby-debug/commands/quit.rb: Split off quit to it's own file
+	  since it doesn't share code with the
+	  reset of "control". Smaller is better and it helps deal with
+	  meeting
+	  in the middle for extending debug 1.9 code.
+
+2008-03-03 01:50  Rocky Bernstein
+
+	* cli/ruby-debug/commands/stepping.rb, test/data/stepping.cmd,
+	  test/data/stepping.right: Allow spaces at the end of step and
+	  next. Test ";" between commands.
+
+2008-03-02 16:45  Rocky Bernstein
+
+	* CHANGES, cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/commands/threads.rb, doc/ruby-debug.texi,
+	  test/data/frame.cmd, test/data/frame.right: Add ability to
+	  specify a thread number in a "frame" command.
+
+2008-03-02 13:47  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Add Instructions for building on Microsoft
+	  Windows.
+
+2008-03-02 13:07  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Small typo.
+
+2008-03-02 04:20  Rocky Bernstein
+
+	* cli/ruby-debug/commands/breakpoints.rb, lib/ruby-debug-base.rb,
+	  test/base/base.rb, test/data/breakpoints.right,
+	  test/data/emacs_basic.right: Better error message for an invalid
+	  break command.
+
+2008-03-02 03:32  Rocky Bernstein
+
+	* emacs/rdebug-cmd.el: Bug in wrapping to newest in
+	  rdebug-older-location.
+
+2008-03-02 02:48  Rocky Bernstein
+
+	* test/base/base.rb, test/base/binding.rb, test/gcd-dbg-nox.rb:
+	  Small changes. Use unshift instead of << and Remove from $: after
+	  done.
+	  base.rb: Debugger.start -> Debugger.start_
+
+2008-03-02 02:24  Rocky Bernstein
+
+	* doc/Makefile.am, doc/rdebug-emacs.texi, doc/ruby-debug.texi:
+	  Split emacs stuff into it's own document. Right now this makes
+	  things
+	  worse. Hopefully the benefit over time will outweigh this.
+
+2008-03-01 11:36  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Go over post-mortem section. Note the
+	  weirdness concerning breakpoint
+	  file names and how to scope out how to fix.
+
+2008-03-01 03:39  Rocky Bernstein
+
+	* emacs/rdebug-cmd.el: Add message when wrapping source location
+	  position. Not sure if this is right. We'll see.
+
+2008-02-29 15:24  Rocky Bernstein
+
+	* emacs/rdebug-cmd.el, emacs/rdebug-frames.el: Fix bug in
+	  rdebug-older-location when ring is empty - index -1.
+	  Set rdebug-frames-current-frame-number variable in comint buffer
+	  which is
+	  needed at least for source location history processing.
+
+2008-02-29 10:41  Rocky Bernstein
+
+	* emacs/rdebug-cmd.el: Remove gud-gdb-complete command for now.
+
+2008-02-29 04:34  Rocky Bernstein
+
+	* emacs/rdebug-cmd.el, emacs/rdebug-fns.el, emacs/rdebug-frames.el,
+	  emacs/rdebug-gud.el, emacs/rdebug-secondary.el,
+	  emacs/rdebug-source.el: Wrap when ad top stack frame and trying
+	  to go to a newer one. I think
+	  the bindings for "<" and ">" were reversed. Some checkdoc
+	  warnings addressed.
+
+2008-02-29 01:33  Rocky Bernstein
+
+	* emacs/rdebug-track.el: Try to make more like rdebug. Get
+	  M-up/M-down working.
+	  Need to revisit this code and rdebug-core to understand, unify,
+	  and simplify
+	  more.
+
+2008-02-28 20:04  Rocky Bernstein
+
+	* emacs/rdebug-core.el: For the bogus-buffer, use something less
+	  computationally intensive.
+
+2008-02-28 05:06  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-core.el, emacs/rdebug-fns.el,
+	  lib/ChangeLog, test/data/breakpoints.cmd,
+	  test/data/breakpoints.right: breakpoints.{cmd,right}: test for an
+	  invalid stopping line number
+	  rdebug-fns.el: move generic split-string-and-unquote from
+	  rdebug-core.
+	  rdebug-core.el: Add rdebug-common-init to replace
+	  gud-common-init. Is
+	  simpler, and finds files better via debugger output/annotations.
+	  Fix bug in rdebug-setup-windows: gud-find-file can return nil,
+	  and
+	  we still need to set buf.
+
+2008-02-27 04:04  Rocky Bernstein
+
+	* lib/ruby-debug-base.rb: Slightly more robust handle_post_mortem.
+
 2008-02-26 17:31  Rocky Bernstein
 
 	* ChangeLog, emacs/rdebug-cmd.el, emacs/rdebug-fns.el,
