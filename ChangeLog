@@ -1,3 +1,20 @@
+2008-03-10 11:42  Rocky Bernstein
+
+	* cli/ruby-debug/commands/continue.rb,
+	  cli/ruby-debug/commands/finish.rb,
+	  cli/ruby-debug/commands/stepping.rb, cli/ruby-debug/processor.rb:
+	  Break out finish.rb and continue.rb from stepping.rb
+
+2008-03-09 23:30  Rocky Bernstein
+
+	* CHANGES, ChangeLog, lib/ChangeLog, test/data/info.right: For now
+	  we require the duplicate numbers on conditionals.
+
+2008-03-09 23:25  Rocky Bernstein
+
+	* Rakefile: Need at least linecache 0.3 now. Probably 0.4 for
+	  release.
+
 2008-03-07 04:26  Rocky Bernstein
 
 	* Rakefile, bin/rdebug, doc/ruby-debug.texi, test/test-dollar-0.rb:

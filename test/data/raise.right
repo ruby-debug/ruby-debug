@@ -22,5 +22,5 @@ Catch exception 5.
 	./tdebug.rb:235
 	../rdbg.rb:22:in `load'
 	../rdbg.rb:22:in `runner'
-	../rdbg.rb:32
+	../rdbg.rb:31
 Uncaught exception: abc
