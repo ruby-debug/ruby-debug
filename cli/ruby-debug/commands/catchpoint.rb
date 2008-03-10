@@ -3,7 +3,7 @@ module Debugger
     self.allow_in_control = true
 
     def regexp
-      /^\s*cat(?:ch)?(?:\s+(.+))?$/
+      /^\s* cat(?:ch)? (?:\s+(.+))? $/x
     end
 
     def execute
@@ -20,11 +20,7 @@ module Debugger
           print "Catch exception %s.\n", excn
         end
       else
-        if Debugger.catchpoint
-          print "Catchpoint %s.\n", Debugger.catchpoint
-        else
-          print "No catchpoint.\n"
-        end
+        info_catch
       end
     end
 
@@ -35,8 +31,9 @@ module Debugger
 
       def help(cmd)
         %{
-          cat[ch]\t\t\tshow catchpoint
-          cat[ch] <an Exception>\tset catchpoint to an exception
+          cat[ch]\t\t\tsame as "info catch"
+          cat[ch] <exception-name>\tIntercept <exception-name> when there would otherwise be is no handler 
+for it.
         }
       end
     end

@@ -1,4 +1,23 @@
 module Debugger
+  module InfoFunctions # :nodoc:
+    def info_catch(*args)
+      unless @state.context
+        print "No frame selected.\n"
+        return 
+      end
+      if Debugger.catchpoints.empty?
+        print "No exceptions set to be caught.\n"
+      else
+        # FIXME: show whether Exception is valid or not
+        # print "Exception: is_a?(Class)\n"
+        Debugger.catchpoints.each do |exception, hits|
+          # print "#{exception}: #{exception.is_a?(Class)}\n"
+           print "#{exception}\n"
+        end
+      end
+    end
+  end
+
   class InfoCommand < Command # :nodoc:
     self.allow_in_control = true
     Subcommands = 
@@ -140,24 +159,6 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
       end
     end
     
-    def info_catch(*args)
-      unless @state.context
-        print "No frame selected.\n"
-        return 
-      end
-      if Debugger.catchpoints.empty?
-        print "No exceptions set to be caught.\n"
-      else
-        # FIXME: show whether Exception is valid or not
-        # print "Exception: is_a?(Class)\n"
-        Debugger.catchpoints.each do |exception, hits|
-          # print "#{exception}: #{exception.is_a?(Class)}\n"
-           print "#{exception}\n"
-        end
-      end
-    end
-    
-
     def info_display(*args)
       unless @state.context
         print "info display not available here.\n"
