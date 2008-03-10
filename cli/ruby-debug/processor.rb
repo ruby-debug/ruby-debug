@@ -457,6 +457,6 @@ module Debugger
         print "No filename given.\n"
         throw :debug_error
       end
-    end
+    end # State
   end
 end
