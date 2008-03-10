@@ -174,7 +174,7 @@ final class DebugEventHook implements EventHook {
 
                     /* Check breakpoint expression. */
                     if (!breakpoint.isNil()) {
-                        if (!checkBreakpointExpression(breakpoint, binding)) {
+                        if (!checkBreakpointExpression(tCtx, breakpoint, binding)) {
                             break;
                         }
                         if (!checkBreakpointHitCondition(breakpoint)) {
@@ -208,7 +208,7 @@ final class DebugEventHook implements EventHook {
                     }
                     saveTopBinding(debugContext, binding);
 
-                    if(!checkBreakpointExpression(breakpoint, binding))
+                    if(!checkBreakpointExpression(tCtx, breakpoint, binding))
                         break;
                     if(!checkBreakpointHitCondition(breakpoint))
                         break;
@@ -492,7 +492,7 @@ final class DebugEventHook implements EventHook {
         return false;
     }
 
-    private boolean checkBreakpointExpression(IRubyObject breakpoint, IRubyObject binding) {
+    private boolean checkBreakpointExpression(ThreadContext tCtx, IRubyObject breakpoint, IRubyObject binding) {
         DebugBreakpoint debugBreakpoint = (DebugBreakpoint) breakpoint.dataGetStruct();
         if (debugBreakpoint.getExpr().isNil()) {
             return true;
@@ -500,6 +500,7 @@ final class DebugEventHook implements EventHook {
         
         try {
             IRubyObject result = RubyKernel.eval(
+                    tCtx,
                     breakpoint, 
                     new IRubyObject[] { debugBreakpoint.getExpr(), binding },
                     Block.NULL_BLOCK);
