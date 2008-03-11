@@ -4,11 +4,8 @@ require 'test/unit'
 # Test of C extension ruby_debug.so
 class TestRubyDebug < Test::Unit::TestCase
   $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
-  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
   require 'ruby_debug'
-  $:.shift; $:.shift
-
-  include Debugger
+  $:.shift
 
   # test current_context
   def test_current_context

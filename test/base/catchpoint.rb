@@ -2,14 +2,17 @@
 require 'test/unit'
 
 # Test of C extension ruby_debug.so
-  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
-  require 'ruby_debug'
   
 class TestRubyDebugCatchpoint < Test::Unit::TestCase
+
+  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
+  require 'ruby_debug'
+  $:.shift
+
   # test current_context
   def test_catchpoints
     assert_raise(RuntimeError) {Debugger.catchpoints}
-    Debugger.start
+    Debugger.start_
     assert_equal({}, Debugger.catchpoints)
     Debugger.add_catchpoint('ZeroDivisionError')
     assert_equal({'ZeroDivisionError' => 0}, Debugger.catchpoints)
