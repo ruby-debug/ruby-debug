@@ -1,4 +1,5 @@
 #!/usr/bin/env ruby
+#!/usr/bin/env ruby
 # $Id$
 
 # Use this to run rdebug without installing it.  We assume that the

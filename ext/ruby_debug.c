@@ -78,9 +78,10 @@ static VALUE cDebugThread;
 
 static VALUE rb_mObjectSpace;
 
-static ID idAtLine;
 static ID idAtBreakpoint;
 static ID idAtCatchpoint;
+static ID idAtLine;
+static ID idAtReturn;
 static ID idAtTracing;
 static ID idList;
 
@@ -465,6 +466,26 @@ call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE li
     return rb_protect(call_at_line_unprotected, args, 0);
 }
 
+static VALUE
+call_at_return_unprotected(VALUE args)
+{
+    VALUE context;
+    context = *RARRAY(args)->ptr;
+    return rb_funcall2(context, idAtReturn, RARRAY(args)->len - 1, RARRAY(args)->ptr + 1);
+}
+
+static VALUE
+call_at_return(VALUE context, debug_context_t *debug_context, VALUE file, VALUE line)
+{
+    VALUE args;
+    
+    last_debugged_thnum = debug_context->thnum;
+    save_current_position(debug_context);
+
+    args = rb_ary_new3(3, context, file, line);
+    return rb_protect(call_at_return_unprotected, args, 0);
+}
+
 static void
 save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debug_context_t *debug_context)
 {
@@ -829,8 +850,15 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     {
         if(debug_context->stack_size == debug_context->stop_frame)
         {
-            debug_context->stop_next = 1;
-            debug_context->stop_frame = 0;
+	  if(debug_context->stack_size == 0)
+            save_call_frame(event, self, file, line, mid, debug_context);
+	  else
+            set_frame_source(event, debug_context, self, file, line, mid);
+	  binding = self? create_binding(self) : Qnil;
+	  save_top_binding(debug_context, binding);
+	  call_at_return(context, debug_context, rb_str_new2(file), 
+			 INT2FIX(line));
+	  debug_context->dest_frame = -1;
         }
         while(debug_context->stack_size > 0)
         {
@@ -838,7 +866,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(debug_context->frames[debug_context->stack_size].orig_id == mid)
                 break;
         }
-        CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -1512,7 +1539,7 @@ context_step_over(int argc, VALUE *argv, VALUE self)
  *   call-seq:
  *      context.stop_frame(frame)
  *
- *   Stops when a frame with number +frame+ is activated. Implements +up+ and +down+ commands.
+ *   Stops when a frame with number +frame+ is activated. Implements +finish+ and +next+ commands.
  */
 static VALUE
 context_stop_frame(VALUE self, VALUE frame)
@@ -2252,6 +2279,7 @@ Init_ruby_debug()
     idAtBreakpoint = rb_intern("at_breakpoint");
     idAtCatchpoint = rb_intern("at_catchpoint");
     idAtLine       = rb_intern("at_line");
+    idAtReturn     = rb_intern("at_return");
     idAtTracing    = rb_intern("at_tracing");
     idList         = rb_intern("list");
 

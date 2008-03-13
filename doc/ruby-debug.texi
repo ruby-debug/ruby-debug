@@ -2618,12 +2618,20 @@ argument @var{count} is a repeat count, as for @code{step}.
 @node Finish
 @subsubsection Finish (@samp{finish})
 @table @code
-@kindex finish
-@item finish
-Continue running until just after the method or function returns.
+@kindex finish @ovar{frame-number}
+@item finish @ovar{frame-number}
+Execute until selected stack frame returns.  If no frame number is
+given, we run until most-recent frame returns. This is the same as
+value 0. If a frame number is given we run until @var{frame} frames
+returns.
 
 If you want instead to terminate the program and debugger entirely,
 use @code{quit} (@pxref{Quitting the debugger, ,Quitting the debugger}).
+
+@emph{Note:\/} Releases before Ruby version 1.8.7 show the return line
+as the first line of the method. Starting with version 1.8.7, the last
+line executed will be shown as the return
+line. @url{http://rubyforge.org/tracker/?func=detail&atid=22040&aid=18749&group_id=426}
 
 @end table
 

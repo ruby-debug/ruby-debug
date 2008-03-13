@@ -50,6 +50,10 @@ module Debugger
     def at_line(file, line)
       handler.at_line(self, file, line)
     end
+
+    def at_return(file, line)
+      handler.at_return(self, file, line)
+    end
   end
   
   @reload_source_on_change = false

@@ -4,17 +4,16 @@ module Debugger
     self.need_context         = true
     
     def regexp
-      /^\s*fin(?:ish)?$/
+      /^\s*fin(?:ish)? (?:\s+(.*))?$/x
     end
 
     def execute
-      if @state.frame_pos == @state.context.stack_size - 1
-        print "\"finish\" not meaningful in the outermost frame.\n"
-      else
-        @state.context.stop_frame = @state.frame_pos
-        @state.frame_pos = 0
-        @state.proceed
-      end
+      max_frame = @state.context.stack_size
+      frame_pos = get_int(@match[1], "Finish", 0, max_frame-1, 0)
+      return nil unless frame_pos
+      @state.context.stop_frame = frame_pos
+      @state.frame_pos = 0
+      @state.proceed
     end
 
     class << self
@@ -24,7 +23,9 @@ module Debugger
 
       def help(cmd)
         %{
-          fin[ish]\treturn to outer frame
+          fin[ish] [frame-number]\tExecute until selected stack frame returns.
+If no frame number is given, we run until most-recent frame returns. This is the same as
+value 1. If a frame number is given we run until frames returns.
         }
       end
     end

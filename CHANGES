@@ -24,6 +24,8 @@
  * split of line caching to an external gem. We now only allow setting
    breakpoints on lines where it makes sense to do so.
 
+ * Incompatible enhancement: even return/end will now call event handler
+
 - bin/rdebug
 
  * "rdebug --post-mortem" now really catches uncaught exceptions and
@@ -67,6 +69,10 @@
 
  * rdebug command history can be displayed with "show commands". Fix a bug
    in history saving.
+
+ * INCOMPATIBLE CHANGE: "finish" works like gdb - stop just before the most
+   recent method finishes. Will now accept a number which stops that many
+   frames completed.
 
 - Emacs interaction drastically reworked, expanded, and improved.
 
