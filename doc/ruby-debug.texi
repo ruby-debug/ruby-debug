@@ -2193,10 +2193,9 @@ zero), followed by its caller (frame one), and on up the stack.
 @kindex where
 @kindex w @r{(@code{where})}
 @itemx where
-Print a backtrace of the entire stack: one line per frame for all
-frames in the stack; @code{info stack} is an alias for this command.
+Print the entire stack frame; @code{info stack} is an alias for this command.
 Each frame is numbered and can be referred to in the @code{frame}
-command; @code{up} and @code{down} add or subtrack respectively to
+command; @code{up} and @code{down} add or subtract respectively to
 frame numbers shown.  The position of the current frame is marked with
 @code{-->}.
 

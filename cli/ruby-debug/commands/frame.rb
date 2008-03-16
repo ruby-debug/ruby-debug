@@ -132,16 +132,21 @@ module Debugger
       end
 
       def help(cmd)
-        if cmd == 'where'
+        s = if cmd == 'where'
           %{
-            w[here]\tdisplay frames
-          }
-        else
+            w[here]\tdisplay stack frames
+            }
+            else
           %{
-            bt|backtrace\t\talias for where
-          }
-        end
-      end
+            bt|backtrace\t\talias for where - display stack frames
+         }
+            end
+        s += %{
+Print the entire stack frame. Each frame is numbered, the most recent
+frame is 0. frame number can be referred to in the "frame" command;
+"up" and "down" add or subtract respectively to frame numbers shown.
+The position of the current frame is marked with -->.  } 
+      end 
     end
   end
 

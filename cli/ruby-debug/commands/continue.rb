@@ -1,9 +1,10 @@
 module Debugger
-  class ContinueCommand < Command # :nodoc:
+  # Implements debugger "continue" command.
+  class ContinueCommand < Command
     self.allow_in_post_mortem = false
     self.need_context         = true
     def regexp
-      /^\s*c(?:ont(?:inue)?)?(?:\s+(.*))?$/
+      /^\s* c(?:ont(?:inue)?)? (?:\s+(.*))? $/x
     end
 
     def execute
@@ -23,7 +24,7 @@ module Debugger
 
       def help(cmd)
         %{
-          c[ont[inue]][ nnn]\trun until program ends or hits breakpoint or reaches line nnn 
+          c[ont[inue]][ nnn]\trun until program ends, hits a breakpoint or reaches line nnn 
         }
       end
     end
