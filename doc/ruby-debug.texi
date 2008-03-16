@@ -3296,6 +3296,11 @@ Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
 
 @node Debugger Class
 @section The @code{Debugger} Class
+@menu
+* Debugger.Breakpoint::  Debugger::Breakpoint
+* Debugger.Context::     Debugger::Context
+@end menu
+
 @table @code
 @item add_breakpoint(file, line, expr)
 @vindex @code{Debugger.add_breakpoint}
@@ -3308,11 +3313,17 @@ terminate.
 
 @item remove_breakpoint(bpnum)
 @vindex @code{Debugger.remove_breakpoint}
+When a breakpoint is added, it is assigned a number as a way to
+uniquely identify it. (There can be more than one breakpoint on a
+given line.) To remove a breakpoint, use @code{remove_breakpoint} with
+breakpoint number @var{bpnum}.
 
 @item breakpoints
 @vindex @code{Debugger.breakpoints}
+Return a list of the breakpoints that have been added but not removed.
 @end table
 
+@node Debugger.Breakpoint
 @subsection The @code{Debugger::Breakpoint} Class
 Breakpoint are objects in the @code{Debugger::Breakpoint} class. 
 @table @code
@@ -3369,6 +3380,38 @@ Returns the file name in which the breakpoint occurs.
 @vindex @code{Debugger::Breakpoints.source=}
 Sets the file name in which the breakpoint occurs.
 @end table
+
+@node Debugger.Context
+@subsection The @code{Debugger::Context} Class
+Callbacks in @code{Debugger:Context} get called when a stopping point
+or an event is reached. It has information about the suspended program
+which enable a debugger to inspect the frame stack, evaluate variables
+from the perspective of the debugged program, and contains information
+about the place the debugged program is stopped.
+
+@table @code
+@item at_line(@var{file}, @var{line})
+@vindex Debugger::Context::at_line(@var{file}, @var{line})
+This routine is called when the debugger encounters a ``line'' event for
+which it has been indicated we want to stop at, such as by hitting a
+breakpoint or by some sort of stepping.
+
+@item at_return(@var{file}, @var{line})
+@vindex Debugger::Context::at_return(@var{file}, @var{line})
+This routine is called when the debugger encounters a ``return'' event for
+which it has been indicated we want to stop at, such as by hitting a
+@code{finish} statement.
+
+@item debug_load(@var{file}, @var{stop-initially})
+@vindex Debugger::Context::debug_load(@var{file}, @var{stop-initially})
+This method should be used to debug a file. If the file terminates
+normally, @code{nil} is returned. If not a backtrace is returned.
+
+The @var{stop-initially} parameter indicates whether the program
+should stop after loading. If an explicit call to the debugger is in
+the debugged program, you may want to set this @code{false}.
+@end table
+
 @node Kernel routines
 @section Additions to @code{Kernel}
 
@@ -3388,6 +3431,7 @@ An alias for debugger.
 Returns a binding of @var{n}-th call frame. 
 
 @end table
+
 
 @node Using from Subversion
 @appendix Building and Installing from rubyforge's Subversion Repository

@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 
-# Test of C extension ruby_debug.so
+# Test catchpoint in C ruby_debug extension.
   
 class TestRubyDebugCatchpoint < Test::Unit::TestCase
 

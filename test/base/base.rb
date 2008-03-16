@@ -1,7 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 
-# Test of C extension ruby_debug.so
+# Some tests of Debugger module in C extension ruby_debug 
 class TestRubyDebug < Test::Unit::TestCase
   $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
   require 'ruby_debug'
