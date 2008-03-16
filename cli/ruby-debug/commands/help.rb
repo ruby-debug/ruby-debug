@@ -1,22 +1,18 @@
-# Display a list of strings as a compact set of columns.
-#
-#  Each column is only as wide as necessary.
-#  Columns are separated by two spaces (one was not legible enough).
-#  Adapted from the routine of the same name in cmd.py
-
 module Debugger
-  class HelpCommand < Command # :nodoc:
+
+  # Implements debugger "help" command.
+  class HelpCommand < Command
     self.allow_in_control = true
 
     def regexp
-      /^\s*h(?:elp)?(?:\s+(.+))?$/
+      /^\s* h(?:elp)? (?:\s+(.+))? $/x
     end
 
     def execute
       if @match[1]
         args = @match[1].split
         cmds = @state.commands.select do |cmd| 
-        [cmd.help_command].flatten.include?(args[0])
+          [cmd.help_command].flatten.include?(args[0])
         end
       else
         args = @match[1]

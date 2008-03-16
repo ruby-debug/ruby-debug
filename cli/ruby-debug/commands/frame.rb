@@ -109,7 +109,7 @@ module Debugger
     end
   end
 
-  # Implements debugger "where" or "backtrace" command
+  # Implements debugger "where" or "backtrace" command.
   class WhereCommand < Command
     def regexp
       /^\s*(?:w(?:here)?|bt|backtrace)$/
