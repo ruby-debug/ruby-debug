@@ -11,7 +11,7 @@ step- ; step-
 set forcestep off
 where
 n 2
-step   
+step+
 where
 step 3
 step+

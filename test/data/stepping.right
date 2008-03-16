@@ -29,7 +29,7 @@ force-stepping is off.
 # n 2
 gcd.rb:12
 if a == 1 or b-a == 0
-# step   
+# step+
 gcd.rb:15
 return gcd(b-a, a)
 # where
