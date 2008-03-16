@@ -1,4 +1,5 @@
 set debuggertesting on
+set width 80
 help
 help info
 info args
