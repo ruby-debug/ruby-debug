@@ -895,11 +895,12 @@ Each one is listed twice whether or not we put the @code{if} at the
 beginning or the end. You will find this to be the case for any
 conditional statement such as @code{until} or @code{while}.
 
-One might think that the @code{if} statement appears twice because we
-stop once before the expression is evaluated and once after the
-expression is evaluated but before the if statement takes hold. Alas,
-that's not the case and is probably a bug. See
-@url{http://www.ruby-forum.com/topic/140412} for details.
+Each statement appears twice because we stop once before the
+expression is evaluated and once after the expression is evaluated but
+before the if statement takes hold. There is a bug in Ruby up to
+version 1.8.6 in that we stop a second time before the evaluation, so
+examining values that may have changed during the expression
+evaluation doesn't work in these versions.
 
 If you are issuing a @code{step} command one at a time, the repetitive
 nature can be little cumbersome if not annoying. So @value{DBG} offers
@@ -2621,8 +2622,10 @@ argument @var{count} is a repeat count, as for @code{step}.
 @kindex finish @ovar{frame-number}
 @item finish @ovar{frame-number}
 Execute until selected stack frame returns.  If no frame number is
-given, we run until most-recent frame returns. This is the same as
-value 0. If a frame number is given we run until @var{frame} frames
+given, we run until the currently selected frame returns.  The
+currently selected frame starts out the most-recent frame or 0 if no
+frame positioning (e.g @code{up}, @code{down} or @code{frame}) has
+been performed. If a frame number is given we run until @var{frame} frames
 returns.
 
 If you want instead to terminate the program and debugger entirely,

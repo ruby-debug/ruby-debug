@@ -1,5 +1,5 @@
 # ********************************************************
-# This tests step, next, finish, continue, disable and 
+# This tests step, next, continue, disable and 
 # enable.
 # FIXME: break out enable/disable
 # ********************************************************
@@ -35,5 +35,4 @@ info break
 # Should get a message about having no breakpoints.
 disable 1
 enable 1
-# finish
 quit

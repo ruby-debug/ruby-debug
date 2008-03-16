@@ -109,7 +109,8 @@ module Debugger
     end
   end
 
-  class WhereCommand < Command # :nodoc:
+  # Implements debugger "where" or "backtrace" command
+  class WhereCommand < Command
     def regexp
       /^\s*(?:w(?:here)?|bt|backtrace)$/
     end

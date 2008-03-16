@@ -1,5 +1,7 @@
 module Debugger
-  class QuitCommand < Command # :nodoc:
+
+  # Implements debugger "quit" command
+  class QuitCommand < Command
     self.allow_in_control = true
 
     def regexp

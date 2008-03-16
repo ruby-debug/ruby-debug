@@ -1,7 +1,7 @@
 gcd.rb:4
 def gcd(a, b)
 # # ********************************************************
-# # This tests step, next, finish, continue, disable and 
+# # This tests step, next, continue, disable and 
 # # enable.
 # # FIXME: break out enable/disable
 # # ********************************************************
@@ -95,5 +95,4 @@ No breakpoints.
 *** No breakpoints have been set.
 # enable 1
 *** No breakpoints have been set.
-# # finish
 # quit
