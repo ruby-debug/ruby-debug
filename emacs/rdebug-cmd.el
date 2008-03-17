@@ -29,6 +29,7 @@
 ;;; Code:
 
 (require 'ring)
+(require 'rdebug-locring)
 
 (defun rdebug-command-initialization ()
   "Initialization of command buffer common to `rdebug' and`rdebug-track-attach'."
@@ -42,7 +43,7 @@
   (set (make-local-variable 'rdebug-source-location-ring)
        (make-ring rdebug-source-location-ring-size))
   (make-local-variable 'rdebug-source-location-ring-index)
-  (rdebug-clear-source-location)
+  (rdebug-locring-clear)
 
   (gud-def gud-args   "info args" "a"
            "Show arguments of current stack frame.")
@@ -72,83 +73,15 @@
 
   (local-set-key "<"        'rdebug-newer-frame)
   (local-set-key [M-insert] 'rdebug-internal-short-key-mode)
-  (local-set-key [M-down]   'rdebug-newer-location)
-  (local-set-key [M-up]     'rdebug-older-location)
-  (local-set-key [M-S-down] 'rdebug-newest-location)
-  (local-set-key [M-S-up]   'rdebug-oldest-location)
+  (local-set-key [M-down]   'rdebug-locring-newer)
+  (local-set-key [M-up]     'rdebug-locring-older)
+  (local-set-key [M-S-down] 'rdebug-locring-newest)
+  (local-set-key [M-S-up]   'rdebug-locring-oldest)
   ;; (local-set-key "\C-i"     'gud-gdb-complete-command)
   (local-set-key "\C-c\C-n" 'comint-next-prompt)
   (local-set-key "\C-c\C-p" 'comint-previous-prompt))
 
 ;; stopping location motion routines.
-
-(defun rdebug-clear-source-location ()
-  "Clear out all source locations in `Go to the source location of the first stopping point."
-  (interactive)
-  (setq rdebug-source-location-ring-index -1)
-  (while (not (ring-empty-p rdebug-source-location-ring))
-    (ring-remove rdebug-source-location-ring)))
-
-(defun rdebug-goto-source-location (ring-position)
-  "Go the source position RING-POSITION in the stopping history."
-  (interactive "NSource location ring position (0 is oldest): ")
-  (with-current-buffer gud-comint-buffer
-    (setq rdebug-source-location-ring-index ring-position)
-    (let* ((frame (ring-ref rdebug-source-location-ring ring-position))
-	   (file (car frame))
-	   (line (cdr frame)))
-      (when file
-	(rdebug-display-line file line)
-	(message (format "%d %s:%d" rdebug-source-location-ring-index
-			 file line))))))
-    
-(defun rdebug-newer-location ()
-  "Cycle through source location stopping history to get the next newer (more recently visited) location."
-  (interactive)
-  (with-current-buffer gud-comint-buffer
-    (if (equal (+ 1 rdebug-source-location-ring-index)
-	       (ring-length rdebug-source-location-ring))
-	(progn
-	  (message "At newest - Will set to wrap to oldest.")
-	  (setq rdebug-source-location-ring-index -1))
-      ;; else
-      (rdebug-goto-source-location
-       (if (> rdebug-source-location-ring-index 
-	      (ring-length rdebug-source-location-ring))
-	   0
-	 ;; else
-	 (ring-plus1 rdebug-source-location-ring-index
-		     (ring-length rdebug-source-location-ring)))))))
-  
-(defun rdebug-older-location ()
-  "Cycle through source location stopping history to get the next older (least recently visited) location."
-  (interactive)
-  (with-current-buffer gud-comint-buffer
-    (if (equal rdebug-source-location-ring-index 0)
-	(progn
-	  (message "At oldest - Will set to wrap to newest.")
-	  (setq rdebug-source-location-ring-index 
-		(+ 1 (ring-length rdebug-source-location-ring))))
-      ;; else 
-      (rdebug-goto-source-location
-       (if (or (not rdebug-source-location-ring-index) 
-	       (< rdebug-source-location-ring-index 0))
-	   0
-	 ;; else
-	 (ring-minus1 rdebug-source-location-ring-index
-		      (ring-length rdebug-source-location-ring)))))))
-
-(defun rdebug-newest-location ()
-  "Go to the source location of the first stopping point."
-  (interactive)
-  (rdebug-goto-source-location (- (ring-length rdebug-source-location-ring) 1)))
-    
-(defun rdebug-oldest-location ()
-  "Go to the source location where we are currently stopped.
-
-This is the same as issuing a 'frame 0' command but we also (re)set the ring pointer."
-  (interactive)
-  (rdebug-goto-source-location 0))
 
 (provide 'rdebug-cmd)
 

@@ -46,16 +46,6 @@
 	    s))
       "")))
 
-(defun rdebug-add-location-to-ring (frame location-history-ring)
-  "Add FRAME to LOCATION-HISTORY-RING if we are on the top frame and have a frame to add."
-  ;; Switching frames shouldn't save a new ring
-  ;; position. Also make sure no position is different.
-  ;; Perhaps duplicates should be controlled by an option.
-  (unless (and (not (ring-empty-p location-history-ring))
-	       (equal (ring-ref location-history-ring 
-				(ring-length location-history-ring)) frame))
-    (ring-insert-at-beginning location-history-ring frame)))
-
 (defun rdebug-dead-process-p ()
   "Return true if the rdebug comint-process is dead or exited."
   ;; FIXME? Use a variable in gud-comint-buffer's status?
@@ -73,17 +63,6 @@
     (cond ((and (string= "cmd" name) gud-comint-buffer)
 	   (buffer-name gud-comint-buffer))
 	  (t (format "*rdebug-%s-%s*" name target-name)))))
-
-(defun rdebug-newest-location ()
-  "Go to the oldest source position location."
-  (interactive)
-  (ring-ref rdebug-source-location-ring 
-	    (ring-length rdebug-source-location-ring)))
-
-(defun rdebug-oldest-location ()
-  "Go to the newest source position location."
-  (interactive)
-  (ring-ref rdebug-source-location-ring 0))
 
 (defun rdebug-set-frame-top-arrow (buf)
   "Set the fringe arrow in BUF to indicate the top frame."

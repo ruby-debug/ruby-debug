@@ -28,6 +28,7 @@ lisp_files = rdebug.el \
 	     rdebug-help.el 	\
 	     rdebug-info.el 	\
 	     rdebug-layouts.el	\
+	     rdebug-locring.el	\
 	     rdebug-output.el 	\
              rdebug-regexp.el	\
 	     rdebug-secondary.el\
@@ -59,6 +60,7 @@ ELCFILES   = rdebug.elc 		\
 	     rdebug-help.elc 		\
 	     rdebug-info.elc 		\
 	     rdebug-layouts.elc		\
+	     rdebug-locring.elc		\
 	     rdebug-output.elc 		\
              rdebug-regexp.elc		\
 	     rdebug-secondary.elc	\

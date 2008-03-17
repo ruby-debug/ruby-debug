@@ -35,6 +35,7 @@
 (require 'rdebug-fns)
 (require 'rdebug-info)
 (require 'rdebug-layouts)
+(require 'rdebug-locring)
 (require 'rdebug-regexp)
 (require 'rdebug-shortkey)
 (require 'rdebug-source)
@@ -242,8 +243,8 @@ Return (item . rest) or nil."
 	(rdebug-pick-source-window)
 	(rdebug-set-frame-arrow (gud-find-file (car gud-last-frame)))
 	(if (equal 0 rdebug-frames-current-frame-number)
-	    (rdebug-add-location-to-ring gud-last-frame 
-					 rdebug-source-location-ring)))
+	    (rdebug-locring-add gud-last-frame 
+				rdebug-source-location-ring)))
       (rdebug-internal-short-key-mode-on)
 
       (unless (string= shell-output "")

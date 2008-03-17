@@ -165,8 +165,8 @@ at the beginning of the line."
 	      (rdebug-set-frame-top-arrow (current-buffer))
               (set (make-local-variable 'gud-comint-buffer) origbuf)
               (pop-to-buffer origbuf t)
-	      (rdebug-add-location-to-ring gud-last-frame 
-					   rdebug-source-location-ring))
+	      (rdebug-locring-add gud-last-frame 
+				  rdebug-source-location-ring))
 
             ;; Delete processed annotations from buffer.
             (save-excursion
@@ -350,10 +350,10 @@ window layout is used."
     ;; command buffer mode map.
     (let ((prefix-map (make-sparse-keymap))
 	  (map (current-local-map)))
-      (define-key map [M-down] 'rdebug-newer-location)
-      (define-key map [M-up] 'rdebug-older-location)
-      (define-key map [M-S-down] 'rdebug-newest-location)
-      (define-key map [M-S-up] 'rdebug-oldest-location)
+      (define-key map [M-down]   'rdebug-locring-newer)
+      (define-key map [M-up]     'rdebug-locring-older)
+      (define-key map [M-S-down] 'rdebug-locring-newest)
+      (define-key map [M-S-up]   'rdebug-locring-oldest)
       (define-key map  gud-key-prefix prefix-map)
       (define-key prefix-map "t" 'rdebug-goto-traceback-line)
       (define-key prefix-map "!" 'rdebug-goto-dollarbang-traceback-line)

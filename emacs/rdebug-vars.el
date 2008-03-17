@@ -96,12 +96,6 @@ describing what should happen with the output.
 
 This is buffer local variable to the rdebug shell buffer.")
 
-(defvar rdebug-source-location-ring nil
-  "Ring of the last `rdebug-source-location-ring-size' positions we've stopped at")
-
-(defvar rdebug-source-location-ring-index -1
-  "Position in `rdebug-source-location-ring' of where we are")
-
 ;; TODO: Make this buffer-local to the shell buffer.
 (defvar rdebug-inferior-status nil
   "The status of the Ruby program debugged under RDebug.")

@@ -5,6 +5,7 @@
 
 (setq load-path (cons ".." load-path))
 (require 'rdebug-fns)
+(require 'rdebug-locring)
 (setq load-path (cdr load-path))
 
 ;; -------------------------------------------------------------------
@@ -12,15 +13,15 @@
 (deftest "test-add-to-ring"
   (let ((location-ring (make-ring 5)))
     (assert-equal t (ring-empty-p location-ring))
-    (rdebug-add-location-to-ring 'first location-ring)
+    (rdebug-locring-add 'first location-ring)
     (assert-equal 'first (ring-ref location-ring 0))
     (assert-equal 1 (ring-length location-ring))
     ;; Trying to add the same entry should not again.
-    (rdebug-add-location-to-ring 'first location-ring)
+    (rdebug-locring-add 'first location-ring)
     (assert-equal 1 (ring-length location-ring))
 
     ;; Second should go in as last item.
-    (rdebug-add-location-to-ring 'second location-ring)
+    (rdebug-locring-add 'second location-ring)
     (assert-equal 'second (ring-ref location-ring 1))
     ;; First item is still 0.
     (assert-equal 'first  (ring-ref location-ring 0))))
