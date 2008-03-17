@@ -4,7 +4,8 @@ require 'linecache'
 require 'ruby-debug/helper'
 
 module Debugger
-  RUBY_DEBUG_DIR = File.expand_path(File.dirname(__FILE__))
+  RUBY_DEBUG_DIR = File.expand_path(File.dirname(__FILE__)) unless
+    defined?(RUBY_DEBUG_DIR)
 
   class Command # :nodoc:
     SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless

@@ -59,6 +59,7 @@ module Debugger
 
     def execute
       steps, force = parse_stepping_args("Step", @match)
+      return unless steps
       @state.context.step(steps, force)
       @state.proceed
     end
