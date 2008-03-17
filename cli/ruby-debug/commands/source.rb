@@ -4,7 +4,7 @@ module Debugger
     self.allow_in_control = true
     
     def regexp
-      /^\s*so(?:urce)?\s+(.+)$/
+      /^\s* so(?:urce)? \s+ (.+) $/x
     end
     
     def execute
