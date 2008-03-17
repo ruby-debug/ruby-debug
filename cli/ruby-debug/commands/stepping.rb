@@ -13,7 +13,8 @@ module Debugger
       return [steps, force]
     end
   end
-  class NextCommand < Command # :nodoc:
+  # Implements debugger "next" command.
+  class NextCommand < Command
     self.allow_in_post_mortem  = false
     self.need_context          = true
     
@@ -45,7 +46,8 @@ module Debugger
     end
   end
 
-  class StepCommand < Command # :nodoc:
+  # Implements debugger "step" command.
+  class StepCommand < Command
     self.allow_in_post_mortem = false
     self.need_context         = true
     
