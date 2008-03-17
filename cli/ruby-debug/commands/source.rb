@@ -1,5 +1,6 @@
 module Debugger
-  class SourceCommand < Command # :nodoc:
+  # Implements debugger "source" command.
+  class SourceCommand < Command
     self.allow_in_control = true
     
     def regexp
