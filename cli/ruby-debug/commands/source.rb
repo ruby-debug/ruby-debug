@@ -9,8 +9,8 @@ module Debugger
     
     def execute
       file = File.expand_path(@match[1]).strip
-      unless File.exists?(file)
-        print "Command file '#{file}' is not found\n"
+      unless File.exist?(file)
+        errmsg "Command file '#{file}' is not found\n"
         return
       end
       if @state and @state.interface
