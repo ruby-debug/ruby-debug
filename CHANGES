@@ -1,61 +1,37 @@
 0.10.1
 
 
-- rdebug base
- *  remove Debugger.stop on exit exception raise. May allow catchpoints
-    to work and tracing user code handling Exit exceptions
-
- * allow catching multiple exceptions. 
-   INCOMPATIBLE CHANGE: varible Debugger.catchpoint a String was turned
-   into Debugger.catchpoints, a Hash. Debugger.catchpoint= no
-   longer exists. Debugger.set_catchpoint was turned into 
-   Debugger.add_catchpoint
-
- * split off breakpoint code in ruby_debug.c.
-
- * preface ruby_debug global Ruby variables with rdebug_.
-
- * Add Debugger.last_exception which is set in post-mortem.
-
- * Change Debugger.start to save things (like $0 and ARGV) necessary to
-   allow restart. It now takes an optional option argument.
-   The old Debugger.start is now renamed to Debugger.start_)
-
- * split of line caching to an external gem. We now only allow setting
-   breakpoints on lines where it makes sense to do so.
-
- * Incompatible enhancement: even return/end will now call event handler
-
 - bin/rdebug
 
  * "rdebug --post-mortem" now really catches uncaught exceptions and
    brings you to post-mortem handling. "info program" shows the exception.
 
- * --emacs is now --emacs-basic while --emacs 3 now implies emacs-basic
-   ---annotate=3 --post-mortem --no-control --no-start --no-quit
-
- * script now search using PATH for ruby program if the program not found
-   and doesn't have path characters in it.
+ * rdebug now searches using ENV['PATH'] for a Ruby program to debug
+   if the program name is not found and doesn't have any path
+   characters in it.
 
  * Use ~/.rdboptrc (rdbopt.ini on MS Windows) to change default options.
 
+ * --emacs is now --emacs-basic while --emacs 3 now implies emacs-basic
+   ---annotate=3 --post-mortem --no-control --no-start --no-quit
+
 - rdebug (CLI)
 
- *  "info" command additions and changes 
+ *  "info" command additions and changes:
   o fix bug in "info variables" when string had embedded %s'
-  o "info program" now shows uncaugh exception information
+  o "info program" now shows uncaught exception information
   o "info files" show what Ruby files are loaded
-  o "info file xxx" specific file information (e.g. time, # of lines, SHA1)
+  o "info file <f>" specific file information of <f> (e.g. time, # of lines, SHA1)
   o "info catch" - Exceptions that can be caught in the current stack frame.
   o "info "variables" shows "self" and class variables
   o "info threads verbose" shows stack trace of all threads
-  o "info thread d verbose" shows stack trace of thread d.
+  o "info thread <t> verbose" shows stack trace of thread <t>.
 
- * frame command now accepts an optional thread number argument
+ * "frame" command now accepts an optional thread number argument
 
  * Long information added to commands with subcommands: show, set,
-   info, enable, and disable. For example "help info xxx" will give
-   more detailed information about the "info xxx" command.
+   info, enable, and disable. For example "help info <xxx>" will give
+   more detailed information about the "info <xxx>" command.
 
  * columnize now pulled in from a separate package.
 
@@ -78,6 +54,32 @@
  * fix bug in 'list' command when wrapping off the end.
 
 - Emacs interaction drastically reworked, expanded, and improved.
+
+- rdebug base
+ * allow catching multiple exceptions. 
+   INCOMPATIBLE CHANGE: variable "Debugger.catchpoint", a String, was turned
+   into "Debugger.catchpoints", a Hash. Method "Debugger.catchpoint=" no
+   longer exists. Debugger.set_catchpoint was turned into 
+   Debugger.add_catchpoint
+
+ * Add Debugger.last_exception which is set in post-mortem.
+
+ * remove Debugger.stop() when an exception is raised that would terminate the 
+   debugged program. This may allow catchpoints to work and allow tracing user 
+   code which handles "Exit" exceptions
+
+ * split off breakpoint code in ruby_debug.c.
+
+ * preface ruby_debug global Ruby variables with rdebug_.
+
+ * Change Debugger.start() to save things (like $0 and ARGV) necessary to
+   allow restart. It now takes an optional option argument.
+   The old Debugger.start() is now renamed to Debugger.start_()
+
+ * split of line caching to an external gem. We now only allow setting
+   breakpoints on lines where it makes sense to do so.
+
+ * Incompatible enhancement: even return/end will now call event handler
 
 0.10.0
 - '-r' option can be used to require additional libraries.
