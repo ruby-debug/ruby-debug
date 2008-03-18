@@ -1,5 +1,6 @@
 module Debugger
-  class ListCommand < Command # :nodoc:
+  # Implements debugger "list" command.
+  class ListCommand < Command
 
     register_setting_get(:autolist) do
       ListCommand.always_run 
@@ -9,7 +10,7 @@ module Debugger
     end
 
     def regexp
-      /^\s*l(?:ist)?(?:\s*([-=])|\s+(.+))?$/
+      /^\s* l(?:ist)? (?:\s*([-=])|\s+(.+))? $/x
     end
 
     def execute
@@ -74,45 +75,7 @@ module Debugger
           end
         end
       else
-        print "No sourcefile available for %s\n", file
-      end
-    end
-  end
-
-  class ReloadCommand < Command # :nodoc:
-    self.allow_in_control = true
-
-    register_setting_get(:reload_source_on_change) do 
-      Debugger.reload_source_on_change
-    end
-    register_setting_set(:reload_source_on_change) do |value|
-      Debugger.reload_source_on_change = value
-    end
-    
-    def regexp
-      /^\s*r(?:eload)?$/
-    end
-    
-    def execute
-      Debugger.source_reload
-      print "Source code is reloaded. Automatic reloading is #{source_reloading}.\n"
-    end
-    
-    private
-    
-    def source_reloading
-      Debugger.reload_source_on_change ? 'on' : 'off'
-    end
-    
-    class << self
-      def help_command
-        'reload'
-      end
-
-      def help(cmd)
-        %{
-          r[eload]\tforces source code reloading
-        }
+        errmsg "No sourcefile available for %s\n", file
       end
     end
   end
