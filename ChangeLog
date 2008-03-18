@@ -1,3 +1,103 @@
+2008-03-17 04:03  Rocky Bernstein
+
+	* cli/ruby-debug/command.rb, cli/ruby-debug/commands/stepping.rb,
+	  test/data/stepping.right: stepping.rb: don't step if invalid
+	  parameter
+	  command.rb: remove dupliate defined warning msg
+
+2008-03-17 03:34  Rocky Bernstein
+
+	* cli/ruby-debug/commands/stepping.rb: Small doc addition
+
+2008-03-17 03:17  Rocky Bernstein
+
+	* cli/ruby-debug/commands/source.rb: Make source file-not-found and
+	  error
+
+2008-03-17 03:07  Rocky Bernstein
+
+	* cli/ruby-debug/commands/source.rb: tidy regexp
+
+2008-03-17 03:05  Rocky Bernstein
+
+	* cli/ruby-debug/commands/script.rb,
+	  cli/ruby-debug/commands/source.rb: Rename to match command name.
+	  Add miniscule doc.
+
+2008-03-16 22:04  Rocky Bernstein
+
+	* cli/ruby-debug/commands/continue.rb,
+	  cli/ruby-debug/commands/frame.rb, doc/ruby-debug.texi: Doc
+	  changes
+
+2008-03-16 16:38  Rocky Bernstein
+
+	* doc/ruby-debug.texi, test/base/base.rb, test/base/catchpoint.rb,
+	  test/base/load.rb: Add debug_load test. Document
+	  Debugger::Context better. Small doc changes.
+
+2008-03-16 15:01  Rocky Bernstein
+
+	* bin/rdebug: Typo.
+
+2008-03-16 07:39  Rocky Bernstein
+
+	* cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/commands/help.rb: Minor doc changes
+
+2008-03-16 06:50  Rocky Bernstein
+
+	* test/data/ctrl.cmd, test/data/ctrl.right: Make sure width is set
+	  explicitly so we don't have vagaries of the environment.
+
+2008-03-16 06:44  Rocky Bernstein
+
+	* test/data/stepping.cmd, test/data/stepping.right: Possibly patch
+	  change to upcoming 1.8.7. Punt for now.
+
+2008-03-16 04:03  Rocky Bernstein
+
+	* CHANGES, cli/ruby-debug/commands/finish.rb,
+	  cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/commands/quit.rb, doc/ruby-debug.texi,
+	  test/data/breakpoints.cmd, test/data/breakpoints.right,
+	  test/data/finish.cmd, test/data/finish.right,
+	  test/test-finish.rb: Change finish with no args to finish out of
+	  the currently selected
+	  frame and document that.
+	  Add test for "finish" command.
+	  ruby-debug.texi: Note 2nd-hook eval bug in "if" statements.
+	  
+	  ruby-debug.texi:
+
+2008-03-13 02:15  Rocky Bernstein
+
+	* CHANGES, cli/ruby-debug/commands/finish.rb,
+	  cli/ruby-debug/processor.rb, doc/ruby-debug.texi,
+	  ext/ruby_debug.c, lib/ruby-debug-base.rb, rdbg.rb: INCOMPATIBLE
+	  CHANGE: "finish" works like gdb - stop just before the
+	  most recent method finishes. Will now accept a number which stops
+	  that
+	  many frames completed. (Note that return line numbers will be
+	  funny,
+	  the first line of the method until Ruby 1.8.7.)
+
+2008-03-11 03:53  Rocky Bernstein
+
+	* test/base/base.rb, test/base/catchpoint.rb: Reduce unnecessary
+	  dependencies and scope.
+
+2008-03-10 14:51  Rocky Bernstein
+
+	* cli/ruby-debug/commands/catchpoint.rb,
+	  cli/ruby-debug/commands/info.rb: "catch" is same as "info catch".
+	  Document better "catch" command.
+
+2008-03-10 13:28  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/data/raise.right: Dunno why we are
+	  now one line number less. So be it (for now).
+
 2008-03-10 11:42  Rocky Bernstein
 
 	* cli/ruby-debug/commands/continue.rb,

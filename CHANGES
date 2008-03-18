@@ -75,6 +75,8 @@
    frames completed. (Note that return line numbers will be funny, the
    first line of the method until Ruby 1.8.7.)
 
+ * fix bug in 'list' command when wrapping off the end.
+
 - Emacs interaction drastically reworked, expanded, and improved.
 
 0.10.0

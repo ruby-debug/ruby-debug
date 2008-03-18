@@ -1,16 +1,16 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 
-# begin require 'rubygems' rescue LoadError end
+# require 'rubygems'
 # require 'ruby-debug'; Debugger.start
 
 # Test finish command
 class TestFinish < Test::Unit::TestCase
 
-  @@SRC_DIR = File.dirname(__FILE__) unless 
-    defined?(@@SRC_DIR)
+  @@src_dir = File.dirname(__FILE__) unless 
+    defined?(@@src_dir)
 
-  require File.join(@@SRC_DIR, 'helper')
+  require File.join(@@src_dir, 'helper')
   include TestHelper
 
   def test_basic
@@ -18,15 +18,17 @@ class TestFinish < Test::Unit::TestCase
     # Ruby 1.8.6 and earlier have a trace-line number bug for return
     # statements.
     filter = Proc.new{|got_lines, correct_lines|
-      [got_lines[34], correct_lines[34]].each do |s|
+      [got_lines[31], got_lines[34]].flatten.each do |s|
         s.sub!(/gcd.rb:\d+/, 'gcd.rb:13')
       end
+      got_lines[32] = 'return a'
     }
-    Dir.chdir(@@SRC_DIR) do 
+    Dir.chdir(@@src_dir) do 
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- gcd.rb 3 5"))
+                                "--script #{script} -- gcd.rb 3 5", 
+                                nil, filter))
     end
   end
 end

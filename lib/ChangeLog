@@ -1,3 +1,21 @@
+2008-03-13 02:15  Rocky Bernstein
+
+	* trunk/CHANGES, trunk/cli/ruby-debug/commands/finish.rb,
+	  trunk/cli/ruby-debug/processor.rb, trunk/doc/ruby-debug.texi,
+	  trunk/ext/ruby_debug.c, ruby-debug-base.rb, trunk/rdbg.rb:
+	  INCOMPATIBLE CHANGE: "finish" works like gdb - stop just before
+	  the
+	  most recent method finishes. Will now accept a number which stops
+	  that
+	  many frames completed. (Note that return line numbers will be
+	  funny,
+	  the first line of the method until Ruby 1.8.7.)
+
+2008-03-10 13:28  Rocky Bernstein
+
+	* trunk/ChangeLog, ChangeLog, trunk/test/data/raise.right: Dunno
+	  why we are now one line number less. So be it (for now).
+
 2008-03-09 23:30  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog, ChangeLog,

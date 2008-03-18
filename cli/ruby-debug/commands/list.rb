@@ -37,8 +37,7 @@ module Debugger
           e = b + listsize - 1
         end
       end
-      @state.previous_line = b
-      display_list(b, e, @state.file, @state.line)
+      @state.previous_line = display_list(b, e, @state.file, @state.line)
     end
 
     class << self
@@ -59,15 +58,19 @@ module Debugger
 
     private
 
-    def display_list(b, e, file, line)
+    # Show FILE from line B to E where CURRENT is the current line number.
+    # If we can show from B to E then we return B, otherwise we return the
+    # previous line @state.previous_line.
+    def display_list(b, e, file, current)
       print "[%d, %d] in %s\n", b, e, file
       lines = LineCache::getlines(file, 
                                   Command.settings[:reload_source_on_change])
+      b = 1 if b < 1
+      return @state.previous_line if b >= lines.size
       if lines
-        n = 0
         b.upto(e) do |n|
           if n > 0 && lines[n-1]
-            if n == line
+            if n == current
               print "=> %d  %s\n", n, lines[n-1].chomp
             else
               print "   %d  %s\n", n, lines[n-1].chomp
@@ -76,7 +79,9 @@ module Debugger
         end
       else
         errmsg "No sourcefile available for %s\n", file
+        return @state.previous_line
       end
+      return e >= lines.size ? @state.previous_line : b
     end
   end
 end
