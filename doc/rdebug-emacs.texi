@@ -48,7 +48,7 @@
 * Emacs with Annotate:: A richer debugging environment
 Indexes (nodes containing large menus)
 * Emacs Command Index::       An item for each GNU/Emacs command name.
-* Emacs Function Index::      An item for each Emacs Funtion.
+* Emacs Function Index::      An item for each Emacs Function.
 * Emacs Key Binding Index::   An item for each Emacs Debugger Command.
 
 @detailmenu
@@ -289,7 +289,7 @@ between the process mark and point.
 Run @code{step+}.
 
 @item C-c .   (comint-insert-previous-argument @var{index})
-Insert the indexth argument from the previous Comint command-line at point.
+Insert the @emph{index-th} argument from the previous Comint command-line at point.
 Spaces are added at beginning and/or end of the inserted string if
 necessary to ensure that it's separated from adjacent arguments.
 Interactively, if no prefix argument is given, the last argument is inserted.
