@@ -7,11 +7,10 @@ list
 list
 list
 list -
-# FIXME!
-# list -
-# list -
-# list -
-# list 1
+list -
+list -
+list -
+list 1
 list 20
 set listsize 5
 list 5

@@ -20,7 +20,7 @@ Catch exception 5.
 	./tdebug.rb:47:in `debug_load'
 	./tdebug.rb:47:in `debug_program'
 	./tdebug.rb:235
-	../rdbg.rb:22:in `load'
-	../rdbg.rb:22:in `runner'
-	../rdbg.rb:31
+	../rdbg.rb:23:in `load'
+	../rdbg.rb:23:in `runner'
+	../rdbg.rb:32
 Uncaught exception: abc

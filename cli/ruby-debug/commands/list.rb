@@ -20,8 +20,15 @@ module Debugger
         @state.previous_line + listsize : @state.line - (listsize/2)
         e = b + listsize - 1
       elsif @match[1] == '-'
-        b = @state.previous_line ? 
-        @state.previous_line - listsize : @state.line - (listsize/2)
+        b = if @state.previous_line
+              if  @state.previous_line > 0
+                @state.previous_line - listsize 
+              else
+                @state.previous_line
+              end
+            else 
+              @state.line - (listsize/2)
+            end
         e = b + listsize - 1
       elsif @match[1] == '='
         @state.previous_line = nil
@@ -65,10 +72,10 @@ module Debugger
       print "[%d, %d] in %s\n", b, e, file
       lines = LineCache::getlines(file, 
                                   Command.settings[:reload_source_on_change])
-      b = 1 if b < 1
       return @state.previous_line if b >= lines.size
       if lines
-        b.upto(e) do |n|
+        e = lines.size if lines.size < e
+        [b, 1].max.upto(e) do |n|
           if n > 0 && lines[n-1]
             if n == current
               print "=> %d  %s\n", n, lines[n-1].chomp
@@ -81,7 +88,7 @@ module Debugger
         errmsg "No sourcefile available for %s\n", file
         return @state.previous_line
       end
-      return e >= lines.size ? @state.previous_line : b
+      return e == lines.size ? @state.previous_line : b
     end
   end
 end
