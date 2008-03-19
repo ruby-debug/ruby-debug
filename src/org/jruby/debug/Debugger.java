@@ -75,11 +75,6 @@ final class Debugger {
             lastThread  = nil;
             started = true;
             setLastContext(runtime, nil);
-            tracing = false;
-            postMortem = false;
-            keepFrameBinding = false;
-            debug = false;
-            trackFrameArgs = false;
             catchpoint = nil;
             catchpointAsString = null;
             debugEventHook = new DebugEventHook(this, runtime);
