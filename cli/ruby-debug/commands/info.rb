@@ -18,7 +18,8 @@ module Debugger
     end
   end
 
-  class InfoCommand < Command # :nodoc:
+  # Implements debugger "info" command.
+  class InfoCommand < Command
     self.allow_in_control = true
     Subcommands = 
       [
