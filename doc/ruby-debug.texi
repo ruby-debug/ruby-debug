@@ -2929,7 +2929,7 @@ Shows the list-size setting.
 @subsection Show Post-mortem handling
 @table @code
 @kindex show post-mortem
-Shows wither post-mortem debuggign is in effect. Right now we don't
+Shows wither post-mortem debugging is in effect. Right now we don't
 have the ability to change the state inside the debugger.
 @end table
 
@@ -3156,7 +3156,7 @@ Turn on add additional instrumentation code to facilitate debugging. A
 system even table hook is installed and some variables are set up to
 access thread frames.
 
-This needs to be done before enterining the debugger; therefore a call
+This needs to be done before entering the debugger; therefore a call
 to the debugger issue a @code{Debugger.start} call if necessary.
 
 If called without a block, @code{Debugger.start}returns @code{true} if
