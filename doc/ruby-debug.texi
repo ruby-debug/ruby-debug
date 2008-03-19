@@ -940,7 +940,7 @@ def gcd(a, b)
 
 If you want @code{step+} to be the default behavior when stepping,
 issue the command @code{set forcestep on}, (@pxref{Forcestep}). I
-generally put this in my startup file @code{.rdebugrc}.
+generally put this in my start-up file @code{.rdebugrc}.
 
 Similar to the difference between @code{step+} and @code{step} is
 @code{set linetrace+}. This removes duplicate consecutive line tracing.
@@ -1023,7 +1023,7 @@ names of the parameters and the values that were passed in.
 Ruby is a very dynamic language and it tries to be efficient within
 the confines of the language definition. Values generally aren't taken
 out of a variable or expression and pushed onto a stack. Instead a new
-scope created and the parameters are given intial values. Parameter
+scope created and the parameters are given initial values. Parameter
 passing is by @emph{reference}, not by value as it is say Algol, C, or
 Perl. During the execution of a method, parameter values can
 change---and often do. In fact even the @emph{class} of the object can
@@ -1040,7 +1040,7 @@ call shorter ``scalar'' types of values and the class name.
 @subsection Lines You Can Stop At
 As with the duplicate stops per control (e.g. @code{if} statement),
 until tools like debuggers get more traction among core ruby
-developers there are going to be weirdnesses. Here we describe the
+developers there are going to be weirdness. Here we describe the
 stopping locations which effects the breakpoint line numbers you can
 stop at. 
 
@@ -1516,7 +1516,7 @@ running on the same computer.
 Other front-ends may use one of these and build on top and provide
 other (richer) interfaces. Although many of the commands are available
 on all interfaces some are not. Most of the time in this manual when
-we talk about issuing commands describing the respoinses elicited,
+we talk about issuing commands describing the responses elicited,
 we'll assume we are working with the local interface.
 
 @node Command Syntax
@@ -1554,13 +1554,13 @@ the thread number. Usual the main thread is 1, so often you'll see
 
 In the local interface, whenever @code{ruby-debug} gives an error
 message such as for an invalid command, or an invalid location
-postion, it will generally preface the message with
+position, it will generally preface the message with
 @code{***}. However if annotation mode is on that the message is put
 in a @code{begin-error} annotation and no @code{***} appears.
 
 @node Help
 @section Getting help (@samp{help})
-@cindex online documentation
+@cindex on-line documentation
 @menu
 * Help for Subcommands::
 @end menu
@@ -1613,7 +1613,7 @@ l[ist] nn-mm	list given lines
 
 @node Help for Subcommands
 @subsection Help on Subcommands
-A number of commands have many subparameters or
+A number of commands have many sub-parameters or
 @emph{subcommands}. These include @code{info}, @code{set},
 @code{show}, @code{enable} and @code{disable}.
 
@@ -1627,7 +1627,7 @@ help. You don't need to list the full subcommand name, but just enough
 of the letters to make that subcommand distinct from others will
 do. For example, @code{help set an} is the same as @code{help set annotate}.
 
-Some exampels follow.
+Some examples follow.
 @example
 (rdb:1) @b{help info}
 Generic command for showing things about the program being debugged.
@@ -1818,7 +1818,7 @@ again in auto display of its expression, until you specify otherwise.
 
 One way to examine and change data in your script is with the
 @code{eval} command (abbreviated @code{p}). A similar command is
-@code{pp} which tries to prettyprint the result. Finally @code{irb} is
+@code{pp} which tries to pretty print the result. Finally @code{irb} is
 useful when you anticipate examining or changing a number of things,
 and prefer not to have to preface each command, but rather work as one
 does in @code{irb}.
@@ -2233,7 +2233,7 @@ description of the stack frame just selected.
 @item up @ovar{n}
 Move @var{n} frames up the stack.  For positive numbers @var{n}, this
 advances toward the outermost frame, to higher frame numbers, to
-frames that have existed longer.  Using a negative @var{n} is the sameruby
+frames that have existed longer.  Using a negative @var{n} is the same thing
 as issuing a @code{down} command of the absolute value of the @var{n}.
 Using zero for @var{n} does no frame adjustment, but since the current
 position is redisplayed, it may trigger a resynchronization if there is
@@ -2248,7 +2248,7 @@ advances toward the innermost frame, to lower frame numbers, to frames
 that were created more recently.  Using a negative @var{n} is the same
 as issuing a @code{up} command of the absolute value of the @var{n}.
 Using zero for @var{n} does no frame adjustment, but since the current
-position is redisplayed, it may trigger a resyncronization if there is
+position is redisplayed, it may trigger a resynchronization if there is
 a front end also watching over things. 
 
 @var{n} defaults to one.
@@ -2269,7 +2269,7 @@ most ``main'' stack frame.
 
 Without an argument, @code{frame} prints the current stack
 frame. Since the current position is redisplayed, it may trigger a
-resyncronization if there is a front end also watching over
+resynchronization if there is a front end also watching over
 things. 
 
 If a thread number is given then we set the context for evaluating
@@ -2414,12 +2414,12 @@ only that breakpoint.
 
 Examples:
 @example
-bashdb<4> @b{info break}
+(rdb:1) @b{info break}
 Breakpoints at following places:
 Num  Enb What
 1    y   gcd.rb:3
 2    y   gcb.rb:28 if n > 1
-bashdb<5> @b{info break 2}
+(rdb:1) @b{info break 2}
 2    y   gcb.rb:28 if n > 1
 @end example
 @end table
@@ -2529,7 +2529,7 @@ a condition, like @code{break if @dots{}}) is given, however.
 Examples;
 @example
 condition 1 x>5   # Stop on breakpoint 0 only if x>5 is true.
-condition 1       # Change that! Unconditinally stop on breakpoint 1.
+condition 1       # Change that! Unconditionally stop on breakpoint 1.
 @end example
 
 @node Resuming Execution
