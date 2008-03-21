@@ -47,8 +47,8 @@
 ;;
 
 (deftest "rdebug-toggle-breakpoints"
-  (let ((buf (generate-new-buffer "*rdebug-breakpoints-test.rb*"))
-        ;; Needed by `rdebug-breakpoints-parse-and-update-cache'.
+  (let ((buf (generate-new-buffer "*rdebug-breakpoint-test.rb*"))
+        ;; Needed by `rdebug-breakpoint-parse-and-update-cache'.
         (gud-comint-buffer (current-buffer)))
     (save-excursion
       (switch-to-buffer buf)
@@ -57,7 +57,7 @@
       (insert "  2 n   at /test.rb:11\n")
       (insert "  3 y   at /test.rb:12\n")
       (insert "  4 y   at /test.rb:13\n")
-      (rdebug-breakpoints-parse-and-update-cache))
+      (rdebug-breakpoint-parse-and-update-cache))
     (setq gud-target-name "test.rb")
 
     ;; ----------

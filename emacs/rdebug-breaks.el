@@ -1,5 +1,5 @@
 ;;; rdebug-breaks.el --- This file contains code dealing with the Ruby
-;;; debugger's breakpoints and the breakpoint secondary buffer.  
+;;; debugger's breakpoints and the breakpoint secondary buffer.
 
 ;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
@@ -40,7 +40,7 @@
   (interactive)
   (rdebug-display-secondary-buffer "breakpoints"))
 
-(defvar rdebug-breakpoints-mode-map
+(defvar rdebug-breakpoint-mode-map
   (let ((map (make-sparse-keymap)))
     (define-key map [double-mouse-1] 'rdebug-goto-breakpoint-mouse)
     (define-key map [mouse-2] 'rdebug-goto-breakpoint-mouse)
@@ -74,7 +74,7 @@
 
 ;; Here the "anchored match" method is used, see `font-lock-keywords'
 ;; for details.
-(defvar rdebug-breakpoints-font-lock-keywords
+(defvar rdebug-breakpoint-font-lock-keywords
   '(("\\([0-9]+\\) +\\(\\(n\\)\\|\\(y\\)\\) +at "
      (1 font-lock-constant-face)
      (3 font-lock-type-face    nil t)   ; t = ok if not present
@@ -93,20 +93,20 @@
       (2 font-lock-function-name-face))))
   "Rules for coloring the rdebug breakpoints buffer.")
 
-(defun rdebug-breakpoints-mode ()
+(defun rdebug-breakpoint-mode ()
   "Major mode for displaying breakpoints in the `rdebug' Ruby debugger.
 
-\\{rdebug-breakpoints-mode-map}"
+\\{rdebug-breakpoint-mode-map}"
   (kill-all-local-variables)
-  (setq major-mode 'rdebug-breakpoints-mode)
+  (setq major-mode 'rdebug-breakpoint-mode)
   (setq mode-name "RDEBUG Breakpoints")
-  (use-local-map rdebug-breakpoints-mode-map)
+  (use-local-map rdebug-breakpoint-mode-map)
   (setq buffer-read-only t)
   (set (make-local-variable 'rdebug-secondary-buffer) t)
   (setq mode-line-process 'rdebug-mode-line-process)
   (set (make-local-variable 'font-lock-defaults)
-       '(rdebug-breakpoints-font-lock-keywords))
-  (run-mode-hooks 'rdebug-breakpoints-mode-hook))
+       '(rdebug-breakpoint-font-lock-keywords))
+  (run-mode-hooks 'rdebug-breakpoint-mode-hook))
 
 
 (defun rdebug-setup-breakpoints-buffer (buf comint-buffer)
@@ -118,7 +118,7 @@ Argument COMINT-BUFFER is the assocaited gud process buffer."
       (let ((inhibit-read-only t)
 	    (old-line-number (buffer-local-value 'rdebug-current-line-number
 						 buf)))
-        (rdebug-breakpoints-mode)
+        (rdebug-breakpoint-mode)
         (goto-char (point-min))
         (while (not (eobp))
           (let ((b (line-beginning-position)) (e (line-end-position)))
@@ -126,15 +126,15 @@ Argument COMINT-BUFFER is the assocaited gud process buffer."
                                 (buffer-substring b e))
               (add-text-properties b e
                                    (list 'mouse-face 'highlight
-                                         'keymap rdebug-breakpoints-mode-map)))
+                                         'keymap rdebug-breakpoint-mode-map)))
             (forward-line)))
 	(goto-line old-line-number)))
-    (rdebug-breakpoints-parse-and-update-cache)
-    (rdebug-breakpoints-update-icons (rdebug-all-breakpoints))))
+    (rdebug-breakpoint-parse-and-update-cache)
+    (rdebug-breakpoint-update-icons (rdebug-breakpoint-all))))
 
 
-(defvar rdebug-breakpoints-cache '()
-  "The cached return value of `rdebug-all-breakpoints'.
+(defvar rdebug-breakpoint-cache '()
+  "The cached return value of `rdebug-breakpoint-all'.
 
 Buffer-local to the debugger shell window.")
 
@@ -145,8 +145,8 @@ Buffer-local to the debugger shell window.")
 ;; window.
 ;;
 ;; Note: The :function kind is not yet implemented.
-(defun rdebug-breakpoints-parse-and-update-cache ()
-  "Build up the return value of `rdebug-all-breakpoints'."
+(defun rdebug-breakpoint-parse-and-update-cache ()
+  "Build up the return value of `rdebug-breakpoint-all'."
   (save-excursion
     (goto-char (point-min))
     (let ((res '()))
@@ -169,11 +169,11 @@ Buffer-local to the debugger shell window.")
       ;; environment.)
       (if gud-comint-buffer
           (with-current-buffer gud-comint-buffer
-            (set (make-local-variable 'rdebug-breakpoints-cache)
+            (set (make-local-variable 'rdebug-breakpoint-cache)
                  (nreverse res)))))))
 
 
-(defun rdebug-all-breakpoints ()
+(defun rdebug-breakpoint-all ()
   "Return a list of all breakpoints.
 
 Each entry in the list is on the form:
@@ -184,7 +184,7 @@ or
 
     (:function number enabled class function)"
   (and gud-comint-buffer
-       (buffer-local-value 'rdebug-breakpoints-cache gud-comint-buffer)))
+       (buffer-local-value 'rdebug-breakpoint-cache gud-comint-buffer)))
 
 
 (defun rdebug-file-and-line-arg ()
@@ -193,10 +193,10 @@ or
     (beginning-of-line)
     (list (buffer-file-name) (+ 1 (count-lines (point-min) (point))))))
 
-(defun rdebug-breakpoints-on-line (file line)
+(defun rdebug-breakpoint-on-line (file line)
   "Return a list of the breakpoints on the file FILE and current source LINE."
   (let ((res '()))
-    (dolist (entry (rdebug-all-breakpoints))
+    (dolist (entry (rdebug-breakpoint-all))
       (if (and (eq (nth 0 entry) :file)
                (string= (nth 3 entry) file)
                (equal (nth 4 entry) line))
@@ -207,13 +207,13 @@ or
 (defun rdebug-toggle-source-breakpoint (file line)
   "Toggle break point in FILE on current source LINE."
   (interactive (rdebug-file-and-line-arg))
-  (cond ((eq major-mode 'rdebug-breakpoints-mode)
+  (cond ((eq major-mode 'rdebug-breakpoint-mode)
          (rdebug-delete-breakpoint))
         ((null file)
          ;; Do nothing.
          )
         (t
-         (let ((bps (rdebug-breakpoints-on-line file line)))
+         (let ((bps (rdebug-breakpoint-on-line file line)))
            (if bps
                (gud-call (format "delete %s" (nth 1 (car bps))))
              (gud-call (format "break %s:%d" file line)))))))
@@ -222,13 +222,13 @@ or
 (defun rdebug-toggle-source-breakpoint-enabled (file line)
   "Enable or disable a breakpoint in FILE on the current source LINE."
   (interactive (rdebug-file-and-line-arg))
-  (cond ((eq major-mode 'rdebug-breakpoints-mode)
+  (cond ((eq major-mode 'rdebug-breakpoint-mode)
          (rdebug-toggle-breakpoint))
         ((null file)
          ;; Do nothing.
          )
         (t
-         (let ((bps (rdebug-breakpoints-on-line file line)))
+         (let ((bps (rdebug-breakpoint-on-line file line)))
            (if bps
                ;; Note: If the line contains more than one simply use the
                ;; first one.
@@ -276,8 +276,7 @@ Argument PT indicates the file and line where the breakpoint should be set."
 
 
 (defun rdebug-get-breakpoint-number (pt)
-  "Return the current breakpoint number in the breakpoint
-secondary window or nil if none found."
+  "Return the current breakpoint number in the breakpoint secondary window or nil if none found."
   (interactive "d")
   (save-excursion
     (goto-char pt)
@@ -332,6 +331,7 @@ secondary window or nil if none found."
 (defvar rdebug-breakpoint-icons-current-state nil)
 
 (defun rdebug-breakpoint-remove-icon (entry)
+  "Remove the the source buffer the fringe breakpoint icon breakpoint ENTRY."
   (if (eq (nth 0 entry) :file)
       (let ((buf (find-buffer-visiting (nth 3 entry))))
         (if buf
@@ -341,12 +341,12 @@ secondary window or nil if none found."
                 (goto-line (nth 4 entry))
                 (gdb-remove-breakpoint-icons (point) (point))))))))
 
-(defun rdebug-breakpoints-remove-all-icons ()
+(defun rdebug-breakpoint-remove-all-icons ()
   "Remove all breakpoint fringe icons."
   (interactive)
   (dolist (entry rdebug-breakpoint-icons-current-state)
     (rdebug-breakpoint-remove-icon entry))
-  (setq rdebug-breakpoints-icons-current-state nil))
+  (setq rdebug-breakpoint-icons-current-state nil))
 
 
 (defun rdebug-breakpoint-add-icon (entry)
@@ -372,8 +372,8 @@ secondary window or nil if none found."
           (setq res t)))
     res))
 
-;; bpts has the same representation as returned by `rdebug-all-breakpoints'.
-(defun rdebug-breakpoints-update-icons (bpts)
+;; bpts has the same representation as returned by `rdebug-breakpoint-all'.
+(defun rdebug-breakpoint-update-icons (bpts)
   ;; Make sure there are is only one reference for each line.
   (let ((state '()))
     ;; An enabled breakpoint take precedence.

@@ -442,6 +442,18 @@ and options used to invoke rdebug."
       (run-hooks 'rdebug-mode-hook))))
 
 
+(defadvice gud-reset (before rdebug-reset)
+  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
+etc.)."
+  (rdebug-breakpoint-remove-all-icons)
+  (dolist (buffer (buffer-list))
+    (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
+      (let ((w (get-buffer-window buffer)))
+        (when w
+          (delete-window w)))
+      (kill-buffer buffer))))
+(ad-activate 'gud-reset)
+
 (defun rdebug-customize ()
   "Use `customize' to edit the settings of the `rdebug' debugger."
   (interactive)

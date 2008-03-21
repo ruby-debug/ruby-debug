@@ -220,21 +220,6 @@ If we try to go down from frame 0, wrap to the end of the file"
 	  (rdebug-call "frame -1")
 	(rdebug-call "down 1")))))
 
-;; -- Reset support
-
-(defadvice gud-reset (before rdebug-reset)
-  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
-etc.)."
-  (rdebug-breakpoints-remove-all-icons)
-  (dolist (buffer (buffer-list))
-    (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
-      (let ((w (get-buffer-window buffer)))
-        (when w
-          (delete-window w)))
-      (kill-buffer buffer))))
-(ad-activate 'gud-reset)
-
-
 (provide 'rdebug-gud)
 
 ;;; Local variables:
