@@ -341,6 +341,14 @@ secondary window or nil if none found."
                 (goto-line (nth 4 entry))
                 (gdb-remove-breakpoint-icons (point) (point))))))))
 
+(defun rdebug-breakpoints-remove-all-icons ()
+  "Remove all breakpoint fringe icons."
+  (interactive)
+  (dolist (entry rdebug-breakpoint-icons-current-state)
+    (rdebug-breakpoint-remove-icon entry))
+  (setq rdebug-breakpoints-icons-current-state nil))
+
+
 (defun rdebug-breakpoint-add-icon (entry)
   (if (eq (nth 0 entry) :file)
       (let ((buf (find-buffer-visiting (nth 3 entry))))

@@ -225,6 +225,7 @@ If we try to go down from frame 0, wrap to the end of the file"
 (defadvice gud-reset (before rdebug-reset)
   "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
 etc.)."
+  (rdebug-breakpoints-remove-all-icons)
   (dolist (buffer (buffer-list))
     (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
       (let ((w (get-buffer-window buffer)))
