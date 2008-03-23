@@ -8,7 +8,9 @@ require 'rake/testtask'
 SO_NAME = "ruby_debug.so"
 
 # ------- Default Package ----------
-RUBY_DEBUG_VERSION = open("ext/ruby_debug.c"){|f| f.grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]}
+RUBY_DEBUG_VERSION = open("ext/ruby_debug.c") do |f| 
+  f.grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]
+end
 
 COMMON_FILES = FileList[
   'AUTHORS',

@@ -1,3 +1,12 @@
+2008-03-18 16:05  Rocky Bernstein
+
+	* trunk/CHANGES, trunk/ChangeLog,
+	  trunk/cli/ruby-debug/commands/list.rb, ChangeLog,
+	  trunk/test/data/list.cmd, trunk/test/data/list.right,
+	  trunk/test/test-finish.rb, trunk/test/test-list.rb: Fix bug in
+	  'list' command when wrapping off the end.
+	  test-finish.rb: tolerate buggy in Ruby versions <= 1.8.7.
+
 2008-03-13 02:15  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/cli/ruby-debug/commands/finish.rb,

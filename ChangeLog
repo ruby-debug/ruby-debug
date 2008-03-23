@@ -1,3 +1,74 @@
+2008-03-23 04:12  Rocky Bernstein
+
+	* cli/ruby-debug/commands/show.rb, emacs/rdebug-core.el:
+	  rdebug-core.el: allow rdebug-reset as an emasc command
+	  show.rb: remove one more :nodoc
+
+2008-03-21 19:04  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-core.el,
+	  emacs/rdebug-gud.el, emacs/test/test-cmd.el: Regularize names a
+	  little bit. More work is needed though.
+
+2008-03-21 18:39  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el, emacs/rdebug-gud.el: Clear breakpoint
+	  icons when quitting the debugger.
+
+2008-03-19 19:56  Rocky Bernstein
+
+	* doc/ruby-debug.texi: more on --keep-frame-binding (for Martin)
+
+2008-03-19 15:07  Rocky Bernstein
+
+	* cli/ruby-debug/commands/list.rb, test/data/list.cmd,
+	  test/data/list.right, test/data/raise.right: Fix bug in "list -":
+	  was scrolling back to negative lines. Had also been skipping
+	  lines in forward list.
+
+2008-03-19 07:36  Rocky Bernstein
+
+	* cli/ruby-debug/commands/info.rb: remove 'nodoc' (and doc) from
+	  InfoCommand class
+
+2008-03-19 07:31  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi: Spelling correction.
+
+2008-03-19 00:44  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Some more spelling corrections.
+
+2008-03-19 00:27  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Spell-checking corrections.
+
+2008-03-18 19:47  Rocky Bernstein
+
+	* CHANGES: Try to make more readible.
+
+2008-03-18 16:05  Rocky Bernstein
+
+	* CHANGES, ChangeLog, cli/ruby-debug/commands/list.rb,
+	  lib/ChangeLog, test/data/list.cmd, test/data/list.right,
+	  test/test-finish.rb, test/test-list.rb: Fix bug in 'list' command
+	  when wrapping off the end.
+	  test-finish.rb: tolerate buggy in Ruby versions <= 1.8.7.
+
+2008-03-18 00:43  Rocky Bernstein
+
+	* cli/ruby-debug/commands/list.rb,
+	  cli/ruby-debug/commands/reload.rb: Split off reload into its own
+	  file.
+
+2008-03-17 14:29  Rocky Bernstein
+
+	* emacs/Makefile.am, emacs/rdebug-annotate.el, emacs/rdebug-cmd.el,
+	  emacs/rdebug-fns.el, emacs/rdebug-locring.el,
+	  emacs/rdebug-shortkey.el, emacs/rdebug-source.el,
+	  emacs/rdebug-track.el, emacs/rdebug-vars.el,
+	  emacs/test/test-fns.el: Regularize location ring function names.
+
 2008-03-17 04:03  Rocky Bernstein
 
 	* cli/ruby-debug/command.rb, cli/ruby-debug/commands/stepping.rb,
