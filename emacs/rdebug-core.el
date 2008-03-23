@@ -56,10 +56,13 @@
 (require 'rdebug-vars)
 
 (defun rdebug-get-script-name (args)
-  "Parse command line.  A list containing the script name, and
-whether the annotate option was set is returned.  Initially
-annotate should be set to nil.  Argument ARGS contains a
-tokenized list of the command line."
+  "Parse command line ARGS.
+
+A list containing the script name, and whether the annotate
+option was set is returned.
+
+Initially annotate should be set to nil.  Argument ARGS contains
+a tokenized list of the command line."
   ;; Parse the following:
   ;;
   ;;  [ruby ruby-options] rdebug rdebug-options script-name script-options
@@ -143,7 +146,7 @@ example when the debugger starts."
 Currently-active file is at the head of the list.")
 
 (defun rdebug-goto-traceback-line (pt)
-  "Displays the location in a source file of the Ruby traceback line."
+  "Display the location PT in a source file of the Ruby traceback line."
   (interactive "d")
   (save-excursion
     (goto-char pt)
@@ -156,7 +159,7 @@ Currently-active file is at the head of the list.")
         ))))
 
 (defun rdebug-goto-dollarbang-traceback-line (pt)
-  "Displays the location in a source file of the Ruby $! traceback line."
+  "Display the location PT in a source file of the Ruby $! traceback line."
   (interactive "d")
   (save-excursion
     (goto-char pt)
@@ -317,18 +320,24 @@ switch to the \"debugger\" window configuration."
 ;; which starts with the program to debug.
 ;; The other three args specify the values to use
 ;; for local variables in the debugger buffer.
-(defun rdebug-common-init (rdebug-buffer-name rdebug-cmd-buffer target-name 
+(defun rdebug-common-init (rdebug-buffer-name rdebug-cmd-buffer target-name
 					      program args
 					      marker-filter
 					      &optional find-file)
+  "Perform initializations common to all debuggers.
+
+RDEBUG-BUFFER-NAME is the specified command line, which starts
+with the program to debug. PROGRAM, ARGS and MARKER-FILTER
+specify the values to use for local variables in the debugger
+buffer."
   (if rdebug-cmd-buffer
-      (progn 
+      (progn
 	(pop-to-buffer rdebug-cmd-buffer)
 	(when (and rdebug-cmd-buffer (get-buffer-process rdebug-cmd-buffer))
 	  (error "This program is already being debugged"))
 	(apply 'make-comint rdebug-buffer-name program nil args)
 	(or (bolp) (newline)))
-    (pop-to-buffer (setq rdebug-cmd-buffer 
+    (pop-to-buffer (setq rdebug-cmd-buffer
 			 (apply 'make-comint rdebug-buffer-name program nil
 				args))))
     
@@ -346,7 +355,9 @@ switch to the \"debugger\" window configuration."
 
 ;;;###autoload
 (defun rdebug (command-line)
-  "Invoke the rdebug Ruby debugger using string COMMAND-LINE and start the Emacs user interface.
+  "Invoke the rdebug Ruby debugger and start the Emacs user interface.
+
+String COMMAND-LINE specifies how to run rdebug.
 
 By default, the \"standard\" user window layout looks like the following:
 
@@ -399,7 +410,7 @@ and options used to invoke rdebug."
 
       ;; `gud-rdebug-massage-args' needs whole `command-line'.
       ;; command-line is refered through dynamic scope.
-      (rdebug-common-init cmd-buffer-name rdebug-cmd-buffer target-name 
+      (rdebug-common-init cmd-buffer-name rdebug-cmd-buffer target-name
 			  program args
 			  'gud-rdebug-marker-filter
 			  'gud-rdebug-find-file)
@@ -443,8 +454,7 @@ and options used to invoke rdebug."
 
 
 (defadvice gud-reset (before rdebug-reset)
-  "rdebug cleanup - remove debugger's internal buffers (frame, breakpoints,
-etc.)."
+  "Rdebug cleanup - remove debugger's internal buffers (frame, breakpoints, etc.)."
   (rdebug-breakpoint-remove-all-icons)
   (dolist (buffer (buffer-list))
     (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
@@ -453,6 +463,17 @@ etc.)."
           (delete-window w)))
       (kill-buffer buffer))))
 (ad-activate 'gud-reset)
+
+(defun rdebug-reset ()
+  "Rdebug cleanup - remove debugger's internal buffers (frame, breakpoints, etc.)."
+  (interactive)
+  (rdebug-breakpoint-remove-all-icons)
+  (dolist (buffer (buffer-list))
+    (when (string-match "\\*rdebug-[a-z]+\\*" (buffer-name buffer))
+      (let ((w (get-buffer-window buffer)))
+        (when w
+          (delete-window w)))
+      (kill-buffer buffer))))
 
 (defun rdebug-customize ()
   "Use `customize' to edit the settings of the `rdebug' debugger."

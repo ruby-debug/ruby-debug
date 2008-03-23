@@ -145,7 +145,8 @@ module Debugger
     end
   end
 
-  class ShowCommand < Command # :nodoc:
+  # Implements debugger "show" command.
+  class ShowCommand < Command
     
     Subcommands = 
       [
