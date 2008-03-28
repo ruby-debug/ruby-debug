@@ -1,3 +1,12 @@
+2008-03-23 17:47  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile,
+	  trunk/cli/ruby-debug/commands/set.rb,
+	  trunk/cli/ruby-debug/commands/settings.rb, ChangeLog: set.rb ->
+	  settings.rb since it's already one command per file, and
+	  remove another :nodoc.
+	  Rakefile: split long line
+
 2008-03-18 16:05  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog,

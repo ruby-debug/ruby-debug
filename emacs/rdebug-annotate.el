@@ -245,7 +245,7 @@ Return (item . rest) or nil."
 	(if (equal 0 rdebug-frames-current-frame-number)
 	    (rdebug-locring-add gud-last-frame 
 				rdebug-source-location-ring)))
-      (rdebug-internal-short-key-mode-on)
+      (rdebug-short-key-mode-maybe-activate)
 
       (unless (string= shell-output "")
         (rdebug-debug-message "Output: %S" shell-output))
