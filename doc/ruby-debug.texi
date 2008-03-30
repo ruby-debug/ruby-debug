@@ -627,9 +627,12 @@ Here's the test code:
 @end smallexample
 
 If you run it will work. However if you run @code{rdebug} initially,
-you want get into the test, because @code{test/unit} wants to be the
-main program. So here is a situation where one needs to modify the
-program to add an explicit call to the debugger.
+you will not get into the test, because @code{test/unit} wants to be
+the main program. So here is a situation where one may need to modify
+the program to add an explicit call to the debugger.@footnote{For some
+versions of rake and @code{rdebug} you can in fact set a breakpoint
+after running @code{rdebug} initially. Personally though I find it
+much simpler and more reliable to modify the code as shown here.}
 
 One way to do this is to add the following before the place you want
 to stop:
