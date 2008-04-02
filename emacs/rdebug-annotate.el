@@ -209,11 +209,11 @@ Return (item . rest) or nil."
 
                   ;; Process the annotation.
                   (cond ((string= name "starting")
-                          (setq rdebug-inferior-status "running"))
+			 (setq rdebug-inferior-status "running"))
                         ((string= name "stopped")
-                          (setq rdebug-inferior-status "stopped"))
+			 (setq rdebug-inferior-status "stopped"))
                         ((string= name "exited")
-                          (setq rdebug-inferior-status "exited"))
+			 (setq rdebug-inferior-status "exited"))
                         ((string= name "pre-prompt")
                          ;; Strip of the trailing \n (this is probably
                          ;; a bug in processor.rb).
@@ -225,10 +225,10 @@ Return (item . rest) or nil."
                         ((string= name "source")
                          (if (string-match gud-rdebug-marker-regexp item)
                              ;; Extract the frame position from the marker.
-			       (setq gud-last-frame
-				     (cons (match-string 1 item)
-					   (string-to-number
-					    (match-string 2 item))))))
+			     (setq gud-last-frame
+				   (cons (match-string 1 item)
+					 (string-to-number
+					  (match-string 2 item))))))
                         (t (rdebug-process-annotation name contents))))
               ;; This is not a one-liner, and we haven't seen the next
               ;; annotation, so we have to treat this as a partial

@@ -477,7 +477,7 @@ and options used to invoke rdebug."
   "This unbinds the special debugger keys of the source buffers."
   (interactive)
   (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
-             rdebug-debugger-support-minor-mode-map-when-deactive))
+	  rdebug-debugger-support-minor-mode-map-when-deactive))
 
 
 (defun rdebug-customize ()

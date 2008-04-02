@@ -95,8 +95,8 @@ mode `rdebug-short-key-mode'.
     (if (eq rdebug-original-read-only :off)
 	(setq rdebug-original-read-only buffer-read-only))
     (setq buffer-read-only t))
-    (setq buffer-read-only rdebug-original-read-only)
-    (setq rdebug-original-read-only :off))
+  (setq buffer-read-only rdebug-original-read-only)
+  (setq rdebug-original-read-only :off))
 
 
 (defun rdebug-buffer-killed-p (buffer)
@@ -148,8 +148,8 @@ This function is designed to be used in a user hook, for example:
       (dolist (buf (buffer-list))
         (set-buffer buf)
         (when rdebug-internal-short-key-mode
-	    (setq rdebug-internal-short-key-mode nil)
-            (rdebug-internal-short-key-mode -1))))))
+	  (setq rdebug-internal-short-key-mode nil)
+	  (rdebug-internal-short-key-mode -1))))))
 
 (provide 'rdebug-shortkey)
 
