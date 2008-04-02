@@ -310,9 +310,7 @@ switch to the \"debugger\" window configuration."
                (not (eq (process-status process) 'run)))
       (rdebug-internal-short-key-mode-off)
       (rdebug-set-window-configuration-state 'original)
-      ;; This unbinds the special debugger keys of the source buffers.
-      (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
-              rdebug-debugger-support-minor-mode-map-when-deactive))))
+      (rdebug-reset-keymaps))))
 
 
 ;; Perform initializations common to all debuggers.
@@ -474,6 +472,13 @@ and options used to invoke rdebug."
         (when w
           (delete-window w)))
       (kill-buffer buffer))))
+
+(defun rdebug-reset-keymaps()
+  "This unbinds the special debugger keys of the source buffers."
+  (interactive)
+  (setcdr (assq 'rdebug-debugger-support-minor-mode minor-mode-map-alist)
+             rdebug-debugger-support-minor-mode-map-when-deactive))
+
 
 (defun rdebug-customize ()
   "Use `customize' to edit the settings of the `rdebug' debugger."

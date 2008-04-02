@@ -147,7 +147,8 @@ This function is designed to be used in a user hook, for example:
     (save-current-buffer
       (dolist (buf (buffer-list))
         (set-buffer buf)
-        (if rdebug-internal-short-key-mode
+        (when rdebug-internal-short-key-mode
+	    (setq rdebug-internal-short-key-mode nil)
             (rdebug-internal-short-key-mode -1))))))
 
 (provide 'rdebug-shortkey)
