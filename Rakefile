@@ -116,7 +116,7 @@ EOF
   spec.required_ruby_version = '>= 1.8.2'
   spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
-  spec.add_dependency('linecache', '>= 0.3')
+  spec.add_dependency('linecache', '>= 0.4')
   
   spec.test_files = FileList[BASE_TEST_FILE_LIST]
   
