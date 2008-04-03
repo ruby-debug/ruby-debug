@@ -3102,8 +3102,42 @@ exception and continuing, but details of code in Ruby 1.8's
 
 If however you haven't invoked @code{rdebug} at the outset, but
 instead call @code{ruby-debug} from inside your program, to set up
-post-mortem debugging you need to call
-@code{Debugger.post_mortem}. This method can be called in two
+post-mortem debugging set the @code{post_mortem} key in
+@code{Debugger.start}. Here's an example modified from
+@url{http://www.datanoise.com/articles/2006/12/20/post-mortem-debugging}:
+
+@smallexample
+    $ @b{cat t.rb }
+    require 'rubygems'
+    require 'ruby-debug' ; Debugger.start(:post_mortem => true)
+
+    def t1
+      raise 'test'
+    end
+    def t2
+      t1
+    end
+    t2
+
+    $ @b{ruby t.rb }
+    t.rb:8: raise 'test'
+    (rdb:post-mortem) @b{l=}
+    [3, 12] in t.rb
+       3  
+       4  Debugger.start
+       5  Debugger.post_mortem
+       6  
+       7  def t1
+    => 8    raise 'test'
+       9  end
+       10  def t2
+       11    t1
+       12  end
+    (rdb:post-mortem)
+@end smallexample
+
+Alternatively you cancall @code{Debugger.post_mortem} after rdebug has
+been started. The @code{post_mortem} method can be called in two
 ways. Called without a block, it installs a global @code{at_exit} hook
 that intercepts exceptions not handled by your Ruby script. In
 contrast to using the @code{--post-mortem} option, when this hook
@@ -3199,6 +3233,9 @@ options has and set the @code{:init} key to @code{false}. That is
 @smallexample
   Debugger.start(:init => false) # or Debugger.start(@{:init => false@})
 @end smallexample
+
+If you want post-mortem debugging, you can also supply
+@code{:post_mortem => true} in @code{Debugger.start}.
 
 @item Debugger.started?
 @vindex @code{Debugger.started?}

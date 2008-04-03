@@ -202,7 +202,11 @@ module Kernel
       Debugger.const_set('INITIAL_DIR', Dir.pwd) unless 
         defined? Debugger::INITIAL_DIR
     end
-    Debugger.started? ? nil : Debugger.start_(&block) 
+    retval = Debugger.started? ? nil : Debugger.start_(&block) 
+    if options[:post_mortem]
+      post_mortem
+    end
+    return retval
   end
 
   #

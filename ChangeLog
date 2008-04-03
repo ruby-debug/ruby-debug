@@ -1,3 +1,13 @@
+2008-03-30 03:01  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Note that rdebug with test/unit might work.
+
+2008-03-28 13:53  Rocky Bernstein
+
+	* ChangeLog, emacs/rdebug-annotate.el, lib/ChangeLog: Don't
+	  unconditionally turn on short-key mode when annotations are on.
+	  Use rdebug-short-key-mode setting to decide.
+
 2008-03-23 17:47  Rocky Bernstein
 
 	* ChangeLog, Rakefile, cli/ruby-debug/commands/set.rb,

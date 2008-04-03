@@ -1,3 +1,9 @@
+2008-03-28 13:53  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/emacs/rdebug-annotate.el, ChangeLog: Don't
+	  unconditionally turn on short-key mode when annotations are on.
+	  Use rdebug-short-key-mode setting to decide.
+
 2008-03-23 17:47  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile,
