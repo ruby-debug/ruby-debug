@@ -33,6 +33,8 @@ module IRB # :nodoc:
 end
 
 module Debugger
+
+  # Implements debugger "help" command.
   class IRBCommand < Command # :nodoc:
 
     register_setting_get(:autoirb) do 
@@ -79,7 +81,7 @@ module Debugger
 
       def help(cmd)
         %{
-          irb\tstarts an IRB session. (EXPERIMENTAL)
+          irb\tstarts an Interactive Ruby (IRB) session.
         }
       end
     end
