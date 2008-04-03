@@ -3136,9 +3136,9 @@ post-mortem debugging set the @code{post_mortem} key in
     (rdb:post-mortem)
 @end smallexample
 
-Alternatively you cancall @code{Debugger.post_mortem} after rdebug has
-been started. The @code{post_mortem} method can be called in two
-ways. Called without a block, it installs a global @code{at_exit} hook
+Alternatively you can call @code{Debugger.post_mortem()} after rdebug has
+been started. The @code{post_mortem()} method can be called in two
+ways. Called without a block, it installs a global @code{at_exit()} hook
 that intercepts exceptions not handled by your Ruby script. In
 contrast to using the @code{--post-mortem} option, when this hook
 occurs after the call stack has been rolled back. (I'm not sure if
