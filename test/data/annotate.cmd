@@ -3,6 +3,7 @@
 # ********************************************************
 set debuggertesting on
 set callstyle last
+set force off
 set annotate 3
 # Get into gcd
 step 2

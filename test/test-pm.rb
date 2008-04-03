@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'test/unit'
+require 'rbconfig'
 
 # begin require 'rubygems' rescue LoadError end
 # require 'ruby-debug'; Debugger.start
@@ -24,6 +25,7 @@ class TestPM < Test::Unit::TestCase
       ENV['COLUMNS'] = '80'
       testname='post-mortem'
       script = File.join('data', testname + '.cmd')
+      testname += '-osx' if Config::CONFIG['host_os'] =~ /^darwin/
       assert_equal(true, 
                    run_debugger(testname,
                                 "--script #{script} --post-mortem pm.rb"))
