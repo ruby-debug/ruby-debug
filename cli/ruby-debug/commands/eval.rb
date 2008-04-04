@@ -8,7 +8,8 @@ module Debugger
         def dbg_print(*args)
           $__dbg_interface.print(*args)
         end
-        remove_method :puts if self.respond_to?(:puts)
+        remove_method :puts if self.respond_to?(:puts) &&
+          defined?(remove_method)
         def dbg_puts(*args)
           $__dbg_interface.print(*args)
           $__dbg_interface.print("\n")
