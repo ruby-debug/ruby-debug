@@ -1,5 +1,6 @@
 #!/usr/bin/env ruby
 require 'test/unit'
+require 'rbconfig'
 
 # begin require 'rubygems' rescue LoadError end
 # require 'ruby-debug'; Debugger.start
@@ -24,7 +25,12 @@ class TestDebuggerInit < Test::Unit::TestCase
       ENV['EMACS'] = old_emacs
       ENV['COLUMNS'] = old_columns
 
-      expected = File.open(File.join('data', 'test-init.right')).readlines
+      right_file = if Config::CONFIG['host_os'] =~ /^darwin/ 
+                     'test-init-osx.right'
+                   else
+                     'test-init.right'
+                   end
+      expected = File.open(File.join('data', right_file)).readlines
       assert_equal(expected, lines)
       File.delete(debugger_output) if expected == lines
     end
