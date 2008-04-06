@@ -25,8 +25,11 @@ class TestDebuggerInit < Test::Unit::TestCase
       ENV['EMACS'] = old_emacs
       ENV['COLUMNS'] = old_columns
 
-      right_file = if Config::CONFIG['host_os'] =~ /^darwin/ 
+      right_file = case Config::CONFIG['host_os']
+                   when /^darwin/
                      'test-init-osx.right'
+                   when /^cygwin/
+                     'test-init-cygwin.right'
                    else
                      'test-init.right'
                    end
