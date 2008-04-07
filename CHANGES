@@ -1,5 +1,5 @@
 0.10.1
-
+4/10/08 - in honor of the 30th Birthday of Kate Schwarz
 
 - bin/rdebug
 
@@ -72,8 +72,12 @@
 
  * preface ruby_debug global Ruby variables with rdebug_.
 
- * Change Debugger.start() to save things (like $0 and ARGV) necessary to
-   allow restart. It now takes an optional option argument.
+ * Change Debugger.start() to accept an optional options argument
+    :init => true saves things (like $0 and ARGV) necessary to
+     allow restart. Default: true
+    :post_mortem => true runs post-mortem on an uncaught exception
+     Default: false
+  
    The old Debugger.start() is now renamed to Debugger.start_()
 
  * split of line caching to an external gem. We now only allow setting
@@ -81,7 +85,12 @@
 
  * Incompatible enhancement: even return/end will now call event handler
 
+ See ChangeLog for full details, and the reference guide for more complete
+ documentation of these changes.
+
 0.10.0
+12/25/07
+
 - '-r' option can be used to require additional libraries.
 - --noquit option added to stay in debugger when the program exits
 - gdb-like --annotate option added. Can be used by front-ends to get information

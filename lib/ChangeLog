@@ -1,3 +1,9 @@
+2008-04-03 19:01  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/doc/ruby-debug.texi, ChangeLog,
+	  ruby-debug-base.rb, trunk/test/pm-base.rb: Allow setting
+	  :post_mortem => true from Debugger.start.
+
 2008-03-28 13:53  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/emacs/rdebug-annotate.el, ChangeLog: Don't

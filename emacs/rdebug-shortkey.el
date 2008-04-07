@@ -47,6 +47,8 @@
 ;; controls if `rdebug-internal-short-key-mode' should be activated or
 ;; not.
 
+(require 'rdebug-source)
+
 (define-minor-mode rdebug-short-key-mode
   "When enabled, short keys can be used in source buffers in `rdebug'."
   :group 'rdebug

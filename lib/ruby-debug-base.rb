@@ -6,7 +6,8 @@ module Debugger
   
   # Default options to Debugger.start
   DEFAULT_START_SETTINGS = { 
-    :init => true # Set $0 and save ARGV? 
+    :init        => true,  # Set $0 and save ARGV? 
+    :post_mortem => false  # post-mortem debugging on uncaught exception?
   } unless defined?(DEFAULT_START_SETTINGS)
 
   class Context
@@ -177,21 +178,26 @@ module Kernel
   #  Debugger.start(options) -> bool
   #  Debugger.start(options) { ... } -> obj
   #
-  #   This method is internal and activates the debugger. Use
-  #   Debugger.start (from ruby-debug-base.rb) instead.
+  #  This method is internal and activates the debugger. Use
+  #  Debugger.start (from ruby-debug-base.rb) instead.
   #
-  #   If it's called without a block it returns +true+, unless debugger
-  #   was already started.  If a block is given, it starts debugger and
-  #   yields to block. When the block is finished executing it stops
-  #   the debugger with Debugger.stop method.
+  #  If it's called without a block it returns +true+, unless debugger
+  #  was already started.  If a block is given, it starts debugger and
+  #  yields to block. When the block is finished executing it stops
+  #  the debugger with Debugger.stop method.
   #
-  #   <i>Note that if you want to stop debugger, you must call
-  #   Debugger.stop as many time as you called Debugger.start
-  #   method.</i>
+  #  <i>Note that if you want to stop debugger, you must call
+  #  Debugger.stop as many time as you called Debugger.start
+  #  method.</i>
   # 
-  # occur if you ran the debugger via rdebug. In particular, 
-  # These things like setting program name and arguments make it possible
-  # for "restart" to work.
+  # +options+ is a hash used to set various debugging options.
+  # Set :init true if you want to save ARGV and some variables which
+  # make a debugger restart possible. Only the first time :init is set true
+  # will values get set. Since ARGV is saved, you should make sure 
+  # it hasn't been changed before the (first) call. 
+  # Set :post_mortem true if you want to enter post-mortem debugging
+  # on an uncaught exception. Once post-mortem debugging is set, it can't
+  # be unset.
   def start(options={}, &block)
     options = Debugger::DEFAULT_START_SETTINGS.merge(options)
     if options[:init]

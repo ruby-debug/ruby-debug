@@ -45,7 +45,9 @@ check_DATA = test/elk-test.el	\
 	test/test-fns.el   	\
 	test/test-gud.el   	\
 	test/test-indent.el 	\
-	test/test-regexp.el
+	test/test-regexp.el 	\
+	test/test-shortkey.el
+
 EXTRA_DIST = $(lisp_files) $(check_DATA)
 ELCFILES   = rdebug.elc 		\
 	     rdebug-annotate.elc	\
@@ -80,7 +82,9 @@ CHECK_FILES = \
 	check-frames \
 	check-gud \
 	check-indent \
-	check-regexp
+	check-regexp \
+	check-shortkey
+
 check: $(CHECK_FILES)
 
 check-annotate: rdebug-annotate.el
@@ -114,6 +118,10 @@ check-indent: $(lisp_files)
 check-regexp: rdebug-regexp.el
 	(cd $(srcdir)/test && \
 	$(EMACS) -batch -q -l test-regexp.el )
+
+check-shortkey: rdebug-shortkey.el
+	(cd $(srcdir)/test && \
+	$(EMACS) -batch -q -l test-shortkey.el )
 endif
 
 PHONY = $(CHECK_FILES)

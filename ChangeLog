@@ -1,3 +1,55 @@
+2008-04-06 03:03  Rocky Bernstein
+
+	* bin/rdebug, test/data/test-init-cygwin.right, test/test-init.rb:
+	  Assigning $0 on cygwin seems weird. cygwin readline different too
+
+2008-04-06 02:13  Rocky Bernstein
+
+	* test/data/test-init-osx.right, test/test-init.rb: read_command on
+	  OSX seems to work differently. Punt for now.
+
+2008-04-04 19:22  Rocky Bernstein
+
+	* cli/ruby-debug/commands/eval.rb: Sometimes remove_method isn't
+	  defined.
+
+2008-04-03 19:13  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Small typos.
+
+2008-04-03 19:01  Rocky Bernstein
+
+	* ChangeLog, doc/ruby-debug.texi, lib/ChangeLog,
+	  lib/ruby-debug-base.rb, test/pm-base.rb: Allow setting
+	  :post_mortem => true from Debugger.start.
+
+2008-04-03 14:22  Rocky Bernstein
+
+	* Rakefile: We'll require linecache 0.4 or better. (Use SVN for
+	  now. Will be released at same time as ruby-debug).
+
+2008-04-03 14:15  Rocky Bernstein
+
+	* test/data/annotate.cmd, test/data/annotate.right,
+	  test/data/post-mortem-osx.right, test/test-pm.rb: test-pm.rb,
+	  post-mortem-osx.right: Allow for tmate command on OSX.
+	  annotate.*: make sure 'set force on' doesn't happen.
+
+2008-04-03 12:06  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb: irb is no longer 'experimental'.
+
+2008-04-02 00:50  Rocky Bernstein
+
+	* emacs/rdebug-annotate.el, emacs/rdebug-core.el,
+	  emacs/rdebug-shortkey.el: Auto indent.
+
+2008-04-02 00:27  Rocky Bernstein
+
+	* emacs/rdebug-core.el, emacs/rdebug-shortkey.el: Short-key mode is
+	  turning itself on rather than off sometimes. More control over
+	  trying to get rid of it when desired.
+
 2008-03-30 03:01  Rocky Bernstein
 
 	* doc/ruby-debug.texi: Note that rdebug with test/unit might work.
