@@ -6,7 +6,7 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 GEM_NAME='ruby-debug-base'
-GEM_VERSION='0.10.0'
+GEM_VERSION='0.10.1'
 
 CLEAN.include('lib/ruby_debug_base.jar')
 
