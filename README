@@ -1,26 +1,38 @@
-This is really far from complete. Rather backup and sharing for the
-case, someone would like to jump-in in this *very* early stage. A lot of
-code is/might_be just wrong. Better to go away and return in few
-days/weeks :)
+= ruby-debug-base for JRuby
 
-Please contact me at martin.krauskopf@sun.com if you would like to
-contribute, retake, send patches ... cooperate in whatever manner. See
-the 'initiating' thread on the jruby@dev mailing list.
+== Overview
 
-http://archive.jruby.codehaus.org/dev/ef98118a0708171132u2bb08358q179a6d29235faadd%40mail.gmail.com
+(j)ruby-debug-base provides the fast debugger extension for JRuby interpreter.
+It is the same as ruby-debug-base native C extension from ruby-debug project
+(http://rubyforge.org/projects/ruby-debug/), but for JRuby.
 
-Note that the current content is a 'patch' against current JRuby's
-trunk. So just copy 'src' dir to the JRuby's sources. To compile you
-also need to apply jruby-patch.diff to JRuby's trunk.
+== Install
 
-Other links
------------
-- Trying to get started with jruby-debug
-  http://archive.jruby.codehaus.org/dev/ef98118a0709221034o42703713r60acfdcc9538ae93%40mail.gmail.com 
+(j)ruby-debug-base is available as a RubyGem. Unfortunately it is still not
+installable remotely. But installation is easy enough:
 
-Newest info
------------
+- manually download the ruby-debug-base-0.10.0-java.gem to local directory from
+  here: http://rubyforge.org/frs/?group_id=3085 
 
-This code should now be capable of installing as a gem which can replace ruby-debug-base.  
-Run rake install_gem to compile, build jar, build gem, and install it into a jruby gem install 
-directory.  Running gem package will build a gem.
+- install the Gem into your JRuby Gem repository:
+
+   jruby -S gem install ruby-debug-base-0.10.0-java.gem
+
+- now install ruby-debug with:
+
+   jruby -S gem install --ignore-dependencies ruby-debug 
+
+See also: http://wiki.jruby.org/wiki/Using_the_JRuby_Debugger
+
+== Usage
+
+The usage is then the same as with native ruby-debugger. Simplest usage is:
+
+$ rdebug <your-script>
+
+For more information see: http://bashdb.sourceforge.net/ruby-debug.html
+
+== License
+
+See MIT-LICENSE for license information.
+
