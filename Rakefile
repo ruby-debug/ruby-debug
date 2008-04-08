@@ -113,7 +113,7 @@ end
 # Compiles Java classes into the pkg/classes directory.
 def compile_java
   mkdir_p "pkg/classes"
-  sh "javac -g -target 1.5 -source 1.5 -d pkg/classes #{jruby_classpath} #{FileList['src/**/*.java'].join(' ')}"
+  sh "javac -Xlint -Xlint:-serial -g -target 1.5 -source 1.5 -d pkg/classes #{jruby_classpath} #{FileList['src/**/*.java'].join(' ')}"
 end
 
 def make_jar
