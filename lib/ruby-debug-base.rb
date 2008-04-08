@@ -1,4 +1,4 @@
-require 'ruby_debug_base.jar'
+require 'ruby_debug.jar'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
