@@ -31,11 +31,11 @@ puts "two"
 two
 stopped
 stack
---> #0 debug_program at line tdebug.rb:48
+--> #0 debug_program at line tdebug.rb:53
 
 variables
 self = main
 
-source tdebug.rb:48
+source tdebug.rb:53
 if bt
 # quit
