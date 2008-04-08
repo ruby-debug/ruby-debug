@@ -152,7 +152,8 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
-      return if Debugger::RDEBUG_FILE == file # Don't trace ourself
+      return if defined?(Debugger::RDEBUG_FILE) && 
+        Debugger::RDEBUG_FILE == file # Don't trace ourself
       @last_file = CommandProcessor.canonic_file(file)
       file = CommandProcessor.canonic_file(file)
       unless file == @last_file and @last_line == line and 
@@ -389,6 +390,7 @@ module Debugger
     def initialize(interface)
       super()
       @interface = interface
+      @debugger_context_was_dead = true # Assume we haven't started.
     end
     
     def process_commands
