@@ -199,7 +199,8 @@ if options.script
   Debugger.interface = Debugger::ScriptInterface.new(options.script, 
                                                      STDOUT, true)
 end
-Debugger.tracing = options.nostop = true if options.tracing
+options.stop = false if options.tracing
+Debugger.tracing = options.tracing
 
 # Make sure Ruby script syntax checks okay.
 # Otherwise we get a load message that looks like rdebug has 
