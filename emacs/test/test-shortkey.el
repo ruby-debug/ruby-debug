@@ -12,11 +12,11 @@
     (with-current-buffer buf
       (setq buffer-read-only nil)
       ;; turning on short-key-mode make buffer read-only
-      (rdebug-short-key-mode) 
+      (rdebug-internal-short-key-mode 1) 
       (assert-equal t buffer-read-only)
       
       ;; turning off short-key-mode should make buffer read-write again
-      (rdebug-short-key-mode) 
+      (rdebug-internal-short-key-mode -1)
       (assert-equal nil buffer-read-only))
     (kill-buffer buf))
 
@@ -25,11 +25,11 @@
       (setq buffer-read-only t)
 
       ;; turning on short-key-mode keep buffer read-only
-      (rdebug-short-key-mode) 
+      (rdebug-internal-short-key-mode 1)
       (assert-equal t buffer-read-only)
 
       ;; turning off short-key-mode should make buffer read-write again
-      (rdebug-short-key-mode) 
+      (rdebug-internal-short-key-mode -1)
       (assert-equal nil buffer-read-only)
       (kill-buffer buf))))
 

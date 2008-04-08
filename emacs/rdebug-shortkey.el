@@ -93,12 +93,16 @@ mode `rdebug-short-key-mode'.
   (make-local-variable 'rdebug-original-read-only)
   ;; Note, without the third state, :off, activating the mode more
   ;; than once would overwrite the real original value.
-  (when rdebug-internal-short-key-mode
-    (if (eq rdebug-original-read-only :off)
-	(setq rdebug-original-read-only buffer-read-only))
-    (setq buffer-read-only t))
-  (setq buffer-read-only rdebug-original-read-only)
-  (setq rdebug-original-read-only :off))
+  (if (eq rdebug-original-read-only nil)
+      (setq rdebug-original-read-only 
+	    (if buffer-read-only t :off)))
+  (if rdebug-internal-short-key-mode
+      ;; Turn on shortkey mode
+      (setq buffer-read-only t)
+    ;; Turn off shortkey mode
+    (if (eq rdebug-original-read-only t)
+	 (setq buffer-read-only t)
+      (setq buffer-read-only nil))))
 
 
 (defun rdebug-buffer-killed-p (buffer)
