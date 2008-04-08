@@ -4,7 +4,8 @@
 (load-file "./elk-test.el")
 
 ;; FIXME? Should we use "require 'rdebug" here.
-;; Would have to prepend . to load-path. 
+;; Would have to prepend . to load-path.
+(setq load-path (cons ".." load-path))
 (load-file "../rdebug-shortkey.el")
 
 (deftest "rdebug-shortkey-mode-test"
@@ -12,12 +13,28 @@
     (with-current-buffer buf
       (setq buffer-read-only nil)
       ;; turning on short-key-mode make buffer read-only
-      (rdebug-internal-short-key-mode 1) 
+      (rdebug-internal-short-key-mode 1)
       (assert-equal t buffer-read-only)
-      
+
       ;; turning off short-key-mode should make buffer read-write again
       (rdebug-internal-short-key-mode -1)
+      (assert-equal nil buffer-read-only)
+
+      ;; --------------------
+      ;; Check multiple "on": and "off:s".
+
+      (rdebug-internal-short-key-mode 1)
+      (assert-equal t buffer-read-only)
+
+      (rdebug-internal-short-key-mode 1)
+      (assert-equal t buffer-read-only)
+
+      (rdebug-internal-short-key-mode 1)
+      (assert-equal t buffer-read-only)
+
+      (rdebug-internal-short-key-mode -1)
       (assert-equal nil buffer-read-only))
+
     (kill-buffer buf))
 
   (let ((buf (generate-new-buffer "shortkey readonly")))
@@ -28,17 +45,17 @@
       (rdebug-internal-short-key-mode 1)
       (assert-equal t buffer-read-only)
 
-      ;; turning off short-key-mode should make buffer read-write again
+      ;; The buffer was originally in read-only mode, it should remain
+      ;; there.
       (rdebug-internal-short-key-mode -1)
-      (assert-equal nil buffer-read-only)
-      (kill-buffer buf))))
+      (assert-equal t buffer-read-only))
+    (kill-buffer buf)))
 
 ;; -------------------------------------------------------------------
 ;; Build and run the test suite.
 ;;
 
-(build-suite "rdebug-suite" 
+(build-suite "rdebug-suite"
 	     "rdebug-shortkey-mode-test")
 (run-elk-test "rdebug-suite"
               "test things in rdebug-shortkey.el")
-

@@ -70,10 +70,12 @@
     map)
   "Keymap used in `rdebug-internal-short-key-mode'.")
 
-(defvar rdebug-original-read-only :off
-  "The value `buffer-read-only' should be restored to after short key mode.
+(defvar rdebug-original-read-only nil
+  "The value `buffer-read-only' should be restored to after short key mode.")
 
-When :off, the mode is not active.")
+;; `define-minor-mode' does not set if the mode was on or off prior to being called.
+(defvar rdebug-internal-short-key-mode-previous-state nil
+  "Used to determine when 'rdebug-internal-short-key-mode' changed state.")
 
 ;; Implementation note: This is the mode that does all the work, it's
 ;; local to the buffer that is affected.
@@ -91,19 +93,21 @@ mode `rdebug-short-key-mode'.
   :lighter " ShortKeys"
   :keymap rdebug-internal-short-key-mode-map
   (make-local-variable 'rdebug-original-read-only)
-  ;; Note, without the third state, :off, activating the mode more
-  ;; than once would overwrite the real original value.
-  (if (eq rdebug-original-read-only nil)
-      (setq rdebug-original-read-only 
-	    (if buffer-read-only t :off)))
-  (if rdebug-internal-short-key-mode
-      ;; Turn on shortkey mode
-      (setq buffer-read-only t)
-    ;; Turn off shortkey mode
-    (if (eq rdebug-original-read-only t)
-	 (setq buffer-read-only t)
-      (setq buffer-read-only nil))))
-
+  (make-local-variable 'rdebug-internal-short-key-mode-previous-state)
+  ;; Ensure action only is performed when the state actually is toggled.
+  (unless (eq rdebug-internal-short-key-mode-previous-state
+              rdebug-internal-short-key-mode)
+    (if rdebug-internal-short-key-mode
+        ;; Mode is being turned on.
+        (progn
+          (setq rdebug-original-read-only buffer-read-only)
+          (setq buffer-read-only t))
+      ;; Mode is being turned off.
+      (setq buffer-read-only rdebug-original-read-only))
+    ;; Save the current state, so we can determine when the state is
+    ;; toggled in the future.
+    (setq rdebug-internal-short-key-mode-previous-state
+          rdebug-internal-short-key-mode)))
 
 (defun rdebug-buffer-killed-p (buffer)
   "Return t if BUFFER is killed."
@@ -126,7 +130,7 @@ mode `rdebug-short-key-mode'.
                 (save-current-buffer
                   (set-buffer buffer)
 		  ;; Make gud-comint-buffer local
-		  (if gud-comint-buffer 
+		  (if gud-comint-buffer
 		      (make-local-variable 'gud-comint-buffer))
                   (rdebug-internal-short-key-mode 1)))))))))
 
@@ -139,6 +143,12 @@ This function is designed to be used in a user hook, for example:
     (add-hook 'rdebug-mode-hook 'rdebug-turn-on-short-key-mode)"
   (interactive)
   (rdebug-short-key-mode 1))
+
+
+(defun rdebug-turn-off-short-key-mode ()
+  "Turn off `rdebug-short-key-mode'."
+  (interactive)
+  (rdebug-short-key-mode -1))
 
 
 (defun rdebug-short-key-mode-maybe-activate ()
@@ -154,7 +164,6 @@ This function is designed to be used in a user hook, for example:
       (dolist (buf (buffer-list))
         (set-buffer buf)
         (when rdebug-internal-short-key-mode
-	  (setq rdebug-internal-short-key-mode nil)
 	  (rdebug-internal-short-key-mode -1))))))
 
 (provide 'rdebug-shortkey)
