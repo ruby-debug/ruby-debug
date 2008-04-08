@@ -1,3 +1,65 @@
+2008-04-08 14:16  Rocky Bernstein
+
+	* test/data/raise.right: Another test data line number change
+
+2008-04-08 14:12  Rocky Bernstein
+
+	* test/tdebug.rb: tdebug.rb alignment with rdebug
+
+2008-04-08 14:02  Rocky Bernstein
+
+	* test/data/linetracep.cmd: Forgot to add this for the linetrace+
+	  test.
+
+2008-04-08 14:01  Rocky Bernstein
+
+	* emacs/rdebug-shortkey.el, emacs/test/test-shortkey.el: Attempt a
+	  fix at shortkey internal. There be dragons here. Not sure what's
+	  going on.
+
+2008-04-08 10:23  Rocky Bernstein
+
+	* test/data/linetracep.right, test/test-trace.rb: Another linetrace
+	  test. This time with linetrace+ set.
+
+2008-04-08 10:19  Rocky Bernstein
+
+	* cli/ruby-debug/processor.rb, test/data/linetrace.cmd,
+	  test/data/linetrace.right, test/test-trace.rb: processor.rb:
+	  Silence possibly more warnings under $DEBUG
+	  test/*: another linetrace test using the linetrace command.
+
+2008-04-08 03:17  Rocky Bernstein
+
+	* test/data/output.right, test/data/quit.right: Test line numbers
+	  changed. Sigh
+
+2008-04-08 03:14  Rocky Bernstein
+
+	* test/tdebug.rb: Track rdebug.
+
+2008-04-08 03:10  Rocky Bernstein
+
+	* test/test-trace.rb: Oops forget this test
+
+2008-04-08 03:09  Rocky Bernstein
+
+	* bin/rdebug, cli/ruby-debug/processor.rb, test/data/trace.right,
+	  test/tdebug.rb: Fix bug in --trace. Add regression test for that
+	  as well.
+	  Reduce (but alas not eliminate) extraneous line tracing.
+
+2008-04-07 00:36  Rocky Bernstein
+
+	* CHANGES, ChangeLog, emacs/Makefile.am, emacs/rdebug-shortkey.el,
+	  emacs/test/test-shortkey.el, lib/ChangeLog,
+	  lib/ruby-debug-base.rb: ruby-debug-base.rb: document
+	  Debugger.start parameters.
+	  CHANGES: Revise what's happened
+	  test-shortkey.el: A failing regression test because I think
+	  rdebug-shortkey-mode
+	  is not correct.
+
 2008-04-06 03:03  Rocky Bernstein
 
 	* bin/rdebug, test/data/test-init-cygwin.right, test/test-init.rb:

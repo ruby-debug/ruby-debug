@@ -110,7 +110,6 @@ EOF
   spec.platform = Gem::Platform::RUBY
   spec.require_path = "lib"
   spec.extensions = ["ext/extconf.rb"]
-  spec.autorequire = "ruby-debug-base"
   spec.files = BASE_FILES.to_a  
 
   spec.required_ruby_version = '>= 1.8.2'
@@ -142,7 +141,6 @@ EOF
   spec.require_path = "cli"
   spec.bindir = "bin"
   spec.executables = ["rdebug"]
-  spec.autorequire = "ruby-debug"
   spec.files = CLI_FILES.to_a
 
   spec.required_ruby_version = '>= 1.8.2'
