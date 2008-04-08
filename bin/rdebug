@@ -239,6 +239,7 @@ begin
     rdebug_path += '.cmd' unless rdebug_path =~ /\.cmd$/i
   end
   Debugger::RDEBUG_SCRIPT = rdebug_path
+  Debugger::RDEBUG_FILE = __FILE__
   Debugger::INITIAL_DIR = Dir.pwd
   opts.parse! ARGV
 rescue StandardError => e
@@ -302,7 +303,8 @@ else
 
     # activate post-mortem
     Debugger.post_mortem if options.post_mortem
-    Debugger.tracing = options.stop = false if options.tracing
+    options.stop = false if options.tracing
+    Debugger.tracing = options.tracing
 
     if !options.quit
       if Debugger.started?

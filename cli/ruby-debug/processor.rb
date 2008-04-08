@@ -152,6 +152,7 @@ module Debugger
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
+      return if Debugger::RDEBUG_FILE == file # Don't trace ourself
       @last_file = CommandProcessor.canonic_file(file)
       file = CommandProcessor.canonic_file(file)
       unless file == @last_file and @last_line == line and 

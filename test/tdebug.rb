@@ -37,12 +37,17 @@ def debug_program(options)
     # However This is just a little more than I want to take on right
     # now, so I think I'll stick with the slightly hacky approach.
     $RDEBUG_0 = $0
-    $0 = if '.' == File.dirname(Debugger::PROG_SCRIPT) and
+
+    # cygwin does some sort of funky truncation on $0 ./abcdef => ./ab
+    # probably something to do with 3-letter extension truncation.
+    # The hacky workaround is to do slice assignment. Ugh.
+    d0 = if '.' == File.dirname(Debugger::PROG_SCRIPT) and
              Debugger::PROG_SCRIPT[0..0] != '.'
            File.join('.', Debugger::PROG_SCRIPT)
          else
            Debugger::PROG_SCRIPT
          end
+    $0[0..-1] = d0
   end
   bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop)
   if bt
@@ -155,6 +160,7 @@ begin
     rdebug_path += '.cmd' unless rdebug_path =~ /\.cmd$/i
   end
   Debugger::RDEBUG_SCRIPT = rdebug_path
+  Debugger::RDEBUG_FILE = __FILE__
   Debugger::INITIAL_DIR = Dir.pwd
   opts.parse! ARGV
 rescue StandardError => e
