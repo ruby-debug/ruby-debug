@@ -199,7 +199,7 @@ if options.script
   Debugger.interface = Debugger::ScriptInterface.new(options.script, 
                                                      STDOUT, true)
 end
-options.stop = false if options.tracing
+options.nostop = true if options.tracing
 Debugger.tracing = options.tracing
 
 # Make sure Ruby script syntax checks okay.
@@ -224,7 +224,8 @@ if options.script
 end
 # activate post-mortem
 Debugger.post_mortem if options.post_mortem
-Debugger.tracing = options.nostop = true if options.tracing
+options.stop = false if options.tracing
+Debugger.tracing = options.tracing
 
 if options.noquit
   if Debugger.started?
