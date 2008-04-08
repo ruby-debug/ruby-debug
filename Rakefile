@@ -13,6 +13,16 @@ RUBY_DEBUG_JAR='ext/ruby_debug.jar'
 CLEAN.include('ext')
 CLEAN.include('lib/ruby_debug.jar')
 
+DIST_FILES = FileList[
+  'AUTHORS',
+  'ChangeLog',
+  'lib/ruby-debug-base.rb',
+  'lib/ruby_debug.jar',
+  'MIT-LICENSE',
+  'Rakefile',
+  'README'
+]
+
 task :default => :package
 
 def java_classpath_arg
@@ -43,7 +53,7 @@ spec = Gem::Specification.new do |s|
   s.name     = GEM_NAME
   s.version  = GEM_VERSION
   s.require_path = 'lib'
-  s.files    = FileList['Rakefile', 'README', 'lib/ruby_debug.jar', 'lib/ruby-debug-base.rb']
+  s.files    = DIST_FILES
   s.description = <<-EOF
 Java extension to make fast ruby debugger run on JRuby.
 It is the same what ruby-debug-base is for native Ruby.

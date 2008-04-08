@@ -1,3 +1,62 @@
+2008-04-08 14:03  Martin Krauskopf
+
+	* README: Updating quite obsolete README
+
+2008-04-08 13:21  Martin Krauskopf
+
+	* lib/test.rb: Removing obsolete (wrongly placed) test.
+
+2008-04-08 13:17  Martin Krauskopf
+
+	* ., Rakefile, lib, lib/ruby-debug-base.rb,
+	  src/RubyDebugBaseService.java, src/RubyDebugService.java: Syncing
+	  with C-version to be able to run their test suite and more...
+	  - s/ruby_debug_base.jar/ruby_debug.jar
+	  - build extension into 'ext' instead of 'lib'
+	  - removing some redundant targets
+
+2008-04-07 22:13  Martin Krauskopf
+
+	* lib/ruby-debug-base.rb: Fake LineCache module simulating
+	  linecache gem behaviour until there is full implementation for
+	  JRuby.
+
+2008-04-07 22:00  Martin Krauskopf
+
+	* Rakefile, src/org/jruby/debug/RubyDebugger.java: Swathing trunk
+	  to 0.10.1
+
+2008-03-19 21:15  Martin Krauskopf
+
+	* src/org/jruby/debug/Debugger.java: Some CLI options did not work.
+	  Setting them during Debugger construction, not during start where
+	  they might be already set.
+
+2008-03-10 22:23  Peter Brant
+
+	* src/org/jruby/debug/DebugEventHook.java: Update for latest trunk
+
+2008-02-19 12:30  Martin Krauskopf
+
+	* MIT-LICENSE, trunk/MIT-LICENSE: Updating license and addint MIT
+	  license for jruby-debug-base
+
+2008-02-05 13:48  Martin Krauskopf
+
+	* src/org/jruby/debug/Debugger.java,
+	  src/org/jruby/debug/RubyDebugger.java: Check whether debugger is
+	  started on more appropriate places
+
+2008-02-04 14:06  Martin Krauskopf
+
+	* Rakefile, src/org/jruby/debug/RubyDebugger.java: Switch
+	  dependency to ruby-debug-base 0.10.0
+
+2008-02-01 16:12  Martin Krauskopf
+
+	* ChangeLog, Rakefile, svn2cl_usermap: svn2cl support + generating
+	  ChangeLog
+
 2008-01-29 22:41  Martin Krauskopf
 
 	* Rakefile, trunk/ruby-debug-ide/Rakefile: Minor fixes/tweaks to
