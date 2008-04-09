@@ -42,10 +42,10 @@
 @top Debugging with ruby-debug under GNU Emacs
 
 @menu
-* autoloaded functions::
+* installation::
+* getting started::
 * Debugger Buffers:: 
 * Emacs Debugger Commands::
-* Emacs with Annotate:: A richer debugging environment
 Indexes (nodes containing large menus)
 * Emacs Command Index::       An item for each GNU/Emacs command name.
 * Emacs Function Index::      An item for each Emacs Function.
@@ -54,7 +54,7 @@ Indexes (nodes containing large menus)
 @detailmenu
  --- The Detailed Node Listing ---
 
-Autoloaded functions
+getting started
 
 * Emacs rdebug:: Invoke the ruby debugger initially
 * Emacs shell tracking mode::  Entering rdebug from an existing shell buffer
@@ -89,29 +89,49 @@ This is the @value{EDITION} Edition, @value{UPDATED}
 @cindex @value{Emacs}
 A special interface which comes with Ruby that allows you to use
 @value{Emacs} to view (and edit) the source files for the program you
-are debugging with @value{DBG}. However you must be using
-@value{Emacs} version 21, but with @value{Emacs} version 22 or 23
+are debugging with @value{DBG}. However you must be using at least
+version 21 of @value{Emacs}, but with @value{Emacs} version 22 or 23
 there are even more debugging features available. @code{M-x
-show-emacs-version} inside @value{Emacs} will tell you what version
-you are running.
+show-emacs-version} inside @value{Emacs} will tell you what version you
+are running.
 
-To use this interface, you to load @code{rdebug.el}. 
+This package provide a full-fledged debugging environment, on par with
+modern integrated development environments. Once the debugger has been
+activated, the Emacs frame is divided into a number of dedicated
+debugger windows.@footnote{If you are an @value{Emacs} traditionalist,
+you can, of course, run this package with only a shell and source
+buffer}
 
-@smallexample
-  (require 'rdebug)
-@end smallexample 
+This package comes with a number of predefined window layout. It is
+fully customizable so you can create your own.
 
-Once this is done, some commands become autoloaded. In particular
-@kbd{rdebug}, @kbd{rdebug-turn-on-debugger-support}, 
-@kbd{turn-on-rdebugtrack-mode} and @kbd{rdebug-track-attach}.
+@c -------------------------------------------------------------------
 
-@node autoloaded functions
-@chapter Autoloaded functions
+
+@node getting started
+@chapter getting started
 
 @menu
+* Installation:: How to install this package
 * Emacs rdebug:: Invoke the ruby debugger initially
 * Emacs shell tracking mode::  Entering rdebug from an existing shell buffer
 @end menu
+
+@node Installation
+@section Installation
+
+To use this interface, load the file @code{rdebug.el}. This file is a
+light-weight file, basically it only contains a handful of
+@code{autoload} directives.
+
+For example, you can place the following in your @code{~/.emacs} file:
+
+@smallexample
+  (require 'rdebug)
+@end smallexample
+
+In addition, you must have Ruby and ruby-debug installed.
+
 
 @node Emacs rdebug
 @section Emacs rdebug
@@ -147,7 +167,9 @@ stop.
 @node Emacs shell tracking mode
 @section Entering rdebug from an existing shell buffer
 
-Many times it's not feasible to enter the debugger from the outset. Instead a call to the debugger is put inside the program. 
+Many times it's not feasible to enter the debugger from the outset.
+Instead a call to the debugger is put inside the program.
+
 @c See @xref{Unit Testing Session}.
 
 It is also possible in GNU emacs to use a (``comint'') shell and set a
@@ -155,14 +177,258 @@ mode to watch for @value{DBG} prompts and track the source code in
 another window. @xref{Interactive Shell, , Shell, Emacs, The @value{Emacs}
 Manual}.
 
-To enable, this run @kbd{M-x turn-on-rdebug-track-mode}. There is some overhead
-involved in scanning output, so if you are not debugging Ruby programs
-you probably want to turn this off which can be done via the M-x
-@code{turn-off-rdebugtrack} command.
+To enable, this run @kbd{M-x turn-on-rdebug-track-mode}. There is some
+overhead involved in scanning output, so if you are not debugging Ruby
+programs you probably want to turn this off which can be done via the
+@code{M-x turn-off-rdebugtrack} command.
 
-If you want to use even more integration and tracking, run @kbd{M-x
-rdebug-track-attach} and then inside the debugger give the debugger
-command @kbd{set annotate 3}. Emacs interaction when annotate is in effect is described in @xref{Emacs with Annotate}.
+@c -------------------------------------------------------------------
+
+@node The Multi-window Mode
+@chapter Multi-window
+
+In the multi-window debugger mode, a number of buffers are visible when
+the debugger starts. This chapter will describe each of them, in
+addition it will descibe the features associated with the multi-window
+mode.
+
+The default layout looks like the following:
+
+@verbatim
++----------------------------------------------------------------------+
+|                                Toolbar                               |
++-----------------------------------+----------------------------------+
+|                                   |                                  |
+| Debugger shell                    | Variables buffer                 |
+|                                   |                                  |
++-----------------------------------+----------------------------------+
+|                                   |                                  |
+| Source buffer                     | Output buffer                    |
+|                                   |                                  |
++-----------------------------------+----------------------------------+
+|                                   |                                  |
+| Stack buffer                      | Breakpoints buffer               |
+|                                   |                                  |
++-----------------------------------+----------------------------------+
+@end verbatim
+
+@section Activating Multi-window mode
+
+The variable @code{rdebug-many-windows} controls if multi-window mode
+should be used, it is enabled by default. When starting the debugger
+using the @code{M-x rdebug} mode the command line option @code{--emacs
+3} must be specified (this is also the default).
+
+When attaching to an already running debugger process, you must give the
+debugger command @kbd{set annotate 3}.
+
+@section Window Layouts
+
+When the debugger is started, the original window layout of
+@value{Emacs} is replaced with the window layout of the debugger. You
+can switch back and forth between the original window layout and the
+debugger layout using
+@kbd{M-x rdebug-display-original-window-configuration} and
+@kbd{M-x rdebug-display-debugger-window-configuration}.
+
+If, for some reason, the debugger layout has been garbarged you can
+restore it to the original state using @kbd{M-x
+rdebug-restore-debugger-window-layout}.
+
+The debugger provides a number of different window layouts. The easies
+way to try them out is to use the menu @kbd{<menu-bar> <debugger>
+<layout>} and select any in the section starting with @code{Standard}.
+
+
+@section The buffers
+
+All buffers in this section share a set of commands for common debugger
+operations and for switching between buffers. In addition, each buffer
+has got a set of dedicated commands.
+
+All debugger buffers, with the exception of source and the debugger
+shell window, are called @emph{secondary buffers}.
+
+@subsection Keybindings for all Debugger Windows
+
+The debugger provides key-bindings that work in all debugger windows.
+They are desgined to match keys of commonly used debugger environments.
+You can use @kbd{<menu> <debugger> <options> <rdebug-customize>} to
+change the keybindings. The following are provided:
+
+@multitable @columnfractions 0.4 0.2 0.2 0.2
+@headitem Command               @tab Standard @tab Eclipse @tab Netbeans
+@item Run                       @tab f5       @tab         @tab
+@item Quit                      @tab S-f5     @tab         @tab
+@item Toggle Breakpoint         @tab f9       @tab         @tab
+@item Enable/Disable Breakpoint @tab C-f9     @tab S-C-b   @tab S-f8
+@item Step over                 @tab f10      @tab f6      @tab f8
+@item Step into                 @tab f11      @tab f5      @tab f7
+@item Step out                  @tab S-f11    @tab f7      @tab M-S-f7
+
+@end multitable
+
+
+
+@subsection Keybindings for Secondary Buffers
+
+The following commands are available in all secondary windows.
+
+Capital letters move between secondary buffers as mentioned above (jump
+to if visible or replace a secondary if not).
+
+@table @kbd
+@item SPACE
+step (edebug compatible)
+@item <
+Up in the stack trace
+@item >
+Down in the stack trace
+@item ?
+Help
+@item B
+Display breakpoints buffer
+@item C
+Display command buffer
+@item O
+Display program output
+@item S
+Display source window
+@item T
+Display stack trace buffer
+@item V
+display variables buffer
+@item W
+display watch buffer
+@item b
+Set breakpoint
+@item c
+Continue (i.e. run)
+@item d
+Remove breakpoint
+@item f
+Finish (i.e. step out of the current function)
+@item n
+Next (i.e. step into function)
+@item p
+print
+@item q
+Quit
+@item r
+Restart
+@item s
+Step (i.e. step over function)
+@end table
+
+You can use the same commands in the source buffer if you enable
+@code{rdebug-short-key-mode}. The best way to do this is to add the
+following to your init file:
+
+@smallexample
+  (add-hook 'rdebug-mode-hook 'rdebug-turn-on-short-key-mode)
+@end smallexample
+
+
+
+@subsection The Debugger Shell Buffer
+
+The @emph{debgger shell window} is the main communication channel
+between @value{DBG} and @value{Emacs}. You can use the shell to issue
+debugger commands directly. In addition, any @value{Emacs} debugger
+command you issue will be translated into shell commands, and the output
+will be parsed.
+
+It is the ambition that the @value{Emacs} debugger interface should be
+in a state where the debugger shell window would not need to be visible.
+
+@subsection The Source Buffer
+
+The @emph{source buffers} (or buffers) contains the actual Ruby source
+code that is being debugged. A small arrow in the left fringe displays
+the current line. Active breakpoints are dipslayed as red dots and
+passive as grey.
+
+@subsection The Output Buffer
+
+The @emph{output buffer} displays any output the debugged program emits.
+
+The option @code{rdebug-use-separate-io-buffer} controls if the output
+buffer should be used, or if the output would go into the debugger shell
+buffer.
+
+@subsection The Variables Buffer
+
+In this buffer, local and object variables are displayed. The values of
+the variables can be edited.
+
+@table @kbd
+@item RET
+Edit the value
+@item e
+Print the value
+@item x
+Pretty-print the value
+@end table
+
+@subsection The Stack Trace Buffer
+
+The @emph{stack trace} buffer displays the function that is currently
+being debugger, the function that called it, etc., all the way up to the
+originally called function.
+
+You can navigate in the stack trace buffer in order to see the source of
+any function in the call chain. The Variables buffer will also be
+updated to reflect the local variables of that function.
+
+@table @kbd
+@item RET
+Select a function to display
+@item <digits>
+Go to a stack frame
+@end table
+
+@subsection The Watch Buffer
+
+The @emph{Watch Buffer} can display arbitrary expressions, including,
+but not limited to, global variables.
+
+@table @kbd
+@item a
+Add a watch expression
+@item C-d, d
+Delete a watch expression
+@item RET, e
+Edit a watch expression
+@item <digits>
+Go to the expression
+@end table
+
+@subsection The Breakpoints Buffer
+
+The @emph{Breakpoints Buffer} displays all breakpoints that currenty are
+defined and shows if they are enabled or disabled.
+
+@table @kbd
+@item t
+Toggle a breakpoint between enabled and disabled
+@item i
+Add a breakpoint condition
+@item ret
+Goto a breakpoint
+@item C-d
+Delete a breakpoint
+@item <digits>
+Go to the expression
+@end table
+
+@subsection The Help Buffer
+
+The @emph{Help Buffer} is displayed whenever you press @code{?}. It will
+display a help text on the available debugger commands and commands to
+navigate between the buffers.
+
+
+@c -------------------------------------------------------------------
 
 @node Debugger Buffers
 @chapter Debugger Buffers
@@ -712,106 +978,6 @@ line.
 @findex gud-tbreak
 Set temporary breakpoint at current line.
 @end table
-
-@node Emacs with Annotate
-@chapter A richer debugging environment using @code{--annotate}
-
-When @code{--annotate 3} is added as an option to the @code{rdebug}
-command, extra information is passed between @value{Emacs} and
-@value{DBG}.  For each debug session several internal buffers set up
-and constantly updated. They contain information about the current
-state of the program. The names of the buffers start @code{*rdebug-};
-they are:
-
-@itemize @bullet
-@item @code{*rdebug-breakpoints-@emph{program-name}*}
-
-A buffer containing breakpoint information.
-
-@item @code{*rdebug-watch-@emph{program-name}*}
-
-A buffer containing display expressions 
-@c (@pxref{DisplayCommands}).
-@item @code{*rdebug-output-@emph{program-name}*}
-
-A buffer containing output produced in running the program so far.
-@item @code{*rdebug-stack-@emph{program-name}*}
-
-The call stack for the current thread
-@item @code{*rdebug-variables-@emph{program-name}*}
-
-A buffer containing local variables (@code{local_variables}) and
-instance variables (@code{instance_variables}).
-@end itemize
-@kindex secondary buffers.
-These are called @emph{secondary buffers}.
-
-Because screen real-estate is limited, some of these buffers may be
-visible in a frame and some not. There are commands to switch to these
-buffers moving to the visible frame if the buffer is visible, or
-replacing the secondary buffer that the command was issued from with
-the desired secondary buffer.
-
-Capital letters move between secondary buffers as mentioned above (jump
-to if visible or replace a secondary if not).
-
-@table @kbd
-@item SPACE
-step (edebug compatible)
-@item <
-up    (Gud uses this and Emacs uses M-< for beginning of buffer)
-@item >  
-down  (Gud uses this and Emacs uses M-> for beginning of buffer)
-@item ?
-help
-@item B 
-goto/display breakpoints buffer
-@item C
-goto/display command buffer
-@item O
-goto/display program output
-@item S
-goto/display source window
-@item T
-goto/display stack-buffer (Perl uses T for stack trace)
-@item V
-goto/display variables buffer
-@item W
-goto/display watch buffer
-@item b
-set breakpoint (edebug compatible)
-@item c
-continue  (edebug compatible)
-@item d
-remove break
-@item f
-finish
-@item n
-next  (edebug compatible)
-@item p 
-print
-@item q
-quit (edebug compatible)
-@item r
-restart
-@item s
-step
-@end table
-
-Some secondary buffers may have specific commands applicable, but
-there are very few of these.
-
-@verbatim
-Buffer specific commands
-  Stack buffer
-  return: set frame at this position
-
-  variables buffer
-  return: edit the variable's value
-
-  breakpoints:
-  return toggle breakpoint (enable/disable it)
-@end verbatim
 
 @node Emacs Command Index
 @unnumbered Emacs Command Index
