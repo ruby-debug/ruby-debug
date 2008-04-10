@@ -38,40 +38,40 @@
 @end titlepage
 @page
 
-@node Top
+@node Top, getting started, (dir), (dir)
 @top Debugging with ruby-debug under GNU Emacs
 
 @menu
-* installation::
-* getting started::
-* Debugger Buffers:: 
-* Emacs Debugger Commands::
-Indexes (nodes containing large menus)
-* Emacs Command Index::       An item for each GNU/Emacs command name.
-* Emacs Function Index::      An item for each Emacs Function.
-* Emacs Key Binding Index::   An item for each Emacs Debugger Command.
+* getting started::             
+* The Multi-window Mode::       
+* Debugger Buffers::            
+* Emacs Debugger Commands::     Indexes (nodes containing large menus)
+* Emacs Command Index::         An item for each GNU/Emacs command name.
+* Emacs Function Index::        An item for each Emacs Function.
+* Emacs Key Binding Index::     An item for each Emacs Debugger Command.
 
 @detailmenu
  --- The Detailed Node Listing ---
 
 getting started
 
-* Emacs rdebug:: Invoke the ruby debugger initially
-* Emacs shell tracking mode::  Entering rdebug from an existing shell buffer
+* Installation::                How to install this package
+* Emacs rdebug::                Invoke the ruby debugger initially
+* Emacs shell tracking mode::   Entering rdebug from an existing shell buffer
 
 Debugger Buffers
 
-* Debugger Command Buffer:: 
-* Emacs Source::  Commands from the source script
+* Debugger Command Buffer::     
+* Emacs Source::                Commands from the source script
 
 Emacs Debugger Commands
 
-* Emacs Debugger Common Commands::
-* Emacs Debugger Breakpoint Buffer Commands::
-* Emacs Debugger Stack Buffer Commands::
-* Emacs Debugger Variable Buffer Commands::
-* Emacs Debugger Watch Buffer Commands::
-* Emacs GUD Commands::
+* Emacs Debugger Common Commands::  
+* Emacs Debugger Breakpoint Buffer Commands::  
+* Emacs Debugger Stack Buffer Commands::  
+* Emacs Debugger Variable Buffer Commands::  
+* Emacs Debugger Watch Buffer Commands::  
+* Emacs GUD Commands::          
 
 @end detailmenu
 @end menu
@@ -102,22 +102,22 @@ debugger windows.@footnote{If you are an @value{Emacs} traditionalist,
 you can, of course, run this package with only a shell and source
 buffer}
 
-This package comes with a number of predefined window layout. It is
+This package comes with a number of predefined window layouts. It is
 fully customizable so you can create your own.
 
 @c -------------------------------------------------------------------
 
 
-@node getting started
+@node getting started, The Multi-window Mode, Top, Top
 @chapter getting started
 
 @menu
-* Installation:: How to install this package
-* Emacs rdebug:: Invoke the ruby debugger initially
-* Emacs shell tracking mode::  Entering rdebug from an existing shell buffer
+* Installation::                How to install this package
+* Emacs rdebug::                Invoke the ruby debugger initially
+* Emacs shell tracking mode::   Entering rdebug from an existing shell buffer
 @end menu
 
-@node Installation
+@node Installation, Emacs rdebug, getting started, getting started
 @section Installation
 
 To use this interface, load the file @code{rdebug.el}. This file is a
@@ -133,7 +133,7 @@ For example, you can place the following in your @code{~/.emacs} file:
 In addition, you must have Ruby and ruby-debug installed.
 
 
-@node Emacs rdebug
+@node Emacs rdebug, Emacs shell tracking mode, Installation, getting started
 @section Emacs rdebug
 
 Use the command @kbd{M-x rdebug} in @sc{gnu} Emacs to start debugging.
@@ -164,7 +164,7 @@ with your script.  In particular, you can send signals the usual
 way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
 stop.
 
-@node Emacs shell tracking mode
+@node Emacs shell tracking mode,  , Emacs rdebug, getting started
 @section Entering rdebug from an existing shell buffer
 
 Many times it's not feasible to enter the debugger from the outset.
@@ -184,15 +184,15 @@ programs you probably want to turn this off which can be done via the
 
 @c -------------------------------------------------------------------
 
-@node The Multi-window Mode
+@node The Multi-window Mode, Debugger Buffers, getting started, Top
 @chapter Multi-window
 
 In the multi-window debugger mode, a number of buffers are visible when
 the debugger starts. This chapter will describe each of them, in
-addition it will descibe the features associated with the multi-window
+addition it will describe the features associated with the multi-window
 mode.
 
-The default layout looks like the following:
+The default multi-window layout looks like the following:
 
 @verbatim
 +----------------------------------------------------------------------+
@@ -231,7 +231,7 @@ debugger layout using
 @kbd{M-x rdebug-display-original-window-configuration} and
 @kbd{M-x rdebug-display-debugger-window-configuration}.
 
-If, for some reason, the debugger layout has been garbarged you can
+If, for some reason, the debugger layout has been garbled you can
 restore it to the original state using @kbd{M-x
 rdebug-restore-debugger-window-layout}.
 
@@ -252,7 +252,7 @@ shell window, are called @emph{secondary buffers}.
 @subsection Keybindings for all Debugger Windows
 
 The debugger provides key-bindings that work in all debugger windows.
-They are desgined to match keys of commonly used debugger environments.
+They are designed to match keys of commonly used debugger environments.
 You can use @kbd{<menu> <debugger> <options> <rdebug-customize>} to
 change the keybindings. The following are provided:
 
@@ -332,7 +332,7 @@ following to your init file:
 
 @subsection The Debugger Shell Buffer
 
-The @emph{debgger shell window} is the main communication channel
+The @emph{debugger shell window} is the main communication channel
 between @value{DBG} and @value{Emacs}. You can use the shell to issue
 debugger commands directly. In addition, any @value{Emacs} debugger
 command you issue will be translated into shell commands, and the output
@@ -345,7 +345,7 @@ in a state where the debugger shell window would not need to be visible.
 
 The @emph{source buffers} (or buffers) contains the actual Ruby source
 code that is being debugged. A small arrow in the left fringe displays
-the current line. Active breakpoints are dipslayed as red dots and
+the current line. Active breakpoints are displayed as red dots and
 passive as grey.
 
 @subsection The Output Buffer
@@ -405,7 +405,7 @@ Go to the expression
 
 @subsection The Breakpoints Buffer
 
-The @emph{Breakpoints Buffer} displays all breakpoints that currenty are
+The @emph{Breakpoints Buffer} displays all breakpoints that currently are
 defined and shows if they are enabled or disabled.
 
 @table @kbd
@@ -430,15 +430,15 @@ navigate between the buffers.
 
 @c -------------------------------------------------------------------
 
-@node Debugger Buffers
+@node Debugger Buffers, Emacs Debugger Commands, The Multi-window Mode, Top
 @chapter Debugger Buffers
 
 @menu
-* Debugger Command Buffer:: 
-* Emacs Source::  Commands from the source script
+* Debugger Command Buffer::     
+* Emacs Source::                Commands from the source script
 @end menu
 
-@node Debugger Command Buffer
+@node Debugger Command Buffer, Emacs Source, Debugger Buffers, Debugger Buffers
 @section Emacs Debugger Command buffer
 
 Each time @value{DBG} displays a stack frame, Emacs automatically finds the
@@ -660,7 +660,7 @@ to correspond properly with the code.
 @xref{Debugger Operation, , , Emacs, The @value{Emacs}
 Manual}.
 
-@node Emacs Source
+@node Emacs Source,  , Debugger Command Buffer, Debugger Buffers
 @section Commands from the source script
 
 @table @kbd
@@ -776,19 +776,19 @@ command name is @code{gud-refresh}. In the corresponding I/O buffer,
 
 @end table
 
-@node Emacs Debugger Commands
+@node Emacs Debugger Commands, Emacs Command Index, Debugger Buffers, Top
 @chapter Emacs Debugger Commands
 
 @menu
-* Emacs Debugger Common Commands::
-* Emacs Debugger Breakpoint Buffer Commands::
-* Emacs Debugger Stack Buffer Commands::
-* Emacs Debugger Variable Buffer Commands::
-* Emacs Debugger Watch Buffer Commands::
-* Emacs GUD Commands::
+* Emacs Debugger Common Commands::  
+* Emacs Debugger Breakpoint Buffer Commands::  
+* Emacs Debugger Stack Buffer Commands::  
+* Emacs Debugger Variable Buffer Commands::  
+* Emacs Debugger Watch Buffer Commands::  
+* Emacs GUD Commands::          
 @end menu
 
-@node Emacs Debugger Common Commands
+@node Emacs Debugger Common Commands, Emacs Debugger Breakpoint Buffer Commands, Emacs Debugger Commands, Emacs Debugger Commands
 @section Emacs Debugger Common Commands
 
 The commands in this section are used to make a secondary buffer
@@ -887,7 +887,7 @@ Display the initial ruby debugger window layout.
 @end table
 
 
-@node Emacs Debugger Breakpoint Buffer Commands
+@node Emacs Debugger Breakpoint Buffer Commands, Emacs Debugger Stack Buffer Commands, Emacs Debugger Common Commands, Emacs Debugger Commands
 @section Emacs Debugger Breakpoint Buffer Commands
 
 @table @kbd
@@ -901,7 +901,7 @@ Major mode for displaying breakpoints in a secondary window. Uses
 @var{rdebug-breakpoints-mode-map}.
 @end table
 
-@node Emacs Debugger Stack Buffer Commands
+@node Emacs Debugger Stack Buffer Commands, Emacs Debugger Variable Buffer Commands, Emacs Debugger Breakpoint Buffer Commands, Emacs Debugger Commands
 @section Emacs Debugger Stack Buffer Commands
 
 @table @kbd
@@ -913,7 +913,7 @@ Major mode for displaying the stack trace. Uses
 @var{rdebug-frames-mode-map}.
 @end table
 
-@node Emacs Debugger Variable Buffer Commands
+@node Emacs Debugger Variable Buffer Commands, Emacs Debugger Watch Buffer Commands, Emacs Debugger Stack Buffer Commands, Emacs Debugger Commands
 @section Emacs Debugger Variable Buffer Commands
 
 @table @kbd
@@ -921,7 +921,7 @@ Major mode for displaying the stack trace. Uses
 @findex rdebug-variables-edit
 @end table
 
-@node Emacs Debugger Watch Buffer Commands
+@node Emacs Debugger Watch Buffer Commands, Emacs GUD Commands, Emacs Debugger Variable Buffer Commands, Emacs Debugger Commands
 @section Emacs Debugger Watch Buffer Commands
 
 @table @kbd
@@ -940,7 +940,7 @@ Major mode for displaying the display expressions. Uses
 @var{rdebug-watch-mode-map}.
 @end table
 
-@node Emacs GUD Commands
+@node Emacs GUD Commands,  , Emacs Debugger Watch Buffer Commands, Emacs Debugger Commands
 @section Emacs Debugger GUD Commands
 
 @table @kbd
@@ -979,15 +979,15 @@ line.
 Set temporary breakpoint at current line.
 @end table
 
-@node Emacs Command Index
+@node Emacs Command Index, Emacs Function Index, Emacs Debugger Commands, Top
 @unnumbered Emacs Command Index
 @printindex pg
 
-@node Emacs Function Index
+@node Emacs Function Index, Emacs Key Binding Index, Emacs Command Index, Top
 @unnumbered Emacs Function Index
 @printindex fn
 
-@node Emacs Key Binding Index
+@node Emacs Key Binding Index,  , Emacs Function Index, Top
 @unnumbered Key Binding Index
 @printindex ky
 

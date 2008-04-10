@@ -1,3 +1,9 @@
+2008-04-08 14:52  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/Rakefile, ChangeLog: autorequire is
+	  deprecated and presumably no longer needed
+	  http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/182827
+
 2008-04-07 00:36  Rocky Bernstein
 
 	* trunk/CHANGES, trunk/ChangeLog, trunk/emacs/Makefile.am,
