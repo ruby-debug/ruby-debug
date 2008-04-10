@@ -1,3 +1,19 @@
+2008-04-10 02:03  Rocky Bernstein
+
+	* ChangeLog, doc/rdebug-emacs.texi, lib/ChangeLog: Cosmetic stuff:
+	  spelling corrections. Update node structure so texinfo
+	  doesn't complain.
+
+2008-04-09 21:22  Anders Lindgren
+
+	* doc/rdebug-emacs.texi: New chapter for multi-window debugging.
+	  Intro reworked. NOTE: Menu nodes not updated.
+
+2008-04-08 19:55  Anders Lindgren
+
+	* emacs/rdebug-shortkey.el, emacs/test/test-shortkey.el: Logic in
+	  rdebug-internal-short-key-mode reworked. Test case updated.
+
 2008-04-08 14:52  Rocky Bernstein
 
 	* ChangeLog, Rakefile, lib/ChangeLog: autorequire is deprecated and

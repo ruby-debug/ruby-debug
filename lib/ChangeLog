@@ -1,3 +1,9 @@
+2008-04-10 02:03  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/doc/rdebug-emacs.texi, ChangeLog: Cosmetic
+	  stuff: spelling corrections. Update node structure so texinfo
+	  doesn't complain.
+
 2008-04-08 14:52  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/Rakefile, ChangeLog: autorequire is
