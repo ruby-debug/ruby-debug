@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'columnize'
-require 'linecache'
 require 'ruby-debug/helper'
 
 module Debugger
