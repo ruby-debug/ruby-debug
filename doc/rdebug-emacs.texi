@@ -38,11 +38,11 @@
 @end titlepage
 @page
 
-@node Top, getting started, (dir), (dir)
+@node Top, Getting started, (dir), (dir)
 @top Debugging with ruby-debug under GNU Emacs
 
 @menu
-* getting started::             
+* Getting started::             
 * The Multi-window Mode::       
 * Debugger Buffers::            
 * Emacs Debugger Commands::     Indexes (nodes containing large menus)
@@ -53,7 +53,7 @@
 @detailmenu
  --- The Detailed Node Listing ---
 
-getting started
+Getting started
 
 * Installation::                How to install this package
 * Emacs rdebug::                Invoke the ruby debugger initially
@@ -108,16 +108,17 @@ fully customizable so you can create your own.
 @c -------------------------------------------------------------------
 
 
-@node getting started, The Multi-window Mode, Top, Top
-@chapter getting started
+@node Getting started, The Multi-window Mode, Top, Top
+@chapter Getting started
 
 @menu
 * Installation::                How to install this package
 * Emacs rdebug::                Invoke the ruby debugger initially
 * Emacs shell tracking mode::   Entering rdebug from an existing shell buffer
+* Configurating this package::  Introducing the configure system
 @end menu
 
-@node Installation, Emacs rdebug, getting started, getting started
+@node Installation, Emacs rdebug, Getting started, Getting started
 @section Installation
 
 To use this interface, load the file @code{rdebug.el}. This file is a
@@ -133,7 +134,7 @@ For example, you can place the following in your @code{~/.emacs} file:
 In addition, you must have Ruby and ruby-debug installed.
 
 
-@node Emacs rdebug, Emacs shell tracking mode, Installation, getting started
+@node Emacs rdebug, Emacs shell tracking mode, Installation, Getting started
 @section Emacs rdebug
 
 Use the command @kbd{M-x rdebug} in @sc{gnu} Emacs to start debugging.
@@ -164,7 +165,7 @@ with your script.  In particular, you can send signals the usual
 way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
 stop.
 
-@node Emacs shell tracking mode,  , Emacs rdebug, getting started
+@node Emacs shell tracking mode, Configurating this package, Emacs rdebug, Getting started
 @section Entering rdebug from an existing shell buffer
 
 Many times it's not feasible to enter the debugger from the outset.
@@ -182,9 +183,18 @@ overhead involved in scanning output, so if you are not debugging Ruby
 programs you probably want to turn this off which can be done via the
 @code{M-x turn-off-rdebugtrack} command.
 
+
+@node Configurating this package,  , Emacs rdebug, Getting started
+@section Configurating this package
+
+In this manual we present a number of @value{Emacs} lisp variables and
+functions that you can use to configure the debugger interface. In
+addition, you can use the @value{Emacs} @emph{customize} system, see the
+@kbd{<menu-bar> <debugger> <options> <customize>} menu item.
+
 @c -------------------------------------------------------------------
 
-@node The Multi-window Mode, Debugger Buffers, getting started, Top
+@node The Multi-window Mode, Debugger Buffers, Getting started, Top
 @chapter Multi-window
 
 In the multi-window debugger mode, a number of buffers are visible when
@@ -251,10 +261,14 @@ shell window, are called @emph{secondary buffers}.
 
 @subsection Keybindings for all Debugger Windows
 
-The debugger provides key-bindings that work in all debugger windows.
-They are designed to match keys of commonly used debugger environments.
-You can use @kbd{<menu> <debugger> <options> <rdebug-customize>} to
-change the keybindings. The following are provided:
+The debugger provides key-bindings that work in all debugger windows,
+including Ruby source buffers. The key bindings are designed to match
+keys of commonly used debugger environments.
+
+The variable @code{rdebug-populate-common-keys-function} can be assigned
+to a function that should bind the keys use. Three functions are
+provided @code{rdebug-populate-common-keys-standard},
+@code{...-eclipse}, and @code{...-netbeans}.
 
 @multitable @columnfractions 0.4 0.2 0.2 0.2
 @headitem Command               @tab Standard @tab Eclipse @tab Netbeans
