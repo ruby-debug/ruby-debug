@@ -88,7 +88,7 @@ public final class RubyDebugger {
      * many time as you called Debugger.start method.</i>
      * </p>
      */
-    @JRubyMethod(name="start", module=true)
+    @JRubyMethod(name="start_", module=true)
     public static IRubyObject start(IRubyObject recv, Block block) {
         return debugger().start(recv, block);
     }

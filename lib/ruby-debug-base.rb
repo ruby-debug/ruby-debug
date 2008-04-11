@@ -160,6 +160,46 @@ module Kernel
   end
   alias breakpoint debugger unless respond_to?(:breakpoint)
   
+  #  Debugger.start(options) -> bool
+  #  Debugger.start(options) { ... } -> obj
+  #
+  #  This method is internal and activates the debugger. Use
+  #  Debugger.start (from ruby-debug-base.rb) instead.
+  #
+  #  If it's called without a block it returns +true+, unless debugger
+  #  was already started.  If a block is given, it starts debugger and
+  #  yields to block. When the block is finished executing it stops
+  #  the debugger with Debugger.stop method.
+  #
+  #  <i>Note that if you want to stop debugger, you must call
+  #  Debugger.stop as many time as you called Debugger.start
+  #  method.</i>
+  # 
+  # +options+ is a hash used to set various debugging options.
+  # Set :init true if you want to save ARGV and some variables which
+  # make a debugger restart possible. Only the first time :init is set true
+  # will values get set. Since ARGV is saved, you should make sure 
+  # it hasn't been changed before the (first) call. 
+  # Set :post_mortem true if you want to enter post-mortem debugging
+  # on an uncaught exception. Once post-mortem debugging is set, it can't
+  # be unset.
+  def start(options={}, &block)
+    options = Debugger::DEFAULT_START_SETTINGS.merge(options)
+    if options[:init]
+      Debugger.const_set('ARGV', ARGV.clone) unless 
+        defined? Debugger::ARGV
+      Debugger.const_set('PROG_SCRIPT', $0) unless 
+        defined? Debugger::PROG_SCRIPT
+      Debugger.const_set('INITIAL_DIR', Dir.pwd) unless 
+        defined? Debugger::INITIAL_DIR
+    end
+    retval = Debugger.started? ? nil : Debugger.start_(&block) 
+    if options[:post_mortem]
+      post_mortem
+    end
+    return retval
+  end
+
   #
   # Returns a binding of n-th call frame
   #

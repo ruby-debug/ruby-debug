@@ -105,8 +105,7 @@ public class Context extends RubyObject {
 
     @JRubyMethod(name="stop_frame=", required=1)
     public IRubyObject stop_frame_set(IRubyObject rFrameNo, Block block) {
-        debugger.checkStarted(getRuntime());
-        
+        checkStarted();
         DebugContext debugContext = debugContext();
         int frameNo = RubyNumeric.fix2int(rFrameNo);
         if (frameNo < 0 || frameNo >= debugContext.getStackSize()) {
@@ -160,7 +159,6 @@ public class Context extends RubyObject {
     @JRubyMethod(name="suspend")
     public IRubyObject suspend(Block block) {
         checkStarted();
-        
         DebugContext debugContext = debugContext();
         if (debugContext.isSuspended()) {
             throw getRuntime().newRuntimeError("Already suspended.");
@@ -186,22 +184,19 @@ public class Context extends RubyObject {
     @JRubyMethod(name="suspended?")
     public IRubyObject suspended_p(Block block) {
         checkStarted();
-        
         return getRuntime().newBoolean(debugContext().isSuspended());
     }
 
     @JRubyMethod(name="resume")
     public IRubyObject resume(Block block) {
         checkStarted();
-        
         DebugContext debugContext = debugContext();
         
-        if (! debugContext.isSuspended()) {
+        if (!debugContext.isSuspended()) {
             throw getRuntime().newRuntimeError("Thread is not suspended.");
         }
         
         resume0();
-        
         return getRuntime().getNil();
     }
 
@@ -220,27 +215,21 @@ public class Context extends RubyObject {
     @JRubyMethod(name="tracing")
     public IRubyObject tracing(Block block) {
         checkStarted();
-        
         DebugContext debugContext = debugContext();
-
         return getRuntime().newBoolean(debugContext.isTracing());
     }
 
     @JRubyMethod(name="tracing=", required=1)
     public IRubyObject tracing_set(IRubyObject tracing, Block block) {
         checkStarted();
-        
         DebugContext debugContext = debugContext();
-        
         debugContext.setTracing(tracing.isTrue());
-        
         return tracing;
     }
 
     @JRubyMethod(name="ignored?")
     public IRubyObject ignored_p(Block block) {
         checkStarted();
-        
         return getRuntime().newBoolean(debugContext().isIgnored());
     }
 
@@ -263,26 +252,26 @@ public class Context extends RubyObject {
     
     @JRubyMethod(name={"frame_id", "frame_method"}, required=1)
     public IRubyObject frame_method(IRubyObject frameNo, Block block) {
-        debugger.checkStarted(getRuntime());
+        checkStarted();
         String methodName = getFrame(frameNo).getMethodName();
         return methodName == null ? getRuntime().getNil() : getRuntime().newSymbol(methodName);
     }
     
-    @JRubyMethod(name="frame_args_info", required=1)
-    public IRubyObject frame_args_info(IRubyObject frameNo, Block block) {
-        debugger.checkStarted(getRuntime());
-        
-        return getFrame(frameNo).getArgValues();
+    @JRubyMethod(name="frame_args_info", optional=1)
+    public IRubyObject frame_args_info(IRubyObject[] args, Block block) {
+        checkStarted();
+        return getFrame(args).getArgValues();
     }
 
-    @JRubyMethod(name="frame_line", required=1)
-    public IRubyObject frame_line(IRubyObject frameNo, Block block) {
-        return getRuntime().newFixnum(getFrame(frameNo).getLine());
+    @JRubyMethod(name="frame_line", optional=1)
+    public IRubyObject frame_line(IRubyObject[] args, Block block) {
+        checkStarted();
+        return getRuntime().newFixnum(getFrame(args).getLine());
     }
 
-    @JRubyMethod(name="frame_file", required=1)
-    public IRubyObject frame_file(IRubyObject frameNo, Block block) {
-        return getRuntime().newString(getFrame(frameNo).getFile());
+    @JRubyMethod(name="frame_file", optional=1)
+    public IRubyObject frame_file(IRubyObject[] args, Block block) {
+        return getRuntime().newString(getFrame(args).getFile());
     }
 
     @JRubyMethod(name="frame_locals", required=1)
@@ -302,10 +291,10 @@ public class Context extends RubyObject {
         return getFrame(frameNo).getSelf();
     }
 
-    @JRubyMethod(name="frame_class", required=1)
-    public IRubyObject frame_class(IRubyObject frameNo, Block block) {
-        debugger.checkStarted(getRuntime());
-        DebugFrame frame = getFrame(frameNo);
+    @JRubyMethod(name="frame_class", optional=1)
+    public IRubyObject frame_class(IRubyObject[] args, Block block) {
+        checkStarted();
+        DebugFrame frame = getFrame(args);
         if (frame.isDead()) {
             return getRuntime().getNil();
         }
@@ -315,26 +304,26 @@ public class Context extends RubyObject {
 
     @JRubyMethod(name="stack_size")
     public IRubyObject stack_size(Block block) {
-        debugger.checkStarted(getRuntime());
+        checkStarted();
         return getRuntime().newFixnum(debugContext().getStackSize());
     }
 
     @JRubyMethod(name="dead?")
     public IRubyObject dead_p(Block block) {
-        debugger.checkStarted(getRuntime());
+        checkStarted();
         return Util.toRBoolean(this, debugContext().isDead());
     }
 
     @JRubyMethod(name="breakpoint")
     public IRubyObject breakpoint(Block block) {
-        debugger.checkStarted(getRuntime());
+        checkStarted();
         
         return debugContext().getBreakpoint();
     }
 
     @JRubyMethod(name="set_breakpoint", required=2, optional=1)
     public IRubyObject set_breakpoint(IRubyObject[] args, Block block) {
-        debugger.checkStarted(getRuntime());
+        checkStarted();
         
         IRubyObject breakpoint = debugger.createBreakpointFromArgs(this, args);
         debugContext().setBreakpoint(breakpoint);
@@ -342,6 +331,14 @@ public class Context extends RubyObject {
         return breakpoint;
     }
 
+    private IRubyObject getFrameNumber(final IRubyObject[] args) {
+        return args.length == 1 ? args[0] : getRuntime().newFixnum(0);
+    }
+
+    private DebugFrame getFrame(final IRubyObject[] args) {
+        return getFrame(getFrameNumber(args));
+    }
+    
     private DebugFrame getFrame(final IRubyObject frameNo) {
         DebugContext debugContext = debugContext();
         int frameNoInt = checkFrameNumber(debugContext, frameNo);
