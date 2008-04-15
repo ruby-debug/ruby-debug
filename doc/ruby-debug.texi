@@ -3209,14 +3209,15 @@ access thread frames.
 This needs to be done before entering the debugger; therefore a call
 to the debugger issue a @code{Debugger.start} call if necessary.
 
-If called without a block, @code{Debugger.start}returns @code{true} if
+If called without a block, @code{Debugger.start} returns @code{true} if
 the debugger was already started. But if you want to know if the
 debugger has already been started @code{Debugger.started?} can tell
 you.
 
+@emph{Currently broken:}
 If a block is given, the debugger is started and @code{yields} to
 block. When the block is finished executing, the debugger stopped with
-the @code{Debugger.stop method}. To completely stop the debugger and remove
+the @code{Debugger.stop method}.
 
 But if you want to completely stop debugger, you must call
 @code{Debugger.stop} as many times as you called Debugger.start
