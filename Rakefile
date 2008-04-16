@@ -23,6 +23,11 @@ DIST_FILES = FileList[
   'README'
 ]
 
+BASE_TEST_FILE_LIST = %w(
+  test/base/base.rb
+  test/base/binding.rb 
+  test/base/catchpoint.rb)
+
 task :default => :package
 
 def java_classpath_arg
@@ -37,6 +42,15 @@ def java_classpath_arg
   end
 
   classpath ? "-cp #{classpath}" : ""
+end
+
+desc "Test ruby-debug-base."
+task :test => :lib do 
+  Rake::TestTask.new(:test) do |t|
+    t.libs << ['./ext', './lib']
+    t.test_files = FileList[BASE_TEST_FILE_LIST]
+    t.verbose = true
+  end
 end
 
 desc "Create the core ruby-debug shared library extension"
