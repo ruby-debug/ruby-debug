@@ -275,15 +275,19 @@ final class DebugEventHook implements EventHook {
                     break;
                 }
                 
-                if (debugger.getCatchpoint().isNil()) {
+                if (debugger.getCatchpoints().isNil() || debugger.getCatchpoints().isEmpty()) {
                     break;
                 }
                 
                 RubyArray ancestors = exception.getType().ancestors();
                 int l = ancestors.getLength();
                 for (int i = 0; i < l; i++) {
-                    RubyModule m = (RubyModule)ancestors.get(i);
-                    if (m.getName().equals(debugger.getCatchpointAsString())) {
+                    RubyModule module = (RubyModule)ancestors.get(i);
+                    IRubyObject modName = module.name();
+                    IRubyObject hitCount = debugger.getCatchpoints().op_aref(tCtx, modName);
+                    if (!hitCount.isNil()) {
+                        hitCount = runtime.newFixnum(RubyFixnum.fix2int(hitCount) + 1);
+                        debugger.getCatchpoints().op_aset(tCtx, modName, hitCount);
                         debugContext.setStopReason(DebugContext.StopReason.CATCHPOINT);
                         context.callMethod(tCtx, DebugContext.AT_CATCHPOINT, breakpoint);
                         

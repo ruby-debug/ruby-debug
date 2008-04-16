@@ -128,16 +128,15 @@ public final class RubyDebugger {
         return debugger().removeBreakpoint(recv, breakpointId);
     }
 
-    @JRubyMethod(name="catchpoint", module=true)
+    @JRubyMethod(name="catchpoints", module=true)
     public static IRubyObject catchpoint(IRubyObject recv, Block block) {
         debugger().checkStarted(recv);
-        return debugger().getCatchpoint();
+        return debugger().getCatchpoints();
     }
 
-    @JRubyMethod(name="catchpoint=", module=true, required=1)
-    public static IRubyObject catchpoint_set(IRubyObject recv, IRubyObject catchpoint, Block block) {
-        debugger().setCatchpoint(recv, catchpoint);
-        
+    @JRubyMethod(name="add_catchpoint", module=true, required=1)
+    public static IRubyObject addCatchpoint(IRubyObject recv, IRubyObject catchpoint, Block block) {
+        debugger().addCatchpoint(recv, catchpoint);
         return catchpoint;
     }
 

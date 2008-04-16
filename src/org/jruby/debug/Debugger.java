@@ -32,6 +32,7 @@ import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
+import org.jruby.RubyHash;
 import org.jruby.RubyString;
 import org.jruby.RubyThread;
 import org.jruby.debug.DebugBreakpoint.Type;
@@ -46,8 +47,7 @@ final class Debugger {
     private Map<RubyThread, IRubyObject> threadsTable;
     
     private IRubyObject breakpoints;
-    private IRubyObject catchpoint;
-    private String catchpointAsString;
+    private IRubyObject catchpoints;
     private boolean tracing;
     private boolean postMortem;
     private boolean keepFrameBinding;
@@ -75,10 +75,9 @@ final class Debugger {
             lastThread  = nil;
             started = true;
             setLastContext(runtime, nil);
-            catchpoint = nil;
-            catchpointAsString = null;
             debugEventHook = new DebugEventHook(this, runtime);
             breakpoints = runtime.newArray();
+            catchpoints = RubyHash.newHash(runtime);
             threadsTable = new IdentityHashMap<RubyThread, IRubyObject>();
             runtime.addEventHook(debugEventHook);
             result = runtime.getTrue();
@@ -103,11 +102,10 @@ final class Debugger {
         }
         runtime.removeEventHook(debugEventHook);
         breakpoints = null;
+        catchpoints = null;
         debugEventHook = null;
         started = false;
         threadsTable = null;
-        catchpoint = null;
-        catchpointAsString = null;
         return true;
     }
 
@@ -418,25 +416,20 @@ final class Debugger {
         this.trackFrameArgs = trackFrameArgs;
     }
     
-    IRubyObject getCatchpoint() {
-        return catchpoint;
+    RubyHash getCatchpoints() {
+        return (RubyHash) catchpoints;
     }
     
-    String getCatchpointAsString() {
-        return catchpointAsString;
-    }
-    
-    void setCatchpoint(IRubyObject recv, IRubyObject catchpoint) {
+    void addCatchpoint(IRubyObject recv, IRubyObject catchpoint) {
+        Ruby runtime = recv.getRuntime();
         checkStarted(recv);
         if (catchpoint.isNil()) {
-            this.catchpoint = catchpoint;
+            this.catchpoints = runtime.getNil();
         } else {
-            if (! recv.getRuntime().getString().isInstance(catchpoint)) {
-                throw recv.getRuntime().newTypeError("value of checkpoint must be String");
+            if (!runtime.getString().isInstance(catchpoint)) {
+                throw runtime.newTypeError("value of checkpoint must be String");
             }
-            
-            this.catchpoint = catchpoint.dup();
-            this.catchpointAsString = catchpoint.toString();
+            getCatchpoints().op_aset(runtime.getCurrentContext(), catchpoint.dup(), RubyFixnum.zero(runtime));
         }
     }
 }
