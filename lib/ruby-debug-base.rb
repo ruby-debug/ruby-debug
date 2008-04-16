@@ -4,6 +4,13 @@ SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
 
 module Debugger
+  
+  # Default options to Debugger.start
+  DEFAULT_START_SETTINGS = { 
+    :init        => true,  # Set $0 and save ARGV? 
+    :post_mortem => false  # post-mortem debugging on uncaught exception?
+  } unless defined?(DEFAULT_START_SETTINGS)
+
   class Context
     def interrupt
       self.stop_next = 1
