@@ -30,20 +30,6 @@ BASE_TEST_FILE_LIST = %w(
 
 task :default => :package
 
-def java_classpath_arg
-  begin
-    require 'java'
-    classpath = java.lang.System.getProperty('java.class.path')
-  rescue LoadError
-  end
-
-  unless classpath
-    classpath = FileList["#{ENV['JRUBY_HOME']}/lib/*.jar"].join(File::PATH_SEPARATOR)
-  end
-
-  classpath ? "-cp #{classpath}" : ""
-end
-
 desc "Test ruby-debug-base."
 task :test => :lib do 
   Rake::TestTask.new(:test) do |t|
