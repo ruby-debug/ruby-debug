@@ -1,3 +1,8 @@
+2008-04-10 08:49  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/command.rb, lib/ChangeLog: linecache is
+	  required by ruby-debug-base not ruby-debug. Thanks Martin!
+
 2008-04-10 08:00  Rocky Bernstein
 
 	* ChangeLog, Rakefile, lib/ChangeLog: Last change before 0.10.1

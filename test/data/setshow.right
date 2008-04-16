@@ -70,3 +70,13 @@ Saving of history save is off.
 Saving of history save is on.
 # show history save
 Saving of history save is on.
+# #### Test 'autoeval'...
+# set autoeval on
+autoeval is on.
+# puts 'printed via autoeval'
+printed via autoeval
+nil
+# set autoeval off
+autoeval is off.
+# puts 'autoeval should not run this'
+*** Unknown command: "puts 'autoeval should not run this'".  Try "help".

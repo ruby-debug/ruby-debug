@@ -276,7 +276,7 @@ module Debugger
         if unknown_cmd
             unknown_cmd.execute
         else
-          print "Unknown command\n"
+          errmsg "Unknown command: \"#{input}\".  Try \"help\".\n"
         end
       end
     end

@@ -41,3 +41,8 @@ set history save off
 show history save
 set history save 1
 show history save
+#### Test 'autoeval'...
+set autoeval on
+puts 'printed via autoeval'
+set autoeval off
+puts 'autoeval should not run this'

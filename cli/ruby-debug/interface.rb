@@ -1,5 +1,10 @@
 module Debugger  
   class Interface # :nodoc:
+    attr_writer :have_readline  # true if Readline is available
+
+    def initialize
+      @have_readline = false
+    end
 
     # Common routine for reporting debugger error messages.
     # Derived classed may want to override this to capture output.
@@ -38,6 +43,7 @@ module Debugger
     def initialize()
       super
       @command_queue = []
+      @have_readline = false
       @history_save = true
       # take gdb's default
       @history_length = ENV["HISTSIZE"] ? ENV["HISTSIZE"].to_i : 256  
@@ -77,10 +83,15 @@ module Debugger
       end
     end
     
+    def readline_support?(msg)
+      @have_readline
+    end
+
     private
     begin
       require 'readline'
       class << Debugger
+        @have_readline = true
         define_method(:save_history) do
           iface = self.handler.interface
           iface.histfile ||= File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
@@ -137,6 +148,15 @@ module Debugger
       @restart_file = nil
     end
     
+    def close
+      @socket.close
+    rescue Exception
+    end
+    
+    def confirm(prompt)
+      send_command "CONFIRM #{prompt}"
+    end
+
     def finalize
     end
     
@@ -144,17 +164,12 @@ module Debugger
       send_command "PROMPT #{prompt}"
     end
     
-    def confirm(prompt)
-      send_command "CONFIRM #{prompt}"
+    def readline_support?
+      false
     end
 
     def print(*args)
       @socket.printf(*args)
-    end
-    
-    def close
-      @socket.close
-    rescue Exception
     end
     
     private
@@ -197,6 +212,10 @@ module Debugger
       result.chomp!
     end
     
+    def readline_support?
+      false
+    end
+
     def confirm(prompt)
       'y'
     end

@@ -38,33 +38,37 @@ module Debugger
         style = Command.settings[:callstyle]
         return "Frame call-display style is #{style}."
       when /^commands(:?\s+(\d+))?$/
-        s = '';
-        args = @match[1].split
-        if args[1]
-          first_line = args[1].to_i - 4
-          last_line  = first_line + 10 - 1
-          if first_line > Readline::HISTORY.length
-            first_line = last_line = Readline::HISTORY.length
-          elsif first_line <= 0
-            first_line = 1
-          end
-          if last_line > Readline::HISTORY.length
-            last_line = Readline::HISTORY.length
-          end
-          i = first_line
-          commands = Readline::HISTORY.to_a[first_line..last_line]
-        else
-          if Readline::HISTORY.length > 10
-            commands = Readline::HISTORY.to_a[-10..-1]
-            i = Readline::HISTORY.length - 10
+        if @state.interface.readline_support?
+          s = '';
+          args = @match[1].split
+          if args[1]
+            first_line = args[1].to_i - 4
+            last_line  = first_line + 10 - 1
+            if first_line > Readline::HISTORY.length
+              first_line = last_line = Readline::HISTORY.length
+            elsif first_line <= 0
+              first_line = 1
+            end
+            if last_line > Readline::HISTORY.length
+              last_line = Readline::HISTORY.length
+            end
+            i = first_line
+            commands = Readline::HISTORY.to_a[first_line..last_line]
           else
-            commands = Readline::HISTORY.to_a
-            i = 1
+            if Readline::HISTORY.length > 10
+              commands = Readline::HISTORY.to_a[-10..-1]
+              i = Readline::HISTORY.length - 10
+            else
+              commands = Readline::HISTORY.to_a
+              i = 1
+            end
           end
-        end
-        commands.each do |cmd|
-          s += ("%5d  %s\n" % [i, cmd])
-          i += 1
+          commands.each do |cmd|
+            s += ("%5d  %s\n" % [i, cmd])
+            i += 1
+          end
+        else
+          s='No readline suport'
         end
         return s
       when /^debuggertesting$/
