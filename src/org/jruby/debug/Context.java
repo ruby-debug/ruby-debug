@@ -396,7 +396,9 @@ public class Context extends RubyObject {
                 String[] variableNames = scope.getStaticScope().getVariables();
                 if (variableNames != null) {
                     for (int i = 0; i < variableNames.length; i++) {
-                        locals.op_aset(RubyString.newString(getRuntime(), variableNames[i]),
+                        locals.op_aset(getRuntime().getCurrentContext(),
+                                RubyString.newString(getRuntime(),
+                                variableNames[i]),
                                 scope.getValues()[i]);
                     }
                 }
