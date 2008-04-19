@@ -1,8 +1,8 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 
-# begin require 'rubygems' rescue LoadError end
-# require 'ruby-debug'; Debugger.start
+# require 'rubygems'
+# require 'ruby-debug'; Debugger.start(:post_mortem => true)
 
 # Test the --emacs-basic option.
 class TestEmacsBasic < Test::Unit::TestCase

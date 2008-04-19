@@ -718,11 +718,24 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
       if(debug == Qtrue)
           fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));
 
+      /* There can be many event calls per line, but we only want
+	 *one* breakpoint per line. */
       if(debug_context->last_line != line || debug_context->last_file == NULL ||
           strcmp(debug_context->last_file, file) != 0)
       {
           CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
           moved = 1;
+      } else if(event == RUBY_EVENT_LINE)
+      {
+	/* There are two line-event trace hook calls per IF node - one
+	   before the expression eval an done afterwards. 
+	 */
+	static int if_eval_event = 0;
+	if_eval_event = (NODE_IF == nd_type(node)) ? !if_eval_event : 0;
+	if (!if_eval_event)
+	{
+	    CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
+	}
       }
     }
     else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)

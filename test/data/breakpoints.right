@@ -41,18 +41,17 @@ return nil if a <= 0
     #1 at line gcd.rb:18
 # info program
 Program stopped. It stopped at a breakpoint.
-# c 10
-Breakpoint 3 at Object:gcd
-gcd.rb:4
-def gcd(a, b)
+# c 6
+Breakpoint 2 at gcd.rb:10
+gcd.rb:10
+return nil if a <= 0
 # info break
 Num Enb What
   1 y   at gcd.rb:6
 	breakpoint already hit 1 time
   2 y   at gcd.rb:10
-	breakpoint already hit 1 time
+	breakpoint already hit 2 times
   3 y   at Object:gcd
-	breakpoint already hit 1 time
 # break foo
 *** Invalid breakpoint location: foo.
 # info break
@@ -60,26 +59,23 @@ Num Enb What
   1 y   at gcd.rb:6
 	breakpoint already hit 1 time
   2 y   at gcd.rb:10
-	breakpoint already hit 1 time
+	breakpoint already hit 2 times
   3 y   at Object:gcd
-	breakpoint already hit 1 time
 # disable  1
 # info break
 Num Enb What
   1 n   at gcd.rb:6
 	breakpoint already hit 1 time
   2 y   at gcd.rb:10
-	breakpoint already hit 1 time
+	breakpoint already hit 2 times
   3 y   at Object:gcd
-	breakpoint already hit 1 time
 # delete 1
 # # We should see breakpoint 2 but not 1
 # info break
 Num Enb What
   2 y   at gcd.rb:10
-	breakpoint already hit 1 time
+	breakpoint already hit 2 times
   3 y   at Object:gcd
-	breakpoint already hit 1 time
 # # We should still be able to access 2
 # disable 2
 # disable bar

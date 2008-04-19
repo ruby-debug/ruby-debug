@@ -22,4 +22,15 @@ class TestBadBreak < Test::Unit::TestCase
                                 "--script #{script} -- gcd.rb 3 5"))
     end
   end
+  
+  def test_break_loop
+    testname='break_loop_bug'
+    Dir.chdir(@@SRC_DIR) do 
+      script = File.join('data', testname + '.cmd')
+      assert_equal(true, 
+        run_debugger(testname,
+          "--script #{script} -- bp_loop_issue.rb"))
+    end
+  end
+
 end
