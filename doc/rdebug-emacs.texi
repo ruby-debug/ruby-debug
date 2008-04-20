@@ -184,7 +184,7 @@ programs you probably want to turn this off which can be done via the
 @code{M-x turn-off-rdebugtrack} command.
 
 
-@node Configurating this package,  , Emacs rdebug, Getting started
+@node Configurating this package,  , Emacs shell tracking mode, Getting started
 @section Configurating this package
 
 In this manual we present a number of @value{Emacs} lisp variables and

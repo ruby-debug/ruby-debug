@@ -1330,7 +1330,30 @@ option automatically sets @code{--server} option.
 @item -x | --trace
 @cindex @code{-x}
 @cindex @code{--trace}
-Turn on line tracing.
+Turn on line tracing. Running:
+@smallexample
+  rdebug --trace @emph{rubyscript.rb}
+@end smallexample
+is much line running:
+@smallexample
+  ruby -rtracer @emph{rubyscript.rb}
+@end smallexample
+
+If all you want to do however is get a linetrace, @code{tracer}, not
+@code{rdebug}, may be faster:
+@smallexample
+$ @b{time ruby -rtracer gcd.rb 34 21 > /dev/null}
+
+real	0m0.266s
+user	0m0.008s
+sys	0m0.000s
+$ @b{time rdebug --trace gcd.rb 34 21 > /dev/null}
+
+real	0m0.875s
+user	0m0.448s
+sys	0m0.056s
+$
+@end smallexample
 
 @end table
 
