@@ -6,7 +6,7 @@
 @set ttDBG @code{@value{DBG}}
 @set Emacs @sc{gnu} Emacs
 
-@set RDEBUG_VERSION 0.10.1
+@set RDEBUG_VERSION 0.10.2
 
 @macro Example {}
 @iftex
@@ -1121,7 +1121,7 @@ rdebug [rdebug-options] [--] @var{ruby-script} @var{ruby-script-arguments...}
 
 If you don't need to pass dash options to your program which might get
 confused with the debugger options, then you don't need to add the
-@code{--}.
+@option{--}.
 
 To get a brief list of options and descriptions, use the @code{--help}
 option.
@@ -1175,9 +1175,9 @@ program that interacts directly with the program in the same process
 on the same computer or via a socket to another process possibly on a
 different computer. 
 
-Many options appear as a long option name, such as @code{--help}, and
-a short one letter option name, such as @code{-h}. A double dash
-(@code{--} is used to separate options which go to @code{rdebug} from
+Many options appear as a long option name, such as @option{--help}, and
+a short one letter option name, such as @option{-h}. A double dash
+(@option{--} is used to separate options which go to @code{rdebug} from
 options that are intended to go to your Ruby script. Options (if any)
 to @code{rdebug} should come first. If there is no possibility of the
 Ruby script to be debugged getting confused with @code{rdebug}'s
@@ -1185,34 +1185,34 @@ option the double dash can be omitted.
 
 @table @code
 @item --help
-@cindex @code{-h}
-@cindex @code{--help}
+@cindex @option{-h}
+@cindex @option{--help}
 This option causes @ttDBG{} to print some basic help and exit.
 
 @item -v | --version
-@cindex @code{-v}
+@cindex @option{-v}
 This option causes @ttDBG{} to print its version number and exit.
 
 @item -A | --annotate @var{level}
-@cindex @code{-A}
-@cindex @code{--annotation} @var{level}
+@cindex @option{-A}
+@cindex @option{--annotation} @var{level}
 Set gdb-style annotation @var{level}, a number. Additional information is output
 automatically when program state is changed. This can be used by
 front-ends such as GNU Emacs to post this updated information without
 having to poll for it.
 @item -c | --client
-@cindex @code{-c}
-@cindex @code{--client}
+@cindex @option{-c}
+@cindex @option{--client}
 Connect to remote debugger. The remote debugger should have been set
 up previously our you will get a connection error and @code{rdebug}
 will terminate. 
 
 @item --cport @var{port}
-@cindex @code{--cport} @var{port}
+@cindex @option{--cport} @var{port}
 Port used for control commands.
 
 @item --debug
-@cindex @code{--debug}
+@cindex @option{--debug}
 Set @code{$DEBUG} to @code{true}. This option is compatible with
 Ruby's.
 
@@ -1225,20 +1225,20 @@ where you are in the code.
 @item --emacs-basic
 Activates full GNU Emacs mode.
 @c (@pxref{GNU Emacs}). 
-This is the equivalent of setting the options @code{--emacs-basic},
-@code{annotate=3}, @code{--no-stop}, @code{-no-control} and
-@code{--post-mortem}.
+This is the equivalent of setting the options @option{--emacs-basic},
+@code{annotate=3}, @option{--no-stop}, @option{-no-control} and
+@option{--post-mortem}.
 
 @item -h | --host @var{host-address}
 Connect host address for remote debugging.
 
 @item -I --include @var{PATH}
-@cindex @code{-I} @var{PATH}
-@cindex @code{--include} @var{PATH}
+@cindex @option{-I} @var{PATH}
+@cindex @option{--include} @var{PATH}
 Add @var{PATH} to @code{$LOAD_PATH}
 
 @item --keep-frame-binding
-@cindex @code{--keep-frame-binding}
+@cindex @option{--keep-frame-binding}
 Bindings are used to set the proper environment in evaluating
 expression inside the debugger. Under normal circumstances, I don't
 believe most people will ever need this option.
@@ -1270,74 +1270,68 @@ compile.) In fact, in Ruby 1.9 these structures have changed and that
 is partly why this debugger doesn't work on Ruby 1.9.
 
 @item -m | --post-mortem
-@cindex @code{-m}
-@cindex @code{--post-mortem}
+@cindex @option{-m}
+@cindex @option{--post-mortem}
 If your program raises an exception that isn't caught you can enter
 the debugger for inspection of what went wrong. You may also want to
-use this option in conjunction with @code{--no-stop}. See also 
+use this option in conjunction with @option{--no-stop}. See also 
 @ref{Post-Mortem Debugging}. 
 
 @item --no-control
-@cindex @code{--no-control}
+@cindex @option{--no-control}
 Do not automatically start control thread.
 
 @item --no-quit
-@cindex @code{--no-quit}
+@cindex @option{--no-quit}
 Restart the debugger when your program terminates normally.
 
 @item --no-rewrite-program
-@cindex @code{--no-rewrite-program}
+@cindex @option{--no-rewrite-program}
 Normally @code{rdebug} will reset the program name @code{$0} from its
 name to the debugged program, and set the its name in variable
 @code{$RDEBUG_0}. In the unlikely even you don't want this use this option.
 
 @item --no-stop
-@cindex @code{--no-stop}
+@cindex @option{--no-stop}
 Normally the @code{rdebug} stops before executing the first
 statement. If instead you want it to start running initially and will
 perhaps break it later in the running, use this options.
 
 @item -p | --port @var{port}
-@cindex @code{-p} @var{port}
-@cindex @code{--port} @var{port}
+@cindex @option{-p} @var{port}
+@cindex @option{--port} @var{port}
 Port used for remote debugging.
 
 @item -r | --require @var{library}
-@cindex @code{-r}
-@cindex @code{--require}
+@cindex @option{-r}
+@cindex @option{--require}
 Require the library, before executing your script. However if the
 library happened to be @code{debug}, we'll just ignore the require
 (since we're already a debugger). This option is compatible with Ruby's.
 
 @item --script @var{file}
-@cindex @code{--script}
+@cindex @option{--script}
 Require the library, before executing your script. However if the
 library hap-pend to be @code{debug}, we'll just ignore the require
 (since we're already a debugger). This option is compatible with Ruby's.
 
 @item -s | --server
-@cindex @code{-s}
-@cindex @code{--server}
+@cindex @option{-s}
+@cindex @option{--server}
 Debug the program but listen for remote connections on the default
-port or port set up via the @code{--port} option. See also @code{--wait}.
+port or port set up via the @option{--port} option. See also @option{--wait}.
 
 @item -w | --wait
-@cindex @code{-w}
-@cindex @code{--wait}
+@cindex @option{-w}
+@cindex @option{--wait}
 Debug the program but stop waiting for a client connection first. This
-option automatically sets @code{--server} option.
+option automatically sets @option{--server} option.
 
 @item -x | --trace
-@cindex @code{-x}
-@cindex @code{--trace}
-Turn on line tracing. Running:
-@smallexample
-  rdebug --trace @emph{rubyscript.rb}
-@end smallexample
-is much line running:
-@smallexample
-  ruby -rtracer @emph{rubyscript.rb}
-@end smallexample
+@cindex @option{-x}
+@cindex @option{--trace}
+Turn on line tracing. Running @command{rdebug --trace @emph{rubyscript.rb}}
+is much like running: @command{ruby -rtracer @emph{rubyscript.rb}}
 
 If all you want to do however is get a linetrace, @code{tracer}, not
 @code{rdebug}, may be faster:
@@ -1362,13 +1356,13 @@ $
 
 @DBG{} has many command-line options; it seems that some people want
 to set them differently from the our defaults. For example, some
-people may want @code{--no-quit --no-control} to be the default
+people may want @option{--no-quit --no-control} to be the default
 behavior. One could write a wrapper script or set a shell alias to
 handle this. @DBG{} has another way to do this as well. Before
 processing command options if the file @code{$HOME/.rdboptrc} is found
 it is loaded. If you want to set the defaults in some other way, you
 can put Ruby code here and set variable @code{options} which is an
-OpenStruct. For example here's how you'd set @code{-no-quit} and
+OpenStruct. For example here's how you'd set @option{-no-quit} and
 change the default control port to 5000.
 
 @smallexample
@@ -3115,7 +3109,7 @@ work. However some commands, such as those which imply a continuation
 of running code, no longer work.
 
 The most reliable way to set up post-mortem debugging is to use the
-@code{--post-mortem} option in invoking @code{rdebug}. See @ref{rdebug
+@option{--post-mortem} option in invoking @code{rdebug}. See @ref{rdebug
 command-line options}. This traps/wraps at the debugger ``load'' of
 your Ruby script.  When this is done, your program is stopped after
 the exception takes place, but before the stack has been
@@ -3163,7 +3157,7 @@ Alternatively you can call @code{Debugger.post_mortem()} after rdebug has
 been started. The @code{post_mortem()} method can be called in two
 ways. Called without a block, it installs a global @code{at_exit()} hook
 that intercepts exceptions not handled by your Ruby script. In
-contrast to using the @code{--post-mortem} option, when this hook
+contrast to using the @option{--post-mortem} option, when this hook
 occurs after the call stack has been rolled back. (I'm not sure if
 this in fact makes any difference operationally; I'm just stating it
 because that's how it works.)
@@ -3495,8 +3489,61 @@ the debugged program, you may want to set this @code{false}.
 
 @item debugger @ovar{steps=1}
 @vindex @code{Kernel::debugger}
-Enters the debugger in the current thread after a stepping @var{steps} steps.
+Enters the debugger in the current thread after a stepping @var{steps} line-event steps.
 Before entering the debugger startup script is read.
+
+Setting @var{steps} to 0 will cause a break in the debugger subroutine
+and not wait for eany line event to occur. This could be useful you
+want to stop right after the last statement in some scope.
+
+Consider this example:
+@smallexample
+$ cat scope-test.rb
+
+require 'rubygems'
+require 'ruby-debug' ; Debugger.start
+1.times do 
+   a = 1
+   debugger   # implied steps=1
+ end
+y = 1
+
+$ scope-test.rb:8
+y = 1
+(rdb:1) p a
+NameError Exception: undefined local variable or method `a' for main:Object
+(rdb:1)
+@end smallexample
+The debugger will get at the line event which follows @samp{a=1}. This
+is outside the @code{do} block scope where @var{a} is defined. If
+instead you want to stop before leaving the @code{do} loop it is
+possibly to stop right inside the @code{debugger}; call with 0 zero parameter:
+@smallexample
+$ cat scope-test.rb
+
+require 'rubygems'
+require 'ruby-debug' ; Debugger.start
+1.times do 
+   a = 1
+   debugger(0)
+end
+y = 1
+
+$ scope-test.rb:8
+../lib/ruby-debug-base.rb:175
+Debugger.current_context.stop_frame = 0
+(rdb:1) where
+--> #0 Kernel.debugger(steps#Fixnum) at line ../lib/ruby-debug-base.rb:175
+    #1 at line scope-test.rb:6
+    #2 at line scope-test.rb:4
+(rdb:1) up
+#1 at line scope-test.rb:6
+(rdb:1) p a
+1
+(rdb:1)
+@end smallexample
+As seen above you will have to position the frame up one to be back in
+your debugged program rather than in the debugger.
 
 @item breakpoint @ovar{steps=1}
 @vindex @code{Kernel::breakpoint}
