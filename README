@@ -33,13 +33,25 @@ $ svn co svn://rubyforge.org/var/svn/debug-commons/jruby-debug/trunk jruby-debug
 $ cd jruby-debug
 $ rake gem
 $ jruby -S gem install -l pkg/ruby-debug-base-0.10.1-java.gem 
+$ jruby -S gem install columnize
 $ jruby -S gem install -r ruby-debug -v 0.10.1 --ignore-dependencies
 
 == Usage
 
-The usage is then the same as with native ruby-debugger. Simplest usage is:
+The usage is then the same as with native ruby-debugger, but you might need to
+force JRuby which has to run in interpreted mode. Simplest usage is:
 
-$ rdebug <your-script>
+  $ jruby -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF -S rdebug <your-script>
+
+Or easier, you might create 'jruby-dm' ('dm' for 'debugger-mode'):
+
+  $ cat ~/bin/jruby-dm
+  #!/bin/bash
+  jruby -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF "$@"
+
+Then you may run just as you used to:
+
+  $ jruby-dm -S rdebug <your-script>
 
 For more information see: http://bashdb.sourceforge.net/ruby-debug.html
 
