@@ -164,6 +164,8 @@ at the beginning of the line."
               (rdebug-track-overlay-arrow t)
 	      (rdebug-set-frame-top-arrow (current-buffer))
               (set (make-local-variable 'gud-comint-buffer) origbuf)
+	      (set (make-local-variable 'gud-delete-prompt-marker) 
+		   (make-marker))
               (pop-to-buffer origbuf t)
 	      (rdebug-locring-add gud-last-frame 
 				  rdebug-source-location-ring))

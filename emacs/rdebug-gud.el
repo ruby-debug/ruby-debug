@@ -40,15 +40,21 @@
 
 
 (defun gud-rdebug-massage-args (file args)
+  "Change FILE and list ARGS before running the debugger.
+
+gud requires this routine to be defined."
   args)
 
 
-(defun gud-rdebug-find-file (f)
-  "This routine rdebug and gud call when they encounter a Ruby
-program file."
-  (find-file-noselect f 'nowarn))
+(defun gud-rdebug-find-file (file)
+  "`rdebug' and `gud' call this with FILE when they encounter a Ruby program file."
+
+  (find-file-noselect file 'nowarn))
 
 (defun rdebug-display-line (file line &optional move-arrow)
+  "Arrange for marker to appear in at FILE and LINE.
+The line marker might appear in the Emacs fringe or as an overlay arroe. 
+Optional argument MOVE-ARROW indicates whether to move any previous indicator."
   (if file 
       (let ((oldpos (and gud-overlay-arrow-position
 			 (marker-position gud-overlay-arrow-position)))
@@ -98,7 +104,7 @@ output. The following are supported:
 (defun rdebug-continue (&optional arg)
   "Run a debugger \"continue\" command.
 
-With a numeric argument, continue to that line number of the current file."
+With a numeric ARG, continue to that line number of the current file."
   (interactive "p")
   (if arg
       (rdebug-call (format "continue %d" arg))
@@ -108,7 +114,7 @@ With a numeric argument, continue to that line number of the current file."
 (defun rdebug-next (&optional arg)
   "Run a debugger \"next\" command, respecting `rdebug-stepping-prefix'.
 
-With a numeric argument, continue to that line number of the current file."
+With a numeric ARG, continue to that line number of the current file."
   (interactive "p")
   (rdebug-stepping "next" arg))
 
@@ -120,8 +126,7 @@ This variable will have a string value which is either \"\",
 stepping commands (\"next\", or \"step\").")
 
 (defun rdebug-print-cmd (expr &optional cmd)
-  "Run a debugger print (pl, ps, pp, p) command on `expr'; `cmd'
-contains the command to run"
+  "Run a debugger print (pl, ps, pp, p) command on `EXPR'; `CMD' is the command to run."
   (interactive "s")
   (unless cmd (setq cmd "pp"))
   (rdebug-call-return (format "%s %s " cmd expr) :tooltip))
@@ -195,8 +200,7 @@ An exec restart is used."
 
 (defun rdebug-set-stepping-prefix ()
   "Set the granularity of stepping on the subsequent 'next' or 'step' command.
-As long as repeated next or step commands are given, they inherit this setting.
-"
+As long as repeated next or step commands are given, they inherit this setting."
   (interactive)
   (setq rdebug-stepping-prefix (this-command-keys)))
 
@@ -208,17 +212,26 @@ With a numeric ARG, continue to that line number of the current file."
   (rdebug-stepping "step" arg))
 
 (defun rdebug-newer-frame ()
-  "Run a debugger \"down\" command to an older frame. 
+  "Run a debugger \"down\" command to an newer frame. 
 
 If we try to go down from frame 0, wrap to the end of the file"
   (interactive)
   (let* ((buf-name (rdebug-get-secondary-buffer-name "frame"))
-         (buf (get-buffer buf-name)))
+         (buf (or (get-buffer buf-name) (current-buffer))))
     (with-current-buffer buf
-      ;; Should we add a mode to disable wrapping? 
+      ;; Should we add a mode to disable wrapping?
       (if (equal rdebug-frames-current-frame-number 0)
 	  (rdebug-call "frame -1")
 	(rdebug-call "down 1")))))
+
+(defun rdebug-older-frame ()
+  "Run a debugger \"up\" command to an older frame."
+  (interactive)
+  (let* ((buf-name (rdebug-get-secondary-buffer-name "frame"))
+         (buf (or (get-buffer buf-name) (current-buffer))))
+    (with-current-buffer buf
+      ;; Should we add a mode to disable wrapping? 
+      (rdebug-call "up 1"))))
 
 (provide 'rdebug-gud)
 

@@ -1,3 +1,6 @@
+0.10.2
+ - debugger(steps=0) breaks inside of debugger rather than wait for a line event.
+
 0.10.1
 4/10/08 - in honor of the 30th Birthday of Kate Schwarz
 

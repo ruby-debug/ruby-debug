@@ -457,7 +457,7 @@ This does not menus or prefix keys."
     (define-key map "+" 'rdebug-set-stepping-prefix)
     (define-key map "-" 'rdebug-set-stepping-prefix)
     (define-key map "<" 'rdebug-newer-frame)
-    (define-key map ">" 'gud-up)
+    (define-key map ">" 'rdebug-older-frame)
     ;; (define-key map "a" 'gud-args)
     ;; (define-key map "b" 'gud-break)
     (define-key map "c" 'rdebug-continue)

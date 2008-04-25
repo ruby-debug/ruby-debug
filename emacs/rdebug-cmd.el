@@ -51,8 +51,8 @@
            "Set breakpoint at current line.")
   (gud-def gud-cont   "continue"   "\C-r"
            "Continue with display.")
-;;;   (gud-def gud-down   "down %p"     "<"
-;;;            "Down N stack frames (numeric arg).")
+  (gud-def gud-down   "down %p"     "<"
+	   "Down N stack frames (numeric arg).")
   (gud-def gud-finish "finish"      "\C-f"
            "Finish executing current function.")
   (gud-def gud-source-resync "up 0" "\C-l"
@@ -71,7 +71,6 @@
   (gud-def gud-where   "where"
            "T" "Show stack trace.")
 
-  (local-set-key "<"        'rdebug-newer-frame)
   (local-set-key [M-insert] 'rdebug-internal-short-key-mode)
   (local-set-key [M-down]   'rdebug-locring-newer)
   (local-set-key [M-up]     'rdebug-locring-older)
