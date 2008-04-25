@@ -16,8 +16,11 @@ CLEAN.include('lib/ruby_debug.jar')
 DIST_FILES = FileList[
   'AUTHORS',
   'ChangeLog',
+  'lib/linecache.rb',
+  'lib/linecache-ruby.rb',
   'lib/ruby-debug-base.rb',
   'lib/ruby_debug.jar',
+  'lib/tracelines.rb',
   'MIT-LICENSE',
   'Rakefile',
   'README'

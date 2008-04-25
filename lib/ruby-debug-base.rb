@@ -1,4 +1,6 @@
 require 'ruby_debug.jar'
+require './tracelines'
+require './linecache'
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
@@ -258,49 +260,3 @@ class Module
   end
 end
 
-# Fake LineCache module simulating linecache gem behaviour until there is full
-# implementation for JRuby.
-module LineCache
-
-  def getlines(filename, reload_on_change=false)
-    finder = lambda do
-      if File.exists?(filename)
-        if SCRIPT_LINES__[filename].nil? || SCRIPT_LINES__[filename] == true
-          SCRIPT_LINES__[filename] = File.readlines(filename)
-        end
-
-        change_time = test(?M, filename)
-        SCRIPT_TIMESTAMPS__[filename] ||= change_time
-        if @reload_source_on_change && SCRIPT_TIMESTAMPS__[filename] < change_time
-          SCRIPT_LINES__[filename] = File.readlines(filename)
-        end
-
-        SCRIPT_LINES__[filename]
-      end
-    end
-
-    Dir.chdir(File.dirname($0)){finder.call} || finder.call ||
-      (SCRIPT_LINES__[filename] == true ? nil : SCRIPT_LINES__[filename])
-  end
-  module_function :getlines
-
-  def getline(filename, line_number, reload_on_change=true)
-    lines = getlines(filename)
-    if lines
-      line_number = lines[line_number-1]
-      return "\n" unless line_number
-      return "#{line_number.gsub(/^\s+/, '').chomp}\n"
-    end
-    return "\n"
-  end
-  module_function :getline
-
-  def clear_file_cache()
-    SCRIPT_LINES__.keys.each do |file|
-      next unless File.exists?(file)
-      SCRIPT_LINES__[file] = nil
-    end
-  end
-  module_function :clear_file_cache
-
-end
