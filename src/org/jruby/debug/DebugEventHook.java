@@ -37,10 +37,10 @@ import org.jruby.RubyFloat;
 import org.jruby.RubyKernel;
 import org.jruby.RubyModule;
 import org.jruby.RubyNil;
+import org.jruby.RubyObject;
 import org.jruby.RubyString;
 import org.jruby.RubySymbol;
 import org.jruby.RubyThread;
-import org.jruby.RubyUndef;
 import org.jruby.debug.DebugContext.StopReason;
 import org.jruby.debug.DebugFrame.Info;
 import org.jruby.debug.Debugger.DebugContextPair;
@@ -372,13 +372,13 @@ final class DebugEventHook implements EventHook {
     }
     
     private boolean isArgValueSmall(IRubyObject value) {
-        return value instanceof RubyFixnum ||
+        return value == RubyObject.UNDEF ||
+                value instanceof RubyFixnum ||
                 value instanceof RubyFloat ||
                 value instanceof RubyNil ||
                 value instanceof RubyModule ||
                 value instanceof RubyFile ||
                 value instanceof RubyBoolean ||
-                value instanceof RubyUndef ||
                 value instanceof RubySymbol;
     }
 
