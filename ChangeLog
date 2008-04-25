@@ -1,3 +1,68 @@
+2008-04-25 14:30  Martin Krauskopf
+
+	* Rakefile, lib/linecache-ruby.rb, lib/linecache.rb,
+	  lib/ruby-debug-base.rb, lib/tracelines.rb: - Borrowing
+	  tracelines.rb and linecache.rb from Rocky's linecache gem, until
+	  we
+	  have better solution. Simulating native
+	  TraceLineNumbers.lnums_for_str by
+	  primitive Ruby implementation
+	  - Temporarily workardounging bug in the JRuby:
+	  http://jira.codehaus.org/browse/JRUBY-2442
+
+2008-04-25 14:11  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java: RubyUndef was removed
+	  and replaced by static RubyObject.UNDEF (in JRuby rev. 6533)
+
+2008-04-17 13:42  Martin Krauskopf
+
+	* src/org/jruby/debug/Context.java: getting rid of deprecations
+
+2008-04-16 15:03  Martin Krauskopf
+
+	* Rakefile: unused java_classpath_arg (was renamed to
+	  jruby_classpath)
+
+2008-04-16 14:41  Martin Krauskopf
+
+	* ., Rakefile: - importing test/base from native ruby-debug-base
+	  and adding rake task for it
+	  - ignore NetBeans project metadata for now
+
+2008-04-16 14:33  Martin Krauskopf
+
+	* lib/ruby-debug-base.rb: Define DEFAULT_START_SETTINGS constant
+	  (forgotten commit). Merged from native ruby-debug-base
+
+2008-04-16 13:21  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/Debugger.java,
+	  src/org/jruby/debug/RubyDebugger.java: Support for more
+	  catchpoints
+	  - passing test/base/catchpoint.rb
+
+2008-04-11 09:23  Martin Krauskopf
+
+	* lib/ruby-debug-base.rb, src/org/jruby/debug/Context.java,
+	  src/org/jruby/debug/RubyDebugger.java: Passing ruby-debug
+	  test/base/base.rb
+	  - mailny optional frame parameter
+
+2008-04-09 08:52  Martin Krauskopf
+
+	* jruby-patch.diff: Obsolete patch; not needed any more
+
+2008-04-08 14:25  Martin Krauskopf
+
+	* Rakefile: Show compiler warning by default.
+
+2008-04-08 14:21  Martin Krauskopf
+
+	* AUTHORS, ChangeLog, Rakefile: Adding license, authors and
+	  ChangeLog to distribution files
+
 2008-04-08 14:03  Martin Krauskopf
 
 	* README: Updating quite obsolete README
