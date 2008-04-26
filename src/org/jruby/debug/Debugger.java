@@ -59,7 +59,9 @@ final class Debugger {
 
     private boolean started;
     private int startCount;
-    private int bkp_count;
+    
+    /** Used to for unique breakpoint ID for newly added breakpoints. */
+    private int lastBreakpointID;
 
     private DebugContext lastDebugContext;
 
@@ -74,7 +76,7 @@ final class Debugger {
             IRubyObject nil = runtime.getNil();
             lastThread  = nil;
             started = true;
-            setLastContext(runtime, nil);
+            setLastContext(nil);
             debugEventHook = new DebugEventHook(this, runtime);
             breakpoints = runtime.newArray();
             catchpoints = RubyHash.newHash(runtime);
@@ -168,7 +170,7 @@ final class Debugger {
         }
 
         lastThread = thread;
-        setLastContext(thread.getRuntime(), ctxs.context);
+        setLastContext(ctxs.context);
         lastDebugContext = lDebugContext;
         return ctxs;
     }
@@ -283,7 +285,7 @@ final class Debugger {
     
     IRubyObject addBreakpoint(IRubyObject recv, IRubyObject[] args) {
         checkStarted(recv);
-        IRubyObject result = createBreakpointFromArgs(recv, args, ++bkp_count);
+        IRubyObject result = createBreakpointFromArgs(recv, args, ++lastBreakpointID);
         ((RubyArray) breakpoints).add(result);
         return result;
     }
@@ -304,7 +306,7 @@ final class Debugger {
     }
     
     IRubyObject createBreakpointFromArgs(IRubyObject recv, IRubyObject[] args) {
-        return createBreakpointFromArgs(recv, args, ++bkp_count);
+        return createBreakpointFromArgs(recv, args, ++lastBreakpointID);
     }
 
     private IRubyObject createBreakpointFromArgs(IRubyObject recv, IRubyObject[] args, int id) {
@@ -408,7 +410,7 @@ final class Debugger {
         DebugContext debugContext;
     }
 
-    private void setLastContext(Ruby runtime, IRubyObject value) {
+    private void setLastContext(IRubyObject value) {
         lastContext = value;
     }
 

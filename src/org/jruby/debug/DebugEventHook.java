@@ -208,10 +208,12 @@ final class DebugEventHook implements EventHook {
                     }
                     saveTopBinding(debugContext, binding);
 
-                    if(!checkBreakpointExpression(tCtx, breakpoint, binding))
+                    if(!checkBreakpointExpression(tCtx, breakpoint, binding)) {
                         break;
-                    if(!checkBreakpointHitCondition(breakpoint))
+                    }
+                    if(!checkBreakpointHitCondition(breakpoint)) {
                         break;
+                    }
                     if (breakpoint != debugContext.getBreakpoint()) {
                         debugContext.setStopReason(DebugContext.StopReason.BREAKPOINT);
                         context.callMethod(tCtx, DebugContext.AT_BREAKPOINT, breakpoint);
@@ -222,7 +224,7 @@ final class DebugEventHook implements EventHook {
                 }
                 break;
             case RUBY_EVENT_C_CALL:
-                if(cCallNewFrameP(klass, methodName)) {
+                if(cCallNewFrameP(klass)) {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 } else {
                     setFrameSource(event, debugContext, tCtx, file, line, methodName);
@@ -230,7 +232,7 @@ final class DebugEventHook implements EventHook {
                 break;
             case RUBY_EVENT_C_RETURN:
                 /* note if a block is given we fall through! */
-                if (!cCallNewFrameP(klass, methodName)) {
+                if (!cCallNewFrameP(klass)) {
                     break;
                 }
             case RUBY_EVENT_RETURN:
@@ -585,7 +587,7 @@ final class DebugEventHook implements EventHook {
         debugContext.setForceMove(false);
     }
 
-    private boolean cCallNewFrameP(IRubyObject klass, String methodName) {
+    private boolean cCallNewFrameP(IRubyObject klass) {
         klass = realClass(klass);
         // TODO - block_given?
 //        if(rb_block_given_p()) return true;

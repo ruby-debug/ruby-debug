@@ -29,6 +29,8 @@ import org.jruby.runtime.builtin.IRubyObject;
 
 final class Util {
 
+    private Util() {/* forbid instances */}
+    
     static RubyBoolean toRBoolean(IRubyObject recv, boolean value) {
         return RubyBoolean.newBoolean(recv.getRuntime(), value);
     }

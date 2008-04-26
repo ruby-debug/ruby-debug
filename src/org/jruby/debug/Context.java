@@ -96,7 +96,7 @@ public class Context extends RubyObject {
         if (frame.isNil()) {
             debugContext.setDestFrame(debugContext.getStackSize());
         } else {
-            int frameInt = checkFrameNumber(debugContext, frame);
+            int frameInt = checkFrameNumber(frame);
             debugContext.setDestFrame(debugContext.getStackSize() - frameInt);
         }
         debugContext.setForceMove(force.isTrue());
@@ -341,11 +341,11 @@ public class Context extends RubyObject {
     
     private DebugFrame getFrame(final IRubyObject frameNo) {
         DebugContext debugContext = debugContext();
-        int frameNoInt = checkFrameNumber(debugContext, frameNo);
+        int frameNoInt = checkFrameNumber(frameNo);
         return debugContext.getFrame(frameNoInt);
     }
 
-    private int checkFrameNumber(DebugContext context, IRubyObject rFrameNo) {
+    private int checkFrameNumber(IRubyObject rFrameNo) {
         int frameNo = RubyFixnum.fix2int(rFrameNo);
         
         if (frameNo < 0 || frameNo >= debugContext().getStackSize()) {

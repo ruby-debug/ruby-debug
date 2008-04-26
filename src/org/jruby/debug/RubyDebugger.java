@@ -36,6 +36,8 @@ import org.jruby.runtime.ObjectAllocator;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public final class RubyDebugger {
+    
+    private RubyDebugger() {/* forbid instances */}
 
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
@@ -257,13 +259,13 @@ public final class RubyDebugger {
         return debug;
     }
 
-    private static ObjectAllocator BREAKPOINT_ALLOCATOR = new ObjectAllocator() {
+    private static final ObjectAllocator BREAKPOINT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klass) {
             return new Breakpoint(runtime, klass);
         }
     };
 
-    private static ObjectAllocator CONTEXT_ALLOCATOR = new ObjectAllocator() {
+    private static final ObjectAllocator CONTEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klass) {
             return new Context(runtime, klass, debugger());
         }
