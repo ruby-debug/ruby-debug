@@ -1,6 +1,6 @@
 /*
  * header & license
- * Copyright (c) 2007 Martin Krauskopf
+ * Copyright (c) 2007-2008 Martin Krauskopf
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -23,6 +23,8 @@
  */
 package org.jruby.debug;
 
+import java.io.File;
+import java.io.IOException;
 import org.jruby.RubyBoolean;
 import org.jruby.RubyFixnum;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -41,5 +43,35 @@ final class Util {
 
     static IRubyObject nil(final IRubyObject ro) {
         return ro.getRuntime().getNil();
+    }
+
+    static String relativizeToPWD(final String path) {
+        return Util.relativizeFile(System.getProperty("user.dir"), path);
+    }
+
+    static String relativizeFile(final String base, final String filepath) {
+        String result = filepath;
+        if (filepath.startsWith(base)) {
+            result = filepath.substring(base.length() + 1);
+        }
+        return result;
+    }
+
+    /**
+     * Tests whether the give files, being in whatever form (relative, absolute,
+     * containing '..', etc.) points to the same files, using canonical paths.
+     *
+     * @param first to be compared with second
+     * @param second to be compared with first
+     * @return if first and second are/points to the same files
+     */
+    static boolean areSameFiles(String first, String second) {
+        try {
+            String firstF = new File(first).getCanonicalPath();
+            String secondF = new File(second).getCanonicalPath();
+            return firstF.equals(secondF);
+        } catch (IOException ioe) {
+            throw new RuntimeException("Cannot resolve cannocical path", ioe);
+        }
     }
 }

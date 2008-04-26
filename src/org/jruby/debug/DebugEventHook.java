@@ -1,6 +1,6 @@
 /*
  * header & license
- * Copyright (c) 2007 Martin Krauskopf
+ * Copyright (c) 2007-2008 Martin Krauskopf
  * Copyright (c) 2007 Peter Brant
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -120,7 +120,7 @@ final class DebugEventHook implements EventHook {
 //        debug("jrubydebug> %s:%d [%s] %s\n", file, line, EVENT_NAMES[event], methodName);
 
         boolean moved = false;
-        if (debugContext.getLastLine() != line || debugContext.getLastFile() == null || !debugContext.getLastFile().equals(file)) {
+        if (debugContext.getLastLine() != line || debugContext.getLastFile() == null || !Util.areSameFiles(debugContext.getLastFile(), file)) {
             debugContext.setEnableBreakpoint(true);
             moved = true;
         }
@@ -560,7 +560,8 @@ final class DebugEventHook implements EventHook {
     private IRubyObject callAtLine(ThreadContext tCtx,
             IRubyObject context, DebugContext debugContext,
             Ruby runtime, String file, int line) {
-        return callAtLine(tCtx, context, debugContext, runtime.newString(file), runtime.newFixnum(line));
+        return callAtLine(tCtx, context, debugContext,
+                runtime.newString(Util.relativizeToPWD(file)), runtime.newFixnum(line));
     }
     
     private IRubyObject callAtLine(ThreadContext tCtx,
