@@ -26,21 +26,24 @@ package org.jruby.debug;
 import java.io.File;
 import java.io.IOException;
 import org.jruby.RubyBoolean;
-import org.jruby.RubyFixnum;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class Util {
 
     private Util() {/* forbid instances */}
-    
-    static RubyBoolean toRBoolean(IRubyObject recv, boolean value) {
-        return RubyBoolean.newBoolean(recv.getRuntime(), value);
+
+    /**
+     * Convenient delegate to {@link RubyBoolean#newBoolean} using <em>ro</em>'s
+     * runtime.
+     */
+    static RubyBoolean toRBoolean(IRubyObject ro, boolean value) {
+        return RubyBoolean.newBoolean(ro.getRuntime(), value);
     }
 
-    static int toInt(final IRubyObject iValue) {
-        return RubyFixnum.fix2int(iValue);
-    }
-
+    /**
+     * Convenient delegate to {@link org.jruby.Ruby#getNil} using
+     * <em>recv</em>'s runtime.
+     */
     static IRubyObject nil(final IRubyObject ro) {
         return ro.getRuntime().getNil();
     }

@@ -1,6 +1,6 @@
 /*
  * header & license
- * Copyright (c) 2007 Martin Krauskopf
+ * Copyright (c) 2007-2008 Martin Krauskopf
  * Copyright (c) 2007 Christopher Nelson
  * Copyright (c) 2007 Peter Brant
  * 
@@ -66,12 +66,12 @@ public class Context extends RubyObject {
         }
         IRubyObject steps = args[0];
 
-        if (Util.toInt(steps) < 0) {
+        if (RubyFixnum.fix2int(steps) < 0) {
             rt.newRuntimeError("Steps argument can't be negative.");
         }
 
         DebugContext debug_context = debugContext();
-        debug_context.setStopNext(Util.toInt(steps));
+        debug_context.setStopNext(RubyFixnum.fix2int(steps));
         debug_context.setForceMove(!force.isNil() && force.isTrue());
         return steps;
     }

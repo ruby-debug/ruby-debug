@@ -1,6 +1,6 @@
 /*
  * header & license
- * Copyright (c) 2007 Martin Krauskopf
+ * Copyright (c) 2007-2008 Martin Krauskopf
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
  * a copy of this software and associated documentation files (the
@@ -132,5 +132,10 @@ final class DebugBreakpoint {
         public void setMethodName(String methodName) {
             this.methodName = methodName;
         }
+
+        public @Override String toString() {
+            return "DebugBreakpoint$Pos[line:" + getLine() + ", methodName:" + getMethodName() + ']';
+        }
+        
     }
 }
