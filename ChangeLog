@@ -1,3 +1,23 @@
+2008-04-26 19:37  Martin Krauskopf
+
+	* src/org/jruby/debug/Context.java,
+	  src/org/jruby/debug/DebugBreakpoint.java,
+	  src/org/jruby/debug/Util.java: - getting rid on not so useful
+	  Util#toInt
+	  - useful DebugBreakpoint#toString
+	  - bit of simple Javadoc
+
+2008-04-26 19:26  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/Util.java: Passing more CLI tests (relativize
+	  files to user's working directory)
+
+2008-04-26 13:59  Martin Krauskopf
+
+	* ChangeLog, src/org/jruby/debug/Context.java: Cosmetic readability
+	  change
+
 2008-04-26 12:02  Martin Krauskopf
 
 	* .: Ignore rdbg.rb possibly created by :prepare_tests target
