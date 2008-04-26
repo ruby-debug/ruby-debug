@@ -1,3 +1,44 @@
+2008-04-26 12:02  Martin Krauskopf
+
+	* .: Ignore rdbg.rb possibly created by :prepare_tests target
+
+2008-04-26 12:00  Martin Krauskopf
+
+	* README-DEV, Rakefile: - convenient :prepare_tests target for
+	  setup-ing tests specifically for JRuby
+	  - mini-HowTo for developers for how to run tests
+
+2008-04-26 10:50  Martin Krauskopf
+
+	* ., Rakefile: - import through svn:externals whole test CLI test
+	  suite + bin and cli
+	  directories needed to run it. Note you also need rdbg.rb to run
+	  tests but
+	  svn:exernals does not supports them so far
+	  (http://subversion.tigris.org/issues/show_bug.cgi?id=937)
+	  - add targets for running test_base and CLI tests
+	  (notice
+	  https://rubyforge.org/tracker/index.php?func=detail&aid=19779&group_id=1900&atid=7438)
+
+2008-04-26 10:44  Martin Krauskopf
+
+	* src/org/jruby/debug/Context.java,
+	  src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/Debugger.java,
+	  src/org/jruby/debug/RubyDebugger.java,
+	  src/org/jruby/debug/Util.java: Unused params, few trivial
+	  non-semantic tweaks.
+
+2008-04-25 17:03  Martin Krauskopf
+
+	* README: - columnize gem is needed as well
+	  - showing right usage for JRuby
+
+2008-04-25 16:14  Martin Krauskopf
+
+	* ChangeLog, README: Quick instruction for installation of trunk
+	  version
+
 2008-04-25 14:30  Martin Krauskopf
 
 	* Rakefile, lib/linecache-ruby.rb, lib/linecache.rb,
