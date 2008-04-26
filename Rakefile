@@ -53,6 +53,25 @@ task :test => :test_base do
   end
 end
 
+desc "Helps to setup the project to be able to run tests"
+task :prepare_tests do
+  # needed to run CLI test. Unable to use svn:externals yet:
+  #   http://subversion.tigris.org/issues/show_bug.cgi?id=937
+  sh 'svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/rdbg.rb > rdbg.rb' unless File.exists?('rdbg.rb')
+
+  # prepare default customized test/config.private.yaml suitable for JRuby
+  File.open('test/config.private.yaml', 'w') do |f| 
+    f.write(<<DOC
+# either should be on the $PATH or use full path
+ruby: jruby
+
+# possibility to specify interpreter parameters
+ruby_params: -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF
+DOC
+    )
+  end unless File.exists?('test/config.private.yaml')
+end
+
 desc "Create the core ruby-debug shared library extension"
 task :lib do
   compile_java

@@ -1,0 +1,12 @@
+== How to setup and run tests
+
+0) checkout the sources (see README, section "Installation of trunk version")
+1) apply patch from:
+   http://rubyforge.org/tracker/index.php?func=detail&aid=19779&group_id=1900&atid=7438
+2) run 'rake prepare_tests'
+
+You are ready to run all tests, e.g.:
+
+$ jruby test/test-help.rb 
+$ jruby -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF -S rake test_base
+
