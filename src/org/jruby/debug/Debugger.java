@@ -1,6 +1,6 @@
 /*
  * header & license
- * Copyright (c) 2007 Martin Krauskopf
+ * Copyright (c) 2007-2008 Martin Krauskopf
  * Copyright (c) 2007 Peter Brant
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -44,7 +44,7 @@ final class Debugger {
 
     private DebugEventHook debugEventHook;
     
-    private Map<RubyThread, IRubyObject> threadsTable;
+    private Map<RubyThread, Context> threadsTable;
     
     private IRubyObject breakpoints;
     private IRubyObject catchpoints;
@@ -80,7 +80,7 @@ final class Debugger {
             debugEventHook = new DebugEventHook(this, runtime);
             breakpoints = runtime.newArray();
             catchpoints = RubyHash.newHash(runtime);
-            threadsTable = new IdentityHashMap<RubyThread, IRubyObject>();
+            threadsTable = new IdentityHashMap<RubyThread, Context>();
             runtime.addEventHook(debugEventHook);
             result = runtime.getTrue();
         }
@@ -135,7 +135,7 @@ final class Debugger {
     IRubyObject getCurrentContext(IRubyObject recv) {
         checkStarted(recv);
         RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
-        return threadContextLookup(thread, false).context;
+        return contextForThread(thread);
     }
     
     DebugContext getCurrentDebugContext(IRubyObject recv) {
@@ -149,7 +149,7 @@ final class Debugger {
 
         DebugContextPair ctxs = new DebugContextPair();
         if (lastThread == thread && !lastContext.isNil()) {
-            ctxs.context = lastContext;
+            ctxs.context = (Context) lastContext;
             if (wantDebugContext) {
                 ctxs.debugContext = lastDebugContext;
             }
@@ -175,6 +175,10 @@ final class Debugger {
         return ctxs;
     }
 
+    private Context contextForThread(final RubyThread thread) {
+        return threadContextLookup(thread, false).context;
+    }
+
     /** Calls {@link #checkStarted(Ruby)} with reciever's runtime. */
     void checkStarted(final IRubyObject recv) {
         checkStarted(recv.getRuntime());
@@ -186,14 +190,14 @@ final class Debugger {
         }
     }
 
-    private IRubyObject debugContextCreate(RubyThread thread) {
+    private Context debugContextCreate(RubyThread thread) {
         DebugContext debugContext = new DebugContext(thread);
         // if (thread.getType() == thread.getRuntime().getClass(DebuggerDef.DEBUG_THREAD_NAME)) {
         if (thread.getType().getName().equals("Debugger::" + RubyDebugger.DEBUG_THREAD_NAME)) {
             debugContext.setIgnored(true);
         }
         RubyClass cContext = thread.getRuntime().getModule("Debugger").getClass("Context");
-        IRubyObject context = cContext.allocate();
+        Context context = (Context) cContext.allocate();
         context.dataWrapStruct(debugContext);
         return context;
     }
@@ -207,11 +211,11 @@ final class Debugger {
         synchronized (threadsTable) {
             for (int i = 0; i < list.size(); i++) {
                 RubyThread thread = (RubyThread) list.entry(i);
-                IRubyObject context = threadContextLookup(thread, false).context;
+                Context context = contextForThread(thread);
                 newList.add(context);
             }
             for (int i = 0; i < newList.size(); i++) {
-                IRubyObject context = newList.entry(i);
+                Context context = (Context) newList.entry(i);
                 DebugContext debugContext = (DebugContext) context.dataGetStruct();
                 threadsTable.put(debugContext.getThread(), context);
             }
@@ -239,10 +243,9 @@ final class Debugger {
         Context current;   
         
         synchronized (threadsTable) {
-            contexts = (RubyArray)getDebugContexts(recv);
-            current = (Context)threadContextLookup(
-                    recv.getRuntime().getCurrentContext().getThread(),
-                    false).context;
+            contexts = (RubyArray) getDebugContexts(recv);
+            RubyThread thread = recv.getRuntime().getCurrentContext().getThread();
+            current = contextForThread(thread);
         }
         
         int len = contexts.getLength();
@@ -350,7 +353,7 @@ final class Debugger {
         checkStarted(recv);
         IRubyObject result = Util.nil(recv);
         synchronized (threadsTable) {
-            for (Map.Entry<RubyThread, IRubyObject> entry : threadsTable.entrySet()) {
+            for (Map.Entry<RubyThread, Context> entry : threadsTable.entrySet()) {
                 IRubyObject context = entry.getValue();
                 DebugContext debugContext = (DebugContext) context.dataGetStruct();
                 if (debugContext.getThnum() == debugEventHook.getLastDebuggedThnum()) {
@@ -365,8 +368,8 @@ final class Debugger {
 
     void checkThreadContexts(Ruby runtime) {
         synchronized (threadsTable) {
-            for (Iterator<Map.Entry<RubyThread, IRubyObject>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
-                Map.Entry<RubyThread, IRubyObject> entry = it.next();
+            for (Iterator<Map.Entry<RubyThread, Context>> it = threadsTable.entrySet().iterator(); it.hasNext();) {
+                Map.Entry<RubyThread, Context> entry = it.next();
                 if (entry.getKey().alive_p().isFalse()) {
                     it.remove();
                 }
@@ -406,7 +409,7 @@ final class Debugger {
 
     /** TODO: Get rid of me - here because of hard rewrite from C. */
     static final class DebugContextPair {
-        IRubyObject context;
+        Context context;
         DebugContext debugContext;
     }
 
