@@ -54,6 +54,10 @@ module Debugger
     def at_line(file, line)
       handler.at_line(self, file, line)
     end
+
+    def at_return(file, line)
+      handler.at_return(self, file, line)
+    end
   end
   
   @reload_source_on_change = false
@@ -64,6 +68,9 @@ module Debugger
     
     # if <tt>true</tt>, checks the modification time of source files and reloads if it was modified
     attr_accessor :reload_source_on_change
+
+    attr_accessor :last_exception
+    Debugger.last_exception = nil
     
     #
     # Interrupts the current thread
@@ -138,16 +145,18 @@ module Debugger
     end
     
     def handle_post_mortem(exp)
-      return if exp.__debug_context.stack_size == 0
+      return if !exp || !exp.__debug_context || 
+        exp.__debug_context.stack_size == 0
       Debugger.suspend
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
+      Debugger.last_exception = exp
       handler.at_line(exp.__debug_context, exp.__debug_file, exp.__debug_line)
     ensure
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing
       Debugger.resume
     end
-    private :handle_post_mortem
+    # private :handle_post_mortem
   end
   
   class DebugThread # :nodoc:
@@ -164,7 +173,7 @@ module Kernel
   #
   def debugger(steps = 1)
     Debugger.start unless Debugger.started?
-#    Debugger.run_init_script(StringIO.new)
+    Debugger.run_init_script(StringIO.new)
     Debugger.current_context.stop_next = steps
   end
   alias breakpoint debugger unless respond_to?(:breakpoint)
@@ -259,4 +268,3 @@ class Module
     EOD
   end
 end
-

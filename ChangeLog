@@ -1,3 +1,29 @@
+2008-04-27 10:54  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/Util.java: Making debug mode
+	  (Debugger.debug=true) more useful
+
+2008-04-27 07:54  Martin Krauskopf
+
+	* rakelib: Providing playground for own developer's task in
+	  rakelib/private.rake
+
+2008-04-27 07:28  Martin Krauskopf
+
+	* src/org/jruby/debug/Debugger.java: simple code simplification,
+	  more type-safety
+
+2008-04-26 20:59  Martin Krauskopf
+
+	* testjava, testjava/org, testjava/org/jruby,
+	  testjava/org/jruby/debug, testjava/org/jruby/debug/UtilTest.java:
+	  Forgotten simple sanity check test for Util
+
+2008-04-26 20:51  Martin Krauskopf
+
+	* ChangeLog, README-DEV: More info for developers
+
 2008-04-26 19:37  Martin Krauskopf
 
 	* src/org/jruby/debug/Context.java,
