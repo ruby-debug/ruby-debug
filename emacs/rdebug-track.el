@@ -246,6 +246,7 @@ problem as best as we can determine."
   (setq rdebug-track-is-tracking-p t)
   (local-set-key "\C-cg" 'rdebug-goto-traceback-line)
   (local-set-key "\C-cG" 'rdebug-goto-dollarbang-traceback-line)
+
   (add-hook 'comint-output-filter-functions 'rdebug-track-track-stack-file)
   (run-mode-hooks 'rdebug-track-mode-hook))
 

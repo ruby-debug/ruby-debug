@@ -39,6 +39,7 @@
   ;; (set (make-local-variable 'gud-minor-mode) 'rdebug)
 
   (set (make-local-variable 'rdebug-call-queue) '())
+  (set (make-local-variable 'rdebug-original-read-only) buffer-read-only)
   (make-local-variable 'rdebug-source-location-ring-size) ; ...to global val.
   (set (make-local-variable 'rdebug-source-location-ring)
        (make-ring rdebug-source-location-ring-size))
