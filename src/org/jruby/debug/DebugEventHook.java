@@ -95,7 +95,6 @@ final class DebugEventHook implements EventHook {
             if (isInDebugger()) {
                 return;
             }
-            //dumpEvent(event, file, line0, methodName, klass);
             setInDebugger(true);
             try {
                 processEvent(tCtx, event, file, line0, methodName, klass, contexts);
@@ -108,6 +107,9 @@ final class DebugEventHook implements EventHook {
     @SuppressWarnings("fallthrough")
     private void processEvent(final ThreadContext tCtx, final int event, final String file, final int line0, 
             final String methodName, final IRubyObject klass, DebugContextPair contexts) {
+        if (debugger.isDebug()) {
+            Util.logEvent(event, file, line0, methodName, klass);
+        }
         // one-based; jruby by default passes zero-based
         int line = line0 + 1;
         hookCount++;
@@ -333,20 +335,6 @@ final class DebugEventHook implements EventHook {
     public boolean isInterestedInEvent(int event) {
         return true;
     }
-
-    /*
-    private void debug(final String format, final Object... args) {
-        System.err.printf(format, args);
-    }
-
-    private void dumpEvent(int event, String file, int line, String name, IRubyObject klass) {
-        System.out.println("DEBUG> event: \"" + EVENT_NAMES[event] + '\"');
-        System.out.println("DEBUG>   file: \"" + file + '\"');
-        System.out.println("DEBUG>   line: \"" + line + '\"');
-        System.out.println("DEBUG>   name: \"" + name + '\"');
-//        System.out.println("DEBUG>   klass: \"" + klass + '\"');
-    }
-    */
 
     private void saveCallFrame(final int event, final ThreadContext tCtx, final String file,
             final int line, final String methodName, final DebugContext debugContext) {
@@ -622,4 +610,5 @@ final class DebugEventHook implements EventHook {
     int getLastDebuggedThnum() {
         return lastDebuggedThnum;
     }
+    
 }

@@ -26,6 +26,7 @@ package org.jruby.debug;
 import java.io.File;
 import java.io.IOException;
 import org.jruby.RubyBoolean;
+import org.jruby.runtime.EventHook;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class Util {
@@ -76,5 +77,9 @@ final class Util {
         } catch (IOException ioe) {
             throw new RuntimeException("Cannot resolve cannocical path", ioe);
         }
+    }
+
+    static void logEvent(int event, String file, int line, String methodName, IRubyObject klass) {
+        System.err.printf("%s:%d [%s] %s#%s\n", file, line, EventHook.EVENT_NAMES[event], klass, methodName);
     }
 }
