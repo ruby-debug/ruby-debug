@@ -1,3 +1,64 @@
+2008-04-27 08:28  Rocky Bernstein
+
+	* emacs/rdebug-cmd.el, emacs/rdebug-track.el: Reduce spurious
+	  read-only setting when short-key is turned
+	  on/off in the command buffer.
+
+2008-04-25 02:54  Rocky Bernstein
+
+	* CHANGES, emacs/rdebug-cmd.el, emacs/rdebug-gud.el,
+	  emacs/rdebug-source.el, emacs/rdebug-track.el: Try to get
+	  rdebug-track under control again.
+	  Remove "<" in the command buffer as a local key setting.
+	  Make more checkdoc friendly.
+
+2008-04-22 02:49  Rocky Bernstein
+
+	* doc/ruby-debug.texi, lib/ruby-debug-base.rb: Experiment with
+	  debugger(steps=0). Puts us in the debugger call, but this may be
+	  the best we can do for now. See tracker
+	  #19639.
+
+2008-04-20 21:38  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi, doc/ruby-debug.texi: rdebug-emacs.texi:
+	  update nodes so makeinfo will work.
+	  rdebug-texi: Note slight preference for ruby -rtracer over rdebug
+	  --trace.
+
+2008-04-19 13:22  Rocky Bernstein
+
+	* ext/ruby_debug.c, test/bp_loop_issue.rb,
+	  test/data/break_loop_bug.cmd, test/data/break_loop_bug.right,
+	  test/data/breakpoints.cmd, test/data/breakpoints.right,
+	  test/data/emacs_basic.right, test/test-break-bad.rb,
+	  test/test-emacs-basic.rb: Change test for whether we have moved
+	  off a line or not for purposes
+	  of stopping at a breakpoint on a line. The line events for which
+	  there
+	  are normally two stops are on NODE if's before the if and after
+	  the
+	  expression evaluation. Tracker #19594.
+
+2008-04-16 01:11  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/show.rb,
+	  cli/ruby-debug/interface.rb, cli/ruby-debug/processor.rb,
+	  ext/ruby_debug.c, lib/ChangeLog, test/data/setshow.cmd,
+	  test/data/setshow.right: In 0.10.2 now. Some work to cope systems
+	  without readline. More work is needed.
+	  Add test of "set autoeval." Undefined command message more
+	  closely like gdb's.
+
+2008-04-15 23:56  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Note that Debugger.start is currently broken
+	  when used with a block.
+
+2008-04-11 22:24  Anders Lindgren
+
+	* doc/rdebug-emacs.texi: Section on 'customize' added.
+
 2008-04-10 08:49  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/command.rb, lib/ChangeLog: linecache is

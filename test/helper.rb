@@ -1,6 +1,7 @@
 # Some common routines used in testing.
 
 require 'fileutils'
+require 'yaml'
 # require 'diff/lcs'
 # require 'diff/lcs/hunk'
 
@@ -21,12 +22,15 @@ module TestHelper
     end
     
     ENV['RDEBUG'] = debug_pgm
+
     if old_code
       cmd = "/bin/sh #{File.join('..', 'runner.sh')} #{args} >#{outfile}"
     else
-      cmd = "../rdbg.rb #{args} >#{outfile}"
+      ruby = config_load('ruby', true)
+      params = config_load('ruby_params', true)
+      cmd = "#{"#{ruby} #{params} "}../rdbg.rb #{args} > #{outfile}"
     end
-    # puts cmd
+    # puts "'#{cmd}'"
     output = `#{cmd}`
     
     got_lines     = File.read(outfile).split(/\n/)
@@ -112,6 +116,15 @@ module TestHelper
   #   # Handle the last remaining hunk 
   #   output << oldhunk.diff(format) << '\n'
   # end
-
+  
+  # Loads key from the _config_._yaml_ file.
+  def config_load(key, may_be_nil=false, default_value='')
+    conf = File.join('config.private.yaml') # try private first
+    conf = File.join('config.yaml') unless File.exists?(conf)
+    value = YAML.load_file(conf)[key]
+    assert_not_nil(value, "#{key} is set in config.yaml") unless may_be_nil
+    value || default_value
+  end
+  
 end
 
