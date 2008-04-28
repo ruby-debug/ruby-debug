@@ -254,7 +254,7 @@ final class DebugEventHook implements EventHook {
                 debugContext.setEnableBreakpoint(true);
                 break;
             case RUBY_EVENT_CLASS:
-                resetFrameMid(debugContext);
+                resetTopFrameMethodName(debugContext);
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 break;
             case RUBY_EVENT_RAISE:
@@ -592,7 +592,7 @@ final class DebugEventHook implements EventHook {
         return klass;
     }
 
-    private void resetFrameMid(DebugContext debugContext) {
+    private void resetTopFrameMethodName(DebugContext debugContext) {
         DebugFrame topFrame = getTopFrame(debugContext);
         if (topFrame != null) {
             topFrame.setMethodName("");
