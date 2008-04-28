@@ -125,6 +125,7 @@ final class Debugger {
         start(recv, Block.NULL_BLOCK);
         IRubyObject context = getCurrentContext(recv);
         DebugContext debugContext = (DebugContext) context.dataGetStruct();
+        debugContext.clearFrames();
         if (stop.isTrue()) {
             debugContext.setStopNext(1);
         }

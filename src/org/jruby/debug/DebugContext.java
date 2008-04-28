@@ -101,6 +101,10 @@ final class DebugContext {
         return frames.remove(getStackSize() - 1);
     }
 
+    void clearFrames() {
+        frames.clear();
+    }
+    
     IRubyObject getBreakpoint() {
         return breakpoint;
     }
