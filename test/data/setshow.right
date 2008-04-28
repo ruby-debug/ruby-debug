@@ -80,3 +80,15 @@ nil
 autoeval is off.
 # puts 'autoeval should not run this'
 *** Unknown command: "puts 'autoeval should not run this'".  Try "help".
+# #### Test 'callstyle'...
+# set callstyle
+Invalid call style . Should be one of: 'short', 'last', or 'tracked'.
+Frame call-display style is last.
+# set callstyle short
+# set callstyle last
+# set callstyle tracked
+# set callstyle foo
+Invalid call style foo. Should be one of: 'short', 'last', or 'tracked'.
+Frame call-display style is tracked.
+# 
+# 

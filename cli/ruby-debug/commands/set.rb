@@ -110,15 +110,17 @@ set history size -- Set the size of the command history"],
               when /^basename$/
                 Command.settings[:basename] = set_on
               when /^callstyle$/
-                arg = args[0].downcase.to_sym
-                case arg
-                when :short, :last, :tracked
-                  Command.settings[:callstyle] = arg
-                  Debugger.track_frame_args = arg == :tracked ? true : false
-                else
-                  print "Invalid call style #{arg}. Should be one of: " +
-                    "'short', 'last', or 'tracked'.\n"
+                if args[0]
+                  arg = args[0].downcase.to_sym
+                  case arg
+                  when :short, :last, :tracked
+                    Command.settings[:callstyle] = arg
+                    Debugger.track_frame_args = arg == :tracked ? true : false
+                    return
+                  end
                 end
+                print "Invalid call style #{arg}. Should be one of: " +
+                  "'short', 'last', or 'tracked'.\n"
               when /^trace$/
                 Command.settings[:stack_trace_on_error] = set_on
               when /^fullpath$/

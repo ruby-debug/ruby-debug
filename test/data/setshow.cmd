@@ -46,3 +46,11 @@ set autoeval on
 puts 'printed via autoeval'
 set autoeval off
 puts 'autoeval should not run this'
+#### Test 'callstyle'...
+set callstyle
+set callstyle short
+set callstyle last
+set callstyle tracked
+set callstyle foo
+
+
