@@ -7,6 +7,10 @@ def gcd(a, b)
 Currently testing the debugger is on.
 # set callstyle last
 Frame call-display style is last.
+# # Invalid line number in continue command
+# continue 3
+*** Line 3 is not a stopping point in file "/src/external-cvs/ruby-debug/trunk/test/gcd.rb".
+# # This time, for sure!
 # continue 6
 gcd.rb:6
 if a > b

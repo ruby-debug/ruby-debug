@@ -3,6 +3,9 @@
 # ***************************************************
 set debuggertesting on
 set callstyle last
+# Invalid line number in continue command
+continue 3
+# This time, for sure!
 continue 6
 where
 up

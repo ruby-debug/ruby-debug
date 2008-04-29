@@ -1,5 +1,7 @@
 module Debugger
-  class AddBreakpoint < Command # :nodoc:
+
+  # Implements debugger "break" command.
+  class AddBreakpoint < Command
     self.allow_in_control = true
     
     def regexp
@@ -106,7 +108,8 @@ module Debugger
     end
   end
 
-  class DeleteBreakpointCommand < Command # :nodoc:
+  # Implements debugger "delete" command.
+  class DeleteBreakpointCommand < Command
     self.allow_in_control = true
 
     def regexp

@@ -1,3 +1,44 @@
+2008-04-29 09:11  Rocky Bernstein
+
+	* cli/ruby-debug/commands/method.rb,
+	  cli/ruby-debug/commands/set.rb,
+	  cli/ruby-debug/commands/variables.rb, test/classes.rb,
+	  test/data/method.cmd, test/data/method.right,
+	  test/data/methodsig.cmd, test/data/methodsig.right,
+	  test/data/setshow.right, test/test-method.rb: Add "method
+	  signature" command to show a method's signature.
+
+2008-04-29 08:23  Rocky Bernstein
+
+	* test/config.yaml: Forgot to add this on last commit.
+
+2008-04-28 16:42  Rocky Bernstein
+
+	* cli/ruby-debug/commands/set.rb, test/data/setshow.cmd,
+	  test/data/setshow.right: Catch errors in improper set callstyle
+	  parameter. Bug #19792
+
+2008-04-28 16:16  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/helper.rb: From Martin Krauskopf
+	  via patch #19779
+	  
+	  Allow folks to configure Ruby used for CLI tests in the
+	  test/config.yaml. The defaults are for native Ruby, so nothing
+	  needs
+	  to be done for ruby-debug.
+	  
+	  Developers of interfaces other than cli might override
+	  config.yaml by
+	  customized config.private.yaml which is ignored. So there will be
+	  no
+	  trash in e.g. 'svn st' output when developer customize the Ruby
+	  to be
+	  used.
+	  
+	  Handy for alternative interface implementations using
+	  svn:externals.
+
 2008-04-27 08:28  Rocky Bernstein
 
 	* emacs/rdebug-cmd.el, emacs/rdebug-track.el: Reduce spurious

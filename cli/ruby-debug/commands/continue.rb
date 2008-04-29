@@ -1,4 +1,5 @@
 module Debugger
+
   # Implements debugger "continue" command.
   class ContinueCommand < Command
     self.allow_in_post_mortem = false
@@ -8,11 +9,20 @@ module Debugger
     end
 
     def execute
+      unless @state.context
+        errmsg "We are not in a state we can continue.\n"
+        return 
+      end
       if @match[1] && !@state.context.dead?
-        file = File.expand_path(@state.file)
-        line = get_int(@match[1], "Continue", 0, nil, 0)
-        return unless line
-        @state.context.set_breakpoint(file, line)
+        filename = File.expand_path(@state.file)
+        line_number = get_int(@match[1], "Continue", 0, nil, 0)
+        return unless line_number
+        unless LineCache.trace_line_numbers(filename).member?(line_number)
+          errmsg("Line %d is not a stopping point in file \"%s\".\n", 
+                 line_number, filename) 
+          return
+        end
+        @state.context.set_breakpoint(filename, line_number)
       end
       @state.proceed
     end

@@ -1,3 +1,24 @@
+2008-04-28 16:16  Rocky Bernstein
+
+	* trunk/ChangeLog, ChangeLog, trunk/test/helper.rb: From Martin
+	  Krauskopf via patch #19779
+	  
+	  Allow folks to configure Ruby used for CLI tests in the
+	  test/config.yaml. The defaults are for native Ruby, so nothing
+	  needs
+	  to be done for ruby-debug.
+	  
+	  Developers of interfaces other than cli might override
+	  config.yaml by
+	  customized config.private.yaml which is ignored. So there will be
+	  no
+	  trash in e.g. 'svn st' output when developer customize the Ruby
+	  to be
+	  used.
+	  
+	  Handy for alternative interface implementations using
+	  svn:externals.
+
 2008-04-22 02:49  Rocky Bernstein
 
 	* trunk/doc/ruby-debug.texi, ruby-debug-base.rb: Experiment with
