@@ -23,6 +23,7 @@
  */
 package org.jruby.debug;
 
+import org.jruby.RubyBoolean;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class DebugBreakpoint {
@@ -37,6 +38,7 @@ final class DebugBreakpoint {
 
     private int id;
     private Type type;
+    private boolean enabled;
     private IRubyObject source;
     private Pos pos;
     private IRubyObject expr;
@@ -45,9 +47,18 @@ final class DebugBreakpoint {
     private HitCondition hitCondition;
 
     DebugBreakpoint() {
+        this.enabled = true;
         this.pos = new Pos();
     }
     
+    boolean isEnabled() {
+        return enabled;
+    }
+
+    void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
     IRubyObject getExpr() {
         return expr;
     }

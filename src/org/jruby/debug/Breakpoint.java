@@ -1,6 +1,6 @@
 /*
  * header & license
- * Copyright (c) 2007 Martin Krauskopf
+ * Copyright (c) 2007-2008 Martin Krauskopf
  * Copyright (c) 2007 Peter Brant
  * 
  * Permission is hereby granted, free of charge, to any person obtaining
@@ -25,6 +25,7 @@
 package org.jruby.debug;
 
 import org.jruby.Ruby;
+import org.jruby.RubyBoolean;
 import org.jruby.RubyClass;
 import org.jruby.RubyFixnum;
 import org.jruby.RubyNumeric;
@@ -35,6 +36,7 @@ import org.jruby.runtime.Block;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public class Breakpoint extends RubyObject {
+    
     private static final long serialVersionUID = 1L;
 
     protected Breakpoint(Ruby runtime, RubyClass type) {
@@ -43,6 +45,17 @@ public class Breakpoint extends RubyObject {
 
     DebugBreakpoint debuggerBreakpoint() {
         return (DebugBreakpoint)dataGetStruct();
+    }
+
+    @JRubyMethod(name="enabled=", required=1)
+    public IRubyObject setEnabled(IRubyObject enabled, Block block) {
+        debuggerBreakpoint().setEnabled(enabled.isTrue());
+        return enabled;
+    }
+
+    @JRubyMethod(name="enabled?")
+    public IRubyObject isEnabled(Block block) {
+        return getRuntime().newBoolean(debuggerBreakpoint().isEnabled());
     }
 
     @JRubyMethod(name="id")
