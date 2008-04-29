@@ -59,17 +59,10 @@ task :prepare_tests do
   #   http://subversion.tigris.org/issues/show_bug.cgi?id=937
   sh 'svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/rdbg.rb > rdbg.rb' unless File.exists?('rdbg.rb')
 
-  # prepare default customized test/config.private.yaml suitable for JRuby
-  File.open('test/config.private.yaml', 'w') do |f| 
-    f.write(<<DOC
-# either should be on the $PATH or use full path
-ruby: jruby
-
-# possibility to specify interpreter parameters
-ruby_params: -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF
-DOC
-    )
-  end unless File.exists?('test/config.private.yaml')
+  # - prepare default customized test/config.private.yaml suitable for JRuby
+  # - tweak test suite to be able to pass for jruby-debug-base which does not
+  #   support e.g. TraceLineNumbers yet.
+  sh 'patch -p0 < patch-0.10.1.diff'
 end
 
 desc "Create the core ruby-debug shared library extension"
