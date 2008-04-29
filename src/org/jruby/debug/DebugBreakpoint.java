@@ -23,7 +23,6 @@
  */
 package org.jruby.debug;
 
-import org.jruby.RubyBoolean;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class DebugBreakpoint {

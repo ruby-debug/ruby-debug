@@ -1,3 +1,37 @@
+2008-04-29 22:43  Martin Krauskopf
+
+	* Rakefile, patch-0.10.1.diff: patch against ruby-debug-base 0.10.1
+	  which:
+	  - prepares default customized test/config.private.yaml suitable
+	  for JRuby
+	  - tweaks test suite to be able to pass for jruby-debug-base which
+	  does
+	  not support e.g. TraceLineNumbers yet.
+
+2008-04-29 22:12  Martin Krauskopf
+
+	* src/org/jruby/debug/Breakpoint.java,
+	  src/org/jruby/debug/DebugBreakpoint.java: Implementing enabled?
+	  and enabled= for Breakpoint
+	  (passing tweaked test-breakpoints)
+
+2008-04-28 08:10  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugContext.java,
+	  src/org/jruby/debug/Debugger.java: Clear current stack when
+	  debuggee is loaded, thus prevent Debugger
+	  related calls to appear on the stack.
+
+2008-04-28 08:10  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java: more appropriate method
+	  name s/resetFrameMid/resetTopFrameMethodName
+
+2008-04-27 10:56  Martin Krauskopf
+
+	* ChangeLog, lib/ruby-debug-base.rb: Synchronizing with 0.10.1
+	  ruby-debug-base.rb
+
 2008-04-27 10:54  Martin Krauskopf
 
 	* src/org/jruby/debug/DebugEventHook.java,
