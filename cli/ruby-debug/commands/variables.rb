@@ -24,14 +24,15 @@ module Debugger
     end
   end
 
-  class VarClassVarCommand < Command # :nodoc:
+  # Implements the debugger 'var class' command.
+  class VarClassVarCommand < Command
     def regexp
       /^\s*v(?:ar)?\s+cl(?:ass)?/
     end
 
     def execute
       unless @state.context
-        print "can't get class variables here.\n"
+        errmsg "can't get class variables here.\n"
         return 
       end
       var_class_self
@@ -107,7 +108,7 @@ module Debugger
 
   class VarInstanceCommand < Command # :nodoc:
     def regexp
-      /^\s*v(?:ar)?\s+i(?:nstance)?\s*/
+      /^\s*v(?:ar)?\s+ins(?:tance)?\s*/
     end
 
     def execute
@@ -128,7 +129,8 @@ module Debugger
     end
   end
 
-  class VarLocalCommand < Command # :nodoc:
+  # Implements the debugger 'var local' command.
+  class VarLocalCommand < Command
     def regexp
       /^\s*v(?:ar)?\s+l(?:ocal)?\s*$/
     end
@@ -153,4 +155,45 @@ module Debugger
       end
     end
   end
+  
+    # Implements the debugger 'var inherit' command.
+  begin
+    require 'classtree'
+    have_classtree = true
+  rescue LoadError
+    have_classtree = false
+  end
+
+  class VarInheritCommand < Command
+    def regexp
+      /^\s*v(?:ar)?\s+ct\s*/
+    end
+
+    def execute
+      unless @state.context
+        errmsg "can't get object inheritance.\n"
+        return 
+      end
+      puts @match.post_match
+      obj = debug_eval("#{@match.post_match}.classtree")
+      if obj
+        print obj
+      else
+        errmsg "Trouble getting object #{@match.post_match}\n"
+      end
+    end
+
+    class << self
+      def help_command
+        'var'
+      end
+
+      def help(cmd)
+        %{
+          v[ar] ct\t\t\tshow class heirarchy of object
+        }
+      end
+    end
+  end if have_classtree
+
 end

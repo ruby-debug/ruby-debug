@@ -116,6 +116,7 @@ set history size -- Set the size of the command history"],
                   when :short, :last, :tracked
                     Command.settings[:callstyle] = arg
                     Debugger.track_frame_args = arg == :tracked ? true : false
+                    print "%s\n" % show_setting(try_subcmd.name)
                     return
                   end
                 end
