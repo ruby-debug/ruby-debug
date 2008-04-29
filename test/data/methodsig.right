@@ -16,5 +16,5 @@ classes.rb:3
 # method sig initialize
 Mine#initialize()
 # method sig mymethod
-Mine#mymethod(a, b=5)
+Mine#mymethod(a, b=5, &block)
 # quit

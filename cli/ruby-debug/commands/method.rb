@@ -10,7 +10,7 @@ module Debugger
   # Implements the debugger 'method sig' command.
   class MethodSigCommand < Command
     def regexp
-      /^\s*m(?:ethod)?\s+sig\s+(\S+)\s*$/
+      /^\s*m(?:ethod)?\s+sig(?:nature)?\s+(\S+)\s*$/
     end
 
     def execute
@@ -33,7 +33,7 @@ module Debugger
 
       def help(cmd)
         %{
-          m[ethod] signature\t\tshow the signature of a method
+          m[ethod] sig[nature] <obj>\tshow the signature of a method
         }
       end
     end
@@ -74,7 +74,7 @@ module Debugger
       def help(cmd)
         %{
           m[ethod] i[nstance] <obj>\tshow methods of object
-          m[ethod] iv <obj>\tshow instance variables of object
+          m[ethod] iv <obj>\t\tshow instance variables of object
           m[ethod] <class|module>\t\tshow instance methods of class or module
         }
       end

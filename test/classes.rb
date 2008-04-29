@@ -2,7 +2,7 @@ class Mine
   def initialize
     @myvar = 'init'
   end
-  def mymethod(a, b=5)
+  def mymethod(a, b=5, &block)
   end
   def self.classmeth
   end

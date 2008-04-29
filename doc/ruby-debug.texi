@@ -2038,6 +2038,17 @@ Show method instance variables of @var{object}. Basically this is the same as ru
   end  
 @end smallexample
 on @var{object}.
+@item signature @var{object}
+@kindex method signature @var{object}
+Show procedure signature of method @var{object}. 
+@emph{This command is available only if the nodewrap is installed.}
+@smallexample
+  def mymethod(a, b=5, &bock) 
+  end
+  (rdb:1) @b{method sig mymethod}
+  Mine#mymethod(a, b=5, &bock)
+@end smallexample
+on @var{object}.
 @item method @var{class-or-module}
 @kindex method @var{class-or-module}
 Show methods of the class or module, @var{class-or-module}. Basically
