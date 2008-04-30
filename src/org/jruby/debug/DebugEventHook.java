@@ -97,7 +97,7 @@ final class DebugEventHook implements EventHook {
             }
             setInDebugger(true);
             try {
-                processEvent(tCtx, event, file, line0, methodName, klass, contexts);
+                processEvent(tCtx, event, Util.relativizeToPWD(file), line0, methodName, klass, contexts);
             } finally {
                 setInDebugger(false);
             }
@@ -432,6 +432,9 @@ final class DebugEventHook implements EventHook {
             return false;
         }
         DebugBreakpoint debugBreakpoint = (DebugBreakpoint) breakpoint.dataGetStruct();
+        if (!debugBreakpoint.isEnabled()) {
+            return false;
+        }
         if (debugBreakpoint.getType() != DebugBreakpoint.Type.POS) {
             return false;
         }
@@ -474,6 +477,9 @@ final class DebugEventHook implements EventHook {
             return false;
         }
         DebugBreakpoint debugBreakpoint = (DebugBreakpoint) breakpoint.dataGetStruct();
+        if (!debugBreakpoint.isEnabled()) {
+            return false;
+        }
         if (debugBreakpoint.getType() != DebugBreakpoint.Type.METHOD) {
             return false;
         }
@@ -549,7 +555,7 @@ final class DebugEventHook implements EventHook {
             IRubyObject context, DebugContext debugContext,
             Ruby runtime, String file, int line) {
         return callAtLine(tCtx, context, debugContext,
-                runtime.newString(Util.relativizeToPWD(file)), runtime.newFixnum(line));
+                runtime.newString(file), runtime.newFixnum(line));
     }
     
     private IRubyObject callAtLine(ThreadContext tCtx,

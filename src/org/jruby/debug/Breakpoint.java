@@ -103,8 +103,7 @@ public class Breakpoint extends RubyObject {
 
     @JRubyMethod(name="expr=", required=1)
     public IRubyObject expr_set(IRubyObject expr, Block block) {
-        debuggerBreakpoint().setExpr(expr.convertToString());
-        
+        debuggerBreakpoint().setExpr(expr.isNil() ? expr : expr.convertToString());
         return expr;
     }
 
