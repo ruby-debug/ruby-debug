@@ -3558,11 +3558,13 @@ your debugged program rather than in the debugger.
 
 @item breakpoint @ovar{steps=1}
 @vindex @code{Kernel::breakpoint}
-An alias for debugger.
+An alias for debugger.  
 
 @item binding_n @ovar{n=0}
 @vindex @code{Kernel::binding_n}
-Returns a binding of @var{n}-th call frame. 
+Returns a @samp{binding()} for the @var{n}-th call frame. Note however
+that you need to first call @samp{Debugger.start} before issuing this
+call.
 
 @end table
 
