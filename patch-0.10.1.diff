@@ -86,6 +86,67 @@ Index: test/data/breakpoints.right
  # info break
  No breakpoints.
  # # Should get a message about having no breakpoints.
+Index: test/data/stepping.cmd
+===================================================================
+--- test/data/stepping.cmd	(revision 828)
++++ test/data/stepping.cmd	(working copy)
+@@ -7,13 +7,13 @@
+ where
+ step a
+ set forcestep on
+-step- ; step-
++step-
+ set forcestep off
+ where
+-n 2
++n
+ step+
+ where
+-step 3
++step 2
+ step+
+ where
+ next+	
+Index: test/data/stepping.right
+===================================================================
+--- test/data/stepping.right	(revision 828)
++++ test/data/stepping.right	(working copy)
+@@ -16,7 +16,7 @@
+ Step argument 'a' needs to be a number.
+ # set forcestep on
+ force-stepping is on.
+-# step- ; step-
++# step-
+ gcd.rb:6
+ if a > b
+ # set forcestep off
+@@ -24,7 +24,7 @@
+ # where
+ --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
+     #1 at line gcd.rb:18
+-# n 2
++# n
+ gcd.rb:10
+ return nil if a <= 0
+ # step+
+@@ -33,7 +33,7 @@
+ # where
+ --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:12
+     #1 at line gcd.rb:18
+-# step 3
++# step 2
+ gcd.rb:6
+ if a > b
+ # step+
+@@ -41,7 +41,7 @@
+ return nil if a <= 0
+ # where
+ --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+-    #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
++    #1 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:15
+     #2 at line gcd.rb:18
+ # next+	
+ gcd.rb:12
 Index: test/data/break_bad.right
 ===================================================================
 --- test/data/break_bad.right	(revision 828)
