@@ -2674,7 +2674,7 @@ returns.
 If you want instead to terminate the program and debugger entirely,
 use @code{quit} (@pxref{Quitting the debugger, ,Quitting the debugger}).
 
-@emph{Note:\/} Releases before Ruby version 1.8.7 show the return line
+@emph{Note:} Releases before Ruby version 1.8.7 show the return line
 as the first line of the method. Starting with version 1.8.7, the last
 line executed will be shown as the return
 line. @url{http://rubyforge.org/tracker/?func=detail&atid=22040&aid=18749&group_id=426}
