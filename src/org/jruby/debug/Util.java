@@ -30,6 +30,8 @@ import org.jruby.runtime.EventHook;
 import org.jruby.runtime.builtin.IRubyObject;
 
 final class Util {
+    
+    private final static CharSequence JRUBY_BUILTIN_PATH_PART = "builtin" + File.separator + "javasupport";
 
     private Util() {/* forbid instances */}
 
@@ -82,4 +84,10 @@ final class Util {
     static void logEvent(int event, String file, int line, String methodName, IRubyObject klass) {
         System.err.printf("%s:%d [%s] %s#%s\n", file, line, EventHook.EVENT_NAMES[event], klass, methodName);
     }
+
+    static boolean isJRubyCore(final String file) {
+        return file.contains(JRUBY_BUILTIN_PATH_PART);
+    }
+
 }
+

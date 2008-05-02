@@ -143,9 +143,9 @@ final class DebugEventHook implements EventHook {
                 if (debugContext.getStackSize() == 0) {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 } else {
-                    setFrameSource(event, debugContext, tCtx, file, line, methodName);
+                    updateTopFrame(event, debugContext, tCtx, file, line, methodName);
                 }
-                if (debugger.isTracing() || debugContext.isTracing()) {
+                if ((debugger.isTracing() || debugContext.isTracing()) && !Util.isJRubyCore(file)) {
                     IRubyObject[] args = new IRubyObject[]{
                         runtime.newString(file),
                         runtime.newFixnum(line)
@@ -229,7 +229,7 @@ final class DebugEventHook implements EventHook {
                 if(cCallNewFrameP(klass)) {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 } else {
-                    setFrameSource(event, debugContext, tCtx, file, line, methodName);
+                    updateTopFrame(event, debugContext, tCtx, file, line, methodName);
                 }
                 break;
             case RUBY_EVENT_C_RETURN:
@@ -258,7 +258,7 @@ final class DebugEventHook implements EventHook {
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 break;
             case RUBY_EVENT_RAISE:
-                setFrameSource(event, debugContext, tCtx, file, line, methodName);
+                updateTopFrame(event, debugContext, tCtx, file, line, methodName);
                 
                 // XXX Implement post mortem debugging
 
@@ -387,7 +387,7 @@ final class DebugEventHook implements EventHook {
         debugFrame.setArgValues(args);
     }
 
-    private void setFrameSource(int event, DebugContext debug_context, ThreadContext tCtx,
+    private void updateTopFrame(int event, DebugContext debug_context, ThreadContext tCtx,
             String file, int line, String methodName) {
         DebugFrame topFrame = getTopFrame(debug_context);
         if (topFrame != null) {
