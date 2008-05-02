@@ -177,6 +177,17 @@ Index: test/data/breakpoints.cmd
  info break
  # Should get a message about having no breakpoints.
  disable 1
+Index: test/data/info.right
+===================================================================
+--- test/data/info.right	(revision 828)
++++ test/data/info.right	(working copy)
+@@ -61,5 +61,5 @@
+ # info file ./gcd.rb break
+ File ./gcd.rb
+ 	breakpoint line numbers:
+-4  6  6  7  10  10  12  12  13  15  18
++1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18
+ # quit
 Index: test/config.private.yaml
 ===================================================================
 --- test/config.private.yaml	(revision 0)
