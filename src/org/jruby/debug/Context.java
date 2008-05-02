@@ -321,11 +321,27 @@ public class Context extends RubyObject {
         return debugContext().getBreakpoint();
     }
 
+    /**
+     * <pre>
+     * call-seq:
+     *    context.set_breakpoint(source, pos, condition = nil) -> breakpoint
+     * </pre>
+     * <p>
+     * Sets a context-specific temporary breakpoint, which can be used to implement
+     * 'Run to Cursor' debugger function. When this breakpoint is reached, it will be
+     * cleared out.
+     * </p>
+     * <p>
+     * <i>source</i> is a name of a file or a class.<br/>
+     * <i>pos</i> is a line number or a method name if <i>source</i> is a class name.<br/>
+     * <i>condition</i> is a string which is evaluated to <tt>true</tt> when this breakpoint is activated.<br/>
+     * </p>
+     */
     @JRubyMethod(name="set_breakpoint", required=2, optional=1)
     public IRubyObject set_breakpoint(IRubyObject[] args, Block block) {
         checkStarted();
         
-        IRubyObject breakpoint = debugger.createBreakpointFromArgs(this, args);
+        IRubyObject breakpoint = debugger.createBreakpointFromArgs(this, args, 0);
         debugContext().setBreakpoint(breakpoint);
         
         return breakpoint;
