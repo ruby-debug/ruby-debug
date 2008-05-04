@@ -1,6 +1,6 @@
 Index: test/data/breakpoints.right
 ===================================================================
---- test/data/breakpoints.right	(revision 828)
+--- test/data/breakpoints.right	(revision 830)
 +++ test/data/breakpoints.right	(working copy)
 @@ -16,7 +16,7 @@
  # break 10
@@ -88,7 +88,7 @@ Index: test/data/breakpoints.right
  # # Should get a message about having no breakpoints.
 Index: test/data/stepping.cmd
 ===================================================================
---- test/data/stepping.cmd	(revision 828)
+--- test/data/stepping.cmd	(revision 830)
 +++ test/data/stepping.cmd	(working copy)
 @@ -7,13 +7,13 @@
  where
@@ -109,7 +109,7 @@ Index: test/data/stepping.cmd
  next+	
 Index: test/data/stepping.right
 ===================================================================
---- test/data/stepping.right	(revision 828)
+--- test/data/stepping.right	(revision 830)
 +++ test/data/stepping.right	(working copy)
 @@ -16,7 +16,7 @@
  Step argument 'a' needs to be a number.
@@ -149,7 +149,7 @@ Index: test/data/stepping.right
  gcd.rb:12
 Index: test/data/break_bad.right
 ===================================================================
---- test/data/break_bad.right	(revision 828)
+--- test/data/break_bad.right	(revision 830)
 +++ test/data/break_bad.right	(working copy)
 @@ -18,10 +18,10 @@
  # # Line one isn't a valid stopping point.
@@ -166,7 +166,7 @@ Index: test/data/break_bad.right
  *** Unknown class Foo.
 Index: test/data/breakpoints.cmd
 ===================================================================
---- test/data/breakpoints.cmd	(revision 828)
+--- test/data/breakpoints.cmd	(revision 830)
 +++ test/data/breakpoints.cmd	(working copy)
 @@ -30,7 +30,7 @@
  disable bar
@@ -177,9 +177,51 @@ Index: test/data/breakpoints.cmd
  info break
  # Should get a message about having no breakpoints.
  disable 1
+Index: test/data/annotate.right
+===================================================================
+--- test/data/annotate.right	(revision 830)
++++ test/data/annotate.right	(working copy)
+@@ -83,7 +83,7 @@
+ display
+ 
+ stack
+---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
++--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+     #1 at line gcd.rb:18
+ 
+ variables
+@@ -91,8 +91,8 @@
+ b = 5
+ self = main
+ 
+-source gcd.rb:6
+-if a > b
++source gcd.rb:10
++return nil if a <= 0
+ # # Test error annotations
+ # up 10
+ error-begin
+@@ -101,7 +101,7 @@
+ display
+ 
+ stack
+---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
++--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+     #1 at line gcd.rb:18
+ 
+ variables
+@@ -116,7 +116,7 @@
+ display
+ 
+ stack
+---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
++--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+     #1 at line gcd.rb:18
+ 
+ variables
 Index: test/data/info.right
 ===================================================================
---- test/data/info.right	(revision 828)
+--- test/data/info.right	(revision 830)
 +++ test/data/info.right	(working copy)
 @@ -61,5 +61,5 @@
  # info file ./gcd.rb break
@@ -200,7 +242,7 @@ Index: test/config.private.yaml
 +ruby_params: -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF
 Index: test/helper.rb
 ===================================================================
---- test/helper.rb	(revision 828)
+--- test/helper.rb	(revision 830)
 +++ test/helper.rb	(working copy)
 @@ -1,6 +1,7 @@
  # Some common routines used in testing.
