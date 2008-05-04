@@ -85,6 +85,11 @@ final class DebugEventHook implements EventHook {
             return;
         }
         
+        /** Ignore JRuby core classes by default. Consider option for enabling it. */
+        if (Util.isJRubyCore(file)) {
+            return;
+        }
+        
         needsSuspend = contexts.debugContext.isSuspended();
         
         if (needsSuspend) {
@@ -145,7 +150,7 @@ final class DebugEventHook implements EventHook {
                 } else {
                     updateTopFrame(event, debugContext, tCtx, file, line, methodName);
                 }
-                if ((debugger.isTracing() || debugContext.isTracing()) && !Util.isJRubyCore(file)) {
+                if (debugger.isTracing() || debugContext.isTracing()) {
                     IRubyObject[] args = new IRubyObject[]{
                         runtime.newString(file),
                         runtime.newFixnum(line)
