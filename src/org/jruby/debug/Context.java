@@ -111,7 +111,7 @@ public class Context extends RubyObject {
         if (frameNo < 0 || frameNo >= debugContext.getStackSize()) {
             getRuntime().newRuntimeError("Stop frame is out of range.");
         }
-        debugContext.setStopFrame(frameNo);
+        debugContext.setStopFrame(debugContext.getStackSize() - frameNo);
         
         return rFrameNo;
     }
