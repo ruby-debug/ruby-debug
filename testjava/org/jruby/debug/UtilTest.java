@@ -42,4 +42,8 @@ public class UtilTest extends TestCase {
                 "/a/b/c/d",
                 "/a/b/c/d/./tester.rb"));
     }
+    
+    public void testIsJRubyCore() {
+        assertTrue("jruby.jar handled", Util.isJRubyCore("/sources/jruby/lib/jruby.jar!/jruby/path_helper.rb"));
+    }
 }

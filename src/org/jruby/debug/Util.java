@@ -32,6 +32,7 @@ import org.jruby.runtime.builtin.IRubyObject;
 final class Util {
     
     private final static CharSequence JRUBY_BUILTIN_PATH_PART = "builtin" + File.separator + "javasupport";
+    private final static CharSequence JRUBY_JAR_PART = "lib" + File.separator + "jruby.jar!" + File.separator;
 
     private Util() {/* forbid instances */}
 
@@ -86,7 +87,7 @@ final class Util {
     }
 
     static boolean isJRubyCore(final String file) {
-        return file.contains(JRUBY_BUILTIN_PATH_PART);
+        return file.contains(JRUBY_BUILTIN_PATH_PART) || file.contains(JRUBY_JAR_PART);
     }
 
 }

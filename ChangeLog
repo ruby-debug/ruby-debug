@@ -1,3 +1,61 @@
+2008-05-04 14:47  Martin Krauskopf
+
+	* patch-0.10.1.diff: - passing few more tests
+	  - appyling multi-interpreter patch patch-0.10.1.diff
+	  (see [#19934] Patch making test-init.rb interpreter independent)
+
+2008-05-04 11:57  Martin Krauskopf
+
+	* patch-0.10.1.diff: Tweaking annotate.right to be passed (JRuby
+	  does not step twice on 'if' node)
+
+2008-05-04 11:38  Martin Krauskopf
+
+	* src/org/jruby/debug/Context.java: Fixing 'finish' acttion.
+
+2008-05-04 11:34  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java: Ignore JRuby core
+	  classes by default. Consider option for enabling it.
+
+2008-05-02 14:04  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/Util.java: Do not trace JRuby's built-in
+	  support classes
+	  - s/setFrameSource/updateTopFrame
+
+2008-05-02 11:46  Martin Krauskopf
+
+	* patch-0.10.1.diff: passing test-info.rb (not support for
+	  TraceLineNumbers yet)
+
+2008-05-02 11:30  Martin Krauskopf
+
+	* src/org/jruby/debug/Context.java,
+	  src/org/jruby/debug/Debugger.java: Temporary breakpoints (cont
+	  <number> command) should not increase breakpoint id counter
+	  Caught by and passing now TestInfoVar
+
+2008-05-01 14:07  Martin Krauskopf
+
+	* patch-0.10.1.diff: - tweaking 'stepping' test to be passed by
+	  JRuby which does not stop twice on certain expressions
+	  - we do not show '-' for recursively entered frames
+
+2008-04-30 16:15  Martin Krauskopf
+
+	* src/org/jruby/debug/Breakpoint.java,
+	  src/org/jruby/debug/DebugEventHook.java: - prevent internal
+	  conversion error in "condidion" command
+	  - make breakpoint enable/disable state actually work
+	  - relativize all entry files
+
+2008-04-29 22:44  Martin Krauskopf
+
+	* ChangeLog, src/org/jruby/debug/Breakpoint.java,
+	  src/org/jruby/debug/DebugBreakpoint.java: Unused imports
+
 2008-04-29 22:43  Martin Krauskopf
 
 	* Rakefile, patch-0.10.1.diff: patch against ruby-debug-base 0.10.1
@@ -224,8 +282,8 @@
 
 2008-02-19 12:30  Martin Krauskopf
 
-	* MIT-LICENSE, trunk/MIT-LICENSE: Updating license and addint MIT
-	  license for jruby-debug-base
+	* MIT-LICENSE: Updating license and addint MIT license for
+	  jruby-debug-base
 
 2008-02-05 13:48  Martin Krauskopf
 
@@ -245,8 +303,7 @@
 
 2008-01-29 22:41  Martin Krauskopf
 
-	* Rakefile, trunk/ruby-debug-ide/Rakefile: Minor fixes/tweaks to
-	  specifications
+	* Rakefile: Minor fixes/tweaks to specifications
 
 2008-01-17 00:34  Peter Brant
 
@@ -671,8 +728,8 @@
 
 2007-09-02 18:46  Martin Krauskopf
 
-	* jruby-debug, ., README, src, src/org, src/org/jruby,
-	  src/org/jruby/debug, src/org/jruby/debug/Breakpoint.java,
+	* ., README, src, src/org, src/org/jruby, src/org/jruby/debug,
+	  src/org/jruby/debug/Breakpoint.java,
 	  src/org/jruby/debug/Context.java,
 	  src/org/jruby/debug/DebugBreakpoint.java,
 	  src/org/jruby/debug/DebugContext.java,
