@@ -1,3 +1,10 @@
+2008-04-29 13:37  Rocky Bernstein
+
+	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
+	  trunk/cli/ruby-debug/commands/continue.rb, ChangeLog,
+	  trunk/test/data/frame.cmd, trunk/test/data/frame.right: Test line
+	  number in "continue" command for validity.
+
 2008-04-28 16:16  Rocky Bernstein
 
 	* trunk/ChangeLog, ChangeLog, trunk/test/helper.rb: From Martin

@@ -9,7 +9,7 @@ Currently testing the debugger is on.
 Frame call-display style is last.
 # # Invalid line number in continue command
 # continue 3
-*** Line 3 is not a stopping point in file "/src/external-cvs/ruby-debug/trunk/test/gcd.rb".
+*** Line 3 is not a stopping point in file "gcd.rb".
 # # This time, for sure!
 # continue 6
 gcd.rb:6

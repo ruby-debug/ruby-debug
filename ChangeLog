@@ -1,3 +1,16 @@
+2008-04-29 14:00  Rocky Bernstein
+
+	* cli/ruby-debug/commands/method.rb, doc/ruby-debug.texi,
+	  test/classes.rb, test/data/methodsig.right: Small doc and test
+	  improvements on 'method signature'
+
+2008-04-29 13:37  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/breakpoints.rb,
+	  cli/ruby-debug/commands/continue.rb, lib/ChangeLog,
+	  test/data/frame.cmd, test/data/frame.right: Test line number in
+	  "continue" command for validity.
+
 2008-04-29 09:11  Rocky Bernstein
 
 	* cli/ruby-debug/commands/method.rb,
