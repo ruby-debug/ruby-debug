@@ -57,7 +57,16 @@ desc "Helps to setup the project to be able to run tests"
 task :prepare_tests do
   # needed to run CLI test. Unable to use svn:externals yet:
   #   http://subversion.tigris.org/issues/show_bug.cgi?id=937
+  
+  # rdbg.rb
   sh 'svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/rdbg.rb > rdbg.rb' unless File.exists?('rdbg.rb')
+
+  # runner.sh
+  runner = 'runner.sh'
+  sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/runner.sh > #{runner}" unless File.exists?(runner)
+  text = File.read('runner.sh')
+  File.open(runner, 'w') {|f| f.write(text.gsub(/-ruby/ , '-jruby -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF'))}
+  File.chmod(0755, runner)
 
   # - prepare default customized test/config.private.yaml suitable for JRuby
   # - tweak test suite to be able to pass for jruby-debug-base which does not
