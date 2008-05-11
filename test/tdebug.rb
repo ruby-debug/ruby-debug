@@ -49,7 +49,7 @@ def debug_program(options)
          end
     $0[0..-1] = d0
   end
-  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop)
+  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop, false)
   if bt
     if options.post_mortem
       Debugger.handle_post_mortem(bt)
@@ -188,8 +188,11 @@ trap('INT') { Debugger.interrupt_last }
 Debugger.wait_connection = false
 Debugger.keep_frame_binding = options.frame_bind
 
-# activate debugger
+# Add Debugger trace hook.
 Debugger.start
+
+# start control thread
+Debugger.start_control(options.host, options.cport) if options.control
 
 # activate post-mortem
 Debugger.post_mortem if options.post_mortem
@@ -210,10 +213,6 @@ if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
   puts output
   exit $?.exitstatus 
 end
-# activate debugger
-Debugger.start
-# start control thread
-Debugger.start_control(options.host, options.cport) if options.control
 
 # load initrc script (e.g. .rdebugrc)
 Debugger.run_init_script(StringIO.new) unless options.nx

@@ -1374,23 +1374,31 @@ debug_thread_inherited(VALUE klass)
 
 /*
  *   call-seq:
- *      Debugger.debug_load(file, stop = false) -> nil
+ *      Debugger.debug_load(file, stop = false, increment_start = false) -> nil
  *
  *   Same as Kernel#load but resets current context's frames.
- *   +stop+ parameter force the debugger to stop at the first line of code in the +file+
+ *   +stop+ parameter forces the debugger to stop at the first line of code in the +file+
+ *   +increment_start+ determines if start_count should be incremented. When
+ *    control threads are used, they have to be set up before loading the
+ *    debugger; so here +increment_start+ will be false.    
  *   FOR INTERNAL USE ONLY.
  */
 static VALUE
 debug_debug_load(int argc, VALUE *argv, VALUE self)
 {
-    VALUE file, stop, context;
+    VALUE file, stop, context, increment_start;
     debug_context_t *debug_context;
     int state = 0;
     
-    if(rb_scan_args(argc, argv, "11", &file, &stop) == 1)
-      stop = Qfalse;
+    if(rb_scan_args(argc, argv, "12", &file, &stop, &increment_start) == 1) 
+    {
+	stop = Qfalse;
+	increment_start = Qtrue;
+    }
 
     debug_start(self);
+    if (Qfalse == increment_start) start_count--;
+    
     context = debug_current_context(self);
     Data_Get_Struct(context, debug_context_t, debug_context);
     debug_context->stack_size = 0;

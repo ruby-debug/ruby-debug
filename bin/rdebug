@@ -40,7 +40,7 @@ def debug_program(options)
          end
     $0[0..-1] = d0
   end
-  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, options.stop)
+  bt = Debugger.debug_load(Debugger::PROG_SCRIPT, options.stop, false)
   if bt
     if options.post_mortem
       Debugger.handle_post_mortem(bt)
@@ -281,7 +281,7 @@ else
     end
     debug_program(options)
   else
-    # activate debugger
+    # Set up trace hook for debugger
     Debugger.start
     # start control thread
     Debugger.start_control(options.host, options.cport) if options.control
