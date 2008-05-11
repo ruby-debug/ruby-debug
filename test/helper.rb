@@ -26,9 +26,7 @@ module TestHelper
     if old_code
       cmd = "/bin/sh #{File.join('..', 'runner.sh')} #{args} >#{outfile}"
     else
-      ruby = config_load('ruby', true)
-      params = config_load('ruby_params', true)
-      cmd = "#{"#{ruby} #{params} "}../rdbg.rb #{args} > #{outfile}"
+      cmd = "#{"#{load_ruby} #{load_params} "}../rdbg.rb #{args} > #{outfile}"
     end
     # puts "'#{cmd}'"
     output = `#{cmd}`
@@ -125,6 +123,17 @@ module TestHelper
     assert_not_nil(value, "#{key} is set in config.yaml") unless may_be_nil
     value || default_value
   end
+  module_function :config_load
+
+  def load_ruby
+    config_load('ruby', true)
+  end
+  module_function :load_ruby
+
+  def load_params
+    config_load('ruby_params', true)
+  end
+  module_function :load_params
   
 end
 

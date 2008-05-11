@@ -1,6 +1,7 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'rbconfig'
+require File.join(File.dirname(__FILE__), 'helper.rb')
 
 # begin require 'rubygems' rescue LoadError end
 # require 'ruby-debug'; Debugger.start
@@ -16,7 +17,8 @@ class TestDebuggerInit < Test::Unit::TestCase
       old_columns = ENV['COLUMNS']
       ENV['EMACS'] = nil
       ENV['COLUMNS'] = '120'
-      IO.popen("./gcd-dbg.rb 5 >#{debugger_output}", 'w') do |pipe|
+      ruby = "#{TestHelper.load_ruby} #{TestHelper.load_params}"
+      IO.popen("#{ruby} ./gcd-dbg.rb 5 >#{debugger_output}", 'w') do |pipe|
         pipe.puts 'p Debugger::PROG_SCRIPT'
         pipe.puts 'show args'
         pipe.puts 'quit unconditionally'
