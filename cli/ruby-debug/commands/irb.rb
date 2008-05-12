@@ -34,8 +34,8 @@ end
 
 module Debugger
 
-  # Implements debugger "help" command.
-  class IRBCommand < Command # :nodoc:
+  # Implements debugger "irb" command.
+  class IRBCommand < Command
 
     register_setting_get(:autoirb) do 
       IRBCommand.always_run
