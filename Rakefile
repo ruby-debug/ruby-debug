@@ -20,7 +20,7 @@ COMMON_FILES = FileList[
   'Rakefile',
 ]                        
 
-CLI_TEST_FILE_LIST = 'test/test-*.rb'
+CLI_TEST_FILE_LIST = FileList['test/test-*.rb', 'test/cli/**/*_test.rb']
 CLI_FILES = COMMON_FILES + FileList[
   "cli/**/*",
   'ChangeLog',
@@ -30,7 +30,7 @@ CLI_FILES = COMMON_FILES + FileList[
   'test/**/data/*.right',
   'test/**/*.rb',
   'rdbg.rb',
-   CLI_TEST_FILE_LIST,                                    
+   CLI_TEST_FILE_LIST
 ]
 
 BASE_TEST_FILE_LIST = %w(
@@ -48,16 +48,16 @@ BASE_FILES = COMMON_FILES + FileList[
 ]
 
 desc "Test everything."
-test_task = task :test => [:lib, :test_base] do 
+task :test => :test_base do 
   Rake::TestTask.new(:test) do |t|
     t.libs << ['./ext', './lib', './cli']
-    t.pattern = CLI_TEST_FILE_LIST
+    t.test_files = CLI_TEST_FILE_LIST
     t.verbose = true
   end
 end
 
 desc "Test ruby-debug-base."
-test_task = task :test_base => :lib do 
+task :test_base => :lib do 
   Rake::TestTask.new(:test_base) do |t|
     t.libs << ['./ext', './lib']
     t.test_files = FileList[BASE_TEST_FILE_LIST]
@@ -198,7 +198,7 @@ task :publish do
   # Get ruby-debug path.
   ruby_debug_path = File.expand_path(File.dirname(__FILE__))
 
-  publisher = Rake::SshDirPublisher.new("kent@rubyforge.org",
+  Rake::SshDirPublisher.new("kent@rubyforge.org",
         "/var/www/gforge-projects/ruby-debug", ruby_debug_path)
 end
 
