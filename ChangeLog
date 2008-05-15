@@ -1,3 +1,48 @@
+2008-05-12 03:21  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb: Small doc fix.
+
+2008-05-11 15:25  Rocky Bernstein
+
+	* test/data/raise.right: tdebug.rb got a line shorter.
+
+2008-05-11 09:03  Rocky Bernstein
+
+	* test/helper.rb, test/test-init.rb: Patch #19934 multi-interpreter
+	  patch from Martin Krauskopf
+
+2008-05-11 08:38  Rocky Bernstein
+
+	* bin/rdebug, ext/ruby_debug.c, test/data/output.right,
+	  test/data/quit.right, test/tdebug.rb: Remove stop in debug_load
+	  due to Debugger.start getting called twice.
+	  The fix -- for now -- is to add another parameter to debug_load
+	  to
+	  indicate not to increment debug_count. We could also make that
+	  the
+	  default in debug_load as well, but debug_load might be useful in
+	  other
+	  situations and where control_threads are not relevant (which is
+	  why we
+	  need to call Debugger.start rather than let debug_load do it).
+	  
+	  Bug #19930
+
+2008-05-05 18:05  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/data/frame.right,
+	  test/test-frame.rb: make test-frame installation independent. Bug
+	  #19931
+
+2008-05-01 23:16  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Remove a Texism. texinfo does not do or need
+	  italic correction.
+
+2008-04-30 20:14  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Fix doc for binding_n().
+
 2008-04-29 14:00  Rocky Bernstein
 
 	* cli/ruby-debug/commands/method.rb, doc/ruby-debug.texi,

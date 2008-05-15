@@ -1,3 +1,9 @@
+2008-05-05 18:05  Rocky Bernstein
+
+	* trunk/ChangeLog, ChangeLog, trunk/test/data/frame.right,
+	  trunk/test/test-frame.rb: make test-frame installation
+	  independent. Bug #19931
+
 2008-04-29 13:37  Rocky Bernstein
 
 	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,

@@ -8,17 +8,12 @@ module Debugger
 
     def execute
       if excn = @match[1]
-        if excn == 'off'
-          Debugger.catchpoint = nil
-          print "Clear catchpoint.\n"
-        else
           binding = @state.context ? get_binding : TOPLEVEL_BINDING
           unless debug_eval("#{excn}.is_a?(Class)", binding)
             print "Warning #{excn} is not known to be a Class\n"
           end
           Debugger.add_catchpoint(excn)
           print "Catch exception %s.\n", excn
-        end
       else
         info_catch
       end
