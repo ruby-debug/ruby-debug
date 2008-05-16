@@ -298,7 +298,7 @@ final class DebugEventHook implements EventHook {
                         hitCount = runtime.newFixnum(RubyFixnum.fix2int(hitCount) + 1);
                         debugger.getCatchpoints().op_aset(tCtx, modName, hitCount);
                         debugContext.setStopReason(DebugContext.StopReason.CATCHPOINT);
-                        context.callMethod(tCtx, DebugContext.AT_CATCHPOINT, breakpoint);
+                        context.callMethod(tCtx, DebugContext.AT_CATCHPOINT, exception);
                         
                         DebugFrame debugFrame = getTopFrame(debugContext);
                         if (debugFrame != null) {
