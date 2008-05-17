@@ -72,7 +72,8 @@ module Debugger
         %{
           save FILE\tsaves current debugger state to FILE as a script file.
           This includes breakpoints, catchpoint, display expressions and some
-           settings.
+          settings.
+          Use the 'source' command in another debug session to restore them.
         }
       end
     end
