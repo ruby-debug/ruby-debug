@@ -641,7 +641,7 @@ Resynchronize the current position with the source window. The
 C-l} is an alternate binding which also can be used in the source script.
 
 @item C-c a
-Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
+Shows argument variables (e.g.@: @code{$1}, @code{$2}) of the current
 stack frame. Same as @value{DBG} @code{info args} command. The
 @value{Emacs} command name is @code{gud-args} and @code{C-x C-a a} is
 an alternate binding which also can be used in the source script.
@@ -777,7 +777,7 @@ corresponding I/O buffer, @code{C-x C-a C-r} is an alternate binding.
 @item C-x C-a a	
 
 @code{gud-args}
-Shows argument variables (e.g. @code{$1}, @code{$2}) of the current
+Shows argument variables (e.g.@: @code{$1}, @code{$2}) of the current
 stack frame. Same as @value{DBG} @code{info args} command.  The
 @value{Emacs} command name is @code{gud-args}. In the corresponding
 I/O buffer, @code{C-c a} is an alternate binding which also can be

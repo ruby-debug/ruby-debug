@@ -200,7 +200,7 @@ There are lots of command options, but we don't need them for now. See
 @ref{rdebug command-line options} for a full list of command options.
 
 Position information consists of a filename and line number,
-e.g. @code{triangle.rb:4}. We are currently stopped before the first
+e.g.@: @code{triangle.rb:4}. We are currently stopped before the first
 executable line of the program; this is line 4 of
 @code{triangle.rb}. If you are used to less dynamic languages and have
 used debuggers for more statically compiled languages like C, C++, or
@@ -954,7 +954,7 @@ method @code{gcd} is in the outermost scope, we use @code{Object} as the
 class name.
 
 @node Bouncing Around in Blocks (e.g. Iterators)
-@subsection Bouncing Around in Blocks (e.g. Iterators)
+@subsection Bouncing Around in Blocks (e.g.@: Iterators)
 
 When debugging languages with coroutines like Python and Ruby, a
 method call may not necessarily go to the first statement after the
@@ -1041,7 +1041,7 @@ call shorter ``scalar'' types of values and the class name.
 
 @node Lines You Can Stop At
 @subsection Lines You Can Stop At
-As with the duplicate stops per control (e.g. @code{if} statement),
+As with the duplicate stops per control (e.g.@: @code{if} statement),
 until tools like debuggers get more traction among core ruby
 developers there are going to be weirdness. Here we describe the
 stopping locations which effects the breakpoint line numbers you can
@@ -2667,7 +2667,7 @@ argument @var{count} is a repeat count, as for @code{step}.
 Execute until selected stack frame returns.  If no frame number is
 given, we run until the currently selected frame returns.  The
 currently selected frame starts out the most-recent frame or 0 if no
-frame positioning (e.g @code{up}, @code{down} or @code{frame}) has
+frame positioning (e.g@: @code{up}, @code{down} or @code{frame}) has
 been performed. If a frame number is given we run until @var{frame} frames
 returns.
 
