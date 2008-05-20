@@ -6,7 +6,18 @@
 @set ttDBG @code{@value{DBG}}
 @set Emacs @sc{gnu} Emacs
 
+@c Karl Berry informs me that this will add straight quotes in 
+@c typewriter text.
+@c See the "Inserting Quote Characters" node in the Texinfo manual
+@set txicodequoteundirected
+@set txicodequotebacktick
 @set RDEBUG_VERSION 0.10.2
+
+@c Karl Berry informs me that this will add straight quotes in 
+@c typewriter text.
+@c See the "Inserting Quote Characters" node in the Texinfo manual
+@set txicodequoteundirected
+@set txicodequotebacktick
 
 @macro Example {}
 @iftex

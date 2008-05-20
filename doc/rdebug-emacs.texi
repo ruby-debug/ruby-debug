@@ -10,6 +10,12 @@
 @include version-rdebug-emacs.texi
 @finalout
 
+@c Karl Berry informs me that this will add straight quotes in 
+@c typewriter text.
+@c See the "Inserting Quote Characters" node in the Texinfo manual
+@set txicodequoteundirected
+@set txicodequotebacktick
+
 @c THIS MANUAL REQUIRES TEXINFO 4.0 OR LATER.
 
 @c This is a dir.info fragment to support semi-automated addition of
