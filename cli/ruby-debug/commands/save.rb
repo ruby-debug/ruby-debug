@@ -20,7 +20,9 @@ module Debugger
       Debugger.breakpoints.each do |b|
         file.puts "break #{b.source}:#{b.pos}#{" if #{b.expr}" if b.expr}"
       end
-      file.puts "catch #{Debugger.catchpoint}" if Debugger.catchpoint
+      Debugger.catchpoints.keys.each do |c|
+        file.puts "catch #{c}" 
+      end
     end
     
     def save_displays(file)
@@ -70,11 +72,12 @@ module Debugger
       
       def help(cmd)
         %{
-          save FILE\tsaves current debugger state to FILE as a script file.
-          This includes breakpoints, catchpoint, display expressions and some
-          settings.
-          Use the 'source' command in another debug session to restore them.
-        }
+save [FILE]
+Saves current debugger state to FILE as a script file.
+This includes breakpoints, catchpoints, display expressions and some settings.
+If no filename is given, we will fabricate one.
+
+Use the 'source' command in another debug session to restore them.}
       end
     end
   end
