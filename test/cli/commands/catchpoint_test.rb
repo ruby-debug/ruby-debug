@@ -15,6 +15,7 @@ class TestCatchCommand < Test::Unit::TestCase
   class MockState
     attr_accessor :message 
     def context; end
+    def confirm(msg); true end
     def print(*args)
       @message = *args
     end
@@ -28,7 +29,7 @@ class TestCatchCommand < Test::Unit::TestCase
     catch(:debug_error) do
       catch_cmd.execute
     end
-    assert_equal("NameError Exception: undefined local variable or method `off' for main:Object\n", state.message)
+    assert_equal(nil, state.message)
   end
 
 end

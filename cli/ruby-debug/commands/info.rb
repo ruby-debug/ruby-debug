@@ -5,15 +5,15 @@ module Debugger
         print "No frame selected.\n"
         return 
       end
-      if Debugger.catchpoints.empty?
-        print "No exceptions set to be caught.\n"
-      else
+      if Debugger.catchpoints and not Debugger.catchpoints.empty?
         # FIXME: show whether Exception is valid or not
         # print "Exception: is_a?(Class)\n"
         Debugger.catchpoints.each do |exception, hits|
           # print "#{exception}: #{exception.is_a?(Class)}\n"
            print "#{exception}\n"
         end
+      else
+        print "No exceptions set to be caught.\n"
       end
     end
   end
