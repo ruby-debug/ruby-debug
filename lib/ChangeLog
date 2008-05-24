@@ -1,20 +1,19 @@
+2008-05-15 16:05  Rocky Bernstein
+
+	* ChangeLog: Handle "catch nnn off" Forgotten there during r656.
+	  From mkrauskopf [#20156].
+
 2008-05-05 18:05  Rocky Bernstein
 
-	* trunk/ChangeLog, ChangeLog, trunk/test/data/frame.right,
-	  trunk/test/test-frame.rb: make test-frame installation
-	  independent. Bug #19931
+	* ChangeLog: make test-frame installation independent. Bug #19931
 
 2008-04-29 13:37  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/continue.rb, ChangeLog,
-	  trunk/test/data/frame.cmd, trunk/test/data/frame.right: Test line
-	  number in "continue" command for validity.
+	* ChangeLog: Test line number in "continue" command for validity.
 
 2008-04-28 16:16  Rocky Bernstein
 
-	* trunk/ChangeLog, ChangeLog, trunk/test/helper.rb: From Martin
-	  Krauskopf via patch #19779
+	* ChangeLog: From Martin Krauskopf via patch #19779
 	  
 	  Allow folks to configure Ruby used for CLI tests in the
 	  test/config.yaml. The defaults are for native Ruby, so nothing
@@ -34,51 +33,43 @@
 
 2008-04-22 02:49  Rocky Bernstein
 
-	* trunk/doc/ruby-debug.texi, ruby-debug-base.rb: Experiment with
-	  debugger(steps=0). Puts us in the debugger call, but this may be
-	  the best we can do for now. See tracker
+	* ruby-debug-base.rb: Experiment with debugger(steps=0). Puts us in
+	  the debugger call, but this may be the best we can do for now.
+	  See tracker
 	  #19639.
 
 2008-04-16 01:11  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/show.rb,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/ext/ruby_debug.c,
-	  ChangeLog, trunk/test/data/setshow.cmd,
-	  trunk/test/data/setshow.right: In 0.10.2 now. Some work to cope
-	  systems without readline. More work is needed.
+	* ChangeLog: In 0.10.2 now. Some work to cope systems without
+	  readline. More work is needed.
 	  Add test of "set autoeval." Undefined command message more
 	  closely like gdb's.
 
 2008-04-10 08:49  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb, ChangeLog:
-	  linecache is required by ruby-debug-base not ruby-debug. Thanks
-	  Martin!
+	* ChangeLog: linecache is required by ruby-debug-base not
+	  ruby-debug. Thanks Martin!
 
 2008-04-10 08:00  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, ChangeLog: Last change before
-	  0.10.1 release.
+	* ChangeLog: Last change before 0.10.1 release.
 
 2008-04-10 02:03  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/doc/rdebug-emacs.texi, ChangeLog: Cosmetic
-	  stuff: spelling corrections. Update node structure so texinfo
+	* ChangeLog: Cosmetic stuff: spelling corrections. Update node
+	  structure so texinfo
 	  doesn't complain.
 
 2008-04-08 14:52  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, ChangeLog: autorequire is
-	  deprecated and presumably no longer needed
+	* ChangeLog: autorequire is deprecated and presumably no longer
+	  needed
 	  http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/182827
 
 2008-04-07 00:36  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog, trunk/emacs/Makefile.am,
-	  trunk/emacs/rdebug-shortkey.el,
-	  trunk/emacs/test/test-shortkey.el, ChangeLog, ruby-debug-base.rb:
-	  ruby-debug-base.rb: document Debugger.start parameters.
+	* ChangeLog, ruby-debug-base.rb: ruby-debug-base.rb: document
+	  Debugger.start parameters.
 	  CHANGES: Revise what's happened
 	  test-shortkey.el: A failing regression test because I think
 	  rdebug-shortkey-mode
@@ -86,41 +77,30 @@
 
 2008-04-03 19:01  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/doc/ruby-debug.texi, ChangeLog,
-	  ruby-debug-base.rb, trunk/test/pm-base.rb: Allow setting
-	  :post_mortem => true from Debugger.start.
+	* ChangeLog, ruby-debug-base.rb: Allow setting :post_mortem => true
+	  from Debugger.start.
 
 2008-03-28 13:53  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-annotate.el, ChangeLog: Don't
-	  unconditionally turn on short-key mode when annotations are on.
-	  Use rdebug-short-key-mode setting to decide.
+	* ChangeLog: Don't unconditionally turn on short-key mode when
+	  annotations are on. Use rdebug-short-key-mode setting to decide.
 
 2008-03-23 17:47  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile,
-	  trunk/cli/ruby-debug/commands/set.rb,
-	  trunk/cli/ruby-debug/commands/settings.rb, ChangeLog: set.rb ->
-	  settings.rb since it's already one command per file, and
+	* ChangeLog: set.rb -> settings.rb since it's already one command
+	  per file, and
 	  remove another :nodoc.
 	  Rakefile: split long line
 
 2008-03-18 16:05  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog,
-	  trunk/cli/ruby-debug/commands/list.rb, ChangeLog,
-	  trunk/test/data/list.cmd, trunk/test/data/list.right,
-	  trunk/test/test-finish.rb, trunk/test/test-list.rb: Fix bug in
-	  'list' command when wrapping off the end.
+	* ChangeLog: Fix bug in 'list' command when wrapping off the end.
 	  test-finish.rb: tolerate buggy in Ruby versions <= 1.8.7.
 
 2008-03-13 02:15  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/cli/ruby-debug/commands/finish.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/doc/ruby-debug.texi,
-	  trunk/ext/ruby_debug.c, ruby-debug-base.rb, trunk/rdbg.rb:
-	  INCOMPATIBLE CHANGE: "finish" works like gdb - stop just before
-	  the
+	* ruby-debug-base.rb: INCOMPATIBLE CHANGE: "finish" works like gdb
+	  - stop just before the
 	  most recent method finishes. Will now accept a number which stops
 	  that
 	  many frames completed. (Note that return line numbers will be
@@ -129,29 +109,23 @@
 
 2008-03-10 13:28  Rocky Bernstein
 
-	* trunk/ChangeLog, ChangeLog, trunk/test/data/raise.right: Dunno
-	  why we are now one line number less. So be it (for now).
+	* ChangeLog: Dunno why we are now one line number less. So be it
+	  (for now).
 
 2008-03-09 23:30  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog, ChangeLog,
-	  trunk/test/data/info.right: For now we require the duplicate
-	  numbers on conditionals.
+	* ChangeLog: For now we require the duplicate numbers on
+	  conditionals.
 
 2008-03-02 04:20  Rocky Bernstein
 
-	* trunk/cli/ruby-debug/commands/breakpoints.rb, ruby-debug-base.rb,
-	  trunk/test/base/base.rb, trunk/test/data/breakpoints.right,
-	  trunk/test/data/emacs_basic.right: Better error message for an
-	  invalid break command.
+	* ruby-debug-base.rb: Better error message for an invalid break
+	  command.
 
 2008-02-28 05:06  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-core.el,
-	  trunk/emacs/rdebug-fns.el, ChangeLog,
-	  trunk/test/data/breakpoints.cmd,
-	  trunk/test/data/breakpoints.right: breakpoints.{cmd,right}: test
-	  for an invalid stopping line number
+	* ChangeLog: breakpoints.{cmd,right}: test for an invalid stopping
+	  line number
 	  rdebug-fns.el: move generic split-string-and-unquote from
 	  rdebug-core.
 	  rdebug-core.el: Add rdebug-common-init to replace
@@ -167,41 +141,29 @@
 
 2008-02-26 17:31  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-cmd.el,
-	  trunk/emacs/rdebug-fns.el, trunk/emacs/rdebug-source.el,
-	  trunk/emacs/rdebug-vars.el, trunk/emacs/test/test-fns.el,
-	  ChangeLog: Go over source location positioning. 0 is now the
+	* ChangeLog: Go over source location positioning. 0 is now the
 	  oldest (first) position. Add M-S-down and M-S-up for first and
 	  last. More tests needed in test-fns.el and need to prompt on wrap
 	  around.
 
 2008-02-26 00:57  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  ChangeLog, trunk/test/data/info.cmd, trunk/test/data/info.right:
-	  Fix bug in "info file xxx breakpoints".
+	* ChangeLog: Fix bug in "info file xxx breakpoints".
 
 2008-02-24 16:36  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug, ChangeLog: rdebug; make more
-	  Ruby 1.9 compatible.
+	* ChangeLog: rdebug; make more Ruby 1.9 compatible.
 
 2008-02-24 16:14  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug, trunk/emacs/rdebug-regexp.el,
-	  ChangeLog, trunk/rdbg.rb: Minor changes.
+	* ChangeLog: Minor changes.
 	  rdbg.rb: don't need $DEBUG test any more
 	  rdebug-regexp.el: go over with checkdoc
 	  bin/rdebug: use PATH_SEPARATOR (for 'doze again)
 
 2008-02-24 04:51  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/doc/ruby-debug.texi, trunk/emacs/rdebug-fns.el,
-	  trunk/emacs/rdebug-layouts.el, trunk/emacs/rdebug-secondary.el,
-	  trunk/emacs/rdebug-track.el, trunk/emacs/test/test-fns.el,
-	  ChangeLog, trunk/test/data/help.cmd, trunk/test/data/help.right,
-	  trunk/test/test-help.rb: CLI: Add long help for "info file".
+	* ChangeLog: CLI: Add long help for "info file".
 	  
 	  test/test-help.rb: Make test failures easier to fix and more like
 	  the
@@ -220,12 +182,7 @@
 
 2008-02-21 02:56  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/Makefile.am,
-	  trunk/emacs/rdebug-annotate.el, trunk/emacs/rdebug-error.el,
-	  trunk/emacs/rdebug-fns.el, trunk/emacs/rdebug-frames.el,
-	  trunk/emacs/rdebug-vars.el, trunk/emacs/test/test-error.el,
-	  trunk/emacs/test/test-fns.el, trunk/emacs/test/test-indent.el,
-	  ChangeLog: Fringe for frame buffer the same as in source code.
+	* ChangeLog: Fringe for frame buffer the same as in source code.
 	  Move
 	  miscellaneous small functions to a new file. Reduce duplication
 	  of
@@ -233,54 +190,42 @@
 
 2008-02-19 23:44  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog, trunk/bin/rdebug,
-	  trunk/emacs/rdebug-cmd.el, ChangeLog: rdebug-cmd.el: M-insert
-	  toggles shortkey mode in the command buffer
+	* ChangeLog: rdebug-cmd.el: M-insert toggles shortkey mode in the
+	  command buffer
 	  rdebug: search for Ruby program if file is not found and no
 	  SEPARATOR
 	  chars in the filename
 
 2008-02-18 19:56  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-annotate.el, ChangeLog: Frame
-	  switching shouldn't be recorded in position history ring.
+	* ChangeLog: Frame switching shouldn't be recorded in position
+	  history ring.
 
 2008-02-17 13:57  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/doc/ruby-debug.texi, ruby-debug-base.rb,
-	  trunk/test/data/post-mortem.right: Add Debugger.last_exception.
-	  Show exception in post-mortem when "info program"
+	* ruby-debug-base.rb: Add Debugger.last_exception. Show exception
+	  in post-mortem when "info program"
 	  is issued. Reorganize list of major changes better.
 
 2008-02-13 21:47  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb, ChangeLog:
-	  processor.rb: spelled "post-mortem" incorrectly in prompt.
+	* ChangeLog: processor.rb: spelled "post-mortem" incorrectly in
+	  prompt.
 
 2008-02-13 17:32  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-core.el, ChangeLog: Set up
-	  keys for comint-next-prompt and comint-previous-prompt.
+	* ChangeLog: Set up keys for comint-next-prompt and
+	  comint-previous-prompt.
 
 2008-02-12 02:06  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/frame.rb,
-	  trunk/cli/ruby-debug/commands/info.rb, trunk/doc/ruby-debug.texi,
-	  ChangeLog, trunk/test/data/info-thread.right,
-	  trunk/test/thread1.rb: Fix bug in "info thread verbose" which
-	  wasn't showing full traceback.
+	* ChangeLog: Fix bug in "info thread verbose" which wasn't showing
+	  full traceback.
 
 2008-02-09 15:48  Rocky Bernstein
 
-	* trunk/ChangeLog, ChangeLog, trunk/test/data/break-bad.cmd,
-	  trunk/test/data/break-bad.right, trunk/test/data/break_bad.cmd,
-	  trunk/test/data/break_bad.right, trunk/test/data/emacs-basic.cmd,
-	  trunk/test/data/emacs-basic.right,
-	  trunk/test/data/emacs_basic.cmd,
-	  trunk/test/data/emacs_basic.right, trunk/test/helper.rb,
-	  trunk/test/test-break-bad.rb, trunk/test/test-emacs-basic.rb:
-	  helper.rb Failed attempt to DRY tests more. But save what we have
+	* ChangeLog: helper.rb Failed attempt to DRY tests more. But save
+	  what we have
 	  which may someday in the future be used to go further. Minus to
 	  undercore in Data file names in preparation such time. (We'll use
 	  the
@@ -290,87 +235,21 @@
 
 2008-02-06 16:15  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/Makefile.am,
-	  trunk/emacs/rdebug-gud.el, trunk/emacs/test/test-gud.el,
-	  ChangeLog: Add 'nowarn to find-file-noselect and test that we
+	* ChangeLog: Add 'nowarn to find-file-noselect and test that we
 	  don't get a warning.
 
 2008-02-05 01:41  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-track.el,
-	  trunk/emacs/rdebug.el, ChangeLog, trunk/test/data/setshow.cmd,
-	  trunk/test/data/setshow.right: rdebug.el: Add a defgroup for
-	  rdebug so customization in Emacs 23 is possible.
+	* ChangeLog: rdebug.el: Add a defgroup for rdebug so customization
+	  in Emacs 23 is possible.
 	  Some other minor doc fixes.
 	  setshow.* make sure we don't have an $Id line that we have to
 	  check against.
 
 2008-02-03 15:23  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, trunk/doc/ruby-debug.texi,
-	  ChangeLog, trunk/test/annotate.cmd, trunk/test/annotate.right,
-	  trunk/test/break-bad.cmd, trunk/test/break-bad.right,
-	  trunk/test/breakpoints.cmd, trunk/test/breakpoints.right,
-	  trunk/test/condition.cmd, trunk/test/condition.right,
-	  trunk/test/ctrl.cmd, trunk/test/ctrl.right, trunk/test/data,
-	  trunk/test/data/annotate.cmd, trunk/test/data/annotate.right,
-	  trunk/test/data/break-bad.cmd, trunk/test/data/break-bad.right,
-	  trunk/test/data/breakpoints.cmd,
-	  trunk/test/data/breakpoints.right, trunk/test/data/condition.cmd,
-	  trunk/test/data/condition.right, trunk/test/data/ctrl.cmd,
-	  trunk/test/data/ctrl.right, trunk/test/data/display.cmd,
-	  trunk/test/data/display.right, trunk/test/data/dollar-0.right,
-	  trunk/test/data/dollar-0a.right, trunk/test/data/dollar-0b.right,
-	  trunk/test/data/edit.cmd, trunk/test/data/edit.right,
-	  trunk/test/data/emacs-basic.cmd,
-	  trunk/test/data/emacs-basic.right, trunk/test/data/enable.cmd,
-	  trunk/test/data/enable.right, trunk/test/data/frame.cmd,
-	  trunk/test/data/frame.right, trunk/test/data/help.cmd,
-	  trunk/test/data/help.right, trunk/test/data/history.right,
-	  trunk/test/data/info-var-bug2.cmd,
-	  trunk/test/data/info-var-bug2.right,
-	  trunk/test/data/info-var.cmd, trunk/test/data/info-var.right,
-	  trunk/test/data/info.cmd, trunk/test/data/info.right,
-	  trunk/test/data/noquit.right, trunk/test/data/output.cmd,
-	  trunk/test/data/output.right, trunk/test/data/post-mortem.cmd,
-	  trunk/test/data/post-mortem.right, trunk/test/data/quit.cmd,
-	  trunk/test/data/quit.right, trunk/test/data/raise.cmd,
-	  trunk/test/data/raise.right, trunk/test/data/setshow.cmd,
-	  trunk/test/data/setshow.right, trunk/test/data/source.cmd,
-	  trunk/test/data/source.right, trunk/test/data/stepping.cmd,
-	  trunk/test/data/stepping.right, trunk/test/data/test-init.right,
-	  trunk/test/display.cmd, trunk/test/display.right,
-	  trunk/test/dollar-0.right, trunk/test/dollar-0a.right,
-	  trunk/test/dollar-0b.right, trunk/test/edit.cmd,
-	  trunk/test/edit.right, trunk/test/emacs-basic.cmd,
-	  trunk/test/emacs-basic.right, trunk/test/enable.cmd,
-	  trunk/test/enable.right, trunk/test/frame.cmd,
-	  trunk/test/frame.right, trunk/test/help.cmd,
-	  trunk/test/help.right, trunk/test/helper.rb,
-	  trunk/test/history.right, trunk/test/info-var-bug2.cmd,
-	  trunk/test/info-var-bug2.right, trunk/test/info-var.cmd,
-	  trunk/test/info-var.right, trunk/test/info.cmd,
-	  trunk/test/info.right, trunk/test/noquit.right,
-	  trunk/test/output.cmd, trunk/test/output.right,
-	  trunk/test/post-mortem.cmd, trunk/test/post-mortem.right,
-	  trunk/test/quit.cmd, trunk/test/quit.right, trunk/test/raise.cmd,
-	  trunk/test/raise.right, trunk/test/setshow.cmd,
-	  trunk/test/setshow.right, trunk/test/source.cmd,
-	  trunk/test/source.right, trunk/test/stepping.cmd,
-	  trunk/test/stepping.right, trunk/test/test-annotate.rb,
-	  trunk/test/test-break-bad.rb, trunk/test/test-breakpoints.rb,
-	  trunk/test/test-condition.rb, trunk/test/test-ctrl.rb,
-	  trunk/test/test-display.rb, trunk/test/test-dollar-0.rb,
-	  trunk/test/test-edit.rb, trunk/test/test-emacs-basic.rb,
-	  trunk/test/test-enable.rb, trunk/test/test-frame.rb,
-	  trunk/test/test-help.rb, trunk/test/test-hist.rb,
-	  trunk/test/test-info-var.rb, trunk/test/test-info.rb,
-	  trunk/test/test-init.rb, trunk/test/test-init.right,
-	  trunk/test/test-output.rb, trunk/test/test-pm.rb,
-	  trunk/test/test-quit.rb, trunk/test/test-raise.rb,
-	  trunk/test/test-setshow.rb, trunk/test/test-source.rb,
-	  trunk/test/test-stepping.rb: Try to get testing a little more
-	  organized, although more work should
+	* ChangeLog: Try to get testing a little more organized, although
+	  more work should
 	  be done: Create a data directory for comparison ("right") and
 	  script
 	  command ("cmd") files. Code is now more uniform (and should DRY'd
@@ -379,28 +258,8 @@
 
 2008-02-02 23:10  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb,
-	  trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/catchpoint.rb,
-	  trunk/cli/ruby-debug/commands/control.rb,
-	  trunk/cli/ruby-debug/commands/edit.rb,
-	  trunk/cli/ruby-debug/commands/eval.rb,
-	  trunk/cli/ruby-debug/commands/help.rb,
-	  trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/cli/ruby-debug/commands/list.rb,
-	  trunk/cli/ruby-debug/commands/save.rb,
-	  trunk/cli/ruby-debug/commands/script.rb,
-	  trunk/cli/ruby-debug/commands/settings.rb,
-	  trunk/cli/ruby-debug/commands/show.rb,
-	  trunk/cli/ruby-debug/commands/stepping.rb,
-	  trunk/cli/ruby-debug/commands/threads.rb,
-	  trunk/cli/ruby-debug/processor.rb, ChangeLog,
-	  trunk/test/breakpoints.right, trunk/test/emacs-basic.right,
-	  trunk/test/pm.rb, trunk/test/post-mortem.cmd,
-	  trunk/test/post-mortem.right, trunk/test/test-emacs-basic.rb,
-	  trunk/test/test-init.rb, trunk/test/test-pm.rb,
-	  trunk/test/test-quit.rb: Remove commands in post-mortem which are
-	  not applicable, e.g."step",
+	* ChangeLog: Remove commands in post-mortem which are not
+	  applicable, e.g."step",
 	  "next", "continue"...
 	  
 	  "No breakpoints have been set" is now an error message when
@@ -413,92 +272,60 @@
 
 2008-02-02 09:27  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ext/ruby_debug.c, ruby-debug-base.rb,
-	  trunk/test/gcd-dbg.rb: Remove Debugger.init and fold options
+	* ruby-debug-base.rb: Remove Debugger.init and fold options
 	  parameter into Debugger.start.
 	  Old Debugger.start has been renamed Deebugger.start_
 
 2008-01-31 16:30  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/ext/ruby_debug.c, ChangeLog: Leave
-	  ruby_debug.c this way for now.
+	* ChangeLog: Leave ruby_debug.c this way for now.
 
 2008-01-31 16:24  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,
-	  trunk/ext/ruby_debug.c, ChangeLog, trunk/test/raise.right,
-	  trunk/test/tdebug.rb: ruby_debug.c: more adventures in exception
-	  handling
+	* ChangeLog: ruby_debug.c: more adventures in exception handling
 	  processor.rb: Removal of crash when annotate is on. Need to fix
 	  the source of the
 	  problem though.
 
 2008-01-31 15:16  Rocky Bernstein
 
-	* trunk/bin/rdebug, ruby-debug-base.rb, trunk/test/output.right,
-	  trunk/test/quit.right, trunk/test/raise.rb,
-	  trunk/test/raise.right, trunk/test/tdebug.rb: Handle post-mortem
-	  and exception traceback reporting in ruby-debug
+	* ruby-debug-base.rb: Handle post-mortem and exception traceback
+	  reporting in ruby-debug
 
 2008-01-30 17:01  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb,
-	  trunk/cli/ruby-debug/commands/enable.rb,
-	  trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/cli/ruby-debug/commands/show.rb, ChangeLog,
-	  trunk/test/condition.right: Add Command.find() to find a
-	  subcommand name.
+	* ChangeLog: Add Command.find() to find a subcommand name.
 	  condition.right: correct for breakpoint hit counts.
 
 2008-01-30 01:43  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  ChangeLog, trunk/test/breakpoints.right,
-	  trunk/test/emacs-basic.right: Add number of times a breakpoint is
-	  hit like gdb does.
+	* ChangeLog: Add number of times a breakpoint is hit like gdb does.
 
 2008-01-29 22:37  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  ChangeLog: Columnize breakpoint output.
+	* ChangeLog: Columnize breakpoint output.
 
 2008-01-29 11:20  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog, trunk/bin/rdebug,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/doc/ruby-debug.texi,
-	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-layouts.el,
-	  trunk/emacs/rdebug-source.el, trunk/emacs/rdebug.el,
-	  trunk/emacs/test/test-core.el, ChangeLog: More annotate=2 fixes.
+	* ChangeLog: More annotate=2 fixes.
 
 2008-01-28 15:59  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  ChangeLog, trunk/test/helper.rb, trunk/test/test-dollar-0.rb,
-	  trunk/test/test-hist.rb, trunk/test/test-output.rb: Add info file
-	  breakpoints to show lines which we can set a breakpoint on.
+	* ChangeLog: Add info file breakpoints to show lines which we can
+	  set a breakpoint on.
 	  Revise so we chdir into SRC_DIR.
 	  test-hist.rb is broken - will fix later.
 
 2008-01-25 12:11  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/control.rb,
-	  trunk/cli/ruby-debug/commands/settings.rb,
-	  trunk/cli/ruby-debug/commands/show.rb, ChangeLog,
-	  ruby-debug-base.rb, trunk/test/gcd-dbg-nox.rb,
-	  trunk/test/gcd-dbg.rb: Add Debugger.init which intializes things
-	  that rdebug does. This
+	* ChangeLog, ruby-debug-base.rb: Add Debugger.init which intializes
+	  things that rdebug does. This
 	  allows a restart even though rdebug wasn't called initially.
 
 2008-01-22 23:15  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/help.rb,
-	  trunk/cli/ruby-debug/commands/info.rb, ChangeLog,
-	  trunk/test/annotate.cmd, trunk/test/annotate.right,
-	  trunk/test/ctrl.right, trunk/test/info.cmd,
-	  trunk/test/info.right, trunk/test/test-edit.rb,
-	  trunk/test/test-source.rb: Allow "help info xxx". Add ability for
-	  long help on "info" command.
+	* ChangeLog: Allow "help info xxx". Add ability for long help on
+	  "info" command.
 	  Add "info break xx".
 	  
 	  test: remove test/unit class name conflicts. All the tests we
@@ -507,67 +334,39 @@
 
 2008-01-19 19:28  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, ChangeLog, trunk/test/base,
-	  trunk/test/base/base.rb, trunk/test/base/binding.rb,
-	  trunk/test/test-ruby-debug-base.rb: Move ruby-debug-base tests to
-	  base directory. Add a binding_n regression test.
+	* ChangeLog: Move ruby-debug-base tests to base directory. Add a
+	  binding_n regression test.
 
 2008-01-16 18:42  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  ChangeLog, trunk/test/annotate.right,
-	  trunk/test/breakpoints.right, trunk/test/condition.right,
-	  trunk/test/display.right, trunk/test/emacs-basic.right,
-	  trunk/test/info-var.right: Need to present source filename
-	  (__FILE__) as Ruby and therefore breakpoint
+	* ChangeLog: Need to present source filename (__FILE__) as Ruby and
+	  therefore breakpoint
 	  sees it.
 	  
 
 2008-01-16 02:19  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, trunk/cli/ruby-debug/command.rb,
-	  trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/list.rb, ChangeLog,
-	  ruby-debug-base.rb: Line caching moved to an external gem,
-	  linecache. We now require
+	* ChangeLog, ruby-debug-base.rb: Line caching moved to an external
+	  gem, linecache. We now require
 	  version 0.2 of that or greater.
 
 2008-01-14 01:31  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/control.rb,
-	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-track.el,
-	  ChangeLog: Make rdebug-track work better in the face of prompt
+	* ChangeLog: Make rdebug-track work better in the face of prompt
 	  and error annotations.
 	  control.rb: need another test when rdebug not called initially.
 
 2008-01-13 21:51  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-frames.el,
-	  trunk/emacs/rdebug-source.el, trunk/ext/breakpoint.c, ChangeLog:
-	  Some stack -> frame renaming
+	* ChangeLog: Some stack -> frame renaming
 	  ext/breakpoint.c: put methods in alpha order (to help with
 	  reference man)
 	  breakpoints.rb: one print -> errmsg
 
 2008-01-13 18:13  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/condition.rb,
-	  trunk/cli/ruby-debug/commands/control.rb,
-	  trunk/cli/ruby-debug/commands/display.rb,
-	  trunk/cli/ruby-debug/commands/edit.rb,
-	  trunk/cli/ruby-debug/commands/frame.rb,
-	  trunk/cli/ruby-debug/commands/help.rb,
-	  trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/emacs/Makefile.am,
-	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-error.el,
-	  trunk/emacs/rdebug-output.el, trunk/emacs/rdebug-source.el,
-	  ChangeLog, trunk/test/annotate.cmd, trunk/test/annotate.right,
-	  trunk/test/breakpoints.right, trunk/test/condition.right,
-	  trunk/test/edit.right, trunk/test/emacs-basic.right,
-	  trunk/test/frame.right: Create errmsg routine for error output,
-	  start tagging error messages
+	* ChangeLog: Create errmsg routine for error output, start tagging
+	  error messages
 	  as errors. Under annotate 3, output errors similar to gdb
 	  --annotate
 	  does (although still simplified). Have Emacs pick up debugger
@@ -576,68 +375,40 @@
 
 2008-01-13 04:05  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/command.rb,
-	  trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/enable.rb,
-	  trunk/cli/ruby-debug/helper.rb,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, ChangeLog,
-	  trunk/test/condition.cmd, trunk/test/condition.right: Check
-	  validity of expressions in breakpoint conditions and don't allow
+	* ChangeLog: Check validity of expressions in breakpoint conditions
+	  and don't allow
 	  enabling a syntactically invalid expression.
 	  
 	  Start noting messages which are errors via an errmsg routine.
 
 2008-01-11 10:26  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug, trunk/doc/ruby-debug.texi,
-	  ChangeLog: Document that ruby-debug resets $0. Align program
+	* ChangeLog: Document that ruby-debug resets $0. Align program
 	  options in ref manual and --help. Alphabetize better.
 
 2008-01-10 22:56  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug, ChangeLog,
-	  trunk/test/dollar-0.rb, trunk/test/dollar-0.right,
-	  trunk/test/dollar-0a.right, trunk/test/dollar-0b.right,
-	  trunk/test/test-dollar-0.rb: More correct $0 fix. Deal with the
-	  case ./ is automatically added.
+	* ChangeLog: More correct $0 fix. Deal with the case ./ is
+	  automatically added.
 	  However this might not be right in all cases.
 
 2008-01-10 22:25  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-core.el,
-	  trunk/emacs/test/test-core.el, ChangeLog: Was gobbling arg in
-	  processing --emacs. Add test.
+	* ChangeLog: Was gobbling arg in processing --emacs. Add test.
 
 2008-01-10 10:34  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog,
-	  trunk/cli/ruby-debug/commands/condition.rb,
-	  trunk/cli/ruby-debug/commands/enable.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/doc/ruby-debug.texi,
-	  trunk/emacs/Makefile.am, trunk/emacs/rdebug-breaks.el,
-	  trunk/emacs/rdebug-regexp.el, trunk/emacs/test/test-regexp.el,
-	  trunk/ext/breakpoint.c, ChangeLog, trunk/test/condition.cmd,
-	  trunk/test/condition.right, trunk/test/test-breakpoints.rb,
-	  trunk/test/test-condition.rb: Add condition command.
+	* ChangeLog: Add condition command.
 
 2008-01-09 19:10  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, trunk/emacs/rdebug-dbg.el,
-	  ChangeLog: Rakefile: rdebug.rb -> rdbg.el
+	* ChangeLog: Rakefile: rdebug.rb -> rdbg.el
 	  rdebug-dbg.el: Add $Id$
 
 2008-01-09 19:03  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/Makefile.am,
-	  trunk/emacs/rdebug-breaks.el, trunk/emacs/rdebug-cmd.el,
-	  trunk/emacs/rdebug-core.el, trunk/emacs/rdebug-dbg.el,
-	  trunk/emacs/rdebug-frames.el, trunk/emacs/rdebug-help.el,
-	  trunk/emacs/rdebug-output.el, trunk/emacs/rdebug-secondary.el,
-	  trunk/emacs/rdebug-track.el, trunk/emacs/rdebug-varbuf.el,
-	  trunk/emacs/rdebug-watch.el, trunk/emacs/test/test-indent.el,
-	  trunk/emacs/test/test-regexp.el, ChangeLog: Break out secondary
-	  buffer into their own file, and also internal
+	* ChangeLog: Break out secondary buffer into their own file, and
+	  also internal
 	  debug code and general secondary commands. Secondary buffer code
 	  removed from rdebug-cmd and moved into the appropriate file.
 	  
@@ -646,53 +417,35 @@
 
 2008-01-08 16:04  Rocky Bernstein
 
-	* trunk/ChangeLog, ChangeLog, trunk/rdbg.rb: Restore $: to the
-	  value it was before rdebug call.
+	* ChangeLog: Restore $: to the value it was before rdebug call.
 
 2008-01-07 20:38  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/cli/ruby-debug/commands/variables.rb, ChangeLog: Add "var
-	  class". This means "var const .." can no longer be abbreviated
-	  "var c"; use "var co" instead.
+	* ChangeLog: Add "var class". This means "var const .." can no
+	  longer be abbreviated "var c"; use "var co" instead.
 	  (Or "var const" or "var constant"
 
 2008-01-07 19:57  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  ChangeLog, trunk/test/info-var-bug.rb, trunk/test/info-var.cmd,
-	  trunk/test/info-var.right: Add class level variables to "info
-	  variables"
+	* ChangeLog: Add class level variables to "info variables"
 
 2008-01-07 17:37  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  ChangeLog, trunk/test/annotate.right,
-	  trunk/test/info-var-bug2.right, trunk/test/info-var.right,
-	  trunk/test/output.right, trunk/test/test-info-var.rb: Add "self"
-	  to list "info variables" spits out.
+	* ChangeLog: Add "self" to list "info variables" spits out.
 
 2008-01-07 09:59  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, trunk/bin/rdebug,
-	  trunk/emacs/rdebug-core.el, ChangeLog: --emacs sets width to 120.
-	  rdebug-core.el will reset to 120 unless it's already that.
+	* ChangeLog: --emacs sets width to 120. rdebug-core.el will reset
+	  to 120 unless it's already that.
 
 2008-01-07 04:29  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Makefile.am, trunk/ext/ChangeLog,
-	  ChangeLog: Split out ChangeLogs better (I hope).
+	* ChangeLog: Split out ChangeLogs better (I hope).
 
 2008-01-06 20:56  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug,
-	  trunk/cli/ruby-debug/processor.rb, trunk/emacs/rdebug-core.el,
-	  trunk/emacs/rdebug-regexp.el, trunk/emacs/test/test-regexp.el,
-	  trunk/ext/ChangeLog, ChangeLog, trunk/test/emacs-basic.cmd,
-	  trunk/test/emacs-basic.right, trunk/test/quit.right,
-	  trunk/test/tdebug.rb, trunk/test/test-emacs-basic.rb:
-	  test/*-emacs-basic*, tdebug: Add test of running in Emacs without
-	  annotations.
+	* ChangeLog: test/*-emacs-basic*, tdebug: Add test of running in
+	  Emacs without annotations.
 	  
 	  emacs/*.el: make regexp tests work again, move regexp to from
 	  core to regexp.
@@ -705,11 +458,8 @@
 
 2008-01-06 18:55  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,
-	  trunk/emacs/Makefile.am, trunk/emacs/rdebug-core.el,
-	  trunk/emacs/test/test-indent.el, trunk/ext/ChangeLog, ChangeLog,
-	  trunk/test/annotate.right, trunk/test/output.right: Create
-	  Processor class and subclass that. Perhaps a mixin would be good.
+	* ChangeLog: Create Processor class and subclass that. Perhaps a
+	  mixin would be good.
 	  Remove annotation output bleanding when annotate is off.
 	  Try to reduce the mess annotations is adding to processor.rb
 	  rdebug-core.el: fix indentation to pass the regression test
@@ -719,14 +469,7 @@
 
 2008-01-06 02:15  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug,
-	  trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/control.rb,
-	  trunk/cli/ruby-debug/commands/save.rb,
-	  trunk/cli/ruby-debug/commands/script.rb,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/ext/ChangeLog,
-	  ChangeLog: Some work on saving state across a restart. More work
+	* ChangeLog: Some work on saving state across a restart. More work
 	  is needed on the
 	  script command to get this working. The save-file name is now
 	  optional. save.rb split off from script.rb Display expressions
@@ -738,13 +481,8 @@
 
 2008-01-05 21:16  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/ext/ChangeLog,
-	  ChangeLog, trunk/test/annotate.right, trunk/test/output.cmd,
-	  trunk/test/output.right, trunk/test/quit.right,
-	  trunk/test/tdebug.rb, trunk/test/test-output.rb: More work to
-	  make annotate more like gdb's. starting/stopping/exiting
+	* ChangeLog: More work to make annotate more like gdb's.
+	  starting/stopping/exiting
 	  should be more similar. Some code has been commented out until we
 	  get
 	  the Emacs interface to match. See "FIXME: ANNOTATE" in
@@ -755,132 +493,95 @@
 
 2008-01-02 20:35  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/helper.rb, trunk/ext/ChangeLog, ChangeLog:
-	  helper.rb: add regexp for a position. TODO: add parsing routine
-	  and use in
+	* ChangeLog: helper.rb: add regexp for a position. TODO: add
+	  parsing routine and use in
 	  various commands
 
 2008-01-02 14:41  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/processor.rb,
-	  trunk/emacs/rdebug.el, trunk/ext/ChangeLog, ChangeLog,
-	  trunk/test/annotate.right: processor.rb: Redo where
-	  starting/exiting annotations are done.
+	* ChangeLog: processor.rb: Redo where starting/exiting annotations
+	  are done.
 	  rdebug.el: back off on setting output command for now.
 
 2008-01-01 15:23  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug, trunk/ext/ChangeLog,
-	  ChangeLog: Fix --emacs to do --no-quit properly.
+	* ChangeLog: Fix --emacs to do --no-quit properly.
 
 2008-01-01 09:00  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/ext/ChangeLog, trunk/ext/breakpoint.c,
-	  trunk/ext/ruby_debug.c, trunk/ext/ruby_debug.h, ChangeLog: Remove
-	  RDoc warnings caused because C files have been split up.
+	* ChangeLog: Remove RDoc warnings caused because C files have been
+	  split up.
 
 2008-01-01 05:51  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/Makefile.am,
-	  trunk/emacs/test/test-indent.el,
-	  trunk/emacs/test/test-reindent.el, trunk/ext/ChangeLog,
-	  ChangeLog: reindent -> indent. Makefile.am: wasn't including all
+	* ChangeLog: reindent -> indent. Makefile.am: wasn't including all
 	  test files.
 
 2007-12-31 06:26  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, trunk/ext/ChangeLog, ChangeLog:
-	  Rakefile: add spit-off C files to ruby-debug-base gem.
+	* ChangeLog: Rakefile: add spit-off C files to ruby-debug-base gem.
 
 2007-12-31 06:23  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-test-cmd.el,
-	  trunk/ext/ChangeLog, ChangeLog: rdebug-test-cmd.el: Indentation
+	* ChangeLog: rdebug-test-cmd.el: Indentation
 
 2007-12-31 06:08  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog, ChangeLog: Changes and more
-	  changes.
+	* ChangeLog: Changes and more changes.
 
 2007-12-29 13:31  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/bin/rdebug,
-	  trunk/cli/ruby-debug/command.rb, trunk/ext/ChangeLog, ChangeLog,
-	  trunk/test/helper.rb, trunk/test/noquit.right,
-	  trunk/test/null.rb, trunk/test/quit.cmd, trunk/test/quit.right,
-	  trunk/test/tdebug.rb: Remove looping on quit. "-n" is broken so
-	  remove it for now.
+	* ChangeLog: Remove looping on quit. "-n" is broken so remove it
+	  for now.
 
 2007-12-28 15:33  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/display.rb,
-	  trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/ext/ChangeLog,
-	  ChangeLog, trunk/test/annotate.right, trunk/test/display.cmd,
-	  trunk/test/display.right: info.rb: Incorrect test for no display
-	  expressions.
+	* ChangeLog: info.rb: Incorrect test for no display expressions.
 	  display.rb: Grammar thing.
 	  processor.rb: Slightly cleaner code
 	  test/* more/better tests.
 
 2007-12-27 21:03  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/emacs/rdebug-track.el,
-	  trunk/ext/ChangeLog, ChangeLog: Be more agressive about resetting
-	  gud-last-frame and
+	* ChangeLog: Be more agressive about resetting gud-last-frame and
 	  gud-last-last-frame. These foul up tracking when debugging is
 	  interrupted.
 	  We probably need a special "reset" command.
 
 2007-12-26 18:35  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/ext/ChangeLog, trunk/ext/ruby_debug.c,
-	  ChangeLog: Version number games - maybe 0.10.1 is better.
+	* ChangeLog: Version number games - maybe 0.10.1 is better.
 
 2007-12-25 23:40  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/stepping.rb,
-	  trunk/doc/ruby-debug.texi, trunk/ext/ChangeLog, ChangeLog,
-	  trunk/test/stepping.cmd, trunk/test/stepping.right: Add step- and
-	  step+. Document as well as the new toggle command.
+	* ChangeLog: Add step- and step+. Document as well as the new
+	  toggle command.
 
 2007-12-25 09:55  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/cli/ruby-debug/commands/stepping.rb,
-	  trunk/doc/ruby-debug.texi, trunk/emacs/rdebug-core.el,
-	  trunk/ext/ChangeLog, ChangeLog: Small doc fixes.
+	* ChangeLog: Small doc fixes.
 
 2007-12-25 07:51  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/ext/ChangeLog, ChangeLog: Last commit
-	  before 0.10.0 release.
+	* ChangeLog: Last commit before 0.10.0 release.
 
 2007-12-25 02:51  Rocky Bernstein
 
-	* trunk/AUTHORS, trunk/ChangeLog, trunk/README,
-	  trunk/ext/ChangeLog, ChangeLog, trunk/test/breakpoints.cmd,
-	  trunk/test/breakpoints.right: breakpoints.*: main -> Object. Add
-	  bad Class name test
+	* ChangeLog: breakpoints.*: main -> Object. Add bad Class name test
 	  AUTHOR: Add Anders
 	  README: note ruby-debug-extra. More precise (I think)
 
 2007-12-24 00:25  Rocky Bernstein
 
-	* trunk/ChangeLog, trunk/Rakefile, trunk/ext/ChangeLog, ChangeLog:
-	  Rakefile: set up gem unit test for ruby-debug-base. Add file in
-	  test/
+	* ChangeLog: Rakefile: set up gem unit test for ruby-debug-base.
+	  Add file in test/
 	  so we could do the same for ruby-debug were it not for other
 	  mysterious
 	  problems.
 
 2007-12-23 17:33  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/ChangeLog, trunk/Makefile.am,
-	  trunk/Rakefile, trunk/doc, trunk/ext/ChangeLog, ChangeLog,
-	  trunk/svn2cl_usermap, trunk/test/test-columnize.rb,
-	  trunk/test/test-ruby-debug-base.rb,
-	  trunk/test/test-ruby-debug.rb: Go over packaging:
+	* ChangeLog: Go over packaging:
 	  ChangeLogs for ruby-debug-base (in ext and lib) separate from CLI
 	  ChangeLog
 	  ChangeLogs now map userid to names
@@ -891,13 +592,7 @@
 
 2007-12-16 21:31  Rocky Bernstein
 
-	* trunk, trunk/ChangeLog, trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/doc, trunk/emacs, trunk/ext, ruby-debug-base.rb,
-	  trunk/test/helper.rb, trunk/test/info-var-bug.rb,
-	  trunk/test/info-var.cmd, trunk/test/info-var.right,
-	  trunk/test/runall, trunk/test/test-breakpoints.rb,
-	  trunk/test/test-display.rb, trunk/test/test-help.rb,
-	  trunk/test/test-info-var.rb: Add "info variables test".
+	* ruby-debug-base.rb: Add "info variables test".
 	  
 	  ruby-debug-base.rb: Not sure how test(?M, file) ever worked
 	  before but change
@@ -906,12 +601,11 @@
 
 2007-12-10 03:23  Rocky Bernstein
 
-	* trunk/doc/ruby-debug.texi, ruby-debug-base.rb: doc changes.
+	* ruby-debug-base.rb: doc changes.
 
 2007-06-26 07:05  Rocky Bernstein
 
-	* trunk/CHANGES, trunk/bin/rdebug, trunk/cli/ruby-debug.rb,
-	  ruby-debug-base.rb: Run .rdebugrc on Debugger.start. Look for
+	* ruby-debug-base.rb: Run .rdebugrc on Debugger.start. Look for
 	  this in the current directory and run that instead the one in
 	  $HOME if that exists. Again, inspired and compatible with gdb.
 	  
@@ -921,24 +615,7 @@
 
 2007-06-05 16:36  Kent Sibilev
 
-	* trunk/bin/rdebug, trunk/cli/ruby-debug/command.rb,
-	  trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/control.rb,
-	  trunk/cli/ruby-debug/commands/display.rb,
-	  trunk/cli/ruby-debug/commands/eval.rb,
-	  trunk/cli/ruby-debug/commands/frame.rb,
-	  trunk/cli/ruby-debug/commands/help.rb,
-	  trunk/cli/ruby-debug/commands/info.rb,
-	  trunk/cli/ruby-debug/commands/method.rb,
-	  trunk/cli/ruby-debug/commands/script.rb,
-	  trunk/cli/ruby-debug/commands/settings.rb,
-	  trunk/cli/ruby-debug/commands/show.rb,
-	  trunk/cli/ruby-debug/commands/stepping.rb,
-	  trunk/cli/ruby-debug/commands/threads.rb,
-	  trunk/cli/ruby-debug/commands/variables.rb,
-	  trunk/cli/ruby-debug/interface.rb,
-	  trunk/cli/ruby-debug/processor.rb, trunk/ext/ruby_debug.c,
-	  ruby-debug-base.rb: code reorganization.
+	* ruby-debug-base.rb: code reorganization.
 	  reverted 'run' command.
 
 2007-06-05 07:59  Kent Sibilev
@@ -947,8 +624,7 @@
 
 2007-06-02 15:01  Rocky Bernstein
 
-	* trunk/cli/ruby-debug/processor.rb, trunk/emacs/rdebug-track.el,
-	  ruby-debug-base.rb: lib/ruby-debug-base.rb: add Quit and Restart
+	* ruby-debug-base.rb: lib/ruby-debug-base.rb: add Quit and Restart
 	  exceptions which can reliably be used after the delayed exception
 	  handling bug is fixed
 	  emacs/rdebug-track.el and cli/ruby-debug/processor.rb: more
@@ -977,13 +653,7 @@
 
 2007-05-15 20:22  Kent Sibilev
 
-	* trunk/CHANGES, trunk/cli/ruby-debug/command.rb,
-	  trunk/cli/ruby-debug/commands/breakpoints.rb,
-	  trunk/cli/ruby-debug/commands/frame.rb,
-	  trunk/cli/ruby-debug/commands/stepping.rb,
-	  trunk/cli/ruby-debug/commands/threads.rb,
-	  trunk/cli/ruby-debug/commands/variables.rb, ruby-debug-base.rb:
-	  various fixes
+	* ruby-debug-base.rb: various fixes
 
 2007-04-27 23:21  Kent Sibilev
 
@@ -1000,393 +670,252 @@
 
 2007-03-24 18:17  Kent Sibilev
 
-	* branches/stable, trunk: stable becomes the trunk
+	* : stable becomes the trunk
 
 2007-03-13 17:06  Kent Sibilev
 
-	* branches/stable/Rakefile,
-	  branches/stable/cli/ruby-debug/commands/list.rb,
-	  branches/stable/lib/ruby-debug-base.rb: fixed rdoc
+	* : fixed rdoc
 
 2007-03-01 23:44  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug,
-	  branches/stable/lib/ruby-debug-base.rb: fixed post-mortem
+	* : fixed post-mortem
 
 2007-02-27 08:02  Kent Sibilev
 
-	* branches/stable/Rakefile, branches/stable/cli,
-	  branches/stable/cli/ruby-debug,
-	  branches/stable/cli/ruby-debug/command.rb,
-	  branches/stable/cli/ruby-debug/commands,
-	  branches/stable/cli/ruby-debug/interface.rb,
-	  branches/stable/cli/ruby-debug/processor.rb,
-	  branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug-base.rb,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands,
-	  branches/stable/lib/ruby-debug/interface.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: repackaging
-	  ruby-debug
+	* : repackaging ruby-debug
 
 2007-02-23 20:56  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: added an option for
-	  Debugger.debug_load to stop at the first line of code
+	* : added an option for Debugger.debug_load to stop at the first
+	  line of code
 
 2007-02-12 06:59  Kent Sibilev
 
-	* branches/stable/bin/rdebug,
-	  branches/stable/lib/ruby-debug/processor.rb: added --emacs option
+	* : added --emacs option
 
 2007-02-09 16:56  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: in remote mode the debugger
-	  shouldn't stop inside of rdebug script
+	* : in remote mode the debugger shouldn't stop inside of rdebug
+	  script
 
 2007-02-09 06:20  Kent Sibilev
 
-	* branches/stable/bin/rdebug,
-	  branches/stable/lib/ruby-debug/interface.rb: --
+	* : --
 
 2007-02-09 01:00  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb,
-	  branches/stable/lib/ruby-debug/commands/settings.rb: fixed code
-	  reloading
+	* : fixed code reloading
 	  made 'reload on' as a part of the 'set' command
 	  evaluate ~/.rdebugrc as an init script
 
 2007-02-07 02:42  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: should use ignored?
-	  method to check for the debugger's thread
+	* : should use ignored? method to check for the debugger's thread
 
 2007-02-06 22:21  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/command.rb:
+	* :
 
 2007-02-05 22:48  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: --
+	* : --
 
 2007-02-05 22:11  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: fixed emacs
-	  integration
+	* : fixed emacs integration
 
 2007-02-05 20:16  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: fixed another
-	  issue where a bogus frame is being left in the stack
+	* : fixed another issue where a bogus frame is being left in the
+	  stack
 
 2007-02-04 23:36  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/settings.rb: seg fault
-	  bugfixes
+	* : seg fault bugfixes
 	  fixed suspend/resume
 
 2007-02-04 03:49  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: A better fix for the
-	  segmentation fault
+	* : A better fix for the segmentation fault
 
 2007-02-03 20:24  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: fix seg fault by
-	  avoiding ruby's bug
+	* : fix seg fault by avoiding ruby's bug
 	  fixed Context#resume
 	  when handling post-mortem all threads must be suspended
 
 2007-02-02 18:47  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: removed
-	  ambiguity with down command
+	* : removed ambiguity with down command
 
 2007-02-01 23:48  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/settings.rb: typo
+	* : typo
 
 2007-02-01 22:15  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/eval.rb: made eval
-	  command available from the control thread
+	* : made eval command available from the control thread
 
 2007-02-01 07:22  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb,
-	  branches/stable/lib/ruby-debug/commands/eval.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb,
-	  branches/stable/lib/ruby-debug/commands/settings.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb: added setting
-	  command
+	* : added setting command
 	  added Context#suspended? method
 	  dispay suspended status in the thread list
 	  display frame starting from zero
 
 2007-01-31 21:13  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: ditto
+	* : ditto
 
 2007-01-31 21:12  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: fixed help
-	  command
+	* : fixed help command
 
 2007-01-31 19:39  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/command.rb: fixed frame count
+	* : fixed frame count
 	  added frame_self method to context
 
 2007-01-31 16:48  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/eval.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/variables.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: removed all
-	  references to frames array
+	* : removed all references to frames array
 	  fixed post-mortem debugging
 
 2007-01-31 00:51  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/commands/tmate.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: removed obsolete
-	  frames usage
+	* : removed obsolete frames usage
 
 2007-01-31 00:41  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/variables.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: refactored out frame
-	  class and preallocate stack
+	* : refactored out frame class and preallocate stack
 	  made local variable available even when bindings are not
 	  collected.
 
 2007-01-28 20:25  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug.rb: --
+	* : --
 
 2007-01-28 06:22  Kent Sibilev
 
-	* branches/stable/AUTHORS, branches/stable/CHANGES,
-	  branches/stable/Rakefile, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: - Control
-	  thread is always started by rdebug script.
+	* : - Control thread is always started by rdebug script.
 	  - Ability to specify negative frame number to frame commands.
 	  Patch from R. Bernstein.
 
 2007-01-28 04:52  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/bin/rdebug,
-	  branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/control.rb: added top
-	  frame caching
+	* : added top frame caching
 	  control thread is always started by rdebug script
 
 2007-01-27 01:43  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/commands/tmate.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: another performance
-	  optimization
+	* : another performance optimization
 
 2007-01-26 20:28  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug.rb: fixed #7484
+	* : fixed #7484
 
 2007-01-26 17:59  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb: revisited
-	  file name comparing procedure
+	* : revisited file name comparing procedure
 
 2007-01-26 09:03  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb:
-	  performance improvements
+	* : performance improvements
 
 2007-01-26 03:12  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/bin/rdebug,
-	  branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/variables.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: added option to
-	  exclude collecting of frame bindings
+	* : added option to exclude collecting of frame bindings
 
 2007-01-24 18:33  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/lib/ruby-debug.rb:
-	  disable tracing when in post-mortem
+	* : disable tracing when in post-mortem
 	  added -x/--trace option to rdebug script
 
 2007-01-21 08:13  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/breakpoints.rb:
+	* :
 
 2007-01-21 03:34  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb: assign an
-	  id to the breakpoint
+	* : assign an id to the breakpoint
 
 2007-01-21 01:20  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/interface.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: added
-	  post_mortem_method wrap method
+	* : added post_mortem_method wrap method
 
 2006-12-21 20:16  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/bin/rdebug,
-	  branches/stable/lib/ruby-debug/commands/control.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: added 'restart'
-	  command
+	* : added 'restart' command
 
 2006-12-21 14:12  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/control.rb,
-	  branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: made 'exit' an alias
-	  to 'quit'
+	* : made 'exit' an alias to 'quit'
 	  fixed the interoperability problem with rspec
 
 2006-12-21 13:43  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/ext/win32/ruby_debug.so,
-	  branches/stable/lib/ruby-debug/commands/trace.rb: fixed trace
-	  command in post-mortem mode
+	* : fixed trace command in post-mortem mode
 
 2006-12-21 01:59  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/irb.rb: initialize only
-	  once
+	* : initialize only once
 
 2006-12-21 01:08  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/ext/win32/ruby_debug.so,
-	  branches/stable/lib/ruby-debug/commands/irb.rb: fixes irb help
-	  command
+	* : fixes irb help command
 
 2006-12-20 21:19  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: check that debugger has been
-	  started
+	* : check that debugger has been started
 
 2006-12-20 20:08  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/lib/ruby-debug.rb:
-	  added post-mortem option to rdebug
+	* : added post-mortem option to rdebug
 
 2006-12-20 19:38  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/control.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/commands/tmate.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: initial support for
-	  post-mortem debugging
+	* : initial support for post-mortem debugging
 
 2006-12-19 06:13  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/stepping.rb: removed
-	  'run' alias
+	* : removed 'run' alias
 
 2006-12-18 08:34  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb: added irb
-	  command
+	* : added irb command
 	  fixed source_for method
 
 2006-12-02 19:15  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb: added reload
-	  command
+	* : added reload command
 
 2006-12-02 18:32  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: fixed #6518 and
-	  #6545
+	* : fixed #6518 and #6545
 
 2006-12-01 06:47  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb:
+	* :
 
 2006-11-21 23:29  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/eval.rb: ensure that
-	  on/off is the last on the line
+	* : ensure that on/off is the last on the line
 
 2006-11-16 00:04  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug.rb: fixed debug_method for
-	  assignment methods
+	* : fixed debug_method for assignment methods
 
 2006-11-16 00:01  Kent Sibilev
 
-	* branches/stable: added the new branch for the stable version
+	* : added the new branch for the stable version
 
 2006-10-15 22:43  Kent Sibilev
 
-	* branches/ver_0_4_4: branching a stable version
+	* : branching a stable version
 
 2006-10-15 22:26  Kent Sibilev
 
-	* trunk/ext/win32/ruby_debug.so, ruby-debug.rb: remove unused
-	  require
+	* ruby-debug.rb: remove unused require
 	  uploaded new windows binary
 
 2006-10-15 19:02  Kent Sibilev
@@ -1395,36 +924,27 @@
 
 2006-10-15 16:54  Kent Sibilev
 
-	* trunk/ext/ruby_debug.c, ruby-debug.rb,
-	  ruby-debug/commands/threads.rb: new logic of context
-	  suspend/resume
+	* ruby-debug.rb, ruby-debug/commands/threads.rb: new logic of
+	  context suspend/resume
 
 2006-10-15 07:36  Kent Sibilev
 
-	* trunk/bin/rdebug, trunk/ext/ruby_debug.c, ruby-debug.rb,
-	  ruby-debug/lock.rb: fixed locking of debugger threads
+	* ruby-debug.rb, ruby-debug/lock.rb: fixed locking of debugger
+	  threads
 
 2006-10-09 22:01  Kent Sibilev
 
-	* trunk/ext/ruby_debug.c, trunk/ext/win32/ruby_debug.so,
-	  ruby-debug/interface.rb: fixes for windows version
+	* ruby-debug/interface.rb: fixes for windows version
 
 2006-10-09 19:06  Kent Sibilev
 
-	* trunk/CHANGES, trunk/ext/ruby_debug.c, ruby-debug.rb,
-	  ruby-debug/interface.rb: added Debugger.skip and
+	* ruby-debug.rb, ruby-debug/interface.rb: added Debugger.skip and
 	  Debugger.debug_at_exit methods
 
 2006-10-09 16:44  Kent Sibilev
 
-	* trunk, trunk/.gdb_history, trunk/CHANGES, trunk/LICENSE,
-	  trunk/README, trunk/Rakefile, trunk/bin, trunk/bin/rdebug,
-	  trunk/doc, trunk/ext, trunk/ext/.gdb_history, trunk/ext/Makefile,
-	  trunk/ext/extconf.rb, trunk/ext/ruby_debug.bundle,
-	  trunk/ext/ruby_debug.c, trunk/ext/win32,
-	  trunk/ext/win32/ruby_debug.so, ., ruby-debug, ruby-debug.rb,
-	  ruby-debug/command.rb, ruby-debug/commands,
-	  ruby-debug/commands/breakpoints.rb,
+	* ., ruby-debug, ruby-debug.rb, ruby-debug/command.rb,
+	  ruby-debug/commands, ruby-debug/commands/breakpoints.rb,
 	  ruby-debug/commands/catchpoint.rb,
 	  ruby-debug/commands/control.rb, ruby-debug/commands/display.rb,
 	  ruby-debug/commands/eval.rb, ruby-debug/commands/frame.rb,

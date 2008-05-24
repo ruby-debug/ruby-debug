@@ -1,3 +1,49 @@
+2008-05-23 14:57  Rocky Bernstein
+
+	* cli/ruby-debug/commands/save.rb: Catchpoints have changed. Fix
+	  bug in saving them.
+
+2008-05-23 01:04  Rocky Bernstein
+
+	* cli/ruby-debug/commands/catchpoint.rb,
+	  cli/ruby-debug/commands/info.rb, ext/breakpoint.c,
+	  test/cli/commands/catchpoint_test.rb, test/data/catch.cmd,
+	  test/data/catch.right, test/test-catch.rb: Lots of bogosity fixed
+	  in catchpoint handling. Added "catch xxx off".
+	  Confirm when deleting all catchpoints. Correct C rdoc.
+	  #20237
+
+2008-05-20 07:20  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi, doc/ruby-debug.texi: Use a straight quote
+	  in the typewriter font.
+
+2008-05-17 22:11  Rocky Bernstein
+
+	* cli/ruby-debug/commands/save.rb: Wording a little closer to gdb's
+	  ;-)
+
+2008-05-17 11:35  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi, doc/ruby-debug.texi: e.g. -> e.g.@:
+
+2008-05-15 18:06  Rocky Bernstein
+
+	* test, test/.cvsignore: Ignore config.private.yaml which folks may
+	  use/customize to omit tests
+
+2008-05-15 17:52  Rocky Bernstein
+
+	* Rakefile, test/cli, test/cli/commands,
+	  test/cli/commands/catchpoint_test.rb: Regression test for recent
+	  "catch nn off" error. Again from Martin Krauskopf
+
+2008-05-15 16:05  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/catchpoint.rb, lib/ChangeLog:
+	  Handle "catch nnn off" Forgotten there during r656.
+	  From mkrauskopf [#20156].
+
 2008-05-12 03:21  Rocky Bernstein
 
 	* cli/ruby-debug/commands/irb.rb: Small doc fix.
@@ -4329,16 +4375,8 @@
 
 2007-05-24 13:03  Rocky Bernstein
 
-	* branches/rocky, branches/rocky/Rakefile,
-	  branches/rocky/cli/ruby-debug/command.rb,
-	  branches/rocky/cli/ruby-debug/commands/frame.rb,
-	  branches/rocky/cli/ruby-debug/commands/help.rb,
-	  branches/rocky/cli/ruby-debug/commands/method.rb,
-	  branches/rocky/cli/ruby-debug/commands/settings.rb,
-	  branches/rocky/cli/ruby-debug/commands/threads.rb,
-	  branches/rocky/cli/ruby-debug/commands/variables.rb,
-	  branches/rocky/ext/ruby_debug.c, Rakefile,
-	  cli/ruby-debug/command.rb, cli/ruby-debug/commands/frame.rb,
+	* Rakefile, cli/ruby-debug/command.rb,
+	  cli/ruby-debug/commands/frame.rb,
 	  cli/ruby-debug/commands/help.rb,
 	  cli/ruby-debug/commands/method.rb,
 	  cli/ruby-debug/commands/settings.rb,
@@ -4710,600 +4748,439 @@
 
 2007-03-24 18:17  Kent Sibilev
 
-	* branches/stable, .: stable becomes the trunk
+	* .: stable becomes the trunk
 
 2007-03-24 18:11  Kent Sibilev
 
-	* branches/stable/runner.sh:
+	* :
 
 2007-03-24 18:03  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: ported stop reason from the
-	  trunk
+	* : ported stop reason from the trunk
 
 2007-03-19 08:05  Kent Sibilev
 
-	* branches/stable/CHANGES:
+	* :
 
 2007-03-19 07:59  Kent Sibilev
 
-	* branches/stable/cli/debugger.rb,
-	  branches/stable/cli/ruby-debug/debugger.rb:
+	* :
 
 2007-03-19 07:46  Kent Sibilev
 
-	* branches/stable/cli/debugger.rb,
-	  branches/stable/cli/ruby-debug.rb,
-	  branches/stable/ext/ruby_debug.c: fixes processor to handler
-	  renaming
+	* : fixes processor to handler renaming
 	  added a shortcut module
 
 2007-03-15 04:00  Kent Sibilev
 
-	* branches/stable/Rakefile:
+	* :
 
 2007-03-15 02:59  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug/commands/settings.rb:
+	* :
 
 2007-03-15 02:58  Kent Sibilev
 
-	* branches/stable/CHANGES,
-	  branches/stable/cli/ruby-debug/commands/settings.rb: added 'set
-	  autoirb' setting
+	* : added 'set autoirb' setting
 
 2007-03-15 02:46  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug/commands/display.rb:
+	* :
 
 2007-03-15 02:39  Kent Sibilev
 
-	* branches/stable/CHANGES:
+	* :
 
 2007-03-15 02:32  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug/command.rb:
+	* :
 
 2007-03-15 02:32  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug/commands/control.rb,
-	  branches/stable/cli/ruby-debug/commands/display.rb,
-	  branches/stable/cli/ruby-debug/commands/help.rb: fixed help
-	  command
+	* : fixed help command
 
 2007-03-13 17:06  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug.rb: missing file
+	* : missing file
 
 2007-03-13 17:06  Kent Sibilev
 
-	* branches/stable/Rakefile,
-	  branches/stable/cli/ruby-debug/commands/list.rb,
-	  branches/stable/lib/ruby-debug-base.rb: fixed rdoc
+	* : fixed rdoc
 
 2007-03-06 22:15  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug/commands/eval.rb,
-	  branches/stable/cli/ruby-debug/commands/list.rb: updated help for
-	  list and eval commands
+	* : updated help for list and eval commands
 
 2007-03-06 19:51  Kent Sibilev
 
-	* branches/stable/cli/ruby-debug/processor.rb: pass the current
-	  state to the interface object if it accepts it
+	* : pass the current state to the interface object if it accepts it
 
 2007-03-01 23:44  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug,
-	  branches/stable/lib/ruby-debug-base.rb: fixed post-mortem
+	* : fixed post-mortem
 
 2007-02-27 08:02  Kent Sibilev
 
-	* branches/stable/Rakefile, branches/stable/cli,
-	  branches/stable/cli/ruby-debug,
-	  branches/stable/cli/ruby-debug/command.rb,
-	  branches/stable/cli/ruby-debug/commands,
-	  branches/stable/cli/ruby-debug/interface.rb,
-	  branches/stable/cli/ruby-debug/processor.rb,
-	  branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug-base.rb,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands,
-	  branches/stable/lib/ruby-debug/interface.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: repackaging
-	  ruby-debug
+	* : repackaging ruby-debug
 
 2007-02-23 20:56  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: added an option for
-	  Debugger.debug_load to stop at the first line of code
+	* : added an option for Debugger.debug_load to stop at the first
+	  line of code
 
 2007-02-12 06:59  Kent Sibilev
 
-	* branches/stable/bin/rdebug,
-	  branches/stable/lib/ruby-debug/processor.rb: added --emacs option
+	* : added --emacs option
 
 2007-02-09 16:56  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: in remote mode the debugger
-	  shouldn't stop inside of rdebug script
+	* : in remote mode the debugger shouldn't stop inside of rdebug
+	  script
 
 2007-02-09 06:59  Kent Sibilev
 
-	* branches/stable/CHANGES:
+	* :
 
 2007-02-09 06:20  Kent Sibilev
 
-	* branches/stable/bin/rdebug,
-	  branches/stable/lib/ruby-debug/interface.rb: --
+	* : --
 
 2007-02-09 01:00  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb,
-	  branches/stable/lib/ruby-debug/commands/settings.rb: fixed code
-	  reloading
+	* : fixed code reloading
 	  made 'reload on' as a part of the 'set' command
 	  evaluate ~/.rdebugrc as an init script
 
 2007-02-07 02:42  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: should use ignored?
-	  method to check for the debugger's thread
+	* : should use ignored? method to check for the debugger's thread
 
 2007-02-06 22:21  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/command.rb:
+	* :
 
 2007-02-05 22:48  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: --
+	* : --
 
 2007-02-05 22:11  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: fixed emacs
-	  integration
+	* : fixed emacs integration
 
 2007-02-05 20:40  Kent Sibilev
 
-	* branches/stable/CHANGES: --
+	* : --
 
 2007-02-05 20:38  Kent Sibilev
 
-	* branches/stable/CHANGES: --
+	* : --
 
 2007-02-05 20:34  Kent Sibilev
 
-	* branches/stable/ext, branches/stable/ext/ruby_debug.c,
-	  branches/stable/ext/win32: --
+	* : --
 
 2007-02-05 20:16  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: fixed another
-	  issue where a bogus frame is being left in the stack
+	* : fixed another issue where a bogus frame is being left in the
+	  stack
 
 2007-02-05 08:08  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: should save frame id as well
+	* : should save frame id as well
 
 2007-02-05 07:55  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: fix stack corruption error
+	* : fix stack corruption error
 
 2007-02-05 01:16  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: store frame's self and
-	  dyna_vars along with file/line information
+	* : store frame's self and dyna_vars along with file/line
+	  information
 
 2007-02-04 23:36  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/settings.rb: seg fault
-	  bugfixes
+	* : seg fault bugfixes
 	  fixed suspend/resume
 
 2007-02-04 05:06  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: restore prev patch
+	* : restore prev patch
 
 2007-02-04 03:49  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: --
+	* : --
 
 2007-02-04 03:49  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: A better fix for the
-	  segmentation fault
+	* : A better fix for the segmentation fault
 
 2007-02-03 22:02  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: found a better patch
+	* : found a better patch
 
 2007-02-03 20:33  Kent Sibilev
 
-	* branches/stable/CHANGES: --
+	* : --
 
 2007-02-03 20:24  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: fix seg fault by
-	  avoiding ruby's bug
+	* : fix seg fault by avoiding ruby's bug
 	  fixed Context#resume
 	  when handling post-mortem all threads must be suspended
 
 2007-02-02 18:47  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: removed
-	  ambiguity with down command
+	* : removed ambiguity with down command
 
 2007-02-01 23:48  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/settings.rb: typo
+	* : typo
 
 2007-02-01 23:10  Kent Sibilev
 
-	* branches/stable/CHANGES: changes for build 0.7
+	* : changes for build 0.7
 
 2007-02-01 22:15  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/eval.rb: made eval
-	  command available from the control thread
+	* : made eval command available from the control thread
 
 2007-02-01 17:30  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: fixed dllexport for windows
-	  platform
+	* : fixed dllexport for windows platform
 
 2007-02-01 15:49  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: ditto
+	* : ditto
 
 2007-02-01 07:22  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb,
-	  branches/stable/lib/ruby-debug/commands/eval.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb,
-	  branches/stable/lib/ruby-debug/commands/settings.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb: added setting
-	  command
+	* : added setting command
 	  added Context#suspended? method
 	  dispay suspended status in the thread list
 	  display frame starting from zero
 
 2007-01-31 22:12  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: store object ids in VALUE type
+	* : store object ids in VALUE type
 
 2007-01-31 21:13  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: ditto
+	* : ditto
 
 2007-01-31 21:12  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/frame.rb: fixed help
-	  command
+	* : fixed help command
 
 2007-01-31 21:04  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: ditto
+	* : ditto
 
 2007-01-31 20:44  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: make a deep copy when capturing
-	  post mortem context
+	* : make a deep copy when capturing post mortem context
 
 2007-01-31 19:39  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/command.rb: fixed frame count
+	* : fixed frame count
 	  added frame_self method to context
 
 2007-01-31 16:48  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/eval.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/variables.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: removed all
-	  references to frames array
+	* : removed all references to frames array
 	  fixed post-mortem debugging
 
 2007-01-31 00:51  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/commands/tmate.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: removed obsolete
-	  frames usage
+	* : removed obsolete frames usage
 
 2007-01-31 00:41  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/variables.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: refactored out frame
-	  class and preallocate stack
+	* : refactored out frame class and preallocate stack
 	  made local variable available even when bindings are not
 	  collected.
 
 2007-01-28 20:25  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug.rb: --
+	* : --
 
 2007-01-28 06:22  Kent Sibilev
 
-	* branches/stable/AUTHORS, branches/stable/CHANGES,
-	  branches/stable/Rakefile, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: - Control
-	  thread is always started by rdebug script.
+	* : - Control thread is always started by rdebug script.
 	  - Ability to specify negative frame number to frame commands.
 	  Patch from R. Bernstein.
 
 2007-01-28 04:59  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: --
+	* : --
 
 2007-01-28 04:52  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/bin/rdebug,
-	  branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/control.rb: added top
-	  frame caching
+	* : added top frame caching
 	  control thread is always started by rdebug script
 
 2007-01-28 01:21  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c:
+	* :
 
 2007-01-27 02:21  Kent Sibilev
 
-	* branches/stable/CHANGES: --
+	* : --
 
 2007-01-27 01:43  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/commands/tmate.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: another performance
-	  optimization
+	* : another performance optimization
 
 2007-01-26 20:28  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug.rb: fixed #7484
+	* : fixed #7484
 
 2007-01-26 19:31  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/ext/win32/ruby_debug.so: --
+	* : --
 
 2007-01-26 17:59  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb: revisited
-	  file name comparing procedure
+	* : revisited file name comparing procedure
 
 2007-01-26 09:03  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb:
-	  performance improvements
+	* : performance improvements
 
 2007-01-26 03:12  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/bin/rdebug,
-	  branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/variables.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: added option to
-	  exclude collecting of frame bindings
+	* : added option to exclude collecting of frame bindings
 
 2007-01-25 01:41  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: small optimization
+	* : small optimization
 
 2007-01-25 00:55  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: remove the live thread ref from
-	  locker structure as well
+	* : remove the live thread ref from locker structure as well
 
 2007-01-24 20:42  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c: don't
-	  keep a ref to a live thread.
+	* : don't keep a ref to a live thread.
 	  check contexts that their threads are alive
 
 2007-01-24 18:47  Kent Sibilev
 
-	* branches/stable/bin/rdebug: ditto
+	* : ditto
 
 2007-01-24 18:33  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/lib/ruby-debug.rb:
-	  disable tracing when in post-mortem
+	* : disable tracing when in post-mortem
 	  added -x/--trace option to rdebug script
 
 2007-01-21 08:35  Kent Sibilev
 
-	* branches/stable/CHANGES: updated changelog
+	* : updated changelog
 
 2007-01-21 08:13  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/breakpoints.rb:
+	* :
 
 2007-01-21 03:34  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/breakpoints.rb: assign an
-	  id to the breakpoint
+	* : assign an id to the breakpoint
 
 2007-01-21 01:20  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/interface.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: added
-	  post_mortem_method wrap method
+	* : added post_mortem_method wrap method
 
 2006-12-21 20:30  Kent Sibilev
 
-	* branches/stable/bin/rdebug,
-	  branches/stable/ext/win32/ruby_debug.so: fix of restart command
-	  for windows platform
+	* : fix of restart command for windows platform
 
 2006-12-21 20:16  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/bin/rdebug,
-	  branches/stable/lib/ruby-debug/commands/control.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb: added 'restart'
-	  command
+	* : added 'restart' command
 
 2006-12-21 14:24  Kent Sibilev
 
-	* branches/stable/CHANGES: update changelog
+	* : update changelog
 
 2006-12-21 14:12  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/control.rb,
-	  branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: made 'exit' an alias
-	  to 'quit'
+	* : made 'exit' an alias to 'quit'
 	  fixed the interoperability problem with rspec
 
 2006-12-21 13:43  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/ext/win32/ruby_debug.so,
-	  branches/stable/lib/ruby-debug/commands/trace.rb: fixed trace
-	  command in post-mortem mode
+	* : fixed trace command in post-mortem mode
 
 2006-12-21 02:00  Kent Sibilev
 
-	* branches/stable/CHANGES: updated changelog
+	* : updated changelog
 
 2006-12-21 01:59  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/irb.rb: initialize only
-	  once
+	* : initialize only once
 
 2006-12-21 01:08  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/ext/win32/ruby_debug.so,
-	  branches/stable/lib/ruby-debug/commands/irb.rb: fixes irb help
-	  command
+	* : fixes irb help command
 
 2006-12-20 21:19  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb: check that debugger has been
-	  started
+	* : check that debugger has been started
 
 2006-12-20 20:41  Kent Sibilev
 
-	* branches/stable/ext/win32/ruby_debug.so:
+	* :
 
 2006-12-20 20:14  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c: bumped version
+	* : bumped version
 
 2006-12-20 20:08  Kent Sibilev
 
-	* branches/stable/bin/rdebug, branches/stable/lib/ruby-debug.rb:
-	  added post-mortem option to rdebug
+	* : added post-mortem option to rdebug
 
 2006-12-20 19:38  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/commands/control.rb,
-	  branches/stable/lib/ruby-debug/commands/frame.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/stepping.rb,
-	  branches/stable/lib/ruby-debug/commands/threads.rb,
-	  branches/stable/lib/ruby-debug/commands/tmate.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: initial support for
-	  post-mortem debugging
+	* : initial support for post-mortem debugging
 
 2006-12-19 06:13  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/stepping.rb: removed
-	  'run' alias
+	* : removed 'run' alias
 
 2006-12-18 08:34  Kent Sibilev
 
-	* branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/irb.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb: added irb
-	  command
+	* : added irb command
 	  fixed source_for method
 
 2006-12-02 19:15  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/lib/ruby-debug.rb,
-	  branches/stable/lib/ruby-debug/commands/list.rb: added reload
-	  command
+	* : added reload command
 
 2006-12-02 18:32  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/command.rb,
-	  branches/stable/lib/ruby-debug/processor.rb: fixed #6518 and
-	  #6545
+	* : fixed #6518 and #6545
 
 2006-12-01 06:49  Kent Sibilev
 
-	* branches/stable/CHANGES:
+	* :
 
 2006-12-01 06:47  Kent Sibilev
 
-	* branches/stable/CHANGES, branches/stable/ext/ruby_debug.c,
-	  branches/stable/lib/ruby-debug.rb:
+	* :
 
 2006-11-21 23:29  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug/commands/eval.rb: ensure that
-	  on/off is the last on the line
+	* : ensure that on/off is the last on the line
 
 2006-11-16 00:04  Kent Sibilev
 
-	* branches/stable/lib/ruby-debug.rb: fixed debug_method for
-	  assignment methods
+	* : fixed debug_method for assignment methods
 
 2006-11-16 00:01  Kent Sibilev
 
-	* branches/stable: added the new branch for the stable version
+	* : added the new branch for the stable version
 
 2006-10-15 22:43  Kent Sibilev
 
-	* branches/ver_0_4_4: branching a stable version
+	* : branching a stable version
 
 2006-10-15 22:26  Kent Sibilev
 
