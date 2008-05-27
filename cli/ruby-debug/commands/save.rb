@@ -20,6 +20,9 @@ module Debugger
       Debugger.breakpoints.each do |b|
         file.puts "break #{b.source}:#{b.pos}#{" if #{b.expr}" if b.expr}"
       end
+    end
+
+    def save_catchpoints(file)
       Debugger.catchpoints.keys.each do |c|
         file.puts "catch #{c}" 
       end
@@ -46,7 +49,9 @@ module Debugger
     end
     
     def regexp
-      /^\s*sa(?:ve)?(?:\s+(.+))?$/
+      /^\s* sa(?:ve)?
+        (?:\s+(.+))? 
+        \s*$/ix
     end
     
     def execute
@@ -56,6 +61,7 @@ module Debugger
         file = open(@match[1], 'w')
       end
       save_breakpoints(file)
+      save_catchpoints(file)
       # save_displays(file)
       save_settings(file)
       print "Saved to '#{file.path}'\n"

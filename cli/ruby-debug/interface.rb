@@ -187,6 +187,7 @@ module Debugger
     attr_accessor :histfile
     attr_accessor :history_save
     attr_accessor :history_length
+    attr_accessor :restart_file
     def initialize(file, out, verbose=false)
       super()
       @command_queue = []
