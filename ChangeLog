@@ -1,3 +1,25 @@
+2008-05-16 09:31  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java: Fixing typo; passing
+	  wrong parameter to Debugger::Context#at_catchpoint
+	  - regression test in ruby-debug-ide
+	  CatchpointTest#test_catchpoint_basics
+
+2008-05-05 13:34  Martin Krauskopf
+
+	* .: typo: s/runner.rb/runner.sh
+
+2008-05-05 13:33  Martin Krauskopf
+
+	* ., Rakefile: "Import" runner.sh from native ruby-debug-base and
+	  patch it for JRuby
+
+2008-05-04 16:55  Martin Krauskopf
+
+	* ChangeLog, src/org/jruby/debug/Util.java,
+	  testjava/org/jruby/debug/UtilTest.java: One more case for JRuby
+	  core detection
+
 2008-05-04 14:47  Martin Krauskopf
 
 	* patch-0.10.1.diff: - passing few more tests

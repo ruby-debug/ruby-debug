@@ -11,12 +11,12 @@ It is the same as ruby-debug-base native C extension from ruby-debug project
 (j)ruby-debug-base is available as a RubyGem. Unfortunately it is still not
 installable remotely. But installation is easy enough:
 
-- manually download the ruby-debug-base-0.10.0-java.gem to local directory from
+- manually download the ruby-debug-base-0.10.1-java.gem to local directory from
   here: http://rubyforge.org/frs/?group_id=3085 
 
 - install the Gem into your JRuby Gem repository:
 
-   jruby -S gem install ruby-debug-base-0.10.0-java.gem
+   jruby -S gem install ruby-debug-base-0.10.1-java.gem
 
 - now install ruby-debug with:
 
