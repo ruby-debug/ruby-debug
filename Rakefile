@@ -65,7 +65,7 @@ task :prepare_tests do
   runner = 'runner.sh'
   sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/runner.sh > #{runner}" unless File.exists?(runner)
   text = File.read('runner.sh')
-  File.open(runner, 'w') {|f| f.write(text.gsub(/-ruby/ , '-jruby -J-Djruby.reflection=true -J-Djruby.compile.mode=OFF'))}
+  File.open(runner, 'w') {|f| f.write(text.gsub(/-ruby/ , '-jruby --debug'))}
   File.chmod(0755, runner)
 
   # - prepare default customized test/config.private.yaml suitable for JRuby
