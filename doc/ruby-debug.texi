@@ -270,11 +270,12 @@ there are of course lots of other ways too.). When we look at the
 value of @code{tri} the first time, we see it is @code{nil}. Again we
 are stopped @emph{before} the assignment on line 5, and this variable
 hasn't been set previously. However after issuing another ``step''
-command we see that the value is 0 as expected.
+command we see that the value is 0 as expected. You could issue the
+step and print comman in one shot:
 
-If we want to see the value of @code{tri} every time we stop to see
-how this is going to change we can give a display expression
-(@pxref{DisplayCommands}).
+However if every time we stop we want to see the value of @code{tri}
+to see how things are going stop, there is a better way by setting a
+display expression (@pxref{DisplayCommands}).
 
 @smallexample
 (rdb:1) display tri
@@ -1567,7 +1568,28 @@ step, as in @code{step 5}.  You can also use the @code{step} command with no
 arguments.  Some commands do not allow any arguments.
 
 Multiple commands can be put on a line by separating each with a
-semicolon (@code{;}).
+semicolon (@code{;}). You can disable the meaning of a semicolon to
+separate commands by escaping it with a backslash. 
+
+For example, if you have @code{autoeval} (@ref{Autoeval}) set, you
+might want to enter the following code to compute the 5th Fibonacci
+number:
+@smallexample
+# Compute the 5 Fibonaci number
+(rdb:1) set autoeval on
+(rdb:1) fib1=0; fib2=1; 5.times @{|temp| temp=fib1; fib1=fib2; fib2 += temp @}
+SyntaxError Exception: compile error
+/usr/bin/irb:10: syntax error, unexpected $end, expecting '@}'
+ 5.times @{|temp| temp=fib1
+                          ^
+(rdb:1) fib1=0\; fib2=1\; 5.times @{|temp| temp=fib1\; fib1=fib2\; fib2 += temp @}
+5
+(rdb:1) fib2
+fib2
+8
+@end smallexample
+You might also consider using the @code{irb} command, @ref{irb}, and
+then you won't have to escape semicolons.
 
 A blank line as input (typing just @key{<RET>}) means to repeat the
 previous command.  
