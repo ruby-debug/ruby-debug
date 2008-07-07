@@ -162,30 +162,7 @@ module Debugger
   
   class ThreadsTable # :nodoc:
   end
-end
 
-module Kernel
-
-  # Enters the debugger in the current thread after _steps_ line events occur.
-  # Before entering the debugger startup script is read.
-  #
-  # Setting _steps_ to 0 will cause a break in the debugger subroutine
-  # and not wait for a line event to occur. You will have to go "up 1"
-  # in order to be back in your debugged program rather than the
-  # debugger. Settings _stess_ to 0 could be useful you want to stop
-  # right after the last statement in some scope, because the next
-  # step will take you out of some scope.
-  def debugger(steps = 1)
-    Debugger.start unless Debugger.started?
-    Debugger.run_init_script(StringIO.new)
-    if 0 == steps
-      Debugger.current_context.stop_frame = 0
-    else
-      Debugger.current_context.stop_next = steps
-    end
-  end
-  alias breakpoint debugger unless respond_to?(:breakpoint)
-  
   #  Debugger.start(options) -> bool
   #  Debugger.start(options) { ... } -> obj
   #
@@ -225,7 +202,31 @@ module Kernel
     end
     return retval
   end
+  module_function :start
+end
 
+module Kernel
+
+  # Enters the debugger in the current thread after _steps_ line events occur.
+  # Before entering the debugger startup script is read.
+  #
+  # Setting _steps_ to 0 will cause a break in the debugger subroutine
+  # and not wait for a line event to occur. You will have to go "up 1"
+  # in order to be back in your debugged program rather than the
+  # debugger. Settings _stess_ to 0 could be useful you want to stop
+  # right after the last statement in some scope, because the next
+  # step will take you out of some scope.
+  def debugger(steps = 1)
+    Debugger.start unless Debugger.started?
+    Debugger.run_init_script(StringIO.new)
+    if 0 == steps
+      Debugger.current_context.stop_frame = 0
+    else
+      Debugger.current_context.stop_next = steps
+    end
+  end
+  alias breakpoint debugger unless respond_to?(:breakpoint)
+  
   #
   # Returns a binding of n-th call frame
   #
