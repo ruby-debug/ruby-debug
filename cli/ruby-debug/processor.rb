@@ -393,7 +393,7 @@ module Debugger
       @debugger_context_was_dead = true # Assume we haven't started.
     end
     
-    def process_commands
+    def process_commands(verbose=false)
       control_cmds = Command.commands.select do |cmd| 
         cmd.allow_in_control 
       end
@@ -409,11 +409,12 @@ module Debugger
       end
 
       while input = @interface.read_command(prompt(nil))
+        print "+#{input}" if verbose
         catch(:debug_error) do
           if cmd = commands.find{|c| c.match(input) }
             cmd.execute
           else
-            print "Unknown command\n"
+            errmsg "Unknown command\n"
           end
         end
       end
@@ -462,7 +463,7 @@ module Debugger
       end
 
       def file
-        print "No filename given.\n"
+        errmsg "No filename given.\n"
         throw :debug_error
       end
     end # State
