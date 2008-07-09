@@ -125,7 +125,7 @@ module Debugger
     end
   end
 
-  class RemoteInterface # :nodoc:
+  class RemoteInterface < Interface # :nodoc:
     attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
