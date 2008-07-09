@@ -62,19 +62,16 @@ module Debugger
       
       if line =~ /^\d+$/
         line = line.to_i
-        unless LineCache.cache(brkpt_filename, 
-                                Command.settings[:reload_source_on_change])
-          errmsg("No source file named %s\n", file) 
-          return
-        end
-        last_line = LineCache.size(brkpt_filename)
-        if line > last_line
-          errmsg("There are only %d lines in file \"%s\".\n", last_line, file) 
-          return
-        end
-        unless LineCache.trace_line_numbers(brkpt_filename).member?(line)
-          errmsg("Line %d is not a stopping point in file \"%s\".\n", line, file) 
-          return
+        if LineCache.cache(brkpt_filename, Command.settings[:reload_source_on_change])
+          last_line = LineCache.size(brkpt_filename)
+          if line > last_line
+            errmsg("There are only %d lines in file \"%s\".\n", last_line, file) 
+            return
+          end
+          unless LineCache.trace_line_numbers(brkpt_filename).member?(line)
+            errmsg("Line %d is not a stopping point in file \"%s\".\n", line, file) 
+            return
+          end
         end
         unless @state.context
           errmsg "We are not in a state we can add breakpoints.\n"
