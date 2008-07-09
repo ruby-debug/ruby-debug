@@ -38,7 +38,11 @@ def debug_program(options)
          else
            Debugger::PROG_SCRIPT
          end
-    $0[0..-1] = d0
+    if $0.frozen?
+      $0 = d0
+    else
+      $0[0..-1] = d0
+    end
   end
   bt = Debugger.debug_load(Debugger::PROG_SCRIPT, options.stop, false)
   if bt
