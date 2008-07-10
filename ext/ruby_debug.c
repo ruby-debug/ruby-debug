@@ -719,23 +719,30 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
           fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));
 
       /* There can be many event calls per line, but we only want
-	 *one* breakpoint per line. */
+      *one* breakpoint per line. */
       if(debug_context->last_line != line || debug_context->last_file == NULL ||
           strcmp(debug_context->last_file, file) != 0)
       {
           CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
           moved = 1;
-      } else if(event == RUBY_EVENT_LINE)
+      } 
+      else if(event == RUBY_EVENT_LINE)
       {
-	/* There are two line-event trace hook calls per IF node - one
-	   before the expression eval an done afterwards. 
-	 */
-	static int if_eval_event = 0;
-	if_eval_event = (NODE_IF == nd_type(node)) ? !if_eval_event : 0;
-	if (!if_eval_event)
-	{
-	    CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
-	}
+        /* There are two line-event trace hook calls per IF node - one
+          before the expression eval an done afterwards. 
+        */
+        /* FIXME: the static variable can't be safely used here, since this method 
+        is re-entrant by multiple threads. If we want to provide this kind of functionality 
+        if_eval_event variable must be moved to debug_context structure.
+        */
+        /*
+        static int if_eval_event = 0;
+        if_eval_event = (NODE_IF == nd_type(node)) ? !if_eval_event : 0;
+        if (!if_eval_event)
+        {
+            CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
+        }
+        */
       }
     }
     else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)
@@ -863,15 +870,11 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     {
         if(debug_context->stack_size == debug_context->stop_frame)
         {
-	  if(debug_context->stack_size == 0)
-            save_call_frame(event, self, file, line, mid, debug_context);
-	  else
-            set_frame_source(event, debug_context, self, file, line, mid);
-	  binding = self? create_binding(self) : Qnil;
-	  save_top_binding(debug_context, binding);
-	  call_at_return(context, debug_context, rb_str_new2(file), 
-			 INT2FIX(line));
-	  debug_context->dest_frame = -1;
+            debug_context->stop_next = 1;
+            debug_context->stop_frame = 0;
+            /* NOTE: can't use call_at_line function here to trigger a debugger event.
+               this can lead to segfault. We should only unroll the stack on this event.
+             */
         }
         while(debug_context->stack_size > 0)
         {
@@ -879,6 +882,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(debug_context->frames[debug_context->stack_size].orig_id == mid)
                 break;
         }
+        CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -925,23 +929,23 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
 #endif
 
         if (rdebug_catchpoints == Qnil || 
-	    RHASH(rdebug_catchpoints)->tbl->num_entries == 0)
+        RHASH(rdebug_catchpoints)->tbl->num_entries == 0)
             break;
 
         ancestors = rb_mod_ancestors(expn_class);
         for(i = 0; i < RARRAY(ancestors)->len; i++)
         {
-	    VALUE mod_name;
-	    VALUE hit_count;
+            VALUE mod_name;
+            VALUE hit_count;
 
             aclass    = rb_ary_entry(ancestors, i);
-	    mod_name  = rb_mod_name(aclass);
-	    hit_count = rb_hash_aref(rdebug_catchpoints, mod_name);
+            mod_name  = rb_mod_name(aclass);
+            hit_count = rb_hash_aref(rdebug_catchpoints, mod_name);
             if(hit_count != Qnil)
             {
-	        hit_count = INT2FIX(FIX2INT(rb_hash_aref(rdebug_catchpoints, 
-							 mod_name)+1));
-		rb_hash_aset(rdebug_catchpoints, mod_name, hit_count);
+                hit_count = INT2FIX(FIX2INT(rb_hash_aref(rdebug_catchpoints, 
+                    mod_name)+1));
+                rb_hash_aset(rdebug_catchpoints, mod_name, hit_count);
                 debug_context->stop_reason = CTX_STOP_CATCHPOINT;
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
                 if(self && binding == Qnil)
