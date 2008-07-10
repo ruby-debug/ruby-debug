@@ -2,17 +2,13 @@ module Debugger
 
   # Implements debugger "continue" command.
   class ContinueCommand < Command
-    self.allow_in_post_mortem = false
-    self.need_context         = true
+    self.allow_in_post_mortem = true
+    self.need_context         = false
     def regexp
       /^\s* c(?:ont(?:inue)?)? (?:\s+(.*))? $/x
     end
 
     def execute
-      unless @state.context
-        errmsg "We are not in a state we can continue.\n"
-        return 
-      end
       if @match[1] && !@state.context.dead?
         filename = File.expand_path(@state.file)
         line_number = get_int(@match[1], "Continue", 0, nil, 0)

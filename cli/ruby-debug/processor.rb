@@ -267,6 +267,7 @@ module Debugger
     def one_cmd(commands, context, input)
       if cmd = commands.find{ |c| c.match(input) }
         if context.dead? && cmd.class.need_context
+          p cmd
           print "Command is unavailable\n"
         else
           cmd.execute
