@@ -202,7 +202,7 @@ public final class RubyDebugger {
 
     @JRubyMethod(name="debug_at_exit", module=true)
     public static IRubyObject debug_at_exit(IRubyObject recv, Block block) {
-        RubyProc proc = RubyKernel.proc(recv, block);
+        RubyProc proc = RubyKernel.proc(recv.getRuntime().getCurrentContext(), recv, block);
         recv.getRuntime().pushExitBlock(proc);
         
         return proc;

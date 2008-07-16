@@ -288,7 +288,7 @@ final class DebugEventHook implements EventHook {
                     break;
                 }
                 
-                RubyArray ancestors = exception.getType().ancestors();
+                RubyArray ancestors = exception.getType().ancestors(tCtx);
                 int l = ancestors.getLength();
                 for (int i = 0; i < l; i++) {
                     RubyModule module = (RubyModule)ancestors.get(i);
