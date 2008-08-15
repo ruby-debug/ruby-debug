@@ -72,8 +72,8 @@ module Debugger
       print "[%d, %d] in %s\n", b, e, file
       lines = LineCache::getlines(file, 
                                   Command.settings[:reload_source_on_change])
-      return @state.previous_line if b >= lines.size
       if lines
+        return @state.previous_line if b >= lines.size
         e = lines.size if lines.size < e
         [b, 1].max.upto(e) do |n|
           if n > 0 && lines[n-1]
