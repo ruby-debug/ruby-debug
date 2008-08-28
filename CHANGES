@@ -1,6 +1,9 @@
 0.10.2
  - debugger(steps=0) breaks inside of debugger rather than wait for a line event.
  - trace var varname (stop|nostop) added which issues trace_var.
+ - start method is now properly defined in Debugger module
+ - fixed 'finish' command
+ - rdebug script now works with Ruby 1.8.7
 
 0.10.1
 4/10/08 - in honor of the 30th Birthday of Kate Schwarz
