@@ -816,9 +816,8 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                     debug_context->breakpoint = Qnil;
             }
 
-	    reset_stepping_stop_points(debug_context);
-            call_at_line(context, debug_context, rb_str_new2(file), 
-			 INT2FIX(line));
+            reset_stepping_stop_points(debug_context);
+            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
         }
         break;
     }
@@ -1028,7 +1027,7 @@ debug_start(VALUE self)
     {
         locker             = Qnil;
         rdebug_breakpoints = rb_ary_new();
-	rdebug_catchpoints = rb_hash_new();
+        rdebug_catchpoints = rb_hash_new();
         rdebug_threads_tbl = threads_table_create();
 
         rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
