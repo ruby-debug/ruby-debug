@@ -26,8 +26,10 @@ package org.jruby.debug;
 import java.io.File;
 import java.io.IOException;
 import org.jruby.RubyBoolean;
-import org.jruby.runtime.EventHook;
+import org.jruby.runtime.RubyEvent;
 import org.jruby.runtime.builtin.IRubyObject;
+
+import static org.jruby.runtime.RubyEvent.*;
 
 final class Util {
     
@@ -82,13 +84,38 @@ final class Util {
         }
     }
 
-    static void logEvent(int event, String file, int line, String methodName, IRubyObject klass) {
-        System.err.printf("%s:%d [%s] %s#%s\n", file, line, EventHook.EVENT_NAMES[event], klass, methodName);
+    static void logEvent(RubyEvent event, String file, int line, String methodName, IRubyObject klass) {
+        System.err.printf("%s:%s [%s] %s#%s\n", file, line, event, klass, methodName);
     }
 
     static boolean isJRubyCore(final String file) {
         return file.contains(JRUBY_BUILTIN_PATH_PART) || file.contains(JRUBY_JAR_PART);
     }
 
+    static boolean isLineEvent(String event) {
+        return LINE.getName().equals(event);
+    }
+
+    static RubyEvent typeForEvent(final String event) {
+        if ("line".equals(event)) {
+            return LINE;
+        } else if ("class".equals(event)) {
+            return CLASS;
+        } else if ("end".equals(event)) {
+            return END;
+        } else if ("call".equals(event)) {
+            return CALL;
+        } else if ("return".equals(event)) {
+            return RETURN;
+        } else if ("c-call".equals(event)) {
+            return C_CALL;
+        } else if ("c-return".equals(event)) {
+            return C_RETURN;
+        } else if ("raise".equals(event)) {
+            return RAISE;
+        } else {
+            throw new IllegalArgumentException("unknown event type: " + event);
+        }
+    }
 }
 

@@ -47,10 +47,13 @@ import org.jruby.debug.Debugger.DebugContextPair;
 import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.EventHook;
+import org.jruby.runtime.RubyEvent;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
-final class DebugEventHook implements EventHook {
+import static org.jruby.runtime.RubyEvent.*;
+
+final class DebugEventHook extends EventHook {
 
     private final Debugger debugger;
     private final Ruby runtime;
@@ -67,7 +70,13 @@ final class DebugEventHook implements EventHook {
         this.runtime = runtime;
     }
 
-    public void event(final ThreadContext tCtx, final int event, final String file, final int line0,
+    @Override
+    public boolean isInterestedInEvent(RubyEvent event) {
+        return true;
+    }
+
+    @Override
+    public void eventHandler(final ThreadContext tCtx, String event, final String file, final int line0,
             final String methodName, final IRubyObject klass) {
         boolean needsSuspend = false;
         
@@ -102,7 +111,7 @@ final class DebugEventHook implements EventHook {
             }
             setInDebugger(true);
             try {
-                processEvent(tCtx, event, Util.relativizeToPWD(file), line0, methodName, klass, contexts);
+                processEvent(tCtx, Util.typeForEvent(event), Util.relativizeToPWD(file), line0, methodName, klass, contexts);
             } finally {
                 setInDebugger(false);
             }
@@ -110,7 +119,7 @@ final class DebugEventHook implements EventHook {
     }
 
     @SuppressWarnings("fallthrough")
-    private void processEvent(final ThreadContext tCtx, final int event, final String file, final int line0, 
+    private void processEvent(final ThreadContext tCtx, final RubyEvent event, final String file, final int line0,
             final String methodName, final IRubyObject klass, DebugContextPair contexts) {
         if (debugger.isDebug()) {
             Util.logEvent(event, file, line0, methodName, klass);
@@ -118,7 +127,7 @@ final class DebugEventHook implements EventHook {
         // one-based; jruby by default passes zero-based
         int line = line0 + 1;
         hookCount++;
-        Ruby runtime = tCtx.getRuntime();
+        Ruby _runtime = tCtx.getRuntime();
         IRubyObject breakpoint = getNil();
         IRubyObject binding = getNil();
         IRubyObject context = contexts.context;
@@ -139,12 +148,12 @@ final class DebugEventHook implements EventHook {
         //            if(debug == Qtrue)
         //                fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(methodName));
         //        }
-        if (event != RUBY_EVENT_LINE) {
+        if (LINE == event) {
             debugContext.setStepped(true);
         }
 
         switch (event) {
-            case RUBY_EVENT_LINE:
+            case LINE:
                 if (debugContext.getStackSize() == 0) {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 } else {
@@ -152,8 +161,8 @@ final class DebugEventHook implements EventHook {
                 }
                 if (debugger.isTracing() || debugContext.isTracing()) {
                     IRubyObject[] args = new IRubyObject[]{
-                        runtime.newString(file),
-                        runtime.newFixnum(line)
+                        _runtime.newString(file),
+                        _runtime.newFixnum(line)
                     };
                     context.callMethod(tCtx, DebugContext.AT_TRACING, args);
                 }
@@ -174,7 +183,7 @@ final class DebugEventHook implements EventHook {
 
                 if (debugContext.getStopNext() == 0 || debugContext.getStopLine() == 0 ||
                         !(breakpoint = checkBreakpointsByPos(debugContext, file, line)).isNil()) {
-                    binding = (tCtx != null ? RubyBinding.newBinding(runtime) : getNil());
+                    binding = (tCtx != null ? RubyBinding.newBinding(_runtime) : getNil());
                     saveTopBinding(debugContext, binding);
 
                     debugContext.setStopReason(DebugContext.StopReason.STEP);
@@ -199,10 +208,10 @@ final class DebugEventHook implements EventHook {
                     debugContext.setDestFrame(-1);
                     debugContext.setStopLine(-1);
                     debugContext.setStopNext(-1);
-                    callAtLine(tCtx, context, debugContext, runtime, file, line);
+                    callAtLine(tCtx, context, debugContext, _runtime, file, line);
                 }
                 break;
-            case RUBY_EVENT_CALL:
+            case CALL:
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 breakpoint = checkBreakpointsByMethod(debugContext, klass, methodName);
                 if (!breakpoint.isNil()) {
@@ -211,7 +220,7 @@ final class DebugEventHook implements EventHook {
                         binding = debugFrame.getBinding();
                     }
                     if (tCtx != null && binding.isNil()) {
-                        binding = RubyBinding.newBinding(runtime);
+                        binding = RubyBinding.newBinding(_runtime);
                     }
                     saveTopBinding(debugContext, binding);
 
@@ -227,23 +236,23 @@ final class DebugEventHook implements EventHook {
                     } else {
                         debugContext.setBreakpoint(getNil());
                     }
-                    callAtLine(tCtx, context, debugContext, runtime, file, line);
+                    callAtLine(tCtx, context, debugContext, _runtime, file, line);
                 }
                 break;
-            case RUBY_EVENT_C_CALL:
+            case C_CALL:
                 if(cCallNewFrameP(klass)) {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 } else {
                     updateTopFrame(event, debugContext, tCtx, file, line, methodName);
                 }
                 break;
-            case RUBY_EVENT_C_RETURN:
+            case C_RETURN:
                 /* note if a block is given we fall through! */
                 if (!cCallNewFrameP(klass)) {
                     break;
                 }
-            case RUBY_EVENT_RETURN:
-            case RUBY_EVENT_END:
+            case RETURN:
+            case END:
                 if (debugContext.getStackSize() == debugContext.getStopFrame()) {
                     debugContext.setStopNext(1);
                     debugContext.setStopFrame(0);
@@ -258,23 +267,23 @@ final class DebugEventHook implements EventHook {
                 }
                 debugContext.setEnableBreakpoint(true);
                 break;
-            case RUBY_EVENT_CLASS:
+            case CLASS:
                 resetTopFrameMethodName(debugContext);
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 break;
-            case RUBY_EVENT_RAISE:
+            case RAISE:
                 updateTopFrame(event, debugContext, tCtx, file, line, methodName);
                 
                 // XXX Implement post mortem debugging
 
-                IRubyObject exception = runtime.getGlobalVariables().get("$!");
+                IRubyObject exception = _runtime.getGlobalVariables().get("$!");
                 // Might happen if the current ThreadContext is within 'defined?'
                 if (exception.isNil()) {
                     assert tCtx.isWithinDefined() : "$! should be nil only when within defined?";
                     break;
                 }
                 
-                if (runtime.getClass("SystemExit").isInstance(exception)) {
+                if (_runtime.getClass("SystemExit").isInstance(exception)) {
                     // Can't do this because this unhooks the event hook causing
                     // a ConcurrentModificationException because the runtime
                     // is still iterating over event hooks.  Shouldn't really
@@ -295,7 +304,7 @@ final class DebugEventHook implements EventHook {
                     IRubyObject modName = module.name();
                     IRubyObject hitCount = debugger.getCatchpoints().op_aref(tCtx, modName);
                     if (!hitCount.isNil()) {
-                        hitCount = runtime.newFixnum(RubyFixnum.fix2int(hitCount) + 1);
+                        hitCount = _runtime.newFixnum(RubyFixnum.fix2int(hitCount) + 1);
                         debugger.getCatchpoints().op_aset(tCtx, modName, hitCount);
                         debugContext.setStopReason(DebugContext.StopReason.CATCHPOINT);
                         context.callMethod(tCtx, DebugContext.AT_CATCHPOINT, exception);
@@ -305,10 +314,10 @@ final class DebugEventHook implements EventHook {
                             binding = debugFrame.getBinding();
                         }
                         if (tCtx != null && binding.isNil()) {
-                            binding = RubyBinding.newBinding(runtime);
+                            binding = RubyBinding.newBinding(_runtime);
                         }
                         saveTopBinding(debugContext, binding);
-                        callAtLine(tCtx, context, debugContext, runtime, file, line);
+                        callAtLine(tCtx, context, debugContext, _runtime, file, line);
                         
                         break;
                     }
@@ -337,11 +346,7 @@ final class DebugEventHook implements EventHook {
         }
     }
 
-    public boolean isInterestedInEvent(int event) {
-        return true;
-    }
-
-    private void saveCallFrame(final int event, final ThreadContext tCtx, final String file,
+    private void saveCallFrame(final RubyEvent event, final ThreadContext tCtx, final String file,
             final int line, final String methodName, final DebugContext debugContext) {
 
         IRubyObject binding = (debugger.isKeepFrameBinding()) ? RubyBinding.newBinding(tCtx.getRuntime()) : tCtx.getRuntime().getNil();
@@ -357,7 +362,7 @@ final class DebugEventHook implements EventHook {
         Info info = debugFrame.getInfo();
         info.setFrame(tCtx.getCurrentFrame());
         info.setScope(tCtx.getCurrentScope().getStaticScope());
-        info.setDynaVars(event == RUBY_EVENT_LINE ? tCtx.getCurrentScope() : null);
+        info.setDynaVars(event == LINE ? tCtx.getCurrentScope() : null);
         debugContext.addFrame(debugFrame);
         if (debugger.isTrackFrameArgs()) {
             copyScalarArgs(tCtx, debugFrame);
@@ -392,7 +397,7 @@ final class DebugEventHook implements EventHook {
         debugFrame.setArgValues(args);
     }
 
-    private void updateTopFrame(int event, DebugContext debug_context, ThreadContext tCtx,
+    private void updateTopFrame(RubyEvent event, DebugContext debug_context, ThreadContext tCtx,
             String file, int line, String methodName) {
         DebugFrame topFrame = getTopFrame(debug_context);
         if (topFrame != null) {
@@ -400,7 +405,7 @@ final class DebugEventHook implements EventHook {
             topFrame.setFile(file);
             topFrame.setLine(line);
             topFrame.setMethodName(methodName);
-            topFrame.getInfo().setDynaVars(event == RUBY_EVENT_C_CALL ? null : tCtx.getCurrentScope());
+            topFrame.getInfo().setDynaVars(event == C_CALL ? null : tCtx.getCurrentScope());
         }
     }
 
