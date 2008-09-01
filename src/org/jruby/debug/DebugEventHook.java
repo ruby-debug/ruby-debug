@@ -76,7 +76,7 @@ final class DebugEventHook extends EventHook {
     }
 
     @Override
-    public void eventHandler(final ThreadContext tCtx, String event, final String file, final int line0,
+    public void eventHandler(final ThreadContext tCtx, String event, final String file, final int line,
             final String methodName, final IRubyObject klass) {
         boolean needsSuspend = false;
         
@@ -111,7 +111,7 @@ final class DebugEventHook extends EventHook {
             }
             setInDebugger(true);
             try {
-                processEvent(tCtx, Util.typeForEvent(event), Util.relativizeToPWD(file), line0, methodName, klass, contexts);
+                processEvent(tCtx, Util.typeForEvent(event), Util.relativizeToPWD(file), line, methodName, klass, contexts);
             } finally {
                 setInDebugger(false);
             }
@@ -119,13 +119,12 @@ final class DebugEventHook extends EventHook {
     }
 
     @SuppressWarnings("fallthrough")
-    private void processEvent(final ThreadContext tCtx, final RubyEvent event, final String file, final int line0,
+    private void processEvent(final ThreadContext tCtx, final RubyEvent event, final String file, final int line,
             final String methodName, final IRubyObject klass, DebugContextPair contexts) {
         if (debugger.isDebug()) {
-            Util.logEvent(event, file, line0, methodName, klass);
+            Util.logEvent(event, file, line, methodName, klass);
         }
         // one-based; jruby by default passes zero-based
-        int line = line0 + 1;
         hookCount++;
         Ruby _runtime = tCtx.getRuntime();
         IRubyObject breakpoint = getNil();
@@ -322,8 +321,9 @@ final class DebugEventHook extends EventHook {
                         break;
                     }
                 }
-                
                 break;
+            default:
+                throw new IllegalArgumentException("unknown event type: " + event);
         }
         cleanUp(debugContext);
     }
@@ -530,26 +530,29 @@ final class DebugEventHook extends EventHook {
         if (debugBreakpoint.getHitCondition() == null) {
             return true;
         }
-        
+
         switch (debugBreakpoint.getHitCondition()) {
-        case NONE:
-            return true;
-        case GE:
-            if (debugBreakpoint.getHitCount() >= debugBreakpoint.getHitValue()) {
+            case NONE:
                 return true;
-            }
-            break;
-        case EQ:
-            if (debugBreakpoint.getHitCount() == debugBreakpoint.getHitValue()) {
-                return true;
-            }
-            break;
-        case MOD:
-            if (debugBreakpoint.getHitCount() % debugBreakpoint.getHitValue() == 0) {
-                return true;
-            }
-            break;
+            case GE:
+                if (debugBreakpoint.getHitCount() >= debugBreakpoint.getHitValue()) {
+                    return true;
+                }
+                break;
+            case EQ:
+                if (debugBreakpoint.getHitCount() == debugBreakpoint.getHitValue()) {
+                    return true;
+                }
+                break;
+            case MOD:
+                if (debugBreakpoint.getHitCount() % debugBreakpoint.getHitValue() == 0) {
+                    return true;
+                }
+                break;
+            default:
+                throw new IllegalArgumentException("unknown hit condition: " + debugBreakpoint.getHitCondition());
         }
+
         
         return false;
     }
