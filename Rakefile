@@ -6,7 +6,7 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 GEM_NAME='ruby-debug-base'
-GEM_VERSION='0.10.1'
+GEM_VERSION='0.10.2'
 
 RUBY_DEBUG_JAR='ext/ruby_debug.jar'
 
@@ -36,7 +36,7 @@ task :default => :package
 CLI_TEST_FILE_LIST = 'test/test-*.rb'
 
 desc "Test ruby-debug-base."
-task :test_base => :lib do 
+task :test_base => :lib do
   Rake::TestTask.new(:test_base) do |t|
     t.libs << ['./ext', './lib']
     t.test_files = FileList[BASE_TEST_FILE_LIST]
@@ -59,11 +59,11 @@ task :prepare_tests do
   #   http://subversion.tigris.org/issues/show_bug.cgi?id=937
   
   # rdbg.rb
-  sh 'svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/rdbg.rb > rdbg.rb' unless File.exists?('rdbg.rb')
+  sh 'svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.2/rdbg.rb > rdbg.rb' unless File.exists?('rdbg.rb')
 
   # runner.sh
   runner = 'runner.sh'
-  sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.1/runner.sh > #{runner}" unless File.exists?(runner)
+  sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.2/runner.sh > #{runner}" unless File.exists?(runner)
   text = File.read('runner.sh')
   File.open(runner, 'w') {|f| f.write(text.gsub(/-ruby/ , '-jruby --debug'))}
   File.chmod(0755, runner)
@@ -71,7 +71,7 @@ task :prepare_tests do
   # - prepare default customized test/config.private.yaml suitable for JRuby
   # - tweak test suite to be able to pass for jruby-debug-base which does not
   #   support e.g. TraceLineNumbers yet.
-  sh 'patch -p0 < patch-0.10.1.diff'
+  sh 'patch -p0 < patch-0.10.2.diff'
 end
 
 desc "Create the core ruby-debug shared library extension"

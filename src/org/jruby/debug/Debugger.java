@@ -111,18 +111,19 @@ final class Debugger {
         return true;
     }
 
+    /** see {@link RubyDebugger#debug_load} */
     void load(IRubyObject recv, IRubyObject[] args) {
         Ruby rt = recv.getRuntime();
-        Arity.checkArgumentCount(rt, args, 1, 2);
+        Arity.checkArgumentCount(rt, args, 1, 3);
+        IRubyObject[] actual = Arity.scanArgs(rt, args, 1, 2);
         IRubyObject file = args[0];
-        IRubyObject stop;
-        if (args.length == 1) {
-            stop = rt.getFalse();
-        } else {
-            stop = args[1];
-        }
+        IRubyObject stop = actual[1];
+        IRubyObject incrementStart = actual[2];
 
         start(recv, Block.NULL_BLOCK);
+        if (!incrementStart.isTrue()) {
+            startCount--;
+        }
         IRubyObject context = getCurrentContext(recv);
         DebugContext debugContext = (DebugContext) context.dataGetStruct();
         debugContext.clearFrames();

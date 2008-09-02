@@ -42,7 +42,7 @@ public final class RubyDebugger {
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
     
-    private static final String VERSION = "0.10.1";
+    private static final String VERSION = "0.10.2";
     private static Debugger debugger;
     
     public static RubyModule createDebuggerModule(Ruby runtime) {
@@ -188,7 +188,21 @@ public final class RubyDebugger {
         return tracing;
     }
     
-    @JRubyMethod(name="debug_load", module=true, required=1, optional=1)
+    /**
+     * <pre>
+     * Debugger.debug_load(file, stop = false, increment_start = false) -> nil
+     * </pre>
+     * <p>
+     * Same as Kernel#load but resets current context's frames.
+     * <p>
+     * FOR INTERNAL USE ONLY.
+     * @param stop parameter forces the debugger to stop at the first line of
+     *        code in the +file+
+     * @param increment_start determines if start_count should be incremented.
+     *        When control threads are used, they have to be set up before
+     *        loading the debugger; so here +increment_start+ will be false.
+     */
+    @JRubyMethod(name="debug_load", module=true, required=1, optional=2)
     public static IRubyObject debug_load(IRubyObject recv, IRubyObject[] args, Block block) {
         debugger().load(recv, args);
         
