@@ -68,6 +68,16 @@ task :prepare_tests do
   File.open(runner, 'w') {|f| f.write(text.gsub(/-ruby/ , '-jruby --debug'))}
   File.chmod(0755, runner)
 
+  File.open('test/config.private.yaml', 'w') do |f|
+    f.write <<EOF
+# either should be on the $PATH or use full path
+ruby: jruby
+
+# possibility to specify interpreter parameters
+ruby_params: --debug
+EOF
+  end
+
   # - prepare default customized test/config.private.yaml suitable for JRuby
   # - tweak test suite to be able to pass for jruby-debug-base which does not
   #   support e.g. TraceLineNumbers yet.
