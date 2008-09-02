@@ -130,8 +130,11 @@ final class Debugger {
         if (stop.isTrue()) {
             debugContext.setStopNext(1);
         }
-        rt.getLoadService().load(((RubyString) file).toString(), false);
-        stop(rt);
+        try {
+            rt.getLoadService().load(((RubyString) file).toString(), false);
+        } finally {
+            stop(rt);
+        }
     }
     
     IRubyObject getCurrentContext(IRubyObject recv) {
