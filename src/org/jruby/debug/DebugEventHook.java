@@ -389,6 +389,9 @@ final class DebugEventHook extends EventHook {
         int len = args.getLength();
         for (int i = 0; i < len; i++) {
             IRubyObject obj = args.entry(i);
+            if (obj == null) {
+                obj = runtime.getNil();
+            }
             if (! isArgValueSmall(obj)) {
                 args.store(i, runtime.newString(obj.getType().getName()));
             }
