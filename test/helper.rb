@@ -42,7 +42,11 @@ module TestHelper
   end
 
   def cheap_diff(got_lines, correct_lines)
-    puts got_lines if $DEBUG
+    if $DEBUG
+      got_lines.each_with_index do |line, i|
+        printf "%3d %s\n", i+1, line
+      end
+    end
     correct_lines.each_with_index do |line, i|
       correct_lines[i].chomp!
       if got_lines[i] != correct_lines[i]
