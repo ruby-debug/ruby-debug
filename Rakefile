@@ -59,11 +59,11 @@ task :prepare_tests do
   #   http://subversion.tigris.org/issues/show_bug.cgi?id=937
   
   # rdbg.rb
-  sh 'svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.2/rdbg.rb > rdbg.rb' unless File.exists?('rdbg.rb')
+  sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-#{GEM_VERSION}/rdbg.rb > rdbg.rb" unless File.exists?('rdbg.rb')
 
   # runner.sh
   runner = 'runner.sh'
-  sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-0.10.2/runner.sh > #{runner}" unless File.exists?(runner)
+  sh "svn cat svn://rubyforge.org/var/svn/ruby-debug/tags/ruby-debug-#{GEM_VERSION}/runner.sh > #{runner}" unless File.exists?(runner)
   text = File.read('runner.sh')
   File.open(runner, 'w') {|f| f.write(text.gsub(/-ruby/ , '-jruby --debug'))}
   File.chmod(0755, runner)
@@ -81,7 +81,7 @@ EOF
   # - prepare default customized test/config.private.yaml suitable for JRuby
   # - tweak test suite to be able to pass for jruby-debug-base which does not
   #   support e.g. TraceLineNumbers yet.
-  sh 'patch -p0 < patch-0.10.2.diff'
+  sh "patch -p0 < patch-#{GEM_VERSION}.diff"
 end
 
 desc "Create the core ruby-debug shared library extension"
