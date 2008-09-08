@@ -1,3 +1,80 @@
+2008-09-08 13:25  Martin Krauskopf
+
+	* rakelib/test.rake: Consider all test stable until explicitly
+	  marked unstable
+
+2008-09-08 13:24  Martin Krauskopf
+
+	* Rakefile: Do not hardcode gem version on several places
+
+2008-09-02 09:29  Martin Krauskopf
+
+	* README-DEV: Revived README for developers
+
+2008-09-02 09:27  Martin Krauskopf
+
+	* rakelib/test.rake: special test_stable task
+
+2008-09-02 09:24  Martin Krauskopf
+
+	* Rakefile: prepare also basic config.private.yaml specific for
+	  JRuby
+
+2008-09-02 08:24  Martin Krauskopf
+
+	* ., patch-0.10.1.diff, patch-0.10.2.diff: Upgrading test patch for
+	  ruby-debug 0.10.2
+
+2008-09-02 08:06  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java: Prevent NPE
+
+2008-09-02 08:06  Martin Krauskopf
+
+	* src/org/jruby/debug/Debugger.java: Ensure Debugger#stop is always
+	  called
+
+2008-09-02 06:42  Martin Krauskopf
+
+	* Rakefile, src/org/jruby/debug/Debugger.java,
+	  src/org/jruby/debug/RubyDebugger.java: Updating to ruby-debug
+	  0.10.2.
+	  
+	  - Debugger#load changed to take 2 optional args
+	  - fixing startCount bug
+
+2008-09-01 07:17  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java: Fixing problem with
+	  0-based vs 'new in JRuby' 1-base line numbering.
+	  
+	  - adding 'default' case
+
+2008-08-29 11:56  Martin Krauskopf
+
+	* README-DEV: obsolete fro trunk
+
+2008-08-29 11:26  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/Util.java: Making trunk compilable with JRuby
+	  1.1.4 (and thus non-compilable with older version)
+
+2008-07-16 14:11  Martin Krauskopf
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	  src/org/jruby/debug/RubyDebugger.java: Migration to new JRuby
+	  APIs
+
+2008-06-13 09:27  Martin Krauskopf
+
+	* README, README-DEV, Rakefile: Switching to JRuby 1.1.2 --debug
+	  parameter
+
+2008-06-13 08:52  Martin Krauskopf
+
+	* ChangeLog, README: Updating version s/0.10.0/0.10.1
+
 2008-05-16 09:31  Martin Krauskopf
 
 	* src/org/jruby/debug/DebugEventHook.java: Fixing typo; passing
