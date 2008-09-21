@@ -1,3 +1,5 @@
+0.10.3
+
 0.10.2
  - debugger(steps=0) breaks inside of debugger rather than wait for a line event.
  - trace var varname (stop|nostop) added which issues trace_var.
