@@ -24,7 +24,7 @@ module Debugger
 
     def hbinding(frame)
       hash = frame_locals(frame)
-      code = hash.keys.map{|k| "#{k} = hash['#{k}']"}.join(';') + ';binding'
+      code = hash.keys.map{|k| "#{k} = hash['#{k}']" unless k=='self' }.compact.join(';') + ';binding'
       if obj = frame_self(frame)
         obj.instance_eval code
       else

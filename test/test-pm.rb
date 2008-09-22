@@ -43,4 +43,17 @@ class TestPM < Test::Unit::TestCase
                                 "--script #{script} --post-mortem pm.rb"))
     end
   end
+  
+  # Test Tracker #22118 post-mortem giving an error in show internal variables
+  def test_pm_iv_bug
+    Dir.chdir(@@SRC_DIR) do 
+      ENV['COLUMNS'] = '80'
+      testname='pm-bug'
+      script = File.join('data', testname + '.cmd')
+      assert_equal(true, 
+                   run_debugger(testname,
+                                "--script #{script} --post-mortem pm-bug.rb"))
+    end
+  end
+
 end
