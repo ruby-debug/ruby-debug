@@ -80,7 +80,7 @@ module Debugger
     
     def start_control(host = nil, ctrl_port = PORT + 1) # :nodoc:
       raise "Debugger is not started" unless started?
-      return if @control_thread
+      return if defined?(@control_thread) && @control_thread
       @control_thread = DebugThread.new do
         server = TCPServer.new(host, ctrl_port)
         while (session = server.accept)
