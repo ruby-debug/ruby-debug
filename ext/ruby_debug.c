@@ -1415,7 +1415,12 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
       ruby_errinfo = Qnil;
       return errinfo;
     }
-    debug_stop(self);
+    /* We could have issued a Debugger.stop inside the debug
+       session. */
+    if (start_count > 0) {
+      debug_stop(self);
+    }
+
     return Qnil;
 }
 

@@ -42,8 +42,9 @@ return nil if a <= 0
 # info program
 Program stopped. It stopped at a breakpoint.
 # c 10
-gcd.rb:10
-return nil if a <= 0
+Breakpoint 3 at Object:gcd
+gcd.rb:4
+def gcd(a, b)
 # info break
 Num Enb What
   1 y   at gcd.rb:6
@@ -51,6 +52,7 @@ Num Enb What
   2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # break foo
 *** Invalid breakpoint location: foo.
 # info break
@@ -60,6 +62,7 @@ Num Enb What
   2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # disable  1
 # info break
 Num Enb What
@@ -68,6 +71,7 @@ Num Enb What
   2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # enable breakpoint 1
 # enable br 10
 Enable breakpoints argument '10' needs to at most 3.
@@ -78,6 +82,7 @@ Num Enb What
   2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
+	breakpoint already hit 1 time
 # # We should still be able to access 2
 # disable 2
 # enable

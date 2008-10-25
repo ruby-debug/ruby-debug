@@ -29,15 +29,3 @@ if a > b
     #2 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
     #3 at line gcd.rb:18
 # finish 0
-gcd.rb:13
-return a
-# where
---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:13
-    #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #2 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #3 at line gcd.rb:18
-# p a
-1
-# p b
-2
-# finish

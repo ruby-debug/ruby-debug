@@ -72,7 +72,11 @@ module Debugger
             errmsg("Line %d is not a stopping point in file \"%s\".\n", line, file) 
             return
           end
+        else
+          errmsg("No source file named %s\n" % file)
+          return unless confirm("Set breakpoint anyway? (y/n) ")
         end
+
         unless @state.context
           errmsg "We are not in a state we can add breakpoints.\n"
           return 

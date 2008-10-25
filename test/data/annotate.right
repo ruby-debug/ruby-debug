@@ -128,9 +128,11 @@ self = main
 error-begin
 No source file named bogus
 
+Breakpoint 3 file bogus, line 5
 breakpoints
 Num Enb What
   2 y   at gcd.rb:12
+  3 y   at bogus:5
 
 display
 
