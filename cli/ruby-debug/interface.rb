@@ -83,7 +83,7 @@ module Debugger
       end
     end
     
-    def readline_support?(msg)
+    def readline_support?
       @have_readline
     end
 
