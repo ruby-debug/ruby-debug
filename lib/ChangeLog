@@ -1,3 +1,9 @@
+2008-10-25 16:01  Rocky Bernstein
+
+	* ChangeLog: Warn and add a "confirmation" when setting a
+	  breakpoint on a file that is not loaded. Regression tests no
+	  longer fail.
+
 2008-09-22 00:07  Rocky Bernstein
 
 	* ruby-debug-base.rb: #22118 bug in showing variables post mortem.

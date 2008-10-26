@@ -1012,7 +1012,7 @@ debug_stop_i(VALUE self)
  *   the debugger with Debugger.stop method.
  *
  *   <i>Note that if you want to stop debugger, you must call
- *   Debugger.stop as many time as you called Debugger.start
+ *   Debugger.stop as many times as you called Debugger.start
  *   method.</i>
  */
 static VALUE

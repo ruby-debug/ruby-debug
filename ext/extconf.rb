@@ -15,4 +15,6 @@ else
   exit(1)
 end
 
+# Temporary: to turn off optimization
+# $CFLAGS='-fno-strict-aliasing -g -fPIC'
 create_makefile("ruby_debug")
