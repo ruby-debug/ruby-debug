@@ -1,3 +1,9 @@
+2008-10-26 14:54  Rocky Bernstein
+
+	* ChangeLog, ext/extconf.rb, ext/ruby_debug.c, lib/ChangeLog: Doc
+	  typo. Add comment to remind me how to turn off optimizationin
+	  extconf.rb
+
 2008-10-25 18:10  Rocky Bernstein
 
 	* cli/ruby-debug/interface.rb: Fix mismatched interface.
