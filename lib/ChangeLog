@@ -1,3 +1,8 @@
+2008-10-26 14:54  Rocky Bernstein
+
+	* ChangeLog: Doc typo. Add comment to remind me how to turn off
+	  optimizationin extconf.rb
+
 2008-10-25 16:01  Rocky Bernstein
 
 	* ChangeLog: Warn and add a "confirmation" when setting a

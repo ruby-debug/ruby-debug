@@ -1,3 +1,8 @@
+2008-10-27 15:29  Rocky Bernstein
+
+	* ChangeLog, test/data/raise.right: tdebug.rb line numbers changed.
+	  Update test numbers -- I think this is right.
+
 2008-10-26 14:54  Rocky Bernstein
 
 	* ChangeLog, ext/extconf.rb, ext/ruby_debug.c, lib/ChangeLog: Doc

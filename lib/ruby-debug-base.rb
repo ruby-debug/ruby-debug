@@ -7,7 +7,9 @@ module Debugger
   # Default options to Debugger.start
   DEFAULT_START_SETTINGS = { 
     :init        => true,  # Set $0 and save ARGV? 
-    :post_mortem => false  # post-mortem debugging on uncaught exception?
+    :post_mortem => false, # post-mortem debugging on uncaught exception?
+    :tracing     => nil    # Debugger.tracing value. true/false resets,
+                           # nil keeps the prior value
   } unless defined?(DEFAULT_START_SETTINGS)
 
   class Context
@@ -196,6 +198,7 @@ module Debugger
       Debugger.const_set('INITIAL_DIR', Dir.pwd) unless 
         defined? Debugger::INITIAL_DIR
     end
+    Debugger.tracing = options[:tracing] unless options[:tracing].nil?
     retval = Debugger.started? ? nil : Debugger.start_(&block) 
     if options[:post_mortem]
       post_mortem
@@ -213,16 +216,24 @@ module Kernel
   # Setting _steps_ to 0 will cause a break in the debugger subroutine
   # and not wait for a line event to occur. You will have to go "up 1"
   # in order to be back in your debugged program rather than the
-  # debugger. Settings _stess_ to 0 could be useful you want to stop
+  # debugger. Settings _steps_ to 0 could be useful you want to stop
   # right after the last statement in some scope, because the next
   # step will take you out of some scope.
-  def debugger(steps = 1)
-    Debugger.start unless Debugger.started?
-    Debugger.run_init_script(StringIO.new)
-    if 0 == steps
-      Debugger.current_context.stop_frame = 0
+
+  # If a block is given (and the debugger hasn't been started, we run the 
+  # block under the debugger. Alas, when a block is given, we can't support
+  # running the startup script or support the steps option. FIXME.
+  def debugger(steps = 1, &block)
+    if block
+      Debugger.start({}, &block)
     else
-      Debugger.current_context.stop_next = steps
+      Debugger.start unless Debugger.started?
+      Debugger.run_init_script(StringIO.new)
+      if 0 == steps
+        Debugger.current_context.stop_frame = 0
+      else
+        Debugger.current_context.stop_next = steps
+      end
     end
   end
   alias breakpoint debugger unless respond_to?(:breakpoint)
