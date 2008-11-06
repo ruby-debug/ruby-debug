@@ -1,3 +1,12 @@
+2008-11-02 21:59  Rocky Bernstein
+
+	* ChangeLog, ext/ruby_debug.c, lib/ChangeLog,
+	  lib/ruby-debug-base.rb: Debugger.start with a block now stops
+	  inside the block. Debugger.debugger with a block works like
+	  Debugger.start with a block.
+	  
+	  The whole interface is hopelessly kludgy and needs to be redone.
+
 2008-10-27 15:29  Rocky Bernstein
 
 	* ChangeLog, test/data/raise.right: tdebug.rb line numbers changed.

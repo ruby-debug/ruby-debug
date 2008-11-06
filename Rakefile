@@ -147,7 +147,7 @@ EOF
   spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
   spec.add_dependency('columnize', '>= 0.1')
-  spec.add_dependency('ruby-debug-base', RUBY_DEBUG_VERSION)
+  spec.add_dependency('ruby-debug-base', "~> #{RUBY_DEBUG_VERSION}.0")
   
   # FIXME: work out operational logistics for this
   # spec.test_files = FileList[CLI_TEST_FILE_LIST]
