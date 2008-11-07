@@ -1,3 +1,10 @@
+2008-11-07 10:39  Rocky Bernstein
+
+	* ChangeLog, bin/rdebug, cli/ruby-debug.rb,
+	  cli/ruby-debug/commands/frame.rb, lib/ChangeLog, test/tdebug.rb:
+	  Add check to "where" to see if the call stack is truncated; task
+	  #2354
+
 2008-11-06 16:17  Rocky Bernstein
 
 	* ChangeLog, Rakefile, lib/ChangeLog: #22698 Allow ruby-debug-base

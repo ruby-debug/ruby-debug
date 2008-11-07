@@ -165,7 +165,7 @@ module Debugger
 
       end
       if truncated_callstack?(@state.context, Debugger.start_sentinal)
-        print "Warning: saved call stack may be incomplete.\n" 
+        print "Warning: saved frames may be incomplete; cf. caller(0).\n" 
       end
     end
 
