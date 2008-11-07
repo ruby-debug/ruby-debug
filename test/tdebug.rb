@@ -53,6 +53,11 @@ def debug_program(options)
       $0[0..-1] = d0
     end
   end
+
+  # Record where we are we can know if the call stack has been
+  # truncated or not.
+  Debugger.start_sentinal=caller(0)[1]
+
   bt = Debugger.debug_load(Debugger::PROG_SCRIPT, !options.nostop, false)
   if bt
     if options.post_mortem

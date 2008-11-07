@@ -1,3 +1,8 @@
+2008-11-06 16:17  Rocky Bernstein
+
+	* ChangeLog, Rakefile, lib/ChangeLog: #22698 Allow ruby-debug-base
+	  0.x.y.z be compatible with ruby-debug 0.x.y.
+
 2008-11-02 21:59  Rocky Bernstein
 
 	* ChangeLog, ext/ruby_debug.c, lib/ChangeLog,

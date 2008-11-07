@@ -107,6 +107,45 @@ module Debugger
         print fmt % [CommandProcessor.canonic_file(file), line]
       end
     end
+
+    # Check if call stack is truncated.  This can happen if
+    # Debugger.start is not called low enough in the call stack. An
+    # array of additional callstack lines from caller is returned if
+    # definitely truncated, false if not, and nil if we don't know.
+    #
+    # We determine truncation based on a passed in sentinal set via
+    # caller which can be nil.  
+    #
+    # First we see if we can find our position in caller. If so, then
+    # we compare context position to that in caller using sentinal
+    # as a place to start ignoring additional caller entries. sentinal
+    # is set by rdebug, but if it's not set, i.e. nil then additional
+    # entries are presumably ones that we haven't recorded in context
+    def truncated_callstack?(context, sentinal=nil, cs=caller)
+      recorded_size = context.stack_size
+      to_find_fl = "#{context.frame_file(0)}:#{context.frame_line(0)}"
+      top_discard = false
+      cs.each_with_index do |fl, i|
+        fl.gsub!(/in `.*'$/, '')
+        fl.gsub!(/:$/, '')
+        if fl == to_find_fl
+          top_discard = i
+          break 
+        end
+      end
+      if top_discard
+        cs = cs[top_discard+recorded_size..-1]
+        return false unless cs
+        return cs unless sentinal
+        if cs.size > 2 && cs[2] != sentinal
+          return cs
+        end
+        return false
+      end
+      return nil
+    end
+
+
   end
 
   # Implements debugger "where" or "backtrace" command.
@@ -123,6 +162,10 @@ module Debugger
           print "    "
         end
         print_frame(idx)
+
+      end
+      if truncated_callstack?(@state.context, Debugger.start_sentinal)
+        print "Warning: saved call stack may be incomplete.\n" 
       end
     end
 

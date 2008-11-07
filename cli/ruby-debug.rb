@@ -25,9 +25,15 @@ module Debugger
   end
   
   class << self
+    # gdb-style annotation mode. Used in GNU Emacs interface
+    attr_accessor :annotate
+
     # in remote mode, wait for the remote connection 
     attr_accessor :wait_connection
-    attr_accessor :annotate
+
+    # If set, a string to look for in caller() and is used to see
+    # if the call stack is truncated.
+    attr_accessor :start_sentinal 
     
     attr_reader :thread, :control_thread
 
