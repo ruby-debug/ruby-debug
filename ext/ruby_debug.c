@@ -341,6 +341,7 @@ debug_context_mark(void *data)
         frame = &(debug_context->frames[i]);
         rb_gc_mark(frame->binding);
         rb_gc_mark(frame->self);
+        rb_gc_mark(frame->arg_ary);
         if(frame->dead)
         {
             rb_gc_mark(frame->info.copy.locals);
@@ -490,6 +491,7 @@ save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debu
     debug_frame->orig_id = mid;
     debug_frame->dead = 0;
     debug_frame->self = self;
+    debug_frame->arg_ary = Qnil;
     debug_frame->info.runtime.frame = ruby_frame;
     debug_frame->info.runtime.scope = ruby_scope;
     debug_frame->info.runtime.dyna_vars = event == RUBY_EVENT_LINE ? ruby_dyna_vars : NULL;
