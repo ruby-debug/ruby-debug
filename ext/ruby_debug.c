@@ -1014,29 +1014,9 @@ debug_start(VALUE self)
         result = Qtrue;
     }
 
-    /* Run the given block with debugger tracing. 
-
-       I'm not sure it is necessary right now to save and restore
-       debugger context. However if sometime in the future we want to
-       run a nested debugger, e.g. we are inside the debugger and want
-       to debug a code fragment, then this may come in handy.
-     */
     if(rb_block_given_p()) 
-      {
-	VALUE thread, context, return_val;
-	debug_context_t debug_context_save;
-	debug_context_t *debug_context;
+      rb_ensure(rb_yield, self, debug_stop_i, self);
 
-	thread = rb_thread_current();
-	thread_context_lookup(thread, &context, NULL);
-        Data_Get_Struct(context, debug_context_t, debug_context);
-	memcpy(&debug_context_save, debug_context, sizeof(debug_context_t));
-	/* Should we allow this to get passed in as a parameter? */
-	debug_context->stop_line = 1; 
-	return_val = rb_ensure(rb_yield, self, debug_stop_i, self);
-	memcpy(debug_context, &debug_context_save, sizeof(debug_context_t));
-        return return_val;
-      }
     return result;
 }
 
