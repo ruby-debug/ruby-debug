@@ -1,6 +1,6 @@
 require 'ruby_debug.jar'
-require './tracelines'
-require './linecache'
+require File.join(File.dirname(__FILE__), 'tracelines')
+require File.join(File.dirname(__FILE__), 'linecache')
 
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 SCRIPT_TIMESTAMPS__ = {} unless defined? SCRIPT_TIMESTAMPS__
