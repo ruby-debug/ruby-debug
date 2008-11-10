@@ -1396,6 +1396,11 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
       ruby_errinfo = Qnil;
       return errinfo;
     }
+
+    /* We should run all at_exit handler's in order to provide, 
+     * for instance, a chance to run all defined test cases */
+    rb_exec_end_proc();
+
     /* We could have issued a Debugger.stop inside the debug
        session. */
     if (start_count > 0) {
