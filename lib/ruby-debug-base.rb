@@ -199,7 +199,7 @@ module Debugger
         defined? Debugger::INITIAL_DIR
     end
     Debugger.tracing = options[:tracing] unless options[:tracing].nil?
-    retval = Debugger.started? ? (block.call(self) if block) : Debugger.start_(&block) 
+    retval = Debugger.started? ? block && block.call(self) : Debugger.start_(&block) 
     if options[:post_mortem]
       post_mortem
     end
