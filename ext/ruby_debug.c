@@ -1388,6 +1388,8 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
     debug_context->stack_size = 0;
     if(RTEST(stop))
       debug_context->stop_next = 1;
+    /* Initializing $0 to the script's path */
+    ruby_script(RSTRING(file)->ptr);
     rb_load_protect(file, 0, &state);
     if (0 != state) {
       VALUE errinfo = ruby_errinfo;

@@ -16,34 +16,6 @@ def debug_program(options)
     exit $?.exitstatus 
   end
   print "\032\032starting\n" if Debugger.annotate and Debugger.annotate > 2
-  unless options.no_rewrite_program
-    # Set $0 so things like __FILE == $0 work.
-    # A more reliable way to do this is to put $0 = __FILE__ *after*
-    # loading the script to be debugged.  For this, adding a debug hook
-    # for the first time and then switching to the debug hook that's
-    # normally used would be helpful. Doing this would also help other
-    # first-time initializations such as reloading debugger state
-    # after a restart. 
-
-    # However This is just a little more than I want to take on right
-    # now, so I think I'll stick with the slightly hacky approach.
-    $RDEBUG_0 = $0
-
-    # cygwin does some sort of funky truncation on $0 ./abcdef => ./ab
-    # probably something to do with 3-letter extension truncation.
-    # The hacky workaround is to do slice assignment. Ugh.
-    d0 = if '.' == File.dirname(Debugger::PROG_SCRIPT) and
-             Debugger::PROG_SCRIPT[0..0] != '.'
-           File.join('.', Debugger::PROG_SCRIPT)
-         else
-           Debugger::PROG_SCRIPT
-         end
-    if $0.frozen?
-      $0 = d0
-    else
-      $0[0..-1] = d0
-    end
-  end
 
   # Record where we are we can know if the call stack has been
   # truncated or not.
@@ -272,7 +244,7 @@ else
   # save script name
   prog_script = ARGV.shift
   prog_script = whence_file(prog_script) unless File.exist?(prog_script)
-  Debugger::PROG_SCRIPT = prog_script
+  Debugger::PROG_SCRIPT = File.expand_path prog_script
   
   # install interruption handler
   trap('INT') { Debugger.interrupt_last }
