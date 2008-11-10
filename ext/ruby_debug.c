@@ -4,7 +4,7 @@
 #include <node.h>
 #include <rubysig.h>
 #include <st.h>
-#include <version.h>
+#include <intern.h>
 
 #define DEBUG_VERSION "0.10.3"
 
@@ -464,26 +464,6 @@ call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE li
 
     args = rb_ary_new3(3, context, file, line);
     return rb_protect(call_at_line_unprotected, args, 0);
-}
-
-static VALUE
-call_at_return_unprotected(VALUE args)
-{
-    VALUE context;
-    context = *RARRAY(args)->ptr;
-    return rb_funcall2(context, idAtReturn, RARRAY(args)->len - 1, RARRAY(args)->ptr + 1);
-}
-
-static VALUE
-call_at_return(VALUE context, debug_context_t *debug_context, VALUE file, VALUE line)
-{
-    VALUE args;
-    
-    last_debugged_thnum = debug_context->thnum;
-    save_current_position(debug_context);
-
-    args = rb_ary_new3(3, context, file, line);
-    return rb_protect(call_at_return_unprotected, args, 0);
 }
 
 static void
