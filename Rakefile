@@ -20,7 +20,10 @@ COMMON_FILES = FileList[
   'Rakefile',
 ]                        
 
-CLI_TEST_FILE_LIST = FileList['test/test-*.rb', 'test/cli/**/*_test.rb']
+CLI_TEST_FILE_LIST = FileList['test/cli/commands/unit/*.rb',
+                              'test/cli/commands/*_test.rb', 
+                              'test/cli/**/*_test.rb', 
+                              'test/test-*.rb'] 
 CLI_FILES = COMMON_FILES + FileList[
   "cli/**/*",
   'ChangeLog',

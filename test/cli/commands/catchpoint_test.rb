@@ -2,15 +2,16 @@
 
 require 'test/unit'
 
-BASE_DIR = File.join(File.dirname(__FILE__), '..', '..', '..')
-
-%w(ext lib cli).each do |dir|
-  $: <<  File.join(BASE_DIR, dir)
-end
-
-require File.join(BASE_DIR, 'cli', 'ruby-debug')
-
 class TestCatchCommand < Test::Unit::TestCase
+  
+  base_dir = File.expand_path(File.join(File.dirname(__FILE__), 
+                                        '..', '..', '..'))
+  
+  %w(ext lib cli).each do |dir|
+    $: <<  File.join(base_dir, dir)
+  end
+  
+  require File.join(base_dir, 'cli', 'ruby-debug')
   
   class MockState
     attr_accessor :message 
