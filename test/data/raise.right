@@ -17,8 +17,8 @@ Warning 5 is not known to be a Class
 Catch exception 5.
 # step
 	./raise.rb:3
-	./tdebug.rb:56:in `debug_load'
-	./tdebug.rb:56:in `debug_program'
+	./tdebug.rb:61:in `debug_load'
+	./tdebug.rb:61:in `debug_program'
 	./tdebug.rb:246
 	../rdbg.rb:23:in `load'
 	../rdbg.rb:23:in `runner'
