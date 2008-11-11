@@ -1,3 +1,21 @@
+2008-11-10 01:39  Kent Sibilev
+
+	* ext/ruby_debug.c: these two methods are unused
+
+2008-11-10 01:36  Kent Sibilev
+
+	* ext/breakpoint.c: fix the compiler warning
+
+2008-11-10 01:35  Kent Sibilev
+
+	* lib/ruby-debug-base.rb: Debugger.start must always call the
+	  passed block
+
+2008-11-07 19:35  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/frame.rb, lib/ChangeLog:
+	  Change truncated frame message.
+
 2008-11-07 10:39  Rocky Bernstein
 
 	* ChangeLog, bin/rdebug, cli/ruby-debug.rb,

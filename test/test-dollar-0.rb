@@ -18,21 +18,27 @@ class TestDollar0 < Test::Unit::TestCase
     Dir.chdir(@@SRC_DIR) do 
       home_save = ENV['HOME']
       ENV['HOME'] = '.'
+      filter = Proc.new{|got_lines, correct_lines|
+        [got_lines, correct_lines].flatten.each do |s|
+          s.gsub!(/.*dollar-0.rb$/, 'dollar-0.rb')
+        end
+      }
+
       assert_equal(true, 
                    run_debugger('dollar-0', 
                                 '-nx --no-stop ./dollar-0.rb',
-                                nil, nil, false, '../bin/rdebug'))
+                                nil, filter, false, '../bin/rdebug'))
       # Ruby's __FILE__ seems to prepend ./ when no directory was added.
       assert_equal(true, 
                    run_debugger('dollar-0a', 
                                 '-nx --no-stop dollar-0.rb',
-                                nil, nil, false, '../bin/rdebug'))
+                                nil, filter, false, '../bin/rdebug'))
       # Ruby's __FILE__ seems to prepend ./ when no directory was added.
       assert_equal(true, 
                    run_debugger('dollar-0b', 
                                 '-nx --no-stop ' + 
                                 File.join('..', 'test', 'dollar-0.rb'),
-                                nil, nil, false, '../bin/rdebug'))
+                                nil, filter, false, '../bin/rdebug'))
       ENV['HOME'] = home_save
     end
   end

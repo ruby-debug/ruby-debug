@@ -19,7 +19,7 @@ class TestFrame < Test::Unit::TestCase
     # Ruby 1.8.6 and earlier have a trace-line number bug for return
     # statements.
     filter = Proc.new{|got_lines, correct_lines|
-      [got_lines[11], got_lines[11]].flatten.each do |s|
+      [got_lines[11], correct_lines[11]].flatten.each do |s|
         s.sub!(/in file ".*gcd.rb/, 'in file "gcd.rb')
       end
     }

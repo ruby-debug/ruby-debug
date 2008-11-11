@@ -134,10 +134,13 @@ module Debugger
         end
       end
       if top_discard
-        cs = cs[top_discard+recorded_size..-1]
+        cs = cs[top_discard..-1]
         return false unless cs
         return cs unless sentinal
-        if cs.size > 2 && cs[2] != sentinal
+        if cs.size > recorded_size+2 && cs[recorded_size+2] != sentinal 
+          # caller seems to truncate recursive calls and we don't.
+          # See if we can find sentinal in the first 0..recorded_size+1 entries
+          return false if cs[0..recorded_size+1].any?{ |f| f==sentinal }
           return cs
         end
         return false
