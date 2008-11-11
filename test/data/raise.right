@@ -19,7 +19,7 @@ Catch exception 5.
 	./raise.rb:3
 	./tdebug.rb:61:in `debug_load'
 	./tdebug.rb:61:in `debug_program'
-	./tdebug.rb:246
+	./tdebug.rb:251
 	../rdbg.rb:23:in `load'
 	../rdbg.rb:23:in `runner'
 	../rdbg.rb:32
