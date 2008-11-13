@@ -1,3 +1,13 @@
+2008-11-11 02:07  Rocky Bernstein
+
+	* ChangeLog: Tweak truncated stack test since Ruby's caller doesn't
+	  seem to include (tail?) recursive calls and we do. Get regression
+	  tests working in light of recent changes.
+
+2008-11-10 01:48  Kent Sibilev
+
+	* ruby-debug-base.rb: a little bit more readable
+
 2008-11-10 01:35  Kent Sibilev
 
 	* ruby-debug-base.rb: Debugger.start must always call the passed

@@ -1017,7 +1017,16 @@ debug_start(VALUE self)
     }
 
     if(rb_block_given_p()) 
-      rb_ensure(rb_yield, self, debug_stop_i, self);
+    {
+	VALUE thread, context, return_val;
+	debug_context_t *debug_context;
+	thread = rb_thread_current();
+	thread_context_lookup(thread, &context, NULL);
+        Data_Get_Struct(context, debug_context_t, debug_context);
+	/* Should we allow this to get passed in as a parameter? */
+	debug_context->stop_line = 1; 
+	rb_ensure(rb_yield, self, debug_stop_i, self);
+    }
 
     return result;
 }

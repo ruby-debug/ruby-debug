@@ -1,3 +1,65 @@
+2008-11-11 15:33  Rocky Bernstein
+
+	* ., Rakefile, test/cli/commands/catchpoint_test.rb,
+	  test/cli/commands/unit, test/cli/commands/unit/regexp.rb: Start
+	  unit test for command regular expressions. Much more willing out
+	  to be done later....
+
+2008-11-11 14:42  Rocky Bernstein
+
+	* test/data/raise.right: More line number changes in tdebug
+
+2008-11-11 14:40  Rocky Bernstein
+
+	* test/data/raise.right: tdebug lines have changed
+
+2008-11-11 02:07  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/frame.rb, lib/ChangeLog,
+	  test/test-dollar-0.rb, test/test-frame.rb, test/trunc-call.rb:
+	  Tweak truncated stack test since Ruby's caller doesn't seem to
+	  include (tail?) recursive calls and we do. Get regression tests
+	  working in light of recent changes.
+
+2008-11-10 08:47  Kent Sibilev
+
+	* ext/ruby_debug.c: register debug_frame_t->arg_ary with GC
+
+2008-11-10 02:56  Kent Sibilev
+
+	* bin/rdebug, ext/ruby_debug.c: Trying to fix "if $0 == __FILE__"
+	  ruby's idiom. Apparently setting $0 to
+	  a new value doesn't work correctly. (Ruby's bug?)
+	  
+	  $ cat t3.rb
+	  p $0
+	  p File.expand_path $0
+	  $0 = File.expand_path $0
+	  p $0
+	  $ ruby t3.rb
+	  "t3.rb"
+	  "/Users/kent/Work/ruby-debug/trunk/t3.rb"
+	  "/Users/ke"
+
+2008-11-10 01:50  Kent Sibilev
+
+	* ext/ruby_debug.h: added declaration of
+	  check_breakpoints_by_method method to remove compiler warning
+
+2008-11-10 01:48  Kent Sibilev
+
+	* lib/ruby-debug-base.rb: a little bit more readable
+
+2008-11-10 01:43  Kent Sibilev
+
+	* ext/ruby_debug.c: running at_exit hooks at the end of the
+	  debug_load method in order to fix test cases a chance to run
+
+2008-11-10 01:41  Kent Sibilev
+
+	* ext/ruby_debug.c: can't store a copy of the debug_context in the
+	  stack like that, it doesn't play along with garbage collector.
+
 2008-11-10 01:39  Kent Sibilev
 
 	* ext/ruby_debug.c: these two methods are unused
