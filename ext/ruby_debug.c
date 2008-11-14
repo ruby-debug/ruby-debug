@@ -989,9 +989,17 @@ debug_stop_i(VALUE self)
  *   Debugger.start (from ruby-debug-base.rb) instead.
  *
  *   If it's called without a block it returns +true+, unless debugger
- *   was already started.  If a block is given, it starts debugger and
- *   yields to block. When the block is finished executing it stops
- *   the debugger with Debugger.stop method.
+ *   was already started.  
+
+ *   If a block is given, it starts debugger and yields to block. When
+ *   the block is finished executing it stops the debugger with
+ *   Debugger.stop method. Inside the block you will probably want to
+ *   have a call to Debugger.debugger. For example:
+ *     Debugger.start{debugger; foo}  # Stop inside of foo
+ * 
+ *   Also, ruby-debug only allows
+ *   one invocation of debugger at a time; nested Debugger.start's
+ *   have no effect and you can't use this inside the debugger itself.
  *
  *   <i>Note that if you want to stop debugger, you must call
  *   Debugger.stop as many times as you called Debugger.start
@@ -1017,16 +1025,7 @@ debug_start(VALUE self)
     }
 
     if(rb_block_given_p()) 
-    {
-	VALUE thread, context, return_val;
-	debug_context_t *debug_context;
-	thread = rb_thread_current();
-	thread_context_lookup(thread, &context, NULL);
-        Data_Get_Struct(context, debug_context_t, debug_context);
-	/* Should we allow this to get passed in as a parameter? */
-	debug_context->stop_line = 1; 
-	rb_ensure(rb_yield, self, debug_stop_i, self);
-    }
+      rb_ensure(rb_yield, self, debug_stop_i, self);
 
     return result;
 }

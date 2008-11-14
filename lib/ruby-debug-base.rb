@@ -168,13 +168,21 @@ module Debugger
   #  Debugger.start(options) -> bool
   #  Debugger.start(options) { ... } -> obj
   #
-  #  This method is internal and activates the debugger. Use
-  #  Debugger.start (from ruby-debug-base.rb) instead.
-  #
   #  If it's called without a block it returns +true+, unless debugger
   #  was already started.  If a block is given, it starts debugger and
   #  yields to block. When the block is finished executing it stops
   #  the debugger with Debugger.stop method.
+  #
+  #  If a block is given, it starts debugger and yields to block. When
+  #  the block is finished executing it stops the debugger with
+  #   Debugger.stop method. Inside the block you will probably want to
+  #  have a call to Debugger.debugger. For example:
+  #
+  #     Debugger.start{debugger; foo}  # Stop inside of foo
+  #
+  # Also, ruby-debug only allows
+  #  one invocation of debugger at a time; nested Debugger.start's
+  #  have no effect and you can't use this inside the debugger itself.
   #
   #  <i>Note that if you want to stop debugger, you must call
   #  Debugger.stop as many time as you called Debugger.start

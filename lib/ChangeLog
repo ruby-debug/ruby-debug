@@ -1,3 +1,8 @@
+2008-11-13 10:29  Rocky Bernstein
+
+	* ChangeLog: Make Debugger.start{block} work if Debugger.started?
+	  is false. Second try.
+
 2008-11-11 02:07  Rocky Bernstein
 
 	* ChangeLog: Tweak truncated stack test since Ruby's caller doesn't

@@ -1,3 +1,9 @@
+2008-11-13 10:29  Rocky Bernstein
+
+	* ChangeLog, ext/ruby_debug.c, lib/ChangeLog: Make
+	  Debugger.start{block} work if Debugger.started? is false. Second
+	  try.
+
 2008-11-11 15:33  Rocky Bernstein
 
 	* ., Rakefile, test/cli/commands/catchpoint_test.rb,

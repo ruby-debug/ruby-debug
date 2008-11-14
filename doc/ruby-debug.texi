@@ -138,6 +138,7 @@ debugger.
 * First Sample Session::   A Simple Sample @code{rdebug} session
 * Second Sample Session::  Second Session Delving a little deeper @code{rdebug} session
 * Unit Testing Session::   Using the debugger in unit testing
+* Debugger.start with a block::   Using the Debugger.start with a block
 * Debugging Oddities::     How debugging Ruby may be different...
 @end menu
 
@@ -742,6 +743,59 @@ and even though we only have @emph{types} listed, it's a pretty good
 bet that when @code{Test::Unit} was first called, shown above as frame
 12, that the values of its two parameters were @code{false} and
 @code{nil}.
+
+@node Debugger.start with a block
+@section Using the @code{Debugger.start} with a block
+
+We saw that @code{Debugger.start} and @code{Debugger.stop} allow
+fine-grain control over where the debugger tracking should occur. 
+
+Rather than use an explicit @code{stop}, you can also give
+@code{start} a block which causes it to @code{yield} to the block and
+when the block is finished a @code{stop} is run. This has a side
+benefit of ensuring that in the presence of an uncaught exception
+@code{stop} is run, without having to explicitly use
+@code{begin} ... @code{ensure Debugger.stop end}.
+
+For example in Ruby Rails you might want to wrap a control in a start
+block. MyController.my_request method with Debugger::start block and I
+want to make sure that when this method finishes the debugger is
+turned off, proceed with my application on regular
+speed. 
+
+Inside the block you will probably want to make a call to the debugger
+using @code{debugger}. For example you can do this in @code{irb}
+
+@smallexample
+$ @b{irb}
+irb(main):001:0> @b{require 'rubygems'; require 'ruby-debug'}
+=> true
+irb(main):002:0> @b{def foo}
+irb(main):003:1> @b{x=1}
+irb(main):004:1> @b{puts 'foo'}
+irb(main):005:1> @b{end}
+=> nil
+irb(main):006:0> @b{Debugger.start@{debugger; foo@}}
+(irb):6
+(rdb:1) @b{s}
+(irb):3
+(rdb:1) @b{p x}
+nil
+(rdb:1) @b{s}
+(irb):4
+(rdb:1) @b{p x}
+1
+(rdb:1) @b{s}
+foo
+=> true
+irb(main):007:0> 
+@end smallexample
+
+There is a counter inside of @code{Debugger.start} method to make sure
+that this works when another @code{Debugger.start} method is called
+inside of outer one. However if you are stopped inside the debugger
+issuing another @code{debugger} call will not have any effect even if
+it is nested inside another @code{Debugger.start}.
 
 @node Debugging Oddities
 @section How debugging Ruby may be different than debugging other Languages
@@ -3269,10 +3323,10 @@ the debugger was already started. But if you want to know if the
 debugger has already been started @code{Debugger.started?} can tell
 you.
 
-@emph{Currently broken:}
 If a block is given, the debugger is started and @code{yields} to
 block. When the block is finished executing, the debugger stopped with
-the @code{Debugger.stop method}.
+the @code{Debugger.stop method}. You will probably want to put a call
+to @code{debugger} somwhere inside that block
 
 But if you want to completely stop debugger, you must call
 @code{Debugger.stop} as many times as you called Debugger.start
