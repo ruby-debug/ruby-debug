@@ -99,15 +99,15 @@ and you will be able to inspect and step through your code.
 
 == Performance
 
-The <tt>debug.rb</tt> script that comes with the standard Ruby library
-uses <tt>Kernel#set_trace_func</tt> API. Implementing the debugger in
-pure Ruby has a negative impact on the speed of your program
-execution. This is because the Ruby interpreter creates a Binding
-object each trace call, even though it is not being used most of the
-time. ruby-debug moves most of the functionality for Binding access
-and for breakpoint testing to a native extension. Because this code is
-in C and because and can be selectively enabled or disabled, the
-overhead in running your program can be minimized.
+The <tt>debug.rb</tt> script that comes with the standard Ruby library uses
+<tt>Kernel#set_trace_func</tt> API. Implementing the debugger in pure Ruby has
+a negative impact on the speed of your program execution. This is
+because the Ruby interpreter creates a Binding object each trace call,
+even though it is not being used most of the time. ruby-debug moves
+most of the functionality for Binding access and for breakpoint
+testing to a native extension. Because this code is in C and because
+and can be selectively enabled or disabled, the overhead in running
+your program can be minimized.
 
 == License
 

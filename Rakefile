@@ -220,7 +220,7 @@ end
 # ---------  RDoc Documentation ------
 desc "Generate rdoc documentation"
 Rake::RDocTask.new("rdoc") do |rdoc|
-  rdoc.rdoc_dir = 'doc'
+  rdoc.rdoc_dir = 'doc/rdoc'
   rdoc.title    = "ruby-debug"
   # Show source inline with line numbers
   rdoc.options << "--inline-source" << "--line-numbers"

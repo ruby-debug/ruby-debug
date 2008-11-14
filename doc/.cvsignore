@@ -17,6 +17,7 @@ rdebug-emacs.pgs
 rdebug-emacs.toc
 rdebug-emacs.tp
 rdebug-emacs.vr
+rdoc
 ruby-debug.aux
 ruby-debug.cp
 ruby-debug.cps
@@ -34,6 +35,7 @@ ruby-debug.toc
 ruby-debug.tp
 ruby-debug.vr
 ruby-debug.vrs
+stamp-1
 stamp-vti
 texinfo.tex
 version-rdebug-emacs.texi
