@@ -11,7 +11,7 @@
 @c See the "Inserting Quote Characters" node in the Texinfo manual
 @set txicodequoteundirected
 @set txicodequotebacktick
-@set RDEBUG_VERSION 0.10.2
+@set RDEBUG_VERSION 0.10.3
 
 @macro Example {}
 @iftex
@@ -58,7 +58,7 @@
 @end direntry
 
 @titlepage
-@title Debugging with @code{ruby-debug} Version @value{RDEBUG_VERSION}
+@title Debugging with @code{ruby-debug}
 @sp 1
 @subtitle @value{EDITION} Edition
 @subtitle @value{UPDATED-MONTH}
@@ -636,10 +636,11 @@ Here's the test code:
 If you run it will work. However if you run @code{rdebug} initially,
 you will not get into the test, because @code{test/unit} wants to be
 the main program. So here is a situation where one may need to modify
-the program to add an explicit call to the debugger.@footnote{For some
-versions of rake and @code{rdebug} you can in fact set a breakpoint
-after running @code{rdebug} initially. Personally though I find it
-much simpler and more reliable to modify the code as shown here.}
+the program to add an explicit @emph{entry} into the
+debugger.@footnote{For some versions of rake and @code{rdebug} you can
+in fact set a breakpoint after running @code{rdebug}
+initially. Personally though I find it much simpler and more reliable
+to modify the code as shown here.}
 
 One way to do this is to add the following before the place you want
 to stop:
@@ -747,24 +748,28 @@ bet that when @code{Test::Unit} was first called, shown above as frame
 @node Debugger.start with a block
 @section Using the @code{Debugger.start} with a block
 
-We saw that @code{Debugger.start} and @code{Debugger.stop} allow
+We saw that @code{Debugger.start()} and @code{Debugger.stop()} allow
 fine-grain control over where the debugger tracking should occur. 
 
-Rather than use an explicit @code{stop}, you can also give
-@code{start} a block which causes it to @code{yield} to the block and
-when the block is finished a @code{stop} is run. This has a side
-benefit of ensuring that in the presence of an uncaught exception
-@code{stop} is run, without having to explicitly use
-@code{begin} ... @code{ensure Debugger.stop end}.
+Rather than use an explicit @code{stop()}, you can also pass a block
+to the @code{start()} method. This causes @code{start()} to run and
+then @code{yield} to that block. When the block is finished,
+@code{stop()} is run. In other words, this wraps a
+@code{Debugger.start()} and @code{Debugger.stop()} around the block of
+code. But it also has a side benefit of ensuring that in the presence
+of an uncaught exception @code{stop} is run, without having to
+explicitly use @code{begin} ... @code{ensure Debugger.stop() end}.
 
-For example in Ruby Rails you might want to wrap a control in a start
-block. MyController.my_request method with Debugger::start block and I
-want to make sure that when this method finishes the debugger is
-turned off, proceed with my application on regular
-speed. 
+For example, in Ruby Rails you might want to debug code in one of the
+controllers without causing any slowdown to any other code. And
+this can be done by wrapping the controller in a @code{start()} with a
+block; when the method wrapped this way finishes the debugger is
+turned off, and the application proceeds at regular speed.
 
-Inside the block you will probably want to make a call to the debugger
-using @code{debugger}. For example you can do this in @code{irb}
+Of course, inside the block you will probably want to enter the
+debugger using @code{Debugger.debugger()}, otherwise there would
+little point in using the @code{start}. For example, you can do this
+in @code{irb}:
 
 @smallexample
 $ @b{irb}
@@ -793,7 +798,7 @@ irb(main):007:0>
 
 There is a counter inside of @code{Debugger.start} method to make sure
 that this works when another @code{Debugger.start} method is called
-inside of outer one. However if you are stopped inside the debugger
+inside of outer one. However if you are stopped inside the debugger,
 issuing another @code{debugger} call will not have any effect even if
 it is nested inside another @code{Debugger.start}.
 
