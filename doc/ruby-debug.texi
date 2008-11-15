@@ -1193,7 +1193,7 @@ option.
 
 @smallexample
 $ @b{rdebug --help}
-rdebug 0.10.1
+rdebug @value{RDEBUG_VERSION}
 Usage: rdebug [options] <script.rb> -- <script.rb parameters>
 
 Options:
@@ -1698,7 +1698,7 @@ display a short list of named classes of commands:
 @flushleft
 @smallexample
 (rdb:1) @b{help}
-ruby-debug help v0.10.1
+ruby-debug help v@value{RDEBUG_VERSION}
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
@@ -1720,7 +1720,7 @@ information on how to use that command.
 
 @smallexample
 (rdb:1) @b{help list}
-ruby-debug help v0.10.0
+ruby-debug help v@value{RDEBUG_VERSION}
 l[ist]		list forward
 l[ist] -	list backward
 l[ist] =	list current line
