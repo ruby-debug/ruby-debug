@@ -227,6 +227,7 @@ Rake::RDocTask.new("rdoc") do |rdoc|
   # Make the readme file the start page for the generated html
   rdoc.options << '--main' << 'README'
   rdoc.rdoc_files.include('bin/**/*',
+                          'cli/ruby-debug/commands/*.rb',
                           'lib/**/*.rb',
                           'ext/**/ruby_debug.c',
                           'README',

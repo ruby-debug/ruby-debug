@@ -983,13 +983,14 @@ debug_stop_i(VALUE self)
 /*
  *   call-seq:
  *      Debugger.start_ -> bool
- *      Debugger.start_ { ... } -> obj
+ *      Debugger.start_ { ... } -> bool
  *
  *   This method is internal and activates the debugger. Use
- *   Debugger.start (from ruby-debug-base.rb) instead.
+ *   Debugger.start (from <tt>lib/ruby-debug-base.rb</tt>) instead.
  *
- *   If it's called without a block it returns +true+, unless debugger
- *   was already started.  
+ *   The return value is the value of !Debugger.started? <i>before</i>
+ *   issuing the +start+; That is, +true+ is returned, unless debugger
+ *   was previously started.
 
  *   If a block is given, it starts debugger and yields to block. When
  *   the block is finished executing it stops the debugger with
@@ -1001,9 +1002,9 @@ debug_stop_i(VALUE self)
  *   one invocation of debugger at a time; nested Debugger.start's
  *   have no effect and you can't use this inside the debugger itself.
  *
- *   <i>Note that if you want to stop debugger, you must call
- *   Debugger.stop as many times as you called Debugger.start
- *   method.</i>
+ *   <i>Note that if you want to completely remove the debugger hook,
+ *   you must call Debugger.stop as many times as you called
+ *   Debugger.start method.</i>
  */
 static VALUE
 debug_start(VALUE self)
@@ -1037,9 +1038,9 @@ debug_start(VALUE self)
  *   This method disables the debugger. It returns +true+ if the debugger is disabled,
  *   otherwise it returns +false+.
  *
- *   <i>Note that if you want to stop debugger, you must call
- *   Debugger.stop as many times as you called Debugger.start
- *   method.</i>
+ *   <i>Note that if you want to complete remove the debugger hook,
+ *   you must call Debugger.stop as many times as you called
+ *   Debugger.start method.</i>
  */
 static VALUE
 debug_stop(VALUE self)
