@@ -1552,7 +1552,11 @@ Debugger.start
 
 There is also a @code{Debugger.stop} to turn off debugger tracking. If
 speed is crucial, you may want to start and stop this around certain
-sections of code.
+sections of code. Alternatively, instead of issuing an explicit
+@code{Debugger.stop} you can add a block to the @code{Debugger.start}
+and debugging is turned on for that block. If the block of code raises
+an uncaught exception that would cause the block to terminate, the
+@code{stop} will occur.  See @ref{Debugger.start with a block}.
 
 And finally to enter the debugger:
 
@@ -1568,7 +1572,7 @@ where there is a problem you want to investigate. And since
 @code{debugger} is just a method call it's possible enclose it in a
 conditional expression, for example:
 @smallexample
-debugger if foo='bar' and iter_count = 20
+debugger if 'bar' == foo and 20 == iter_count
 @end smallexample 
 
 Although each step does a very specific thing which offers great
