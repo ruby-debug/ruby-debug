@@ -1,3 +1,55 @@
+2008-11-15 22:13  Rocky Bernstein
+
+	* Rakefile, ext/ruby_debug.c: Go over RDOC documentation.
+
+2008-11-15 21:51  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Add one more reference to start with a block
+
+2008-11-15 21:23  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Remove hard-coded version number in example
+	  output
+
+2008-11-15 02:21  Rocky Bernstein
+
+	* ext/win32/.cvsignore: More administrivia
+
+2008-11-15 02:20  Rocky Bernstein
+
+	* ext/win32: More administrivia
+
+2008-11-15 02:18  Rocky Bernstein
+
+	* ., .cvsignore: More administrivia
+
+2008-11-14 19:39  Rocky Bernstein
+
+	* ., .cvsignore: More administrivia
+
+2008-11-14 19:38  Rocky Bernstein
+
+	* .cvsignore: Administrivia
+
+2008-11-14 19:37  Rocky Bernstein
+
+	* ., README, Rakefile, doc, doc/.cvsignore: Go over documentation
+	  for 0.10.3 release. rdoc creates files in doc/rdoc.
+
+2008-11-14 19:28  Rocky Bernstein
+
+	* README, configure.ac, doc/ruby-debug.texi,
+	  lib/ruby-debug-base.rb: Go over documentation and revise.
+
+2008-11-14 15:32  Rocky Bernstein
+
+	* CHANGES, ChangeLog, cli/ruby-debug.rb,
+	  cli/ruby-debug/commands/frame.rb, doc/ruby-debug.texi,
+	  ext/ruby_debug.c, lib/ChangeLog, lib/ruby-debug-base.rb: Move
+	  Debugger#debugger from base to cli. Revert code in ruby_debug.c
+	  and block parameter in debugger. cf. -> Compare with. Document
+	  Debugger.start better.
+
 2008-11-13 10:29  Rocky Bernstein
 
 	* ChangeLog, ext/ruby_debug.c, lib/ChangeLog: Make

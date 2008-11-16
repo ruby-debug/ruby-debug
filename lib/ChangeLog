@@ -1,3 +1,13 @@
+2008-11-14 19:28  Rocky Bernstein
+
+	* ruby-debug-base.rb: Go over documentation and revise.
+
+2008-11-14 15:32  Rocky Bernstein
+
+	* ChangeLog, ruby-debug-base.rb: Move Debugger#debugger from base
+	  to cli. Revert code in ruby_debug.c and block parameter in
+	  debugger. cf. -> Compare with. Document Debugger.start better.
+
 2008-11-13 10:29  Rocky Bernstein
 
 	* ChangeLog: Make Debugger.start{block} work if Debugger.started?
