@@ -1,4 +1,6 @@
 0.10.3
+11/17/08
+
  - a backtrace now warns when it thinks the callstack is truncated which it
    gets by comparing with caller()
  - fix setting $0.
