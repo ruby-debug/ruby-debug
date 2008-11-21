@@ -1,3 +1,26 @@
+2008-11-21 11:05  Martin Krauskopf
+
+	* src/org/jruby/debug/RubyDebugger.java: typo
+
+2008-11-21 10:16  Martin Krauskopf
+
+	* ., Rakefile, patch-0.10.2.diff, patch-0.10.3.diff,
+	  rakelib/test.rake, src/org/jruby/debug/RubyDebugger.java:
+	  Switching trunk to ruby-debug 0.10.3
+
+2008-11-10 13:47  Martin Krauskopf
+
+	* lib/ruby-debug-base.rb: Use absolute paths in require (relative
+	  stoped to work with JRuby 1.1.5)
+
+2008-11-10 00:08  Martin Krauskopf
+
+	* README: Correcting ruby-debug and ruby-debug-base versions
+
+2008-09-08 14:09  Martin Krauskopf
+
+	* ChangeLog: ChangeLog update before 0.10.2 release
+
 2008-09-08 13:25  Martin Krauskopf
 
 	* rakelib/test.rake: Consider all test stable until explicitly
