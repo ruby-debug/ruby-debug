@@ -42,7 +42,7 @@ public final class RubyDebugger {
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
     
-    private static final String VERSION = "0.10.2";
+    private static final String VERSION = "0.10.3";
     private static Debugger debugger;
     
     public static RubyModule createDebuggerModule(Ruby runtime) {
@@ -205,7 +205,6 @@ public final class RubyDebugger {
     @JRubyMethod(name="debug_load", module=true, required=1, optional=2)
     public static IRubyObject debug_load(IRubyObject recv, IRubyObject[] args, Block block) {
         debugger().load(recv, args);
-        
         return Util.nil(recv);
     }
 

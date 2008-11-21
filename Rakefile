@@ -6,7 +6,7 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 GEM_NAME='ruby-debug-base'
-GEM_VERSION='0.10.2'
+GEM_VERSION='0.10.3'
 
 RUBY_DEBUG_JAR='ext/ruby_debug.jar'
 
@@ -38,7 +38,8 @@ CLI_TEST_FILE_LIST = 'test/test-*.rb'
 desc "Test ruby-debug-base."
 task :test_base => :lib do
   Rake::TestTask.new(:test_base) do |t|
-    t.libs << ['./ext', './lib']
+    t.libs << './ext'
+    t.libs << './lib'
     t.test_files = FileList[BASE_TEST_FILE_LIST]
     t.verbose = true
   end
@@ -47,7 +48,9 @@ end
 desc "Test everything."
 task :test => :test_base do 
   Rake::TestTask.new(:test) do |t|
-    t.libs << ['./ext', './lib', './cli']
+    t.libs << './ext'
+    t.libs << './lib'
+    t.libs << './cli'
     t.pattern = CLI_TEST_FILE_LIST
     t.verbose = true
   end

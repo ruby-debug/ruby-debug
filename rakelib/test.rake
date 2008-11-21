@@ -26,7 +26,9 @@ STABLE_TEST_FILES = ALL_TEST_FILES - UNSTABLE_TEST_FILES
 desc "Test passing with jruby-debug-base."
 task :test_stable => :test_base do
   Rake::TestTask.new(:test_stable) do |t|
-    t.libs << ['./ext', './lib', './cli']
+    t.libs << './ext'
+    t.libs << './lib'
+    t.libs << './cli'
     t.test_files = STABLE_TEST_FILES
     t.verbose = true
   end
