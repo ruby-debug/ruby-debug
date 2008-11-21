@@ -96,8 +96,8 @@ public final class RubyDebugger {
     }
 
     /**
-     * This method deacivates the debugger. It returns +true+ if the debugger is
-     * deacivated, otherwise it returns +false+.
+     * This method deactivates the debugger. It returns +true+ if the debugger
+     * is deactivated, otherwise it returns +false+.
      * <p>
      * <i>Note that if you want to stop debugger, you must call Debugger.stop as
      * many time as you called Debugger.start method.</i>
