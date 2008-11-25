@@ -2389,13 +2389,13 @@ a front end also watching over things.
 @end table
 
 @table @code
-@kindex frame @ovar{n} @r{[}thread @var{thread-num}@r{]}
+@kindex frame @r{[}@ovar{n} @r{[}thread @var{thread-num}@r{]}@r{]}
 @cindex current stack frame
 @item frame @ovar{n} @r{[}thread @var{thread-num}@r{]}
 The @code{frame} command allows you to move from one stack frame to
-another, and to print the stack frame you select.  @var{n} is the
-the stack frame number;  @code{frame 0} then will always show the
-current and most recent stack frame.
+another, and to print the stack frame you select.  @var{n} is the the
+stack frame number or 0 if no frame number is given; @code{frame 0}
+then will always show the current and most recent stack frame.
 
 If a negative number is given, counting is from the other end of the
 stack frame, so @code{frame -1} shows the least-recent, outermost or

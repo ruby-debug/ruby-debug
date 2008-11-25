@@ -255,8 +255,7 @@ The position of the current frame is marked with -->.  }
 
     def execute
       if not @match[1]
-        errmsg "Missing a frame number argument.\n"
-        return
+        pos = 0
       else
         pos = get_int(@match[1], "Frame")
         return unless pos
@@ -280,8 +279,9 @@ The position of the current frame is marked with -->.  }
 
       def help(cmd)
         %{
-          f[rame] frame-number [thread thread-number]
-          Move the current frame to the specified frame number.
+          f[rame] [frame-number [thread thread-number]]
+          Move the current frame to the specified frame number, or the
+          0 if no frame-number has been given.
 
           A negative number indicates position from the other end.  So
           'frame -1' moves to the oldest frame, and 'frame 0' moves to

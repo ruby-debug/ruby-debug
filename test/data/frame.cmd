@@ -12,7 +12,7 @@ up
 where
 down
 where
-frame 0
+frame
 where
 frame -1
 where

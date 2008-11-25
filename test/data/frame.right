@@ -27,7 +27,7 @@ if a > b
 # where
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 at line gcd.rb:18
-# frame 0
+# frame
 #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 # where
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
