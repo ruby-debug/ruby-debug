@@ -35,6 +35,9 @@ public class UtilTest extends TestCase {
         String first = "a";
         String second = "b/../a";
         assertTrue(Util.areSameFiles(first, second));
+        assertFalse(Util.areSameFiles(
+                "C:/some valid path/to some valid/file.rb",
+                "generated code (C:/some path/to some/file.rb:36)"));
     }
     
     public void testRelativizeFile() {

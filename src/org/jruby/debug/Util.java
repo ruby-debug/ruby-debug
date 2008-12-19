@@ -25,6 +25,7 @@ package org.jruby.debug;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.logging.Logger;
 import org.jruby.RubyBoolean;
 import org.jruby.runtime.RubyEvent;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -32,7 +33,9 @@ import org.jruby.runtime.builtin.IRubyObject;
 import static org.jruby.runtime.RubyEvent.*;
 
 final class Util {
-    
+
+    private static final Logger LOGGER = Logger.getLogger(Util.class.getName());
+
     private final static CharSequence JRUBY_BUILTIN_PATH_PART = "builtin" + File.separator + "javasupport";
     private final static CharSequence JRUBY_JAR_PART = "lib" + File.separator + "jruby.jar!" + File.separator;
 
@@ -80,7 +83,9 @@ final class Util {
             String secondF = new File(second).getCanonicalPath();
             return firstF.equals(secondF);
         } catch (IOException ioe) {
-            throw new RuntimeException("Cannot resolve cannocical path", ioe);
+            LOGGER.fine("Cannot resolve cannocical path (falling back to String comparison):" +
+                    "\n  first: " + first + "\n  second: " + second + "\n  ioe:" + ioe);
+            return first.equals(second);
         }
     }
 
