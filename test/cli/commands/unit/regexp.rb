@@ -9,6 +9,17 @@ class TestCommandREs < Test::Unit::TestCase
   require File.join(base_dir, 'commands', 'frame')
   include Debugger
  
+  def test_quit
+    c = QuitCommand.new(nil)
+    assert c.regexp.match('quit')
+    assert c.regexp.match('q')
+    assert c.regexp.match('quit!')
+    assert c.regexp.match('q!')
+    assert c.regexp.match('quit unconditionally')
+    assert c.regexp.match('exit')
+    assert c.regexp.match('exit!')
+  end
+
   def test_up
     c = UpCommand.new(nil)
     assert c.regexp.match('up')
