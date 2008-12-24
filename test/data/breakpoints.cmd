@@ -35,4 +35,4 @@ info break
 # Should get a message about having no breakpoints.
 disable 1
 enable 1
-quit
+q!

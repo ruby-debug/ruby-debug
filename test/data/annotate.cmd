@@ -26,4 +26,4 @@ step
 up 10
 frame 100
 break bogus:5
-quit
+quit!

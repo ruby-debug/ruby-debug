@@ -25,4 +25,4 @@ Breakpoint 1 file gcd.rb, line 4
 # # No class Foo.
 # break Foo.bar
 *** Unknown class Foo.
-# quit
+# q

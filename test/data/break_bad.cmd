@@ -15,4 +15,4 @@ break gcd.rb:1
 break gcd.rb:4
 # No class Foo.
 break Foo.bar
-quit
+q

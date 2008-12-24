@@ -7,7 +7,7 @@ module Debugger
     def regexp
       / ^\s*
          (?:q(?:uit)?|exit) \s*
-         (\s+unconditionally)? \s*
+         (!|\s+unconditionally)? \s*
          $
       /ix
     end
@@ -26,13 +26,14 @@ module Debugger
 
       def help(cmd)
         %{
-          q[uit] [unconditionally]\texit from debugger. 
-          exit\talias to quit
+          q[uit] [!|unconditionally]\texit from debugger. 
+          exit[!]\talias to quit
 
           Normally we prompt before exiting. However if the parameter
-          "unconditionally" is given, we stop without asking further questions.
-        }
-      end
+          "unconditionally" or is given or suffixed with !, we stop
+          without asking further questions.  
+         }
+     end
     end
   end
 end

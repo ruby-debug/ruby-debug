@@ -11,7 +11,7 @@
 @c See the "Inserting Quote Characters" node in the Texinfo manual
 @set txicodequoteundirected
 @set txicodequotebacktick
-@set RDEBUG_VERSION 0.10.3
+@set RDEBUG_VERSION 0.10.4
 
 @macro Example {}
 @iftex
@@ -312,7 +312,9 @@ Really quit? (y/n) y
 @end smallexample
 
 So far, so good. A you can see from the above to get out of the
-debugger, one can issue a @code{quit} command.
+debugger, one can issue a @code{quit} command. (@code{q} and
+@code{exit} are just as good. If you want to quit without being
+prompted, suffix the command with an exclamation mark, e.g.\@code{q!}.
 
 @node Second Sample Session
 @section Sample Session 2: Delving Deeper (@code{where}, @code{frame}, @code{restart}, @code{autoeval}, @code{break}, @code{ps})
