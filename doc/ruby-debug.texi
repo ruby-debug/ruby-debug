@@ -3472,6 +3472,7 @@ Fixnum. Number of characters the debugger thinks are in a line. @xref{Width}.
 @menu
 * Debugger.Breakpoint::  Debugger::Breakpoint
 * Debugger.Context::     Debugger::Context
+* Debugger.Command::     Debugger::Command
 @end menu
 
 @table @code
@@ -3585,6 +3586,86 @@ should stop after loading. If an explicit call to the debugger is in
 the debugged program, you may want to set this @code{false}.
 @end table
 
+@node Debugger.Command
+@subsection The @code{Debugger::Command} Class
+
+Each command you run is in fact its own class. Should you want to extend
+ruby-debug, it's pretty easy to do since after all ruby-debug is Ruby.
+
+Each @code{Debugger#Command} class should have the a @code{regexp}
+method. This method returns regular expression for command-line
+strings that match your command. It's up to you to make sure this
+regular expression doesn't conflict with another one. If it does, it's
+undefined which one will get matched and run
+
+In addition the instance needs these methods:
+@table @code
+@item execute
+Code which gets run when you type a command (string) that matches the
+commands regular expression.
+@item help
+A string which gets displayed when folks as for help on that command
+@item help_command
+A name used the help system uses to show what commands are available.
+@end table
+
+Here's a small example of a new command:
+@smallexample
+module Debugger
+  class MyCommand < Command
+  def regexp
+    /^\s*me$/ # Regexp that will match your command
+  end
+
+  def execute
+    puts "hi" # What you want to happen when your command runs
+  end
+  class << self
+    def help_command
+      'me' # String name of command
+    end
+    def help(cmd)
+   # Some sort of help text.
+   %@{This does whatever it is I want to do@}
+   end
+  end
+end
+@end smallexample
+
+Now here's an example of how you can load/use it:
+@smallexample
+  require 'rubygems'
+  require 'ruby-debug'
+  require '/tmp/mycmd.rb' # or wherever
+  Debugger.start
+  x=1
+  debugger
+  y=2
+@end smallexample
+
+And now an example of invoking it:
+@smallexample
+ruby /tmp/testit.rb:
+/tmp/testit.rb:7
+y=2
+(rdb:1) help
+ruby-debug help v0.10.3
+Type 'help <command-name>' for help on a specific command
+Available commands:
+backtrace delete  enable help method putl    set    trace
+break     disable eval   info next   quit    show   undisplay
+catch     display exit   irb  p      reload  source up
+condition down    finish list pp     restart step   var
+continue edit     frame  me   ps     save    thread where
+                  ^^ This is you
+
+(rdb:1) help me
+This does whatever it is I want to do
+(rdb:1) me
+hi
+(rdb:1) 
+@end smallexample
+
 @node Kernel routines
 @section Additions to @code{Kernel}
 
@@ -3659,7 +3740,6 @@ that you need to first call @samp{Debugger.start} before issuing this
 call.
 
 @end table
-
 
 @node Using from Subversion
 @appendix Building and Installing from rubyforge's Subversion Repository
