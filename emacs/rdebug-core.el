@@ -347,8 +347,11 @@ buffer."
   (set (make-local-variable 'gud-last-frame) nil)
   (set (make-local-variable 'gud-last-last-frame) nil)
 
-  (set-process-filter (get-buffer-process (current-buffer)) 'gud-filter)
-  (set-process-sentinel (get-buffer-process (current-buffer)) 'gud-sentinel)
+  (let ((buffer-process (get-buffer-process (current-buffer))))
+    (if buffer-process
+	(progn 
+	  (set-process-filter buffer-process 'gud-filter)
+	  (set-process-sentinel buffer-process 'gud-sentinel))))
   (gud-set-buffer))
 
 ;;;###autoload
