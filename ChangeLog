@@ -1,3 +1,39 @@
+2009-02-10 04:32  Rocky Bernstein
+
+	* emacs/rdebug-core.el: Remove the annoying disappearing command
+	  window when we there's an initial error in running the Ruby
+	  program
+
+2009-01-23 20:51  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Show how to add a new command
+
+2009-01-23 17:20  Rocky Bernstein
+
+	* cli/ruby-debug/commands/kill.rb, cli/ruby-debug/processor.rb: Add
+	  a kill command
+
+2008-12-24 03:32  Rocky Bernstein
+
+	* test/cli/commands/unit/regexp.rb: One more quit test.
+
+2008-12-24 03:21  Rocky Bernstein
+
+	* cli/ruby-debug/commands/quit.rb, doc/ruby-debug.texi,
+	  test/cli/commands/unit/regexp.rb, test/data/annotate.cmd,
+	  test/data/annotate.right, test/data/break_bad.cmd,
+	  test/data/break_bad.right, test/data/breakpoints.cmd,
+	  test/data/breakpoints.right: Allow ! suffix on {q{,uit},exit} to
+	  be the same as "unconditionally" #23299
+
+2008-11-25 02:43  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/frame.rb, configure.ac,
+	  doc/ruby-debug.texi, ext/ruby_debug.c, lib/ChangeLog,
+	  test/data/frame.cmd, test/data/frame.right: Frame without a frame
+	  number means frame 0, same as gdb. We are now in 0.10.4 territory
+	  now.
+
 2008-11-17 07:34  Rocky Bernstein
 
 	* CHANGES: Last commit before release.
@@ -5059,435 +5095,434 @@
 
 2007-03-24 18:11  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-24 18:03  Kent Sibilev
 
-	* : ported stop reason from the trunk
+	* ported stop reason from the trunk
 
 2007-03-19 08:05  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-19 07:59  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-19 07:46  Kent Sibilev
 
-	* : fixes processor to handler renaming
+	* fixes processor to handler renaming
 	  added a shortcut module
 
 2007-03-15 04:00  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-15 02:59  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-15 02:58  Kent Sibilev
 
-	* : added 'set autoirb' setting
+	* added 'set autoirb' setting
 
 2007-03-15 02:46  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-15 02:39  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-15 02:32  Kent Sibilev
 
-	* :
+	* 
 
 2007-03-15 02:32  Kent Sibilev
 
-	* : fixed help command
+	* fixed help command
 
 2007-03-13 17:06  Kent Sibilev
 
-	* : missing file
+	* missing file
 
 2007-03-13 17:06  Kent Sibilev
 
-	* : fixed rdoc
+	* fixed rdoc
 
 2007-03-06 22:15  Kent Sibilev
 
-	* : updated help for list and eval commands
+	* updated help for list and eval commands
 
 2007-03-06 19:51  Kent Sibilev
 
-	* : pass the current state to the interface object if it accepts it
+	* pass the current state to the interface object if it accepts it
 
 2007-03-01 23:44  Kent Sibilev
 
-	* : fixed post-mortem
+	* fixed post-mortem
 
 2007-02-27 08:02  Kent Sibilev
 
-	* : repackaging ruby-debug
+	* repackaging ruby-debug
 
 2007-02-23 20:56  Kent Sibilev
 
-	* : added an option for Debugger.debug_load to stop at the first
-	  line of code
+	* added an option for Debugger.debug_load to stop at the first line
+	  of code
 
 2007-02-12 06:59  Kent Sibilev
 
-	* : added --emacs option
+	* added --emacs option
 
 2007-02-09 16:56  Kent Sibilev
 
-	* : in remote mode the debugger shouldn't stop inside of rdebug
+	* in remote mode the debugger shouldn't stop inside of rdebug
 	  script
 
 2007-02-09 06:59  Kent Sibilev
 
-	* :
+	* 
 
 2007-02-09 06:20  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-09 01:00  Kent Sibilev
 
-	* : fixed code reloading
+	* fixed code reloading
 	  made 'reload on' as a part of the 'set' command
 	  evaluate ~/.rdebugrc as an init script
 
 2007-02-07 02:42  Kent Sibilev
 
-	* : should use ignored? method to check for the debugger's thread
+	* should use ignored? method to check for the debugger's thread
 
 2007-02-06 22:21  Kent Sibilev
 
-	* :
+	* 
 
 2007-02-05 22:48  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-05 22:11  Kent Sibilev
 
-	* : fixed emacs integration
+	* fixed emacs integration
 
 2007-02-05 20:40  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-05 20:38  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-05 20:34  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-05 20:16  Kent Sibilev
 
-	* : fixed another issue where a bogus frame is being left in the
+	* fixed another issue where a bogus frame is being left in the
 	  stack
 
 2007-02-05 08:08  Kent Sibilev
 
-	* : should save frame id as well
+	* should save frame id as well
 
 2007-02-05 07:55  Kent Sibilev
 
-	* : fix stack corruption error
+	* fix stack corruption error
 
 2007-02-05 01:16  Kent Sibilev
 
-	* : store frame's self and dyna_vars along with file/line
-	  information
+	* store frame's self and dyna_vars along with file/line information
 
 2007-02-04 23:36  Kent Sibilev
 
-	* : seg fault bugfixes
+	* seg fault bugfixes
 	  fixed suspend/resume
 
 2007-02-04 05:06  Kent Sibilev
 
-	* : restore prev patch
+	* restore prev patch
 
 2007-02-04 03:49  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-04 03:49  Kent Sibilev
 
-	* : A better fix for the segmentation fault
+	* A better fix for the segmentation fault
 
 2007-02-03 22:02  Kent Sibilev
 
-	* : found a better patch
+	* found a better patch
 
 2007-02-03 20:33  Kent Sibilev
 
-	* : --
+	* --
 
 2007-02-03 20:24  Kent Sibilev
 
-	* : fix seg fault by avoiding ruby's bug
+	* fix seg fault by avoiding ruby's bug
 	  fixed Context#resume
 	  when handling post-mortem all threads must be suspended
 
 2007-02-02 18:47  Kent Sibilev
 
-	* : removed ambiguity with down command
+	* removed ambiguity with down command
 
 2007-02-01 23:48  Kent Sibilev
 
-	* : typo
+	* typo
 
 2007-02-01 23:10  Kent Sibilev
 
-	* : changes for build 0.7
+	* changes for build 0.7
 
 2007-02-01 22:15  Kent Sibilev
 
-	* : made eval command available from the control thread
+	* made eval command available from the control thread
 
 2007-02-01 17:30  Kent Sibilev
 
-	* : fixed dllexport for windows platform
+	* fixed dllexport for windows platform
 
 2007-02-01 15:49  Kent Sibilev
 
-	* : ditto
+	* ditto
 
 2007-02-01 07:22  Kent Sibilev
 
-	* : added setting command
+	* added setting command
 	  added Context#suspended? method
 	  dispay suspended status in the thread list
 	  display frame starting from zero
 
 2007-01-31 22:12  Kent Sibilev
 
-	* : store object ids in VALUE type
+	* store object ids in VALUE type
 
 2007-01-31 21:13  Kent Sibilev
 
-	* : ditto
+	* ditto
 
 2007-01-31 21:12  Kent Sibilev
 
-	* : fixed help command
+	* fixed help command
 
 2007-01-31 21:04  Kent Sibilev
 
-	* : ditto
+	* ditto
 
 2007-01-31 20:44  Kent Sibilev
 
-	* : make a deep copy when capturing post mortem context
+	* make a deep copy when capturing post mortem context
 
 2007-01-31 19:39  Kent Sibilev
 
-	* : fixed frame count
+	* fixed frame count
 	  added frame_self method to context
 
 2007-01-31 16:48  Kent Sibilev
 
-	* : removed all references to frames array
+	* removed all references to frames array
 	  fixed post-mortem debugging
 
 2007-01-31 00:51  Kent Sibilev
 
-	* : removed obsolete frames usage
+	* removed obsolete frames usage
 
 2007-01-31 00:41  Kent Sibilev
 
-	* : refactored out frame class and preallocate stack
+	* refactored out frame class and preallocate stack
 	  made local variable available even when bindings are not
 	  collected.
 
 2007-01-28 20:25  Kent Sibilev
 
-	* : --
+	* --
 
 2007-01-28 06:22  Kent Sibilev
 
-	* : - Control thread is always started by rdebug script.
+	* - Control thread is always started by rdebug script.
 	  - Ability to specify negative frame number to frame commands.
 	  Patch from R. Bernstein.
 
 2007-01-28 04:59  Kent Sibilev
 
-	* : --
+	* --
 
 2007-01-28 04:52  Kent Sibilev
 
-	* : added top frame caching
+	* added top frame caching
 	  control thread is always started by rdebug script
 
 2007-01-28 01:21  Kent Sibilev
 
-	* :
+	* 
 
 2007-01-27 02:21  Kent Sibilev
 
-	* : --
+	* --
 
 2007-01-27 01:43  Kent Sibilev
 
-	* : another performance optimization
+	* another performance optimization
 
 2007-01-26 20:28  Kent Sibilev
 
-	* : fixed #7484
+	* fixed #7484
 
 2007-01-26 19:31  Kent Sibilev
 
-	* : --
+	* --
 
 2007-01-26 17:59  Kent Sibilev
 
-	* : revisited file name comparing procedure
+	* revisited file name comparing procedure
 
 2007-01-26 09:03  Kent Sibilev
 
-	* : performance improvements
+	* performance improvements
 
 2007-01-26 03:12  Kent Sibilev
 
-	* : added option to exclude collecting of frame bindings
+	* added option to exclude collecting of frame bindings
 
 2007-01-25 01:41  Kent Sibilev
 
-	* : small optimization
+	* small optimization
 
 2007-01-25 00:55  Kent Sibilev
 
-	* : remove the live thread ref from locker structure as well
+	* remove the live thread ref from locker structure as well
 
 2007-01-24 20:42  Kent Sibilev
 
-	* : don't keep a ref to a live thread.
+	* don't keep a ref to a live thread.
 	  check contexts that their threads are alive
 
 2007-01-24 18:47  Kent Sibilev
 
-	* : ditto
+	* ditto
 
 2007-01-24 18:33  Kent Sibilev
 
-	* : disable tracing when in post-mortem
+	* disable tracing when in post-mortem
 	  added -x/--trace option to rdebug script
 
 2007-01-21 08:35  Kent Sibilev
 
-	* : updated changelog
+	* updated changelog
 
 2007-01-21 08:13  Kent Sibilev
 
-	* :
+	* 
 
 2007-01-21 03:34  Kent Sibilev
 
-	* : assign an id to the breakpoint
+	* assign an id to the breakpoint
 
 2007-01-21 01:20  Kent Sibilev
 
-	* : added post_mortem_method wrap method
+	* added post_mortem_method wrap method
 
 2006-12-21 20:30  Kent Sibilev
 
-	* : fix of restart command for windows platform
+	* fix of restart command for windows platform
 
 2006-12-21 20:16  Kent Sibilev
 
-	* : added 'restart' command
+	* added 'restart' command
 
 2006-12-21 14:24  Kent Sibilev
 
-	* : update changelog
+	* update changelog
 
 2006-12-21 14:12  Kent Sibilev
 
-	* : made 'exit' an alias to 'quit'
+	* made 'exit' an alias to 'quit'
 	  fixed the interoperability problem with rspec
 
 2006-12-21 13:43  Kent Sibilev
 
-	* : fixed trace command in post-mortem mode
+	* fixed trace command in post-mortem mode
 
 2006-12-21 02:00  Kent Sibilev
 
-	* : updated changelog
+	* updated changelog
 
 2006-12-21 01:59  Kent Sibilev
 
-	* : initialize only once
+	* initialize only once
 
 2006-12-21 01:08  Kent Sibilev
 
-	* : fixes irb help command
+	* fixes irb help command
 
 2006-12-20 21:19  Kent Sibilev
 
-	* : check that debugger has been started
+	* check that debugger has been started
 
 2006-12-20 20:41  Kent Sibilev
 
-	* :
+	* 
 
 2006-12-20 20:14  Kent Sibilev
 
-	* : bumped version
+	* bumped version
 
 2006-12-20 20:08  Kent Sibilev
 
-	* : added post-mortem option to rdebug
+	* added post-mortem option to rdebug
 
 2006-12-20 19:38  Kent Sibilev
 
-	* : initial support for post-mortem debugging
+	* initial support for post-mortem debugging
 
 2006-12-19 06:13  Kent Sibilev
 
-	* : removed 'run' alias
+	* removed 'run' alias
 
 2006-12-18 08:34  Kent Sibilev
 
-	* : added irb command
+	* added irb command
 	  fixed source_for method
 
 2006-12-02 19:15  Kent Sibilev
 
-	* : added reload command
+	* added reload command
 
 2006-12-02 18:32  Kent Sibilev
 
-	* : fixed #6518 and #6545
+	* fixed #6518 and #6545
 
 2006-12-01 06:49  Kent Sibilev
 
-	* :
+	* 
 
 2006-12-01 06:47  Kent Sibilev
 
-	* :
+	* 
 
 2006-11-21 23:29  Kent Sibilev
 
-	* : ensure that on/off is the last on the line
+	* ensure that on/off is the last on the line
 
 2006-11-16 00:04  Kent Sibilev
 
-	* : fixed debug_method for assignment methods
+	* fixed debug_method for assignment methods
 
 2006-11-16 00:01  Kent Sibilev
 
-	* : added the new branch for the stable version
+	* added the new branch for the stable version
 
 2006-10-15 22:43  Kent Sibilev
 
-	* : branching a stable version
+	* branching a stable version
 
 2006-10-15 22:26  Kent Sibilev
 

@@ -2507,11 +2507,13 @@ specified here. If the method you want to stop in is in the main class
 (i.e. the class that @code{self} belongs to at the start of the
 program), then use the name @code{Object}.
 
-@kindex catch @ovar{exception}
-@kindex cat @r{(@code{catch})}
-@item catch
+@kindex catch @ovar{exception} @r{[} on | 1 | off | 0 @r{]}
+@kindex cat @r{(@code{catch})} 
+@item catch @ovar{exception} @r{[} on | 1 | off | 0 @r{]}
 Set catchpoint to an exception. Without an exception name show catchpoints.
 
+With an ``on'' or ``off'' parameter, turn handling the exception on or
+off. To delete all exceptions type ``catch off''.
 
 @cindex delete breakpoints
 @kindex delete @ovar{breakpoints}
