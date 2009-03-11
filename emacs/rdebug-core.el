@@ -338,7 +338,7 @@ buffer."
     (pop-to-buffer (setq rdebug-cmd-buffer
 			 (apply 'make-comint rdebug-buffer-name program nil
 				args))))
-    
+  
   ;; Since comint clobbered the mode, we don't set it until now.
   (gud-mode)
   (set (make-local-variable 'gud-target-name) target-name)

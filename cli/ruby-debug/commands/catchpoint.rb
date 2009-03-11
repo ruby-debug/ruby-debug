@@ -43,9 +43,11 @@ module Debugger
 
       def help(cmd)
         %{
-          cat[ch]\t\t\tsame as "info catch"
-          cat[ch] <exception-name>\tIntercept <exception-name> when there would otherwise be is no handler 
-for it.
+          cat[ch]\t\tsame as "info catch"
+          cat[ch] <exception-name> [on|off]
+\tIntercept <exception-name> when there would otherwise be no handler.
+\tWith an "on" or "off", turn handling the exception on or off.
+          cat[ch] off\tdelete all catchpoints
         }
       end
     end

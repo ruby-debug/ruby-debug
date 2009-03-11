@@ -106,7 +106,7 @@ file and line submatches."
    "/home/rocky/ruby/gcd.rb" "19"
    )
   )
-   
+
 (defun regexp-unittest-traceback-test (location-str file-str line-str)
   "Test to see that location-str matches position-regexp-file-test with the correct
 file and line submatches."

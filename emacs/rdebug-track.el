@@ -365,7 +365,7 @@ window layout is used."
     
     (rdebug-populate-common-keys (current-local-map))
     (rdebug-populate-debugger-menu (current-local-map))
-      
+    
     (set (make-local-variable 'comint-prompt-regexp) (concat "^" rdebug-input-prompt-regexp))
     (setq paragraph-start comint-prompt-regexp)
 
