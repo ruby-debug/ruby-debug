@@ -19,7 +19,7 @@ module IRB # :nodoc:
     end
   end
   ExtendCommandBundle.def_extend_command "cont", :Continue
-  ExtendCommandBundle.def_extend_command "next", :Next
+  ExtendCommandBundle.def_extend_command "n", :Next
   ExtendCommandBundle.def_extend_command "step", :Step
   
   def self.start_session(binding)
