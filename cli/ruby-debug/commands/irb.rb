@@ -72,7 +72,7 @@ module Debugger
         throw :IRB_EXIT, :cont if $rdebug_in_irb
       end
 
-      add_debugging = '-d' == @match[1] 
+      add_debugging = @match.is_a?(Array) && '-d' == @match[1]
       $rdebug_state = @state if add_debugging
       $rdebug_in_irb = true
       cont = IRB.start_session(get_binding)
