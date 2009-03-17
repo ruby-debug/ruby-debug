@@ -7,8 +7,20 @@ module IRB # :nodoc:
         throw :IRB_EXIT, :cont
       end
     end
+    class Next # :nodoc:
+      def self.execute(conf)
+        throw :IRB_EXIT, :next
+      end
+    end
+    class Step # :nodoc:
+      def self.execute(conf)
+        throw :IRB_EXIT, :step
+      end
+    end
   end
   ExtendCommandBundle.def_extend_command "cont", :Continue
+  ExtendCommandBundle.def_extend_command "next", :Next
+  ExtendCommandBundle.def_extend_command "step", :Step
   
   def self.start_session(binding)
     unless @__initialized
@@ -64,7 +76,16 @@ module Debugger
       $rdebug_state = @state if add_debugging
       $rdebug_in_irb = true
       cont = IRB.start_session(get_binding)
-      if cont == :cont
+      case cont
+      when :cont
+        @state.proceed 
+      when :step
+        force = Command.settings[:force_stepping]
+        @state.context.step(1, force)
+        @state.proceed 
+      when :next
+        force = Command.settings[:force_stepping]
+        @state.context.step_over(1, @state.frame_pos, force)
         @state.proceed 
       else
         file = @state.context.frame_file(0)
