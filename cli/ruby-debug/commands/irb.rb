@@ -110,7 +110,11 @@ module Debugger
           irb [-d]\tstarts an Interactive Ruby (IRB) session.
 
 If -d is added you can get access to debugger state via the global variable
-$RDEBUG_state.
+$RDEBUG_state. 
+
+irb is extended with methods "cont", "n" and "step" which 
+run the corresponding debugger commands. In contrast to the real debugger
+commands these commands don't allow command arguments.
         }
       end
     end
