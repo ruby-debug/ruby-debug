@@ -224,7 +224,7 @@ module Debugger
     # Handle debugger commands
     def process_commands(context, file, line)
       state, commands = always_run(context, file, line, 1)
-      
+      $rdebug_state = state if Command.settings[:debuggertesting]
       splitter = lambda do |str|
         str.split(/;/).inject([]) do |m, v|
           if m.empty?

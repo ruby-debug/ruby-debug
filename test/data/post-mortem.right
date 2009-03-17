@@ -23,9 +23,10 @@ Exception: #<ZeroDivisionError: divided by 0>
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-backtrace  continue  down    exit   irb     pp    reload   show    undisplay
-break      delete    edit    frame  list    ps    restart  source  up       
-catch      disable   enable  help   method  putl  save     thread  var      
-condition  display   eval    info   p       quit  set      trace   where    
+backtrace  delete   enable  info    p     reload   source     var  
+break      disable  eval    irb     pp    restart  thread     where
+catch      display  exit    kill    ps    save     trace    
+condition  down     frame   list    putl  set      undisplay
+continue   edit     help    method  quit  show     up       
 
 # quit

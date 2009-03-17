@@ -45,7 +45,9 @@ module Debugger
     end
 
     def regexp
-      /^irb$/
+      /^\s* irb
+        (?:\s+(-d))?
+        \s*$/x
     end
     
     def execute
@@ -55,10 +57,12 @@ module Debugger
       end
 
       save_trap = trap("SIGINT") do
-        throw :IRB_EXIT, :cont if $debug_in_irb
+        throw :IRB_EXIT, :cont if $rdebug_in_irb
       end
 
-      $debug_in_irb = true
+      add_debugging = '-d' == @match[1] 
+      $rdebug_state = @state if add_debugging
+      $rdebug_in_irb = true
       cont = IRB.start_session(get_binding)
       if cont == :cont
         @state.proceed 
@@ -70,7 +74,8 @@ module Debugger
       end
 
     ensure
-      $debug_in_irb = false
+      $rdebug_in_irb = nil
+      $rdebug_state = nil if add_debugging
       trap("SIGINT", save_trap) if save_trap
     end
     
@@ -81,7 +86,10 @@ module Debugger
 
       def help(cmd)
         %{
-          irb\tstarts an Interactive Ruby (IRB) session.
+          irb [-d]\tstarts an Interactive Ruby (IRB) session.
+
+If -d is added you can get access to debugger state via the global variable
+$RDEBUG_state.
         }
       end
     end

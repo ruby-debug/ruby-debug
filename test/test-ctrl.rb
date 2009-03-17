@@ -27,6 +27,7 @@ class TestCtrl < Test::Unit::TestCase
         puts "difference found at line #{i+1}"
         puts "got : #{got_lines[i]}"
         puts "need: #{correct_lines[i]}"
+        File.open(outfile, 'w') {|f| f.puts got_lines}
         return false
       end
     end

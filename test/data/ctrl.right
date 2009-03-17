@@ -3,8 +3,8 @@ width is 80.
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-break  delete  eval  help  interrupt  pp  putl  reload   save  show    thread
-catch  edit    exit  info  p          ps  quit  restart  set   source
+break  delete  eval  help  interrupt  p   ps    quit    restart  set   source
+catch  edit    exit  info  kill       pp  putl  reload  save     show  thread
 
 Generic command for showing things about the program being debugged.
 -- 
