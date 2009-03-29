@@ -40,14 +40,14 @@ Catch exception RuntimeError.
 # save temp
 Saved to 'temp'
 # eval File.open("temp").readlines
-["break gcd.rb:10\n", "catch RuntimeError\n", "set autoeval off\n", "set basename on\n", "set debuggertesting on\n", "set autolist off\n", "set autoirb off\n"]
+["break ./gcd.rb:10\n", "catch RuntimeError\n", "set autoeval off\n", "set basename on\n", "set debuggertesting on\n", "set autolist off\n", "set autoirb off\n"]
 # # FIXME: The below is broken
 # ## Change parameters above
 # ## catch RuntimeError off
 # ## info catch
 # ##set listsize 55
 # source temp
-Breakpoint 2 file gcd.rb, line 10
+Breakpoint 2 file /src/external-vcs/ruby-debug/trunk/test/gcd.rb, line 10
 Catch exception RuntimeError.
 autoeval is off.
 basename is on.

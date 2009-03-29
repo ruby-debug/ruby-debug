@@ -1,3 +1,30 @@
+2009-03-17 10:22  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb: Add "next" and "step" commands in
+	  irb
+
+2009-03-17 02:05  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb, cli/ruby-debug/processor.rb,
+	  configure.ac, test/data/ctrl.right, test/data/post-mortem.right,
+	  test/test-ctrl.rb: configure.ac: in 0.10.4vc now. Add -d in irb
+	  facilitate debugger testing via global $rdebug_state. Also set
+	  $rdebug_state in debuggertesting is set.
+	  "kill" is now allowed as a control command, this adjusts output.
+	  and this changes
+
+2009-03-11 23:42  Rocky Bernstein
+
+	* ChangeLog, doc/ruby-debug.texi, lib/ChangeLog: update texinfo for
+	  catch
+
+2009-03-11 18:57  Rocky Bernstein
+
+	* cli/ruby-debug/commands/catchpoint.rb, emacs/rdebug-core.el,
+	  emacs/rdebug-track.el, emacs/test/test-regexp.el: Update "catch"
+	  command help string. Reindent some emacs files to make tests
+	  happy.
+
 2009-02-10 04:32  Rocky Bernstein
 
 	* emacs/rdebug-core.el: Remove the annoying disappearing command

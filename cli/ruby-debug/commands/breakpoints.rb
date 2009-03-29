@@ -81,7 +81,7 @@ module Debugger
           errmsg "We are not in a state we can add breakpoints.\n"
           return 
         end
-        b = Debugger.add_breakpoint file, line, expr
+        b = Debugger.add_breakpoint brkpt_filename, line, expr
         print "Breakpoint %d file %s, line %s\n", b.id, brkpt_filename, line.to_s
         unless syntax_valid?(expr)
           errmsg("Expression \"#{expr}\" syntactically incorrect; breakpoint disabled.\n")

@@ -1,3 +1,7 @@
+2009-03-11 23:42  Rocky Bernstein
+
+	* ChangeLog: update texinfo for catch
+
 2008-11-25 02:43  Rocky Bernstein
 
 	* ChangeLog: Frame without a frame number means frame 0, same as

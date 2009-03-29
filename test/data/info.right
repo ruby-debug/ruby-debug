@@ -49,15 +49,15 @@ Breakpoint 2 file ./gcd.rb, line 12
 *** No breakpoints found among list given.
 # info break 1
 Num Enb What
-  1 y   at gcd.rb:10
+  1 y   at ./gcd.rb:10
 # info break 1 2
 Num Enb What
-  1 y   at gcd.rb:10
-  2 y   at gcd.rb:12
+  1 y   at ./gcd.rb:10
+  2 y   at ./gcd.rb:12
 # info break
 Num Enb What
-  1 y   at gcd.rb:10
-  2 y   at gcd.rb:12
+  1 y   at ./gcd.rb:10
+  2 y   at ./gcd.rb:12
 # info file ./gcd.rb break
 File ./gcd.rb
 	breakpoint line numbers:
