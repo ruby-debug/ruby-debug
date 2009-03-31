@@ -1,6 +1,6 @@
 ;;; rdebug-locring.el --- Ruby debugger location ring
 
-;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
 
 ;; $Id$
@@ -22,8 +22,8 @@
 
 ;;; Commentary:
 
-;; This file contains code dealing with filter of debugger output a large
-;; part of which may contain annotations.
+;; This file manages a ring of (recently stopped) positions to allow
+;; the programmer to move back and forth between them.
 
 ;;; Code:
 
