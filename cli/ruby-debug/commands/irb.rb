@@ -24,8 +24,8 @@ module IRB # :nodoc:
   
   def self.start_session(binding)
     unless @__initialized
-      args = ARGV
-      ARGV.replace(ARGV.dup)
+      args = ARGV.dup
+      ARGV.replace([])
       IRB.setup(nil)
       ARGV.replace(args)
       @__initialized = true
