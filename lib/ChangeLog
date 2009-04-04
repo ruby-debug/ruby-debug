@@ -1,3 +1,9 @@
+2009-03-29 03:00  Rocky Bernstein
+
+	* ChangeLog: Canonicalize breakpoint locations a little better.
+	  More work should be done and more work should be done on the
+	  testing side too.
+
 2009-03-11 23:42  Rocky Bernstein
 
 	* ChangeLog: update texinfo for catch

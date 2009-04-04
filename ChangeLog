@@ -1,3 +1,27 @@
+2009-03-29 03:00  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/breakpoints.rb, lib/ChangeLog,
+	  test/data/annotate.right, test/data/breakpoints.right,
+	  test/data/emacs_basic.right, test/data/info.right,
+	  test/data/save.right: Canonicalize breakpoint locations a little
+	  better. More work should be done and more work should be done on
+	  the testing side too.
+
+2009-03-17 10:35  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb: Document irb additions old and
+	  new
+
+2009-03-17 10:33  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb: irb "next" -> "n" since "next" is
+	  a reserved word.
+
+2009-03-17 10:30  Rocky Bernstein
+
+	* cli/ruby-debug/commands/irb.rb: Fix some irb -d breakage when set
+	  autoirb is in effect
+
 2009-03-17 10:22  Rocky Bernstein
 
 	* cli/ruby-debug/commands/irb.rb: Add "next" and "step" commands in
