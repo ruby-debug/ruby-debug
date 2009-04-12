@@ -28,7 +28,7 @@ module TestHelper
     else
       cmd = "#{"#{load_ruby} #{load_params} "}../rdbg.rb #{args} > #{outfile}"
     end
-    # puts "'#{cmd}'"
+    puts "'#{cmd}'" if $DEBUG
     output = `#{cmd}`
     
     got_lines     = File.read(outfile).split(/\n/)
