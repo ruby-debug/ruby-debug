@@ -6,12 +6,14 @@ def gcd(a, b)
 # # ********************************************************
 # set debuggertesting on
 Currently testing the debugger is on.
+# set basename on
+basename is on.
 # set callstyle last
 Frame call-display style is last.
 # set autoeval off
 autoeval is off.
 # break 6 if a > b
-Breakpoint 1 file ./gcd.rb, line 6
+Breakpoint 1 file gcd.rb, line 6
 # info break 
 Num Enb What
   1 y   at gcd.rb:6 if a > b
@@ -20,7 +22,7 @@ Num Enb What
 Num Enb What
   1 y   at gcd.rb:6
 # break 12
-Breakpoint 2 file ./gcd.rb, line 12
+Breakpoint 2 file gcd.rb, line 12
 # condition 2 1 == a
 # # FIXME: should be able to catch error on:
 # # condition 2 if 1 == a
@@ -38,7 +40,7 @@ Num Enb What
 1
 # # Now test trying to enable an invalid breakpoint
 # break 6 if a > 
-Breakpoint 3 file ./gcd.rb, line 6
+Breakpoint 3 file gcd.rb, line 6
 *** Expression "a > " syntactically incorrect; breakpoint disabled.
 # info break
 Num Enb What

@@ -34,4 +34,5 @@ pm.rb:5
 # where
 --> #0 Object./ at line pm.rb:5
     #1 at line pm.rb:8
+Warning: saved frames may be incomplete; compare with caller(0).
 # quit

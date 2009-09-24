@@ -8,7 +8,7 @@ Currently testing the debugger is on.
 # set autoeval off
 autoeval is off.
 # b 11
-Breakpoint 1 file ./classes.rb, line 11
+Breakpoint 1 file classes.rb, line 11
 # c
 Breakpoint 1 at classes.rb:11
 classes.rb:11

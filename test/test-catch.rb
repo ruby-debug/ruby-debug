@@ -5,7 +5,7 @@ require 'test/unit'
 # require 'ruby-debug'; Debugger.start
 
 # Test condition command
-class TestBreakpoints < Test::Unit::TestCase
+class TestCatch < Test::Unit::TestCase
 
   @@SRC_DIR = File.dirname(__FILE__) unless 
     defined?(@@SRC_DIR)

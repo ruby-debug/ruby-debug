@@ -10,7 +10,7 @@ Frame call-display style is last.
 # set autoeval off
 autoeval is off.
 # break 6
-Breakpoint 1 file ./gcd.rb, line 6
+Breakpoint 1 file gcd.rb, line 6
 # continue
 Breakpoint 1 at gcd.rb:6
 gcd.rb:6

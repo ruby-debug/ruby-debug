@@ -12,9 +12,9 @@ Frame call-display style is last.
 # set autoeval off
 autoeval is off.
 # break 6
-Breakpoint 1 file ./gcd.rb, line 6
+Breakpoint 1 file gcd.rb, line 6
 # break 10
-Breakpoint 2 file ./gcd.rb, line 10
+Breakpoint 2 file gcd.rb, line 10
 # break 11
 *** Line 11 is not a stopping point in file "gcd.rb".
 # continue
@@ -28,9 +28,9 @@ if a > b
 Breakpoint 3 at Object::gcd
 # info break
 Num Enb What
-  1 y   at ./gcd.rb:6
+  1 y   at gcd.rb:6
 	breakpoint already hit 1 time
-  2 y   at ./gcd.rb:10
+  2 y   at gcd.rb:10
   3 y   at Object:gcd
 # continue
 Breakpoint 2 at gcd.rb:10
@@ -47,9 +47,9 @@ gcd.rb:4
 def gcd(a, b)
 # info break
 Num Enb What
-  1 y   at ./gcd.rb:6
+  1 y   at gcd.rb:6
 	breakpoint already hit 1 time
-  2 y   at ./gcd.rb:10
+  2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
 	breakpoint already hit 1 time
@@ -57,18 +57,18 @@ Num Enb What
 *** Invalid breakpoint location: foo.
 # info break
 Num Enb What
-  1 y   at ./gcd.rb:6
+  1 y   at gcd.rb:6
 	breakpoint already hit 1 time
-  2 y   at ./gcd.rb:10
+  2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
 	breakpoint already hit 1 time
 # disable  1
 # info break
 Num Enb What
-  1 n   at ./gcd.rb:6
+  1 n   at gcd.rb:6
 	breakpoint already hit 1 time
-  2 y   at ./gcd.rb:10
+  2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
 	breakpoint already hit 1 time
@@ -76,7 +76,7 @@ Num Enb What
 # # We should see breakpoint 2 but not 1
 # info break
 Num Enb What
-  2 y   at ./gcd.rb:10
+  2 y   at gcd.rb:10
 	breakpoint already hit 1 time
   3 y   at Object:gcd
 	breakpoint already hit 1 time

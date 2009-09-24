@@ -42,22 +42,22 @@ integer argument, list info on that breakpoint.
 # help info display
 Expressions to display when program stops.
 # break 10
-Breakpoint 1 file ./gcd.rb, line 10
+Breakpoint 1 file gcd.rb, line 10
 # break 12
-Breakpoint 2 file ./gcd.rb, line 12
+Breakpoint 2 file gcd.rb, line 12
 # info break 10
 *** No breakpoints found among list given.
 # info break 1
 Num Enb What
-  1 y   at ./gcd.rb:10
+  1 y   at gcd.rb:10
 # info break 1 2
 Num Enb What
-  1 y   at ./gcd.rb:10
-  2 y   at ./gcd.rb:12
+  1 y   at gcd.rb:10
+  2 y   at gcd.rb:12
 # info break
 Num Enb What
-  1 y   at ./gcd.rb:10
-  2 y   at ./gcd.rb:12
+  1 y   at gcd.rb:10
+  2 y   at gcd.rb:12
 # info file ./gcd.rb break
 File ./gcd.rb
 	breakpoint line numbers:

@@ -142,12 +142,15 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
         end
         print "Num Enb What\n"
         brkpts.each do |b|
+          fname = Command.settings[:basename] ? 
+             File.basename(b.source) : b.source
+            
           if b.expr.nil?
             print "%3d %s   at %s:%s\n", 
-            b.id, (b.enabled? ? 'y' : 'n'), b.source, b.pos
+            b.id, (b.enabled? ? 'y' : 'n'), fname, b.pos
           else
             print "%3d %s   at %s:%s if %s\n", 
-            b.id, (b.enabled? ? 'y' : 'n'), b.source, b.pos, b.expr
+            b.id, (b.enabled? ? 'y' : 'n'), fname, b.pos, b.expr
           end
           hits = b.hit_count
           if hits > 0

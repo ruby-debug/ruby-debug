@@ -3,6 +3,7 @@
 # In order to do this we need to run break, and disable
 # ********************************************************
 set debuggertesting on
+set basename on
 set callstyle last
 set autoeval off
 break 6 if a > b
