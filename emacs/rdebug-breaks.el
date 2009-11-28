@@ -128,7 +128,8 @@ Argument COMINT-BUFFER is the assocaited gud process buffer."
                                    (list 'mouse-face 'highlight
                                          'keymap rdebug-breakpoint-mode-map)))
             (forward-line)))
-	(goto-line old-line-number)))
+	(goto-char (point-min))
+	(forward-line (1- old-line-number))))
     (rdebug-breakpoint-parse-and-update-cache)
     (rdebug-breakpoint-update-icons (rdebug-breakpoint-all))))
 
@@ -325,7 +326,16 @@ Argument PT indicates the file and line where the breakpoint should be set."
 ;; Note: This is implemented on top of `gdb-ui'. In the future, it
 ;; would be better if that code is generalized.
 
-(require 'gdb-ui)
+(eval-when-compile
+  (condition-case nil 
+      (require 'gdb-ui)
+    (error 
+     (require 'gdb-mi))))
+
+(condition-case nil 
+    (require 'gdb-ui)
+  (error 
+   (require 'gdb-mi)))
 
 ;; This is a local variable, should not be placed in rdebug-vars.el.
 (defvar rdebug-breakpoint-icons-current-state nil)
@@ -338,7 +348,8 @@ Argument PT indicates the file and line where the breakpoint should be set."
             (save-current-buffer
               (set-buffer buf)
               (save-excursion
-                (goto-line (nth 4 entry))
+		(goto-char (point-min))
+		(forward-line (1- (nth 4 entry)))
                 (gdb-remove-breakpoint-icons (point) (point))))))))
 
 (defun rdebug-breakpoint-remove-all-icons ()
@@ -356,7 +367,8 @@ Argument PT indicates the file and line where the breakpoint should be set."
             (save-current-buffer
               (set-buffer buf)
               (save-excursion
-                (goto-line (nth 4 entry))
+		(goto-char (point-min))
+		(forward-line (nth 4 entry))
                 ;; Workaround for bug in `gdb-ui'. (It checks
                 ;; `left-fringe-width' but it doesn't interpret the
                 ;; `nil' value correctly.

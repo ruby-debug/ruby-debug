@@ -1,7 +1,7 @@
 ;;; rdebug-track.el --- Tracking the Ruby debugger from a shell
 ;; $Id$
 
-;; Copyright (C) 2006, 2007, 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2006, 2007, 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007, 2008 Anders Lindgren
 ;; Modified from  python-mode in particular the part:
 ;; pdbtrack support contributed by Ken Manheimer, April 2001.
@@ -86,6 +86,9 @@ as gud-mode does for debugging C programs with gdb."
 
 (require 'comint)
 (require 'custom)
+(eval-when-compile 
+  (byte-compile-disable-warning 'cl-functions)
+  )
 (require 'cl)
 (require 'compile)
 (require 'gud)
@@ -158,7 +161,9 @@ at the beginning of the line."
               (setq target_fname (buffer-file-name target_buffer))
 	      (setq gud-last-frame (cons target_fname target_lineno))
               (switch-to-buffer-other-window target_buffer)
-              (goto-line target_lineno)
+
+	      (goto-char (point-min))
+	      (forward-line target_lineno)
               (rdebug-debug-message "rdebug-track: line %s, file %s"
                                     target_lineno target_fname)
               (rdebug-track-overlay-arrow t)

@@ -1,3 +1,7 @@
+2009-04-04 14:11  Rocky Bernstein
+
+	* ChangeLog: Make test-save less installation-specific
+
 2009-03-29 03:00  Rocky Bernstein
 
 	* ChangeLog: Canonicalize breakpoint locations a little better.

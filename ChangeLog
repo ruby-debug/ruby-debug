@@ -1,3 +1,24 @@
+2009-04-10 09:35  Rocky Bernstein
+
+	* configure.ac: Ooops - need to get my story straight.
+
+2009-04-04 14:11  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/data/save.right,
+	  test/test-save.rb: Make test-save less installation-specific
+
+2009-04-04 08:42  Kent Sibilev
+
+	* cli/ruby-debug/commands/irb.rb: fixed IRB initialization in Ruby
+	  1.8.7
+	  
+	  'irb' command blows up when debugger is started with
+	  ./script/server --debugger
+
+2009-03-31 09:49  Rocky Bernstein
+
+	* emacs/rdebug-locring.el: Comment change
+
 2009-03-29 03:00  Rocky Bernstein
 
 	* ChangeLog, cli/ruby-debug/commands/breakpoints.rb, lib/ChangeLog,

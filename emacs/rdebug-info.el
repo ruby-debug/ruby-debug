@@ -1,7 +1,7 @@
 ;;; rdebug-info.el --- This file contains code dealing with the Ruby
 ;;; debugger's info secondary buffer.
 
-;; Copyright (C) 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2008, 2009 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2008 Anders Lindgren
 
 ;; $Id: rdebug-breaks.el 670 2008-02-06 18:15:28Z rockyb $
@@ -67,7 +67,8 @@
 	    (old-line-number (buffer-local-value 'rdebug-current-line-number
 						 buf)))
         (rdebug-info-mode)
-	(goto-line old-line-number)))))
+	(goto-char (point-min))
+	(forward-line old-line-number)))))
 
 
 ;; -------------------------------------------------------------------
