@@ -198,7 +198,7 @@ The position of the current frame is marked with -->.  }
 
   class UpCommand < Command # :nodoc:
     def regexp
-      /^\s* u(?:p)? (?:\s+(.*))?$/x
+      /^\s* u(?:p)? (?:\s+(\S+))? $/x
     end
 
     def execute
@@ -222,7 +222,7 @@ The position of the current frame is marked with -->.  }
 
   class DownCommand < Command # :nodoc:
     def regexp
-      /^\s* down (?:\s+(.*))? .*$/x
+      /^\s* down (?:\s+(\S+))? $/x
     end
 
     def execute

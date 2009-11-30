@@ -23,4 +23,10 @@ where
 frame 0 thread 3
 frame 0 thread 1
 # finish
+# See that we don't match more than 'down' or 'up' when used as a variable.
+set autoeval on
+download = 1
+download
+upload = 'hey'
+upload
 quit

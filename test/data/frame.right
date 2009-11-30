@@ -52,4 +52,15 @@ if a > b
 # frame 0 thread 1
 #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
 # # finish
+# # See that we don't match more than 'down' or 'up' when used as a variable.
+# set autoeval on
+autoeval is on.
+# download = 1
+1
+# download
+1
+# upload = 'hey'
+"hey"
+# upload
+"hey"
 # quit
