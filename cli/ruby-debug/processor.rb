@@ -6,6 +6,8 @@ module Debugger
   # Should this be a mixin?
   class Processor # :nodoc
     attr_accessor :interface
+    attr_reader   :processor
+    attr_reader   :commands
 
     # Format msg with gdb-style annotation header
     def afmt(msg, newline="\n")
@@ -60,7 +62,8 @@ module Debugger
     
     def initialize(interface = LocalInterface.new)
       @interface = interface
-      @display = []
+      @commands  = []
+      @display   = []
       
       @mutex = Mutex.new
       @last_cmd = nil
@@ -179,6 +182,24 @@ module Debugger
       process_commands(context, file, line)
     end
     
+    def one_cmd(commands, context, input)
+      if cmd = commands.find{ |c| c.match(input) }
+        if context.dead? && cmd.class.need_context
+          p cmd
+          print "Command is unavailable\n"
+        else
+          cmd.execute
+        end
+      else
+        unknown_cmd = commands.find{|cmd| cmd.class.unknown }
+        if unknown_cmd
+            unknown_cmd.execute
+        else
+          errmsg "Unknown command: \"#{input}\".  Try \"help\".\n"
+        end
+      end
+    end
+    
     private
 
     # The prompt shown before reading a command.
@@ -201,7 +222,7 @@ module Debugger
         cmd.allow_in_post_mortem
       end if context.dead?
 
-      state = State.new do |s|
+      state = State.new(self) do |s|
         s.context = context
         s.file    = file
         s.line    = line
@@ -223,7 +244,7 @@ module Debugger
 
     # Handle debugger commands
     def process_commands(context, file, line)
-      state, commands = always_run(context, file, line, 1)
+      state, @commands = always_run(context, file, line, 1)
       $rdebug_state = state if Command.settings[:debuggertesting]
       splitter = lambda do |str|
         str.split(/;/).inject([]) do |m, v|
@@ -241,7 +262,7 @@ module Debugger
         end
       end
       
-      preloop(commands, context)
+      preloop(@commands, context)
       CommandProcessor.print_location_and_text(file, line)
       while !state.proceed? 
         input = if @interface.command_queue.empty?
@@ -258,31 +279,13 @@ module Debugger
             @last_cmd = input
           end
           splitter[input].each do |cmd|
-            one_cmd(commands, context, cmd)
-            postcmd(commands, context, cmd)
+            one_cmd(@commands, context, cmd)
+            postcmd(@commands, context, cmd)
           end
         end
       end
-      postloop(commands, context)
+      postloop(@commands, context)
     end # process_commands
-    
-    def one_cmd(commands, context, input)
-      if cmd = commands.find{ |c| c.match(input) }
-        if context.dead? && cmd.class.need_context
-          p cmd
-          print "Command is unavailable\n"
-        else
-          cmd.execute
-        end
-      else
-        unknown_cmd = commands.find{|cmd| cmd.class.unknown }
-        if unknown_cmd
-            unknown_cmd.execute
-        else
-          errmsg "Unknown command: \"#{input}\".  Try \"help\".\n"
-        end
-      end
-    end
     
     def preloop(commands, context)
       aprint('stopped') if Debugger.annotate.to_i > 2
@@ -356,13 +359,14 @@ module Debugger
     class State # :nodoc:
       attr_accessor :context, :file, :line, :binding
       attr_accessor :frame_pos, :previous_line, :display
-      attr_accessor :interface, :commands
+      attr_accessor :interface, :commands, :processor
 
-      def initialize
+      def initialize(processor=nil)
         super()
-        @frame_pos = 0
+        @frame_pos     = 0
         @previous_line = nil
-        @proceed = false
+        @proceed       = false
+        @processor     = processor
         yield self
       end
 
@@ -401,7 +405,7 @@ module Debugger
         cmd.allow_in_control 
       end
       state = State.new(@interface, control_cmds)
-      commands = control_cmds.map{|cmd| cmd.new(state) }
+      @commands = control_cmds.map{|cmd| cmd.new(state) }
 
       unless @debugger_context_was_dead
         if Debugger.annotate.to_i > 2
@@ -414,7 +418,7 @@ module Debugger
       while input = @interface.read_command(prompt(nil))
         print "+#{input}" if verbose
         catch(:debug_error) do
-          if cmd = commands.find{|c| c.match(input) }
+          if cmd = @commands.find{|c| c.match(input) }
             cmd.execute
           else
             errmsg "Unknown command\n"

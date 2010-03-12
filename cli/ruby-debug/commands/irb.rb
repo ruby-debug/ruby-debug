@@ -2,25 +2,64 @@ require 'irb'
 
 module IRB # :nodoc:
   module ExtendCommand # :nodoc:
-    class Continue # :nodoc:
-      def self.execute(conf)
-        throw :IRB_EXIT, :cont
+
+    # FIXME: should we read these out of a directory to 
+    #        make this more user-customizable? 
+    # A base command class that resume execution
+    class DebuggerResumeCommand
+      def self.execute(conf, *opts)
+        name = 
+          if self.name =~ /IRB::ExtendCommand::(\S+)/
+            $1.downcase
+          else
+            'unknown'
+          end
+        $rbdbgr_args = opts
+        $rbdbgr_command = 
+          if $rbdbgr_irb_statements 
+            $rbdbgr_irb_statements
+          else
+            ([name] + opts).join(' ')
+          end
+
+        throw :IRB_EXIT, name.to_sym
       end
     end
-    class Next # :nodoc:
-      def self.execute(conf)
-        throw :IRB_EXIT, :next
+
+    class Continue < DebuggerResumeCommand ; end
+    class Next     < DebuggerResumeCommand ; end
+    class Quit     < DebuggerResumeCommand ; end
+    class Step     < DebuggerResumeCommand ; end
+
+    # Issues a comamnd to the debugger without continuing
+    # execution. 
+    class Dbgr
+      def self.execute(conf, *opts)
+        command = 
+          if opts.size == 1 && opts[0].is_a?(String)
+            args = opts[0]
+          else
+            opts.join(' ')
+          end
+        if $rdebug_state && $rdebug_state.processor
+          processor = $rdebug_state.processor
+          processor.one_cmd($rdebug_state.processor.commands, 
+                            $rdebug_state.context,
+                            command)
+        end
       end
     end
-    class Step # :nodoc:
-      def self.execute(conf)
-        throw :IRB_EXIT, :step
-      end
+
+  end
+  if defined?(ExtendCommandBundle)
+    [['cont', :Continue],
+     ['dbgr', :Dbgr],
+     ['n',    :Next],
+     ['step', :Step],
+     ['q',    :Quit]].each do |command, sym|
+      ExtendCommandBundle.def_extend_command command, sym
     end
   end
-  ExtendCommandBundle.def_extend_command "cont", :Continue
-  ExtendCommandBundle.def_extend_command "n", :Next
-  ExtendCommandBundle.def_extend_command "step", :Step
   
   def self.start_session(binding)
     unless @__initialized
@@ -28,6 +67,13 @@ module IRB # :nodoc:
       ARGV.replace([])
       IRB.setup(nil)
       ARGV.replace(args)
+
+      # If the user has a IRB profile, run that now.
+      if ENV['RBDBGR_IRB']
+        ENV['IRBRC'] = ENV['RBDBGR_IRB']
+        @CONF[:RC_NAME_GENERATOR]=nil
+        IRB.run_config
+      end
       @__initialized = true
     end
     
@@ -41,6 +87,18 @@ module IRB # :nodoc:
     catch(:IRB_EXIT) do
       irb.eval_input
     end
+  end
+end
+
+# Monkeypatch to save the current IRB statement to be run and make the instruction sequence
+# "filename" unique. Possibly not needed.
+class IRB::Context
+  def evaluate(line, line_no)
+    $rbdbgr_irb_statements = line
+    @line_no = line_no
+    set_last_value(@workspace.evaluate(self, line, irb_path, line_no))
+#    @workspace.evaluate("_ = IRB.conf[:MAIN_CONTEXT]._")
+#    @_ = @workspace.evaluate(line, irb_path, line_no)
   end
 end
 
@@ -72,8 +130,8 @@ module Debugger
         throw :IRB_EXIT, :cont if $rdebug_in_irb
       end
 
-      add_debugging = @match.is_a?(Array) && '-d' == @match[1]
-      $rdebug_state = @state if add_debugging
+      # add_debugging = @match.is_a?(Array) && '-d' == @match[1]
+      $rdebug_state = @state
       $rdebug_in_irb = true
       cont = IRB.start_session(get_binding)
       case cont
@@ -87,6 +145,12 @@ module Debugger
         force = Command.settings[:force_stepping]
         @state.context.step_over(1, @state.frame_pos, force)
         @state.proceed 
+      when :quit
+        # FIXME: DRY with code from file/command quit.
+        if confirm("Really quit? (y/n) ") 
+          @state.interface.finalize
+          exit! # exit -> exit!: No graceful way to stop threads...
+        end
       else
         file = @state.context.frame_file(0)
         line = @state.context.frame_line(0)
@@ -96,7 +160,7 @@ module Debugger
 
     ensure
       $rdebug_in_irb = nil
-      $rdebug_state = nil if add_debugging
+      $rdebug_state = nil
       trap("SIGINT", save_trap) if save_trap
     end
     

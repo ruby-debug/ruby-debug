@@ -253,3 +253,25 @@ task :rubyforge_upload do
     system(release_command)
   end
 end
+
+def install(spec, *opts)
+  args = ['gem', 'install', "pkg/#{spec.name}-#{spec.version}.gem"] + opts
+  args.unshift 'sudo' unless 0 == Process.uid
+  system(*args)
+end
+
+desc 'Install locally'
+task :install => :package do
+  Dir.chdir(File::dirname(__FILE__)) do
+    # ri and rdoc take lots of time
+    install(base_spec, '--no-ri', '--no-rdoc')
+    install(cli_spec, '--no-ri', '--no-rdoc')
+  end
+end    
+
+task :install_full => :package do
+  Dir.chdir(File::dirname(__FILE__)) do
+    install(base_spec)
+    install(cli_spec)
+  end
+end    
