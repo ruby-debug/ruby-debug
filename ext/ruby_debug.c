@@ -924,8 +924,13 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             hit_count = rb_hash_aref(rdebug_catchpoints, mod_name);
             if(hit_count != Qnil)
             {
-                hit_count = INT2FIX(FIX2INT(rb_hash_aref(rdebug_catchpoints, 
-                    mod_name)+1));
+		/* On 64-bit systems with gcc and -O2 there seems to be
+		   an optimization bug in running INT2FIX(FIX2INT...)..)
+		   So we do this in two steps.
+		*/
+		int c_hit_count = FIX2INT(rb_hash_aref(rdebug_catchpoints, 
+						       mod_name)) + 1;
+                hit_count = INT2FIX(c_hit_count);
                 rb_hash_aset(rdebug_catchpoints, mod_name, hit_count);
                 debug_context->stop_reason = CTX_STOP_CATCHPOINT;
                 rb_funcall(context, idAtCatchpoint, 1, ruby_errinfo);
