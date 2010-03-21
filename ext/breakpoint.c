@@ -68,7 +68,7 @@ check_breakpoint_by_pos(VALUE breakpoint, char *file, int line)
 }
 
 int
-check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid)
+check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid, VALUE self)
 {
     debug_breakpoint_t *debug_breakpoint;
 
@@ -81,6 +81,9 @@ check_breakpoint_by_method(VALUE breakpoint, VALUE klass, ID mid)
     if(debug_breakpoint->pos.mid != mid)
         return 0;
     if(classname_cmp(debug_breakpoint->source, klass))
+        return 1;
+    if ((rb_type(self) == T_CLASS) &&
+        classname_cmp(debug_breakpoint->source, self))
         return 1;
     return 0;
 }
@@ -109,7 +112,7 @@ check_breakpoints_by_pos(debug_context_t *debug_context, char *file, int line)
 }
 
 VALUE
-check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
+check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid, VALUE self)
 {
     VALUE breakpoint;
     int i;
@@ -117,7 +120,7 @@ check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
     if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
         return Qnil;
         
-    if(check_breakpoint_by_method(debug_context->breakpoint, klass, mid))
+    if(check_breakpoint_by_method(debug_context->breakpoint, klass, mid, self))
         return debug_context->breakpoint;
 
     if(RARRAY(rdebug_breakpoints)->len == 0)
@@ -125,7 +128,7 @@ check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid)
     for(i = 0; i < RARRAY(rdebug_breakpoints)->len; i++)
     {
         breakpoint = rb_ary_entry(rdebug_breakpoints, i);
-        if(check_breakpoint_by_method(breakpoint, klass, mid))
+        if(check_breakpoint_by_method(breakpoint, klass, mid, self))
             return breakpoint;
     }
     return Qnil;
