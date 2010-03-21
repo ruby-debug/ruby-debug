@@ -1,7 +1,15 @@
+2010-03-16 04:23  Rocky Bernstein
+
+	* ChangeLog: Fix for what looks like an optimization bug on 64-bit
+	  gcc systems with optimization. The Symptom is that debugger
+	  "catch" causes the program to immediately terminate when the Ruby
+	  exception is raised. Possibly a problem in using
+	  INT2FIX(FIX2INT...)..) and/or possibly a bug in those macros.
+
 2010-03-12 20:27  Rocky Bernstein
 
-	* irb.rb: Goodness backported from rbdbgr. Add IRB 'q' for quit and
-	  ability to
+	* ChangeLog: irb.rb: Goodness backported from rbdbgr. Add IRB 'q'
+	  for quit and ability to
 	  run debugger commands from inside irb via dbgr, e.g. >> dbgr
 	  'where'
 	  
@@ -11,8 +19,8 @@
 
 2009-11-28 22:56  Rocky Bernstein
 
-	* Fix problem caused by gdb-ui renamed to gdb-mi. Rubyforge tracker
-	  #27152
+	* ChangeLog: Fix problem caused by gdb-ui renamed to gdb-mi.
+	  Rubyforge tracker #27152
 	  Remove all Emacs byte compile warning messages.
 	  
 	  Note however all of this code will eventually be phased out in
@@ -21,222 +29,132 @@
 
 2009-04-04 14:11  Rocky Bernstein
 
-	* Make test-save less installation-specific
+	* ChangeLog: Make test-save less installation-specific
 
 2009-03-29 03:00  Rocky Bernstein
 
-	* Canonicalize breakpoint locations a little better. More work
-	  should be done and more work should be done on the testing side
-	  too.
+	* ChangeLog: Canonicalize breakpoint locations a little better.
+	  More work should be done and more work should be done on the
+	  testing side too.
 
 2009-03-11 23:42  Rocky Bernstein
 
-	* update texinfo for catch
+	* ChangeLog: update texinfo for catch
 
 2008-11-25 02:43  Rocky Bernstein
 
-	* ruby_debug.c: Frame without a frame number means frame 0, same as
+	* ChangeLog: Frame without a frame number means frame 0, same as
 	  gdb. We are now in 0.10.4 territory now.
 
 2008-11-16 00:14  Rocky Bernstein
 
-	* Add rdoc for rdebug script.
-
-2008-11-15 22:13  Rocky Bernstein
-
-	* ruby_debug.c: Go over RDOC documentation.
-
-2008-11-15 02:21  Rocky Bernstein
-
-	* win32/.cvsignore: More administrivia
-
-2008-11-15 02:20  Rocky Bernstein
-
-	* win32: More administrivia
+	* ChangeLog: Add rdoc for rdebug script.
 
 2008-11-14 19:28  Rocky Bernstein
 
-	* Go over documentation and revise.
+	* ruby-debug-base.rb: Go over documentation and revise.
 
 2008-11-14 15:32  Rocky Bernstein
 
-	* ruby_debug.c: Move Debugger#debugger from base to cli. Revert
-	  code in ruby_debug.c and block parameter in debugger. cf. ->
-	  Compare with. Document Debugger.start better.
+	* ChangeLog, ruby-debug-base.rb: Move Debugger#debugger from base
+	  to cli. Revert code in ruby_debug.c and block parameter in
+	  debugger. cf. -> Compare with. Document Debugger.start better.
 
 2008-11-13 10:29  Rocky Bernstein
 
-	* ruby_debug.c: Make Debugger.start{block} work if
-	  Debugger.started? is false. Second try.
+	* ChangeLog: Make Debugger.start{block} work if Debugger.started?
+	  is false. Second try.
 
 2008-11-11 02:07  Rocky Bernstein
 
-	* Tweak truncated stack test since Ruby's caller doesn't seem to
-	  include (tail?) recursive calls and we do. Get regression tests
-	  working in light of recent changes.
-
-2008-11-10 08:47  Kent Sibilev
-
-	* ruby_debug.c: register debug_frame_t->arg_ary with GC
-
-2008-11-10 02:56  Kent Sibilev
-
-	* ruby_debug.c: Trying to fix "if $0 == __FILE__" ruby's idiom.
-	  Apparently setting $0 to
-	  a new value doesn't work correctly. (Ruby's bug?)
-	  
-	  $ cat t3.rb
-	  p $0
-	  p File.expand_path $0
-	  $0 = File.expand_path $0
-	  p $0
-	  $ ruby t3.rb
-	  "t3.rb"
-	  "/Users/kent/Work/ruby-debug/trunk/t3.rb"
-	  "/Users/ke"
-
-2008-11-10 01:50  Kent Sibilev
-
-	* ruby_debug.h: added declaration of check_breakpoints_by_method
-	  method to remove compiler warning
+	* ChangeLog: Tweak truncated stack test since Ruby's caller doesn't
+	  seem to include (tail?) recursive calls and we do. Get regression
+	  tests working in light of recent changes.
 
 2008-11-10 01:48  Kent Sibilev
 
-	* a little bit more readable
-
-2008-11-10 01:43  Kent Sibilev
-
-	* ruby_debug.c: running at_exit hooks at the end of the debug_load
-	  method in order to fix test cases a chance to run
-
-2008-11-10 01:41  Kent Sibilev
-
-	* ruby_debug.c: can't store a copy of the debug_context in the
-	  stack like that, it doesn't play along with garbage collector.
-
-2008-11-10 01:39  Kent Sibilev
-
-	* ruby_debug.c: these two methods are unused
-
-2008-11-10 01:36  Kent Sibilev
-
-	* breakpoint.c: fix the compiler warning
+	* ruby-debug-base.rb: a little bit more readable
 
 2008-11-10 01:35  Kent Sibilev
 
-	* Debugger.start must always call the passed block
+	* ruby-debug-base.rb: Debugger.start must always call the passed
+	  block
 
 2008-11-07 19:35  Rocky Bernstein
 
-	* Change truncated frame message.
+	* ChangeLog: Change truncated frame message.
 
 2008-11-07 10:39  Rocky Bernstein
 
-	* Add check to "where" to see if the call stack is truncated; task
-	  #2354
+	* ChangeLog: Add check to "where" to see if the call stack is
+	  truncated; task #2354
 
 2008-11-06 16:17  Rocky Bernstein
 
-	* #22698 Allow ruby-debug-base 0.x.y.z be compatible with
-	  ruby-debug 0.x.y.
+	* ChangeLog: #22698 Allow ruby-debug-base 0.x.y.z be compatible
+	  with ruby-debug 0.x.y.
 
 2008-11-02 21:59  Rocky Bernstein
 
-	* ruby_debug.c: Debugger.start with a block now stops inside the
-	  block. Debugger.debugger with a block works like Debugger.start
-	  with a block.
+	* ChangeLog, ruby-debug-base.rb: Debugger.start with a block now
+	  stops inside the block. Debugger.debugger with a block works like
+	  Debugger.start with a block.
 	  
 	  The whole interface is hopelessly kludgy and needs to be redone.
 
 2008-10-26 14:54  Rocky Bernstein
 
-	* extconf.rb, ruby_debug.c: Doc typo. Add comment to remind me how
-	  to turn off optimizationin extconf.rb
+	* ChangeLog: Doc typo. Add comment to remind me how to turn off
+	  optimizationin extconf.rb
 
 2008-10-25 16:01  Rocky Bernstein
 
-	* ruby_debug.c: Warn and add a "confirmation" when setting a
+	* ChangeLog: Warn and add a "confirmation" when setting a
 	  breakpoint on a file that is not loaded. Regression tests no
 	  longer fail.
 
 2008-09-22 00:07  Rocky Bernstein
 
-	* #22118 bug in showing variables post mortem. Patch thanks to
-	  rubikitch.
+	* ruby-debug-base.rb: #22118 bug in showing variables post mortem.
+	  Patch thanks to rubikitch.
 	  Update pm.rb integration test.
-
-2008-09-21 23:06  Rocky Bernstein
-
-	* ruby_debug.c: tdebug.rb: modify frozen string taken from rdebug.
-	  Patch from Martin Krauskopf.
-	  ruby_debug.c: in 0.10.3 now.
 
 2008-09-03 17:29  Rocky Bernstein
 
-	* Show line numbers when $DEBUG is set. Patch #21772 from Martin
-	  Krauskopf
-
-2008-08-28 05:43  Kent Sibilev
-
-	* ruby_debug.c:
-
-2008-07-10 08:55  Kent Sibilev
-
-	* ruby_debug.c: fixed segfault and finish command
+	* ChangeLog: Show line numbers when $DEBUG is set. Patch #21772
+	  from Martin Krauskopf
 
 2008-07-07 07:11  Rocky Bernstein
 
-	* Tracker [#20041] start erroneously moved to Kernel - should be in
+	* ruby-debug-base.rb: Tracker [#20041] start erroneously moved to
+	  Kernel - should be in
 	  Debugger.start
 
 2008-06-20 06:46  Rocky Bernstein
 
-	* trace.rb: add "trace var"
+	* ruby-debug-base.rb: trace.rb: add "trace var"
 	  ruby-debug-base.rb: remove another undefined warning.
 
 2008-05-24 01:27  Rocky Bernstein
 
-	* Remove dup lines.
-
-2008-05-23 01:04  Rocky Bernstein
-
-	* breakpoint.c: Lots of bogosity fixed in catchpoint handling.
-	  Added "catch xxx off".
-	  Confirm when deleting all catchpoints. Correct C rdoc.
-	  #20237
+	* ChangeLog: Remove dup lines.
 
 2008-05-15 16:05  Rocky Bernstein
 
-	* Handle "catch nnn off" Forgotten there during r656.
+	* ChangeLog: Handle "catch nnn off" Forgotten there during r656.
 	  From mkrauskopf [#20156].
-
-2008-05-11 08:38  Rocky Bernstein
-
-	* ruby_debug.c: Remove stop in debug_load due to Debugger.start
-	  getting called twice.
-	  The fix -- for now -- is to add another parameter to debug_load
-	  to
-	  indicate not to increment debug_count. We could also make that
-	  the
-	  default in debug_load as well, but debug_load might be useful in
-	  other
-	  situations and where control_threads are not relevant (which is
-	  why we
-	  need to call Debugger.start rather than let debug_load do it).
-	  
-	  Bug #19930
 
 2008-05-05 18:05  Rocky Bernstein
 
-	* make test-frame installation independent. Bug #19931
+	* ChangeLog: make test-frame installation independent. Bug #19931
 
 2008-04-29 13:37  Rocky Bernstein
 
-	* Test line number in "continue" command for validity.
+	* ChangeLog: Test line number in "continue" command for validity.
 
 2008-04-28 16:16  Rocky Bernstein
 
-	* From Martin Krauskopf via patch #19779
+	* ChangeLog: From Martin Krauskopf via patch #19779
 	  
 	  Allow folks to configure Ruby used for CLI tests in the
 	  test/config.yaml. The defaults are for native Ruby, so nothing
@@ -256,50 +174,43 @@
 
 2008-04-22 02:49  Rocky Bernstein
 
-	* Experiment with debugger(steps=0). Puts us in the debugger call,
-	  but this may be the best we can do for now. See tracker
+	* ruby-debug-base.rb: Experiment with debugger(steps=0). Puts us in
+	  the debugger call, but this may be the best we can do for now.
+	  See tracker
 	  #19639.
-
-2008-04-19 13:22  Rocky Bernstein
-
-	* ruby_debug.c: Change test for whether we have moved off a line or
-	  not for purposes
-	  of stopping at a breakpoint on a line. The line events for which
-	  there
-	  are normally two stops are on NODE if's before the if and after
-	  the
-	  expression evaluation. Tracker #19594.
 
 2008-04-16 01:11  Rocky Bernstein
 
-	* ruby_debug.c: In 0.10.2 now. Some work to cope systems without
+	* ChangeLog: In 0.10.2 now. Some work to cope systems without
 	  readline. More work is needed.
 	  Add test of "set autoeval." Undefined command message more
 	  closely like gdb's.
 
 2008-04-10 08:49  Rocky Bernstein
 
-	* linecache is required by ruby-debug-base not ruby-debug. Thanks
-	  Martin!
+	* ChangeLog: linecache is required by ruby-debug-base not
+	  ruby-debug. Thanks Martin!
 
 2008-04-10 08:00  Rocky Bernstein
 
-	* Last change before 0.10.1 release.
+	* ChangeLog: Last change before 0.10.1 release.
 
 2008-04-10 02:03  Rocky Bernstein
 
-	* Cosmetic stuff: spelling corrections. Update node structure so
-	  texinfo
+	* ChangeLog: Cosmetic stuff: spelling corrections. Update node
+	  structure so texinfo
 	  doesn't complain.
 
 2008-04-08 14:52  Rocky Bernstein
 
-	* autorequire is deprecated and presumably no longer needed
+	* ChangeLog: autorequire is deprecated and presumably no longer
+	  needed
 	  http://blade.nagaokaut.ac.jp/cgi-bin/scat.rb/ruby/ruby-talk/182827
 
 2008-04-07 00:36  Rocky Bernstein
 
-	* ruby-debug-base.rb: document Debugger.start parameters.
+	* ChangeLog, ruby-debug-base.rb: ruby-debug-base.rb: document
+	  Debugger.start parameters.
 	  CHANGES: Revise what's happened
 	  test-shortkey.el: A failing regression test because I think
 	  rdebug-shortkey-mode
@@ -307,29 +218,30 @@
 
 2008-04-03 19:01  Rocky Bernstein
 
-	* Allow setting :post_mortem => true from Debugger.start.
+	* ChangeLog, ruby-debug-base.rb: Allow setting :post_mortem => true
+	  from Debugger.start.
 
 2008-03-28 13:53  Rocky Bernstein
 
-	* Don't unconditionally turn on short-key mode when annotations are
-	  on. Use rdebug-short-key-mode setting to decide.
+	* ChangeLog: Don't unconditionally turn on short-key mode when
+	  annotations are on. Use rdebug-short-key-mode setting to decide.
 
 2008-03-23 17:47  Rocky Bernstein
 
-	* set.rb -> settings.rb since it's already one command per file,
-	  and
+	* ChangeLog: set.rb -> settings.rb since it's already one command
+	  per file, and
 	  remove another :nodoc.
 	  Rakefile: split long line
 
 2008-03-18 16:05  Rocky Bernstein
 
-	* Fix bug in 'list' command when wrapping off the end.
+	* ChangeLog: Fix bug in 'list' command when wrapping off the end.
 	  test-finish.rb: tolerate buggy in Ruby versions <= 1.8.7.
 
 2008-03-13 02:15  Rocky Bernstein
 
-	* ruby_debug.c: INCOMPATIBLE CHANGE: "finish" works like gdb - stop
-	  just before the
+	* ruby-debug-base.rb: INCOMPATIBLE CHANGE: "finish" works like gdb
+	  - stop just before the
 	  most recent method finishes. Will now accept a number which stops
 	  that
 	  many frames completed. (Note that return line numbers will be
@@ -338,19 +250,23 @@
 
 2008-03-10 13:28  Rocky Bernstein
 
-	* Dunno why we are now one line number less. So be it (for now).
+	* ChangeLog: Dunno why we are now one line number less. So be it
+	  (for now).
 
 2008-03-09 23:30  Rocky Bernstein
 
-	* For now we require the duplicate numbers on conditionals.
+	* ChangeLog: For now we require the duplicate numbers on
+	  conditionals.
 
 2008-03-02 04:20  Rocky Bernstein
 
-	* Better error message for an invalid break command.
+	* ruby-debug-base.rb: Better error message for an invalid break
+	  command.
 
 2008-02-28 05:06  Rocky Bernstein
 
-	* breakpoints.{cmd,right}: test for an invalid stopping line number
+	* ChangeLog: breakpoints.{cmd,right}: test for an invalid stopping
+	  line number
 	  rdebug-fns.el: move generic split-string-and-unquote from
 	  rdebug-core.
 	  rdebug-core.el: Add rdebug-common-init to replace
@@ -362,32 +278,33 @@
 
 2008-02-27 04:04  Rocky Bernstein
 
-	* Slightly more robust handle_post_mortem.
+	* ruby-debug-base.rb: Slightly more robust handle_post_mortem.
 
 2008-02-26 17:31  Rocky Bernstein
 
-	* Go over source location positioning. 0 is now the oldest (first)
-	  position. Add M-S-down and M-S-up for first and last. More tests
-	  needed in test-fns.el and need to prompt on wrap around.
+	* ChangeLog: Go over source location positioning. 0 is now the
+	  oldest (first) position. Add M-S-down and M-S-up for first and
+	  last. More tests needed in test-fns.el and need to prompt on wrap
+	  around.
 
 2008-02-26 00:57  Rocky Bernstein
 
-	* Fix bug in "info file xxx breakpoints".
+	* ChangeLog: Fix bug in "info file xxx breakpoints".
 
 2008-02-24 16:36  Rocky Bernstein
 
-	* rdebug; make more Ruby 1.9 compatible.
+	* ChangeLog: rdebug; make more Ruby 1.9 compatible.
 
 2008-02-24 16:14  Rocky Bernstein
 
-	* Minor changes.
+	* ChangeLog: Minor changes.
 	  rdbg.rb: don't need $DEBUG test any more
 	  rdebug-regexp.el: go over with checkdoc
 	  bin/rdebug: use PATH_SEPARATOR (for 'doze again)
 
 2008-02-24 04:51  Rocky Bernstein
 
-	* CLI: Add long help for "info file".
+	* ChangeLog: CLI: Add long help for "info file".
 	  
 	  test/test-help.rb: Make test failures easier to fix and more like
 	  the
@@ -406,45 +323,50 @@
 
 2008-02-21 02:56  Rocky Bernstein
 
-	* Fringe for frame buffer the same as in source code. Move
+	* ChangeLog: Fringe for frame buffer the same as in source code.
+	  Move
 	  miscellaneous small functions to a new file. Reduce duplication
 	  of
 	  "chomp" code.
 
 2008-02-19 23:44  Rocky Bernstein
 
-	* rdebug-cmd.el: M-insert toggles shortkey mode in the command
-	  buffer
+	* ChangeLog: rdebug-cmd.el: M-insert toggles shortkey mode in the
+	  command buffer
 	  rdebug: search for Ruby program if file is not found and no
 	  SEPARATOR
 	  chars in the filename
 
 2008-02-18 19:56  Rocky Bernstein
 
-	* Frame switching shouldn't be recorded in position history ring.
+	* ChangeLog: Frame switching shouldn't be recorded in position
+	  history ring.
 
 2008-02-17 13:57  Rocky Bernstein
 
-	* Add Debugger.last_exception. Show exception in post-mortem when
-	  "info program"
+	* ruby-debug-base.rb: Add Debugger.last_exception. Show exception
+	  in post-mortem when "info program"
 	  is issued. Reorganize list of major changes better.
 
 2008-02-13 21:47  Rocky Bernstein
 
-	* processor.rb: spelled "post-mortem" incorrectly in prompt.
+	* ChangeLog: processor.rb: spelled "post-mortem" incorrectly in
+	  prompt.
 
 2008-02-13 17:32  Rocky Bernstein
 
-	* Set up keys for comint-next-prompt and comint-previous-prompt.
+	* ChangeLog: Set up keys for comint-next-prompt and
+	  comint-previous-prompt.
 
 2008-02-12 02:06  Rocky Bernstein
 
-	* Fix bug in "info thread verbose" which wasn't showing full
-	  traceback.
+	* ChangeLog: Fix bug in "info thread verbose" which wasn't showing
+	  full traceback.
 
 2008-02-09 15:48  Rocky Bernstein
 
-	* helper.rb Failed attempt to DRY tests more. But save what we have
+	* ChangeLog: helper.rb Failed attempt to DRY tests more. But save
+	  what we have
 	  which may someday in the future be used to go further. Minus to
 	  undercore in Data file names in preparation such time. (We'll use
 	  the
@@ -452,30 +374,23 @@
 	  
 	  testing
 
-2008-02-09 11:55  Rocky Bernstein
-
-	* ruby_debug.c: Fix bug where we entered debugger code if we "next"
-	  over code that
-	  goes raises an uncaught exception. Needed to reset stepping
-	  parameters. Added a routine to do so.
-
 2008-02-06 16:15  Rocky Bernstein
 
-	* Add 'nowarn to find-file-noselect and test that we don't get a
-	  warning.
+	* ChangeLog: Add 'nowarn to find-file-noselect and test that we
+	  don't get a warning.
 
 2008-02-05 01:41  Rocky Bernstein
 
-	* rdebug.el: Add a defgroup for rdebug so customization in Emacs 23
-	  is possible.
+	* ChangeLog: rdebug.el: Add a defgroup for rdebug so customization
+	  in Emacs 23 is possible.
 	  Some other minor doc fixes.
 	  setshow.* make sure we don't have an $Id line that we have to
 	  check against.
 
 2008-02-03 15:23  Rocky Bernstein
 
-	* Try to get testing a little more organized, although more work
-	  should
+	* ChangeLog: Try to get testing a little more organized, although
+	  more work should
 	  be done: Create a data directory for comparison ("right") and
 	  script
 	  command ("cmd") files. Code is now more uniform (and should DRY'd
@@ -484,8 +399,8 @@
 
 2008-02-02 23:10  Rocky Bernstein
 
-	* Remove commands in post-mortem which are not applicable,
-	  e.g."step",
+	* ChangeLog: Remove commands in post-mortem which are not
+	  applicable, e.g."step",
 	  "next", "continue"...
 	  
 	  "No breakpoints have been set" is now an error message when
@@ -498,88 +413,60 @@
 
 2008-02-02 09:27  Rocky Bernstein
 
-	* ruby_debug.c: Remove Debugger.init and fold options parameter
-	  into Debugger.start.
+	* ruby-debug-base.rb: Remove Debugger.init and fold options
+	  parameter into Debugger.start.
 	  Old Debugger.start has been renamed Deebugger.start_
-
-2008-02-01 03:09  Rocky Bernstein
-
-	* breakpoint.c, ruby_debug.c, ruby_debug.h: Allow multiple
-	  exceptions to be caught.
-	  
-	  INCOMPATIBLE CHANGE: varible Debugger.catchpoint a String was
-	  turned
-	  into Debugger.catchpoints, a Hash. Debugger.catchpoint= no longer
-	  exists. Debugger.set_catchpoint was turned into
-	  Debugger.add_catchpoint
-	  
-	  "info catch" added.
-	  
-	  INCOMPATIBLE CHANGE: variable Debugger.catchpoint is now
-	  Debugger.catchpoints
-	  which is a now hash rather than a String. Debugger.catchpoint= no
-	  longer exists.
-	  
-	  A catchpoint ruby-debug-base test added. use unshift in requires.
-	  
-	  rdebug: --post-mortem now really catches uncaught exceptions and
-	  brings you to post-mortem handling.
 
 2008-01-31 16:30  Rocky Bernstein
 
-	* ruby_debug.c: Leave ruby_debug.c this way for now.
+	* ChangeLog: Leave ruby_debug.c this way for now.
 
 2008-01-31 16:24  Rocky Bernstein
 
-	* ruby_debug.c: ruby_debug.c: more adventures in exception handling
+	* ChangeLog: ruby_debug.c: more adventures in exception handling
 	  processor.rb: Removal of crash when annotate is on. Need to fix
 	  the source of the
 	  problem though.
 
 2008-01-31 15:16  Rocky Bernstein
 
-	* Handle post-mortem and exception traceback reporting in
-	  ruby-debug
-
-2008-01-31 03:01  Rocky Bernstein
-
-	* ruby_debug.c: Have Debug.load recover from uncaught error raised
-	  in a debugged program.
-	  Go over regression tests.
+	* ruby-debug-base.rb: Handle post-mortem and exception traceback
+	  reporting in ruby-debug
 
 2008-01-30 17:01  Rocky Bernstein
 
-	* Add Command.find() to find a subcommand name.
+	* ChangeLog: Add Command.find() to find a subcommand name.
 	  condition.right: correct for breakpoint hit counts.
 
 2008-01-30 01:43  Rocky Bernstein
 
-	* Add number of times a breakpoint is hit like gdb does.
+	* ChangeLog: Add number of times a breakpoint is hit like gdb does.
 
 2008-01-29 22:37  Rocky Bernstein
 
-	* Columnize breakpoint output.
+	* ChangeLog: Columnize breakpoint output.
 
 2008-01-29 11:20  Rocky Bernstein
 
-	* More annotate=2 fixes.
+	* ChangeLog: More annotate=2 fixes.
 
 2008-01-28 15:59  Rocky Bernstein
 
-	* Add info file breakpoints to show lines which we can set a
-	  breakpoint on.
+	* ChangeLog: Add info file breakpoints to show lines which we can
+	  set a breakpoint on.
 	  Revise so we chdir into SRC_DIR.
 	  test-hist.rb is broken - will fix later.
 
 2008-01-25 12:11  Rocky Bernstein
 
-	* Add Debugger.init which intializes things that rdebug does. This
+	* ChangeLog, ruby-debug-base.rb: Add Debugger.init which intializes
+	  things that rdebug does. This
 	  allows a restart even though rdebug wasn't called initially.
 
 2008-01-22 23:15  Rocky Bernstein
 
-	* Allow "help info xxx". Add ability for long help on "info"
-	  command.
+	* ChangeLog: Allow "help info xxx". Add ability for long help on
+	  "info" command.
 	  Add "info break xx".
 	  
 	  test: remove test/unit class name conflicts. All the tests we
@@ -588,38 +475,39 @@
 
 2008-01-19 19:28  Rocky Bernstein
 
-	* Move ruby-debug-base tests to base directory. Add a binding_n
-	  regression test.
+	* ChangeLog: Move ruby-debug-base tests to base directory. Add a
+	  binding_n regression test.
 
 2008-01-16 18:42  Rocky Bernstein
 
-	* Need to present source filename (__FILE__) as Ruby and therefore
-	  breakpoint
+	* ChangeLog: Need to present source filename (__FILE__) as Ruby and
+	  therefore breakpoint
 	  sees it.
 	  
 
 2008-01-16 02:19  Rocky Bernstein
 
-	* Line caching moved to an external gem, linecache. We now require
+	* ChangeLog, ruby-debug-base.rb: Line caching moved to an external
+	  gem, linecache. We now require
 	  version 0.2 of that or greater.
 
 2008-01-14 01:31  Rocky Bernstein
 
-	* Make rdebug-track work better in the face of prompt and error
-	  annotations.
+	* ChangeLog: Make rdebug-track work better in the face of prompt
+	  and error annotations.
 	  control.rb: need another test when rdebug not called initially.
 
 2008-01-13 21:51  Rocky Bernstein
 
-	* breakpoint.c: Some stack -> frame renaming
+	* ChangeLog: Some stack -> frame renaming
 	  ext/breakpoint.c: put methods in alpha order (to help with
 	  reference man)
 	  breakpoints.rb: one print -> errmsg
 
 2008-01-13 18:13  Rocky Bernstein
 
-	* Create errmsg routine for error output, start tagging error
-	  messages
+	* ChangeLog: Create errmsg routine for error output, start tagging
+	  error messages
 	  as errors. Under annotate 3, output errors similar to gdb
 	  --annotate
 	  does (although still simplified). Have Emacs pick up debugger
@@ -628,39 +516,40 @@
 
 2008-01-13 04:05  Rocky Bernstein
 
-	* Check validity of expressions in breakpoint conditions and don't
-	  allow
+	* ChangeLog: Check validity of expressions in breakpoint conditions
+	  and don't allow
 	  enabling a syntactically invalid expression.
 	  
 	  Start noting messages which are errors via an errmsg routine.
 
 2008-01-11 10:26  Rocky Bernstein
 
-	* Document that ruby-debug resets $0. Align program options in ref
-	  manual and --help. Alphabetize better.
+	* ChangeLog: Document that ruby-debug resets $0. Align program
+	  options in ref manual and --help. Alphabetize better.
 
 2008-01-10 22:56  Rocky Bernstein
 
-	* More correct $0 fix. Deal with the case ./ is automatically
-	  added.
+	* ChangeLog: More correct $0 fix. Deal with the case ./ is
+	  automatically added.
 	  However this might not be right in all cases.
 
 2008-01-10 22:25  Rocky Bernstein
 
-	* Was gobbling arg in processing --emacs. Add test.
+	* ChangeLog: Was gobbling arg in processing --emacs. Add test.
 
 2008-01-10 10:34  Rocky Bernstein
 
-	* breakpoint.c: Add condition command.
+	* ChangeLog: Add condition command.
 
 2008-01-09 19:10  Rocky Bernstein
 
-	* Rakefile: rdebug.rb -> rdbg.el
+	* ChangeLog: Rakefile: rdebug.rb -> rdbg.el
 	  rdebug-dbg.el: Add $Id$
 
 2008-01-09 19:03  Rocky Bernstein
 
-	* Break out secondary buffer into their own file, and also internal
+	* ChangeLog: Break out secondary buffer into their own file, and
+	  also internal
 	  debug code and general secondary commands. Secondary buffer code
 	  removed from rdebug-cmd and moved into the appropriate file.
 	  
@@ -669,26 +558,26 @@
 
 2008-01-08 16:04  Rocky Bernstein
 
-	* Restore $: to the value it was before rdebug call.
+	* ChangeLog: Restore $: to the value it was before rdebug call.
 
 2008-01-07 20:38  Rocky Bernstein
 
-	* Add "var class". This means "var const .." can no longer be
-	  abbreviated "var c"; use "var co" instead.
+	* ChangeLog: Add "var class". This means "var const .." can no
+	  longer be abbreviated "var c"; use "var co" instead.
 	  (Or "var const" or "var constant"
 
 2008-01-07 19:57  Rocky Bernstein
 
-	* Add class level variables to "info variables"
+	* ChangeLog: Add class level variables to "info variables"
 
 2008-01-07 17:37  Rocky Bernstein
 
-	* Add "self" to list "info variables" spits out.
+	* ChangeLog: Add "self" to list "info variables" spits out.
 
 2008-01-07 09:59  Rocky Bernstein
 
-	* --emacs sets width to 120. rdebug-core.el will reset to 120
-	  unless it's already that.
+	* ChangeLog: --emacs sets width to 120. rdebug-core.el will reset
+	  to 120 unless it's already that.
 
 2008-01-07 04:29  Rocky Bernstein
 
@@ -761,8 +650,8 @@
 
 2008-01-01 09:00  Rocky Bernstein
 
-	* ChangeLog, breakpoint.c, ruby_debug.c, ruby_debug.h: Remove RDoc
-	  warnings caused because C files have been split up.
+	* ChangeLog: Remove RDoc warnings caused because C files have been
+	  split up.
 
 2008-01-01 05:51  Rocky Bernstein
 
@@ -777,23 +666,9 @@
 
 	* ChangeLog: rdebug-test-cmd.el: Indentation
 
-2007-12-31 06:20  Rocky Bernstein
-
-	* breakpoint.c: Was missing check_breakpoint_expression().
-
 2007-12-31 06:08  Rocky Bernstein
 
-	* Changes and more changes.
-
-2007-12-31 06:06  Rocky Bernstein
-
-	* ChangeLog, breakpoint.c, ruby_debug.c, ruby_debug.h: Split off
-	  breakpoint code from ruby_debug.c; add common ruby_debug.h
-	  header Alas this means some statics are now externs and one
-	  inline was
-	  dropped. In some cases though moving static to extern might be
-	  desirable for other packages that want to hook into ruby_debug.
-	  Start to preface the global ruby_debug variables with rdebug.
+	* ChangeLog: Changes and more changes.
 
 2007-12-29 13:31  Rocky Bernstein
 
@@ -816,61 +691,12 @@
 
 2007-12-26 18:35  Rocky Bernstein
 
-	* ChangeLog, ruby_debug.c: Version number games - maybe 0.10.1 is
-	  better.
-
-2007-12-26 00:04  Rocky Bernstein
-
-	* ruby_debug.c: 2nd attempt to deal with *both* problems Timur
-	  reported.
-	  
-	  1. Catchpoint is never called when program raises an object of
-	  type
-	  Exception. So, my exceptional breakpoints doesn't work for
-	  Exception
-	  class.
-	  
-	  
-	  2. When SystemExit exception is raised debugger become stopped
-	  and
-	  stop method is called as many times, as a number of threads
-	  running in
-	  application. For example, in next code debugger become stopped in
-	  rescue block, but program continues its execution.
+	* ChangeLog: Version number games - maybe 0.10.1 is better.
 
 2007-12-25 23:40  Rocky Bernstein
 
 	* ChangeLog: Add step- and step+. Document as well as the new
 	  toggle command.
-
-2007-12-25 23:36  Rocky Bernstein
-
-	* ruby_debug.c: Expermimental patch to address a problems reported
-	  by Timur Shipilov,
-	  Software engineer, Xored Software Inc.:
-	  
-	  When SystemExit exception is raised debugger become stopped and
-	  stop method is called as many times, as a number of threads
-	  running in
-	  application. For example, in next code debugger become stopped in
-	  rescue block, but program continues its execution.
-	  
-	  Example:
-	  
-	  # Stuff to set up debugger
-	  begin
-	  # if you throw another Exception here, all will be fine
-	  exit
-	  sleep 20
-	  rescue Exception
-	  puts 'This line is not traced'
-	  end
-	  puts 'And this too'
-	  
-	  # Debugger.stop was implicitly called when SystemExit exception
-	  was thrown
-	  # So, there will be an runtime error
-	  Debugger.stop
 
 2007-12-25 09:55  Rocky Bernstein
 
@@ -905,190 +731,56 @@
 	  requires it
 	  as an external)
 
-2007-12-17 05:43  Rocky Bernstein
-
-	* ruby_debug.c: Doc typo.
-
 2007-12-16 21:31  Rocky Bernstein
 
-	* .: Add "info variables test".
+	* ruby-debug-base.rb: Add "info variables test".
 	  
 	  ruby-debug-base.rb: Not sure how test(?M, file) ever worked
 	  before but change
 	  to use File.stat(file).mtime
 	  info.rb: ignore debugger variables which are sometimes set.
 
-2007-12-14 11:56  Rocky Bernstein
-
-	* ruby_debug.c: Change version to 0.10.0
-
-2007-12-14 03:22  Rocky Bernstein
-
-	* ruby_debug.c: ruby-debug.c, configure.ac, ruby-debug.texi: Up
-	  version to 0.9.9
-	  rdebug.1: document --no-quit
-	  ruby-debu.texi: More work on Emacs section.
-
 2007-12-10 03:23  Rocky Bernstein
 
-	* doc changes.
-
-2007-12-02 21:47  Rocky Bernstein
-
-	* ruby_debug.c: Allow enabling/disabling breakpoints. Add unit test
-	  of enabling/disabling and
-	  emacs regexp checking. Adjust rdebug.el accordingly.
-
-2007-11-24 11:01  Rocky Bernstein
-
-	* ruby_debug.c: Some documentation typos.
-
-2007-11-24 04:07  Rocky Bernstein
-
-	* ruby_debug.c: Ooops, forgot to do frame_locals and update the
-	  rb_define_method
-	  argument count in a couple of places.
-
-2007-11-24 03:00  Rocky Bernstein
-
-	* ruby_debug.c: ruby_debug.c: context.frame things now allow the
-	  frame postion number to be optional. We'll assume 0 (the top) as
-	  the default.
-	  
-	  test-ruby-debug.rb: add tests of the above an of these routines
-	  in general. Make this
-	  be able to run outside of rake.
-	  
-	  Rakefile: Removed emacs/elisp since that's now part of a
-	  different package.
-	  
-	  doc/Makefile.am: Make manual page
-	  
-	  doc/ruby-debug.texi: try to clarify blocks/frames. Redo incorrect
-	  frame passages as a result of vestiges of the bashdb manual.
-
-2007-11-15 19:03  Rocky Bernstein
-
-	* ruby_debug.c: Fix misspelling of declared.
-
-2007-10-12 01:45  Rocky Bernstein
-
-	* ruby_debug.c: Bug in setting a breakpoint at a main method (e.g.
-	  main.gcd). Inside
-	  breakpoint_by method we seem to get nil for the class name. The
-	  fix
-	  here is to change that to the string "main". Better might be to
-	  have
-	  that class name not be nil.
-	  
-	  test/breakpoints.cmd has a sequence of commands that when run on
-	  gcd.rb will show the problem.
-
-2007-08-05 22:10  Rocky Bernstein
-
-	* ruby_debug.c: Typo.
-
-2007-08-04 13:36  Rocky Bernstein
-
-	* ruby_debug.c: settings, processor, show: display expressions
-	  should be shown when line tracing. To this end change always_run
-	  from
-	  a boolean on integer "level" number.
-	  
-	  eval.rb pc -> putl
-	  
-	  ruby_debug.c: replace a non-word in a comment its equivalent
-	  ruby-debug.texi: document recent changes pc->putl, display
-	  expresions appear when line tracing
-
-2007-07-21 13:54  Rocky Bernstein
-
-	* ruby_debug.c: Changes to make ruby-debug work for 1.9 (at least
-	  minimally).
-	  ruby_debug.c: parameter saving seems to have a bug in it. Don't
-	  turn on by default.
-	  runner.sh: set which ruby using environment variable RUBY.
-
-2007-07-19 03:08  Rocky Bernstein
-
-	* ruby_debug.c: Add "set" option to save scalar values and class
-	  names on each call.
-	  Add pc (print columnized) and ps (print sorted columnized).
+	* ruby-debug-base.rb: doc changes.
 
 2007-06-26 07:05  Rocky Bernstein
 
-	* Run .rdebugrc on Debugger.start. Look for this in the current
-	  directory and run that instead the one in $HOME if that exists.
-	  Again, inspired and compatible with gdb.
+	* ruby-debug-base.rb: Run .rdebugrc on Debugger.start. Look for
+	  this in the current directory and run that instead the one in
+	  $HOME if that exists. Again, inspired and compatible with gdb.
 	  
 	  rdebug: Check script for syntax errors before loading. We get
 	  more informative errors and it doesn't look like rdebug is at
 	  fault.
 
-2007-06-21 10:39  Rocky Bernstein
-
-	* ruby_debug.c: test-ruby-debug.rb, Rakefile: revise so "rake test"
-	  works with recent reorganization.
-	  ruby-debug.c: remove unused variable declaration (and compile
-	  warning)
-	  command.rb: remove a warning given when "$DEBUG" or warnings are
-	  set
-	  script.rb: rename "script" to "source" to be more in line with
-	  gdb
-	  ruby-debug.texi: document "source" command, .rdebugrc and how
-	  command files
-	  work.
-
 2007-06-05 16:36  Kent Sibilev
 
-	* ruby_debug.c: code reorganization.
+	* ruby-debug-base.rb: code reorganization.
 	  reverted 'run' command.
 
 2007-06-05 07:59  Kent Sibilev
 
-	* restore post_mortem
-
-2007-06-05 03:48  Kent Sibilev
-
-	* ruby_debug.c: tabs to spaces
-	  changed copy.args to play nicely with GC
-
-2007-06-03 02:44  Rocky Bernstein
-
-	* ruby_debug.c: Get warm restart working for one thread - it might
-	  even work on OSX ;-)
+	* ruby-debug-base.rb: restore post_mortem
 
 2007-06-02 15:01  Rocky Bernstein
 
-	* lib/ruby-debug-base.rb: add Quit and Restart exceptions which can
-	  reliably be used after the delayed exception handling bug is
-	  fixed
+	* ruby-debug-base.rb: lib/ruby-debug-base.rb: add Quit and Restart
+	  exceptions which can reliably be used after the delayed exception
+	  handling bug is fixed
 	  emacs/rdebug-track.el and cli/ruby-debug/processor.rb: more
 	  accurate line tracking in EMACS. When not in emacs should be more
 	  like what was there.
 
 2007-06-01 21:57  Rocky Bernstein
 
-	* parens around a print seems to give a warning. Remove.
-
-2007-05-25 07:48  Rocky Bernstein
-
-	* ruby_debug.c: Have to back off from showing parameter values
-	  since we are showing the
-	  dynamic value. So instead we show the paramater class.
-	  
-	  It should be possible to show the value however if
-	  --keep-frame-bindings is
-	  true.
-
-2007-05-24 13:03  Rocky Bernstein
-
-	* ruby_debug.c: Add sandbox for rocky to work in
+	* ruby-debug-base.rb: parens around a print seems to give a
+	  warning. Remove.
 
 2007-05-23 16:43  Rocky Bernstein
 
-	* post_mortem: to test $! *before* running debug_at_ext or else we
-	  may get an erroneous message:
+	* ruby-debug-base.rb: post_mortem: to test $! *before* running
+	  debug_at_ext or else we may get an erroneous message:
 	  ruby-debug-base.rb:162:in `current_context': Debugger.start is
 	  not called yet. (RuntimeError)
 	  
@@ -1100,149 +792,26 @@
 	  Debugger.post_mortem
 	  exit # Causes us to incorrectly give the above error
 
-2007-05-17 03:55  Kent Sibilev
-
-	* ruby_debug.c: removed debug message
-
 2007-05-15 20:22  Kent Sibilev
 
-	* various fixes
-
-2007-05-09 16:56  Kent Sibilev
-
-	* ruby_debug.c: '-r' option can be used to require additional
-	  libraries
+	* ruby-debug-base.rb: various fixes
 
 2007-04-27 23:21  Kent Sibilev
 
-	* ditto
+	* ruby-debug-base.rb: ditto
 
 2007-04-27 23:19  Kent Sibilev
 
-	* add breakpoint method as an alias for debugger in case breakpoint
-	  method is not defined already
-
-2007-04-27 06:07  Kent Sibilev
-
-	* ruby_debug.c: Ctrl-C exits irb and continutes execution bypassing
-	  the debugger prompt
-
-2007-04-07 23:21  Kent Sibilev
-
-	* ruby_debug.c: removed wrong if node check
-
-2007-04-04 20:23  Kent Sibilev
-
-	* ruby_debug.c: added hit conditions to breakpoints
-
-2007-04-03 18:05  Kent Sibilev
-
-	* ruby_debug.c: Fixed file comparision on Windows platform
-
-2007-04-03 01:48  Kent Sibilev
-
-	* ruby_debug.c: Added force parameter to stepping commands
-
-2007-04-03 01:16  Kent Sibilev
-
-	* ruby_debug.c: added force option to Context#step_over
-
-2007-04-02 20:55  Kent Sibilev
-
-	* ruby_debug.c: fixed incorrect stack calculation
-	  break help fix
-
-2007-03-30 08:03  Kent Sibilev
-
-	* ruby_debug.c:
-
-2007-03-30 07:40  Kent Sibilev
-
-	* ruby_debug.c:
-
-2007-03-30 07:39  Kent Sibilev
-
-	* ruby_debug.c:
-
-2007-03-30 07:21  Kent Sibilev
-
-	* ruby_debug.c: All Ruby's 'eval' and require/load methods create a
-	  new frame.
-
-2007-03-29 02:09  Kent Sibilev
-
-	* ruby_debug.c: Added new Context.frame_class method
-	  
-	  'frame' command will display a class name along with method name
-	  
-	  Added new 'fullpath' setting.
-
-2007-03-29 00:45  Kent Sibilev
-
-	* ruby_debug.c: too many internal changes require a new major
-	  release
-
-2007-03-29 00:27  Kent Sibilev
-
-	* ruby_debug.c: remove useless stops when performing 'step_over'
-	  operation
-
-2007-03-28 20:36  Kent Sibilev
-
-	* ruby_debug.c: Added the possibility to add a temporary
-	  context-specific breakpoint.
-	  
-	  Context#breakpoint and Context#set_breakpoint methods are added.
-	  
-	  'cont' command now accepts a numerical parameter which implements
-	  'Continue until line' behavior.
-
-2007-03-27 23:26  Kent Sibilev
-
-	* ruby_debug.c: fixed previous optimization for Proc objects
-
-2007-03-27 23:22  Kent Sibilev
-
-	* ruby_debug.c: we don't need to create a new frame if there is no
-	  block for a c-call
-
-2007-03-27 23:08  Kent Sibilev
-
-	* ruby_debug.c: Calling a method with a block will create a new
-	  frame. This changes the behavior of 'next' command. So in order
-	  to step into a block, 'step' command must be used. That fixes bug
-	  #9629.
-
-2007-03-27 22:50  Kent Sibilev
-
-	* ruby_debug.c: step over shouldn't check that we moved to another
-	  line
-
-2007-03-26 14:27  Kent Sibilev
-
-	* ruby_debug.c: ditto
-
-2007-03-26 02:51  Kent Sibilev
-
-	* ruby_debug.c: the frame must be captured when calling Proc#call
-	  method
+	* ruby-debug-base.rb: add breakpoint method as an alias for
+	  debugger in case breakpoint method is not defined already
 
 2007-03-25 01:03  Kent Sibilev
 
-	* will start the debugger if necessary
+	* ruby-debug-base.rb: will start the debugger if necessary
 
 2007-03-24 18:17  Kent Sibilev
 
 	* stable becomes the trunk
-
-2007-03-24 18:03  Kent Sibilev
-
-	* ported stop reason from the trunk
-
-2007-03-19 07:46  Kent Sibilev
-
-	* fixes processor to handler renaming
-	  added a shortcut module
 
 2007-03-13 17:06  Kent Sibilev
 
@@ -1296,47 +865,19 @@
 
 	* fixed emacs integration
 
-2007-02-05 20:34  Kent Sibilev
-
-	* --
-
 2007-02-05 20:16  Kent Sibilev
 
 	* fixed another issue where a bogus frame is being left in the
 	  stack
-
-2007-02-05 08:08  Kent Sibilev
-
-	* should save frame id as well
-
-2007-02-05 07:55  Kent Sibilev
-
-	* fix stack corruption error
-
-2007-02-05 01:16  Kent Sibilev
-
-	* store frame's self and dyna_vars along with file/line information
 
 2007-02-04 23:36  Kent Sibilev
 
 	* seg fault bugfixes
 	  fixed suspend/resume
 
-2007-02-04 05:06  Kent Sibilev
-
-	* restore prev patch
-
-2007-02-04 03:49  Kent Sibilev
-
-	* --
-
 2007-02-04 03:49  Kent Sibilev
 
 	* A better fix for the segmentation fault
-
-2007-02-03 22:02  Kent Sibilev
-
-	* found a better patch
 
 2007-02-03 20:24  Kent Sibilev
 
@@ -1356,24 +897,12 @@
 
 	* made eval command available from the control thread
 
-2007-02-01 17:30  Kent Sibilev
-
-	* fixed dllexport for windows platform
-
-2007-02-01 15:49  Kent Sibilev
-
-	* ditto
-
 2007-02-01 07:22  Kent Sibilev
 
 	* added setting command
 	  added Context#suspended? method
 	  dispay suspended status in the thread list
 	  display frame starting from zero
-
-2007-01-31 22:12  Kent Sibilev
-
-	* store object ids in VALUE type
 
 2007-01-31 21:13  Kent Sibilev
 
@@ -1382,14 +911,6 @@
 2007-01-31 21:12  Kent Sibilev
 
 	* fixed help command
-
-2007-01-31 21:04  Kent Sibilev
-
-	* ditto
-
-2007-01-31 20:44  Kent Sibilev
-
-	* make a deep copy when capturing post mortem context
 
 2007-01-31 19:39  Kent Sibilev
 
@@ -1421,18 +942,10 @@
 	  - Ability to specify negative frame number to frame commands.
 	  Patch from R. Bernstein.
 
-2007-01-28 04:59  Kent Sibilev
-
-	* --
-
 2007-01-28 04:52  Kent Sibilev
 
 	* added top frame caching
 	  control thread is always started by rdebug script
-
-2007-01-28 01:21  Kent Sibilev
-
-	* 
 
 2007-01-27 01:43  Kent Sibilev
 
@@ -1441,10 +954,6 @@
 2007-01-26 20:28  Kent Sibilev
 
 	* fixed #7484
-
-2007-01-26 19:31  Kent Sibilev
-
-	* --
 
 2007-01-26 17:59  Kent Sibilev
 
@@ -1457,19 +966,6 @@
 2007-01-26 03:12  Kent Sibilev
 
 	* added option to exclude collecting of frame bindings
-
-2007-01-25 01:41  Kent Sibilev
-
-	* small optimization
-
-2007-01-25 00:55  Kent Sibilev
-
-	* remove the live thread ref from locker structure as well
-
-2007-01-24 20:42  Kent Sibilev
-
-	* don't keep a ref to a live thread.
-	  check contexts that their threads are alive
 
 2007-01-24 18:33  Kent Sibilev
 
@@ -1487,10 +983,6 @@
 2007-01-21 01:20  Kent Sibilev
 
 	* added post_mortem_method wrap method
-
-2006-12-21 20:30  Kent Sibilev
-
-	* fix of restart command for windows platform
 
 2006-12-21 20:16  Kent Sibilev
 
@@ -1516,14 +1008,6 @@
 2006-12-20 21:19  Kent Sibilev
 
 	* check that debugger has been started
-
-2006-12-20 20:41  Kent Sibilev
-
-	* 
-
-2006-12-20 20:14  Kent Sibilev
-
-	* bumped version
 
 2006-12-20 20:08  Kent Sibilev
 
@@ -1572,47 +1056,43 @@
 
 2006-10-15 22:26  Kent Sibilev
 
-	* win32/ruby_debug.so: remove unused require
+	* ruby-debug.rb: remove unused require
 	  uploaded new windows binary
-
-2006-10-15 21:56  Kent Sibilev
-
-	* ruby_debug.c: Debugger.start yields to the block even if it's
-	  already started
 
 2006-10-15 19:02  Kent Sibilev
 
-	* remove unused constructor
+	* ruby-debug/commands/display.rb: remove unused constructor
 
 2006-10-15 16:54  Kent Sibilev
 
-	* ruby_debug.c: new logic of context suspend/resume
+	* ruby-debug.rb, ruby-debug/commands/threads.rb: new logic of
+	  context suspend/resume
 
 2006-10-15 07:36  Kent Sibilev
 
-	* ruby_debug.c: fixed locking of debugger threads
-
-2006-10-14 19:11  Kent Sibilev
-
-	* ruby_debug.c: make skip status local to a thread instead of
-	  globally disabling the debugger.
+	* ruby-debug.rb, ruby-debug/lock.rb: fixed locking of debugger
+	  threads
 
 2006-10-09 22:01  Kent Sibilev
 
-	* ruby_debug.c, win32/ruby_debug.so: fixes for windows version
+	* ruby-debug/interface.rb: fixes for windows version
 
 2006-10-09 19:06  Kent Sibilev
 
-	* ruby_debug.c: added Debugger.skip and Debugger.debug_at_exit
-	  methods
-
-2006-10-09 16:48  Kent Sibilev
-
-	* .gdb_history, Makefile, ruby_debug.bundle: remove intermediate
-	  files
+	* ruby-debug.rb, ruby-debug/interface.rb: added Debugger.skip and
+	  Debugger.debug_at_exit methods
 
 2006-10-09 16:44  Kent Sibilev
 
-	* ., .gdb_history, Makefile, extconf.rb, ruby_debug.bundle,
-	  ruby_debug.c, win32, win32/ruby_debug.so: initial import
+	* ., ruby-debug, ruby-debug.rb, ruby-debug/command.rb,
+	  ruby-debug/commands, ruby-debug/commands/breakpoints.rb,
+	  ruby-debug/commands/catchpoint.rb,
+	  ruby-debug/commands/control.rb, ruby-debug/commands/display.rb,
+	  ruby-debug/commands/eval.rb, ruby-debug/commands/frame.rb,
+	  ruby-debug/commands/help.rb, ruby-debug/commands/list.rb,
+	  ruby-debug/commands/method.rb, ruby-debug/commands/script.rb,
+	  ruby-debug/commands/stepping.rb, ruby-debug/commands/threads.rb,
+	  ruby-debug/commands/tmate.rb, ruby-debug/commands/trace.rb,
+	  ruby-debug/commands/variables.rb, ruby-debug/interface.rb,
+	  ruby-debug/lock.rb, ruby-debug/processor.rb: initial import
 

@@ -35,7 +35,7 @@ module Debugger
     # if the call stack is truncated.
     attr_accessor :start_sentinal 
     
-    attr_reader :thread, :control_thread
+    attr_reader :thread, :control_thread, :cmd_port, :ctrl_port
 
     def interface=(value) # :nodoc:
       handler.interface = value
@@ -58,15 +58,16 @@ module Debugger
         cmd_port, ctrl_port = port, port + 1
       end
 
-      start_control(host, ctrl_port)
+      ctrl_port = start_control(host, ctrl_port)
       
       yield if block_given?
       
       mutex = Mutex.new
       proceed = ConditionVariable.new
       
+      server = TCPServer.new(host, cmd_port)
+      @cmd_port = cmd_port = server.addr[1]
       @thread = DebugThread.new do
-        server = TCPServer.new(host, cmd_port)
         while (session = server.accept)
           self.interface = RemoteInterface.new(session)
           if wait_connection
@@ -86,15 +87,17 @@ module Debugger
     
     def start_control(host = nil, ctrl_port = PORT + 1) # :nodoc:
       raise "Debugger is not started" unless started?
-      return if defined?(@control_thread) && @control_thread
+      return @ctrl_port if defined?(@control_thread) && @control_thread
+      server = TCPServer.new(host, ctrl_port)
+      @ctrl_port = server.addr[1]
       @control_thread = DebugThread.new do
-        server = TCPServer.new(host, ctrl_port)
         while (session = server.accept)
           interface = RemoteInterface.new(session)
           processor = ControlCommandProcessor.new(interface)
           processor.process_commands
         end
       end
+      @ctrl_port
     end
     
     #
