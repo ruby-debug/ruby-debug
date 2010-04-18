@@ -19,7 +19,7 @@ def debug_program(options)
   # Make sure Ruby script syntax checks okay.
   # Otherwise we get a load message that looks like rdebug has 
   # a problem. 
-  output = `ruby -c "#{Debugger::PROG_SCRIPT}" 2>&1`
+  output = `ruby -c #{Debugger::PROG_SCRIPT.inspect} 2>&1`
   if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
     puts output
     exit $?.exitstatus 
@@ -217,7 +217,7 @@ Debugger.tracing = options.tracing
 # Make sure Ruby script syntax checks okay.
 # Otherwise we get a load message that looks like rdebug has 
 # a problem. 
-output = `ruby -c #{Debugger::PROG_SCRIPT} 2>&1`
+output = `ruby -c #{Debugger::PROG_SCRIPT.inspect} 2>&1`
 if $?.exitstatus != 0 and RUBY_PLATFORM !~ /mswin/
   puts output
   exit $?.exitstatus 

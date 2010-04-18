@@ -1,6 +1,8 @@
 0.10.4
 
- - Various bug fixes: reload command. 'info' command 
+ - Various bug fixes: 
+   * reload command. 
+   * plain 'info' command 
  - Add ability to specify port to debug on
  - Allow breakpoints at class methods
  - "quit!" is same as "quit unconditionally"
