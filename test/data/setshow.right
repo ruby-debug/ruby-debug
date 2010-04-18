@@ -53,23 +53,6 @@ line tracing is on.
 line tracing is off.
 # show linetrace
 line tracing is off.
-# ########################################
-# ###  show history
-# ########################################
-# set history
-Need two parameters for 'set history'; got 0.
-# set history size 10
-Debugger history size is 10
-# show history size
-Debugger history size is 10
-# set history save off
-Saving of history save is off.
-# show history save
-Saving of history save is off.
-# set history save 1
-Saving of history save is on.
-# show history save
-Saving of history save is on.
 # #### Test 'autoeval'...
 # set autoeval on
 autoeval is on.

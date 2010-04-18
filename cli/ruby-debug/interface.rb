@@ -3,7 +3,14 @@ module Debugger
     attr_writer :have_readline  # true if Readline is available
 
     def initialize
-      @have_readline = false
+      begin
+        require 'readline'
+        @have_readline = true
+        @history_save = true
+      rescue LoadError
+        @have_readline = false
+        @history_save = false
+      end
     end
 
     # Common routine for reporting debugger error messages.
@@ -43,19 +50,20 @@ module Debugger
     def initialize()
       super
       @command_queue = []
-      @have_readline = false
-      @history_save = true
-      # take gdb's default
-      @history_length = ENV["HISTSIZE"] ? ENV["HISTSIZE"].to_i : 256  
-      @histfile = File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
-                            FILE_HISTORY)
-      open(@histfile, 'r') do |file|
-        file.each do |line|
-          line.chomp!
-          Readline::HISTORY << line
-        end
-      end if File.exist?(@histfile)
       @restart_file = nil
+
+      if @have_readline
+        # take gdb's default
+        @history_length = ENV['HISTSIZE'] ? ENV['HISTSIZE'].to_i : 256  
+        @histfile = File.join(ENV['HOME']||ENV['HOMEPATH']||'.', 
+                              FILE_HISTORY)
+        open(@histfile, 'r') do |file|
+          file.each do |line|
+            line.chomp!
+            Readline::HISTORY << line
+          end
+        end if File.exist?(@histfile)
+      end
     end
 
     def read_command(prompt)
@@ -94,7 +102,7 @@ module Debugger
         @have_readline = true
         define_method(:save_history) do
           iface = self.handler.interface
-          iface.histfile ||= File.join(ENV["HOME"]||ENV["HOMEPATH"]||".", 
+          iface.histfile ||= File.join(ENV['HOME']||ENV['HOMEPATH']||'.', 
                                   FILE_HISTORY)
           open(iface.histfile, 'w') do |file|
             Readline::HISTORY.to_a.last(iface.history_length).each do |line|

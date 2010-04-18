@@ -38,37 +38,34 @@ module Debugger
         style = Command.settings[:callstyle]
         return "Frame call-display style is #{style}."
       when /^commands(:?\s+(\d+))?$/
-        if @state.interface.readline_support?
-          s = '';
-          args = @match[1].split
-          if args[1]
-            first_line = args[1].to_i - 4
-            last_line  = first_line + 10 - 1
-            if first_line > Readline::HISTORY.length
-              first_line = last_line = Readline::HISTORY.length
-            elsif first_line <= 0
-              first_line = 1
-            end
-            if last_line > Readline::HISTORY.length
-              last_line = Readline::HISTORY.length
-            end
-            i = first_line
-            commands = Readline::HISTORY.to_a[first_line..last_line]
-          else
-            if Readline::HISTORY.length > 10
-              commands = Readline::HISTORY.to_a[-10..-1]
-              i = Readline::HISTORY.length - 10
-            else
-              commands = Readline::HISTORY.to_a
-              i = 1
-            end
+        return 'No readline support.' unless @state.interface.readline_support?
+        s = '';
+        args = @match[1].split
+        if args[1]
+          first_line = args[1].to_i - 4
+          last_line  = first_line + 10 - 1
+          if first_line > Readline::HISTORY.length
+            first_line = last_line = Readline::HISTORY.length
+          elsif first_line <= 0
+            first_line = 1
           end
-          commands.each do |cmd|
-            s += ("%5d  %s\n" % [i, cmd])
-            i += 1
+          if last_line > Readline::HISTORY.length
+            last_line = Readline::HISTORY.length
           end
+          i = first_line
+          commands = Readline::HISTORY.to_a[first_line..last_line]
         else
-          s='No readline suport'
+          if Readline::HISTORY.length > 10
+            commands = Readline::HISTORY.to_a[-10..-1]
+            i = Readline::HISTORY.length - 10
+          else
+            commands = Readline::HISTORY.to_a
+            i = 1
+          end
+        end
+        commands.each do |cmd|
+          s += ("%5d  %s\n" % [i, cmd])
+          i += 1
         end
         return s
       when /^debuggertesting$/
@@ -81,6 +78,7 @@ module Debugger
         on_off = Command.settings[:full_path]
         return "Displaying frame's full file names is #{show_onoff(on_off)}."
       when /^history(:?\s+(filename|save|size))?$/
+        return 'No readline support.' unless @state.interface.readline_support?
         args = @match[1].split
         interface = @state.interface
         if args[1] 

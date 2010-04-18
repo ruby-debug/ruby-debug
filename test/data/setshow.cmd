@@ -31,16 +31,6 @@ set linetrace on
 show linetrace
 set linetrace off
 show linetrace
-########################################
-###  show history
-########################################
-set history
-set history size 10
-show history size
-set history save off
-show history save
-set history save 1
-show history save
 #### Test 'autoeval'...
 set autoeval on
 puts 'printed via autoeval'
