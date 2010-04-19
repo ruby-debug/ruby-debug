@@ -1,3 +1,32 @@
+2010-04-19 02:40  Rocky Bernstein
+
+	* Document irb "dbgr" command. rbdbgr -> rdebug in irb variables.
+
+2010-04-18 14:52  Rocky Bernstein
+
+	* Forgot to add file to test against
+
+2010-04-18 14:49  Rocky Bernstein
+
+	* Add test for filename with embedded space.
+
+2010-04-18 13:49  Rocky Bernstein
+
+	* Tolerate Ruby without readline better. Tracker #23925
+
+2010-04-18 07:18  Rocky Bernstein
+
+	* Fix bug in "reload" command. tracker #26130
+
+2010-04-15 18:48  Rocky Bernstein
+
+	* Fix bug if info not given with any parameters. rubyforge bug
+	  #26895.
+
+2010-04-15 18:45  Rocky Bernstein
+
+	* Had forgot to add Ruby file to test brkpt-class bug.
+
 2010-03-21 23:09  Rocky Bernstein
 
 	* Add ability to start remote debugging on random ports and to

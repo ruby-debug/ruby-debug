@@ -6,6 +6,8 @@
  - Add ability to specify port to debug on
  - Allow breakpoints at class methods
  - "quit!" is same as "quit unconditionally"
+ - irb improvements: Access to non-executing rdebug commands inside irb via 
+   "dbgr" method
 
 0.10.3
 11/17/08
