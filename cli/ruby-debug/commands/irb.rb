@@ -14,10 +14,10 @@ module IRB # :nodoc:
           else
             'unknown'
           end
-        $rbdbgr_args = opts
-        $rbdbgr_command = 
-          if $rbdbgr_irb_statements 
-            $rbdbgr_irb_statements
+        $rdebug_args = opts
+        $rdebug_command = 
+          if $rdebug_irb_statements 
+            $rdebug_irb_statements
           else
             ([name] + opts).join(' ')
           end
@@ -69,8 +69,8 @@ module IRB # :nodoc:
       ARGV.replace(args)
 
       # If the user has a IRB profile, run that now.
-      if ENV['RBDBGR_IRB']
-        ENV['IRBRC'] = ENV['RBDBGR_IRB']
+      if ENV['RDEBUG_IRB']
+        ENV['IRBRC'] = ENV['RDEBUG_IRB']
         @CONF[:RC_NAME_GENERATOR]=nil
         IRB.run_config
       end
@@ -94,7 +94,7 @@ end
 # "filename" unique. Possibly not needed.
 class IRB::Context
   def evaluate(line, line_no)
-    $rbdbgr_irb_statements = line
+    $rdebug_irb_statements = line
     @line_no = line_no
     set_last_value(@workspace.evaluate(self, line, irb_path, line_no))
 #    @workspace.evaluate("_ = IRB.conf[:MAIN_CONTEXT]._")
@@ -174,11 +174,17 @@ module Debugger
           irb [-d]\tstarts an Interactive Ruby (IRB) session.
 
 If -d is added you can get access to debugger state via the global variable
-$RDEBUG_state. 
+$rdebug_state. 
 
-irb is extended with methods "cont", "n" and "step" which 
-run the corresponding debugger commands. In contrast to the real debugger
-commands these commands don't allow command arguments.
+irb is extended with methods "cont", "n", "step" and "q" which run the
+corresponding debugger commands. In contrast to the real debugger
+commands these commands do not allow command arguments.
+
+However to run any arbitrary rdebug command which does not involve
+execution of the debugged program (like the above "step" "cont", etc.)
+use method "dbgr" and give an array of string parameters. For example:
+
+dbgr ['list', '10']   # same as "list 10" inside debugger
         }
       end
     end

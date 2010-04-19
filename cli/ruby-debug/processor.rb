@@ -181,9 +181,13 @@ module Debugger
       context.stop_frame = -1
       process_commands(context, file, line)
     end
-    
+
+    def lookup(input)
+      @commands.find{ |c| c.match(input) }
+    end
+
     def one_cmd(commands, context, input)
-      if cmd = commands.find{ |c| c.match(input) }
+      if cmd = lookup(input)
         if context.dead? && cmd.class.need_context
           p cmd
           print "Command is unavailable\n"
