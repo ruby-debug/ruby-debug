@@ -26,21 +26,7 @@ package org.jruby.debug;
 
 import java.io.File;
 
-import org.jruby.MetaClass;
-import org.jruby.Ruby;
-import org.jruby.RubyArray;
-import org.jruby.RubyBinding;
-import org.jruby.RubyBoolean;
-import org.jruby.RubyFile;
-import org.jruby.RubyFixnum;
-import org.jruby.RubyFloat;
-import org.jruby.RubyKernel;
-import org.jruby.RubyModule;
-import org.jruby.RubyNil;
-import org.jruby.RubyObject;
-import org.jruby.RubyString;
-import org.jruby.RubySymbol;
-import org.jruby.RubyThread;
+import org.jruby.*;
 import org.jruby.debug.DebugContext.StopReason;
 import org.jruby.debug.DebugFrame.Info;
 import org.jruby.debug.Debugger.DebugContextPair;
@@ -78,11 +64,10 @@ final class DebugEventHook extends EventHook {
     @Override
     public void eventHandler(final ThreadContext tCtx, String event, final String file, final int line,
             final String methodName, final IRubyObject klass) {
-        boolean needsSuspend = false;
-        
+
         RubyThread currThread = tCtx.getThread();
         DebugContextPair contexts = debugger.threadContextLookup(currThread, true);
-        
+
         // return if thread is marked as 'ignored'. debugger's threads are marked this way
         if (contexts.debugContext.isIgnored()) {
             return;
@@ -93,16 +78,14 @@ final class DebugEventHook extends EventHook {
             cleanUp(contexts.debugContext);
             return;
         }
-        
+
         /** Ignore JRuby core classes by default. Consider option for enabling it. */
         if (Util.isJRubyCore(file)) {
             return;
         }
         
-        needsSuspend = contexts.debugContext.isSuspended();
-        
-        if (needsSuspend) {
-            RubyThread.stop(currThread);
+        if (contexts.debugContext.isSuspended()) {
+            RubyThread.stop(tCtx, currThread);
         }
         
         synchronized (this) {
@@ -182,7 +165,7 @@ final class DebugEventHook extends EventHook {
 
                 if (debugContext.getStopNext() == 0 || debugContext.getStopLine() == 0 ||
                         !(breakpoint = checkBreakpointsByPos(debugContext, file, line)).isNil()) {
-                    binding = (tCtx != null ? RubyBinding.newBinding(_runtime) : getNil());
+                    binding = (tCtx != null ? RubyBinding.newBinding(_runtime, tCtx.currentBinding()) : getNil());
                     saveTopBinding(debugContext, binding);
 
                     debugContext.setStopReason(DebugContext.StopReason.STEP);
@@ -219,7 +202,7 @@ final class DebugEventHook extends EventHook {
                         binding = debugFrame.getBinding();
                     }
                     if (tCtx != null && binding.isNil()) {
-                        binding = RubyBinding.newBinding(_runtime);
+                        binding = RubyBinding.newBinding(_runtime, tCtx.currentBinding());
                     }
                     saveTopBinding(debugContext, binding);
 
@@ -313,7 +296,7 @@ final class DebugEventHook extends EventHook {
                             binding = debugFrame.getBinding();
                         }
                         if (tCtx != null && binding.isNil()) {
-                            binding = RubyBinding.newBinding(_runtime);
+                            binding = RubyBinding.newBinding(_runtime, tCtx.currentBinding());
                         }
                         saveTopBinding(debugContext, binding);
                         callAtLine(tCtx, context, debugContext, _runtime, file, line);
@@ -349,7 +332,7 @@ final class DebugEventHook extends EventHook {
     private void saveCallFrame(final RubyEvent event, final ThreadContext tCtx, final String file,
             final int line, final String methodName, final DebugContext debugContext) {
 
-        IRubyObject binding = (debugger.isKeepFrameBinding()) ? RubyBinding.newBinding(tCtx.getRuntime()) : tCtx.getRuntime().getNil();
+        IRubyObject binding = (debugger.isKeepFrameBinding()) ? RubyBinding.newBinding(tCtx.getRuntime(), tCtx.currentBinding()) : tCtx.getRuntime().getNil();
 
         DebugFrame debugFrame = new DebugFrame();
         debugFrame.setFile(file);
@@ -454,7 +437,7 @@ final class DebugEventHook extends EventHook {
         if (debugBreakpoint.getPos().getLine() != line) {
             return false;
         }
-        String source = ((RubyString) debugBreakpoint.getSource()).toString();
+        String source = debugBreakpoint.getSource().toString();
         String sourceName = new File(source).getName();
         String fileName = new File(file).getName();
         if (sourceName.equals(fileName)) {

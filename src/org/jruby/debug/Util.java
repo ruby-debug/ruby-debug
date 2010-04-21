@@ -90,7 +90,7 @@ final class Util {
     }
 
     static void logEvent(RubyEvent event, String file, int line, String methodName, IRubyObject klass) {
-        System.err.printf("%s:%s [%s] %s#%s\n", file, line, event, klass, methodName);
+        LOGGER.info(file + ":" + line + "[" + event + "]" +klass + "#" + methodName + "\n");
     }
 
     static boolean isJRubyCore(final String file) {
