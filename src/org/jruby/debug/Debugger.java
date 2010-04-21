@@ -102,6 +102,7 @@ final class Debugger {
         if (startCount > 0) {
             return false;
         }
+        runtime.tearDown(false);   
         runtime.removeEventHook(debugEventHook);
         breakpoints = null;
         catchpoints = null;
@@ -130,10 +131,12 @@ final class Debugger {
         if (stop.isTrue()) {
             debugContext.setStopNext(1);
         }
+
         try {
-            rt.getLoadService().load(((RubyString) file).toString(), false);
+          RubyString fileText = file.convertToString();
+          rt.getLoadService().load(fileText.getByteList().toString(), false);
         } finally {
-            stop(rt);
+          stop(rt);
         }
     }
     
