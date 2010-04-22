@@ -6,7 +6,7 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 GEM_NAME='ruby-debug-base'
-GEM_VERSION='0.10.3.1'
+GEM_VERSION='0.10.3.2'
 
 RUBY_DEBUG_JAR='ext/ruby_debug.jar'
 
