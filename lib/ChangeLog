@@ -1,3 +1,12 @@
+2010-04-18 07:18  Rocky Bernstein
+
+	* ruby-debug-base.rb: Fix bug in "reload" command. tracker #26130
+
+2010-03-21 23:09  Rocky Bernstein
+
+	* ChangeLog: Add ability to start remote debugging on random ports
+	  and to query those ports. Tracker #27889 from Hongli Lai.
+
 2010-03-16 04:23  Rocky Bernstein
 
 	* ChangeLog: Fix for what looks like an optimization bug on 64-bit

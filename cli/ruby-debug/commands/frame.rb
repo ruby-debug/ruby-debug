@@ -168,7 +168,8 @@ module Debugger
 
       end
       if truncated_callstack?(@state.context, Debugger.start_sentinal)
-        print "Warning: saved frames may be incomplete; compare with caller(0).\n" 
+        print "Warning: saved frames may be incomplete;\n"
+        print "compare debugger backtrace (bt) with Ruby caller(0).\n" 
       end
     end
 
