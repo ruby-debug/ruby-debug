@@ -3,7 +3,8 @@ module Debugger
     def run_with_binding
       binding = @state.context ? get_binding : TOPLEVEL_BINDING
       $__dbg_interface = @state.interface
-      eval(<<-EOC, binding)
+       begin
+         eval(<<-EOC, binding)
         __dbg_verbose_save=$VERBOSE; $VERBOSE=false
         def dbg_print(*args)
           $__dbg_interface.print(*args)
@@ -16,6 +17,8 @@ module Debugger
         end
         $VERBOSE=__dbg_verbose_save
       EOC
+      rescue 
+      end
       yield binding
     ensure
       $__dbg_interface = nil

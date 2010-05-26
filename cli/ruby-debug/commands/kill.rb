@@ -19,7 +19,7 @@ module Debugger
           errmsg("signal name #{signame} is not a signal I know about\n")
           return false
         end
-        if 'KILL' == signame:
+        if 'KILL' == signame
             @state.interface.finalize
         end
       else
