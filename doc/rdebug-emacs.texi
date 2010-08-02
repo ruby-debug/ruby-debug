@@ -26,7 +26,7 @@
 @end direntry
 
 @titlepage
-@title Debugging with @code{ruby-debug} inside GNU Emacs Version @value{RDEBUG_EMACS_VERSION}
+@title Debugging with @code{rdebug} from GNU Emacs
 @sp 1
 @subtitle @value{EDITION} Edition
 @subtitle @value{UPDATED-MONTH}
@@ -82,11 +82,11 @@ Emacs Debugger Commands
 @end detailmenu
 @end menu
 
-This file describes ruby-debug, the Ruby Debugger, 
-version @value{RDEBUG_EMACS_VERSION}
+This file describes @code{rdebug}, the Emacs interface to Ruby
+Debugger, @code{ruby-debug}, version @value{RDEBUG_EMACS_VERSION}
 
 This is the @value{EDITION} Edition, @value{UPDATED}
-@c Copyright (C) 2007 ...
+@c Copyright (C) 2007, 2010 ...
 
 @c @node GNU Emacs
 @c @chapter Using @code{ruby-debug} from GNU Emacs
@@ -127,18 +127,57 @@ fully customizable so you can create your own.
 @node Installation, Emacs rdebug, Getting started, Getting started
 @section Installation
 
-To use this interface, load the file @code{rdebug.el}. This file is a
+If you want to build the documentation and install Emacs files, you need:
+
+@itemize @bullet
+@item a POSIX shell
+@item GNU autoconf
+@item GNU automake
+@item GNU Make
+@item texinfo
+@item texi2html
+@end itemize
+
+Download the ruby-debug-extra tarball from rubyforge
+@url{http://rubyforge.org/frs/?group_id=1900&release_id=28306}
+
+For example for the 0.10.3 release: 
+
+@smallexample
+  wget http://rubyforge.org/frs/download.php/46883/ruby-debug-extra-0.10.3.tar.gz
+@end smallexample
+
+Untar this, run configure, make, make check and make install. For example:
+
+@smallexample
+   $ tar -xpf ruby-debug-extra-0.10.3.tar.gz
+   $ cd ruby-debug-extra-0.10.3
+   $ sh ./configure
+   $ make && make check 
+   $ sudo make install  # or as root: make install
+@end smallexample
+
+@code{configure --help} gives customization help. 
+
+Environment variable @code{EMACS} can be used to find which emacs to use,
+should need to specify which emacs to use.
+
+After installing the Emacs code on your computer, to use the interface
+inside Emacs load the file @code{rdebug.el}. This file is a
 light-weight file, basically it only contains a handful of
 @code{autoload} directives.
 
-For example, you can place the following in your @code{~/.emacs} file:
+For example, you can place the either of the following in your @code{~/.emacs} file:
 
 @smallexample
   (require 'rdebug)
 @end smallexample
+or 
+@smallexample
+  (autoload 'rdebug "rdebug" "ruby-debug interface" t)    
+@end smallexample
 
 In addition, you must have Ruby and ruby-debug installed.
-
 
 @node Emacs rdebug, Emacs shell tracking mode, Installation, Getting started
 @section Emacs rdebug
@@ -187,7 +226,15 @@ Manual}.
 To enable, this run @kbd{M-x turn-on-rdebug-track-mode}. There is some
 overhead involved in scanning output, so if you are not debugging Ruby
 programs you probably want to turn this off which can be done via the
-@code{M-x turn-off-rdebugtrack} command.
+@code{M-x turn-off-rdebugtrack} command. 
+
+This command doesn't set up the various buffers such as tracking local
+variables and the call stack. A more ambitious takeover of the shell
+which does set up these buffers is can be done via @kbd{M-x
+turn-on-rdebug-track-mode}. A name of the program is solicited. This
+is use do make and association between the buffers. After this is
+done, you might not be able to use the shell for anything other than
+the debug session.
 
 
 @node Configurating this package,  , Emacs shell tracking mode, Getting started
@@ -214,19 +261,18 @@ The default multi-window layout looks like the following:
 +----------------------------------------------------------------------+
 |                                Toolbar                               |
 +-----------------------------------+----------------------------------+
-|                                   |                                  |
-| Debugger shell                    | Variables buffer                 |
-|                                   |                                  |
+| Debugger Stack Buffer             | Local Variables buffer           |
 +-----------------------------------+----------------------------------+
-|                                   |                                  |
-| Source buffer                     | Output buffer                    |
-|                                   |                                  |
-+-----------------------------------+----------------------------------+
-|                                   |                                  |
-| Stack buffer                      | Breakpoints buffer               |
-|                                   |                                  |
-+-----------------------------------+----------------------------------+
+|                                                                      |
+|                           Source buffer                              |
+|                                                                      |
++----------------------------------------------------------------------+
+|                        Debugger Command Buffer                       |
++----------------------------------------------------------------------+
 @end verbatim
+
+However there are other layouts available. Look at the ``Window
+Layout'' drop-down list under the ``Debugger'' menu in the toolbar.
 
 @section Activating Multi-window mode
 

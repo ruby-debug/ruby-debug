@@ -36,7 +36,7 @@ The default window layout looks like the following:
 +----------------------------------------------------------------------+
 
 Other pre-defined window layouts available as well. See the "Window
-Layout" dropdown under the "Debugger" menu.
+Layout" drop-down list under the "Debugger" menu in the toolbar.
 
 See INSTALL for how to install this Emacs package.
 
