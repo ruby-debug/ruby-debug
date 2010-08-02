@@ -8,6 +8,7 @@
  - "quit!" is same as "quit unconditionally"
  - irb improvements: Access to non-executing rdebug commands inside irb via 
    "dbgr" method
+ - For emacs package: add README, INSTALL, AUTHORS.
 
 0.10.3
 11/17/08

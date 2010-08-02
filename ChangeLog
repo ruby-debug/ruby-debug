@@ -1,31 +1,62 @@
+2010-05-26 20:11  Rocky Bernstein
+
+	* cli/ruby-debug/commands/eval.rb, cli/ruby-debug/commands/kill.rb,
+	  test/.cvsignore, test/data/except-bug1.cmd,
+	  test/data/except-bug1.right, test/except-bug1.rb,
+	  test/test-except-bug1.rb: Another bug in showing variables in
+	  post-mortem. Not sure if this is the best fix though.
+	  kill.rb: fix syntax bug
+
+2010-05-06 21:59  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/frame.rb, lib/ChangeLog,
+	  test/data/catch.right: More explicit about incomplete saved
+	  frames. Now reads:
+	  Warning: saved frames may be incomplete;
+	  compare debugger backtrace (bt) with Ruby caller(0).
+
+2010-04-19 02:46  Rocky Bernstein
+
+	* CHANGES, ChangeLog: What's up.
+
 2010-04-19 02:40  Rocky Bernstein
 
-	* Document irb "dbgr" command. rbdbgr -> rdebug in irb variables.
+	* cli/ruby-debug/commands/irb.rb, cli/ruby-debug/processor.rb:
+	  Document irb "dbgr" command. rbdbgr -> rdebug in irb variables.
 
 2010-04-18 14:52  Rocky Bernstein
 
-	* Forgot to add file to test against
+	* test/file with space.rb: Forgot to add file to test against
 
 2010-04-18 14:49  Rocky Bernstein
 
-	* Add test for filename with embedded space.
+	* CHANGES, bin/rdebug, test/data/file-with-space.cmd,
+	  test/data/file-with-space.right, test/tdebug.rb,
+	  test/test-file-with-space.rb: Add test for filename with embedded
+	  space.
 
 2010-04-18 13:49  Rocky Bernstein
 
-	* Tolerate Ruby without readline better. Tracker #23925
+	* cli/ruby-debug/commands/show.rb, cli/ruby-debug/interface.rb,
+	  test/data/setshow.cmd, test/data/setshow.right: Tolerate Ruby
+	  without readline better. Tracker #23925
 
 2010-04-18 07:18  Rocky Bernstein
 
-	* Fix bug in "reload" command. tracker #26130
+	* CHANGES, Rakefile, lib/ruby-debug-base.rb,
+	  test/base/reload_bug.rb: Fix bug in "reload" command. tracker
+	  #26130
 
 2010-04-15 18:48  Rocky Bernstein
 
-	* Fix bug if info not given with any parameters. rubyforge bug
-	  #26895.
+	* ChangeLog, cli/ruby-debug/commands/info.rb, test/data/info.cmd,
+	  test/data/info.right: Fix bug if info not given with any
+	  parameters. rubyforge bug #26895.
 
 2010-04-15 18:45  Rocky Bernstein
 
-	* Had forgot to add Ruby file to test brkpt-class bug.
+	* test/brkpt-class-bug.rb: Had forgot to add Ruby file to test
+	  brkpt-class bug.
 
 2010-03-21 23:09  Rocky Bernstein
 

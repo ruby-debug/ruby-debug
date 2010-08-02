@@ -21,6 +21,7 @@ also need:
  - automake
  - GNU Make
  - texinfo
+ - texi2html
 
 1. Basic package checkout and installation 
 
@@ -91,19 +92,10 @@ above. However you *should* see exactly "0 failures, 0 errors".
 
 4. Building the documentation and testing/installing Emacs files
 
-Of course, I recommend you read the ruby-debug manual that comes with
-the package. If you have the prerequisites described above, run this
-once:
-  sh ./autogen.sh
-
-Then run:
-  ./configure
-  make
-  make test           # Runs Emacs regression tests
-  sudo make install   # Or arrange to do this as root
+See INSTALL in the emacs directory.
  
 
-Microsoft Windows
+5. Microsoft Windows
 
 A problem here seems to be that the "One-click" install is compiled
 using Microsoft Visual Studio C 6 which is not sold anymore and is

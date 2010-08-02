@@ -1,6 +1,6 @@
 ;;; rdebug.el --- Ruby debugger user interface, startup file.
 
-;; Copyright (C) 2006, 2007, 2008 Rocky Bernstein (rocky@gnu.org)
+;; Copyright (C) 2006, 2007, 2008, 2010 Rocky Bernstein (rocky@gnu.org)
 ;; Copyright (C) 2007, 2008 Anders Lindgren
 
 ;; $Id: rdebug.el 409 2007-12-14 02:36:37Z rockyb $
@@ -53,24 +53,26 @@
 ;; +----------------------------------------------------------------------+
 ;; |                                Toolbar                               |
 ;; +-----------------------------------+----------------------------------+
-;; | Debugger shell                    | Variables buffer                 |
+;; | Debugger Stack Buffer             | Local Variables buffer           |
 ;; +-----------------------------------+----------------------------------+
-;; |                                   |                                  |
-;; | Source buffer                     | Output buffer                    |
-;; |                                   |                                  |
-;; +-----------------------------------+----------------------------------+
-;; | Stack buffer                      | Breakpoints buffer               |
-;; +-----------------------------------+----------------------------------+
+;; |                                                                      |
+;; |                           Source buffer                              |
+;; |                                                                      |
+;; +----------------------------------------------------------------------+
+;; |                        Debugger Command Buffer                       |
+;; +----------------------------------------------------------------------+
 ;;
 
 ;;
 ;; Installation:
 ;;
-;; To use this package, place the following line in an appropriate
-;; init file (for example ~/.emacs):
+;; To use this package, place the either of following lines in an
+;; appropriate init file (for example ~/.emacs):
 ;;
 ;;    (require 'rdebug)
-;;
+;; or
+;;    (autoload 'rdebug "rdebug" "ruby-debug interface" t)    
+
 
 ;;
 ;; History and Future:

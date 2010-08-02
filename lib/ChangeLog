@@ -1,3 +1,10 @@
+2010-05-06 21:59  Rocky Bernstein
+
+	* ChangeLog: More explicit about incomplete saved frames. Now
+	  reads:
+	  Warning: saved frames may be incomplete;
+	  compare debugger backtrace (bt) with Ruby caller(0).
+
 2010-04-18 07:18  Rocky Bernstein
 
 	* ruby-debug-base.rb: Fix bug in "reload" command. tracker #26130

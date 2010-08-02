@@ -48,7 +48,7 @@ check_DATA = test/elk-test.el	\
 	test/test-regexp.el 	\
 	test/test-shortkey.el
 
-EXTRA_DIST = $(lisp_files) $(check_DATA)
+EXTRA_DIST = $(lisp_files) $(check_DATA) README AUTHORS INSTALL
 ELCFILES   = rdebug.elc 		\
 	     rdebug-annotate.elc	\
 	     rdebug-breaks.elc 		\

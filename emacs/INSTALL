@@ -1,0 +1,41 @@
+If you want to build the documentation and install Emacs files, you need:
+
+ - a POSIX shell
+ - autoconf
+ - automake
+ - GNU Make
+ - texinfo
+ - texi2html
+
+Download the ruby-debug-extra tarball from rubyforge
+http://rubyforge.org/frs/?group_id=1900&release_id=28306
+
+For example for the 0.10.4rc1 release: 
+
+http://rubyforge.org/frs/download.php/46883/ruby-debug-extra-0.10.4rc1.tar.gz
+
+Untar this, run configure, make, make check and make install. For example:
+
+   tar -xpf ruby-debug-extra-0.10.4rc1.tar.gz
+   cd ruby-debug-extra-0.10.4rc1
+   sh ./configure
+   make && make check 
+   sudo make install  # or as root: make install
+
+configure --help gives customization help. 
+
+Environment variable EMACS can be used to find which emacs to use,
+should need to specify which emacs to use.
+
+After the package is installed in a place it is found inside emacs,
+place one either of the lines in an appropriate init file (for example
+~/.emacs)
+
+    (require 'rdebug)
+or 
+    (autoload 'rdebug "rdebug" "ruby-debug interface" t)    
+
+
+See the README for what this is about or the rdebug-emacs manaul that
+comes with this package.
+
