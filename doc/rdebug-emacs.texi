@@ -121,7 +121,7 @@ fully customizable so you can create your own.
 * Installation::                How to install this package
 * Emacs rdebug::                Invoke the ruby debugger initially
 * Emacs shell tracking mode::   Entering rdebug from an existing shell buffer
-* Configurating this package::  Introducing the configure system
+* Emacs Customization::         Customizing beavior in Emacs
 @end menu
 
 @node Installation, Emacs rdebug, Getting started, Getting started
@@ -131,11 +131,10 @@ If you want to build the documentation and install Emacs files, you need:
 
 @itemize @bullet
 @item a POSIX shell
-@item GNU autoconf
-@item GNU automake
 @item GNU Make
 @item texinfo
 @item texi2html
+@item GNU Emacs
 @end itemize
 
 Download the ruby-debug-extra tarball from rubyforge
@@ -163,11 +162,12 @@ Environment variable @code{EMACS} can be used to find which emacs to use,
 should need to specify which emacs to use.
 
 After installing the Emacs code on your computer, to use the interface
-inside Emacs load the file @code{rdebug.el}. This file is a
-light-weight file, basically it only contains a handful of
-@code{autoload} directives.
+inside Emacs load the file @code{rdebug.el} as in @code{M-x
+load-library rdebug}. This file is a light-weight file, basically it
+only contains a handful of @code{autoload} directives.
 
-For example, you can place the either of the following in your @code{~/.emacs} file:
+If you want to automatically load this package, you can place the
+either of the following in your @code{~/.emacs} file:
 @smallexample
   (require 'rdebug)
 @end smallexample
@@ -209,7 +209,7 @@ with your script.  In particular, you can send signals the usual
 way---for example, @kbd{C-c C-c} for an interrupt, @kbd{C-c C-z} for a
 stop.
 
-@node Emacs shell tracking mode, Configurating this package, Emacs rdebug, Getting started
+@node Emacs shell tracking mode, Emacs Customization, Emacs rdebug, Getting started
 @section Entering rdebug from an existing shell buffer
 
 Many times it's not feasible to enter the debugger from the outset.
@@ -230,14 +230,14 @@ programs you probably want to turn this off which can be done via the
 This command doesn't set up the various buffers such as tracking local
 variables and the call stack. A more ambitious takeover of the shell
 which does set up these buffers is can be done via @kbd{M-x
-turn-on-rdebug-track-mode}. A name of the program is solicited. This
-is use do make and association between the buffers. After this is
-done, you might not be able to use the shell for anything other than
-the debug session.
+rdebug-track-attach}. A name of the program is solicited. This is used
+to make and association between the buffers. After this is done, you
+might not be able to use the shell for anything other than the debug
+session.
 
 
-@node Configurating this package,  , Emacs shell tracking mode, Getting started
-@section Configurating this package
+@node Emacs Customization,  , Emacs shell tracking mode, Getting started
+@section Emacs Customization
 
 In this manual we present a number of @value{Emacs} lisp variables and
 functions that you can use to configure the debugger interface. In
@@ -875,7 +875,7 @@ If there is secondary buffer visible, that
 is replaced instead.  
 @item 
 Just pick a visible buffer to bury and replace.
-                            @end enumerate
+@end enumerate
 
 The commands are also have key bindings that end in an uppercase
 letter. This letter is given in parenthesis. When in one of the
