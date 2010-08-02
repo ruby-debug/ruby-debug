@@ -36,7 +36,7 @@
 @tex
 {\parskip=0pt
 \hfill (Send bugs and comments on ruby-debug to fill in...)\par
-\hfill {\it Debugging with {\tt ruby-debug}\par
+\hfill {\it Debugging with {\tt rdebug}\par
 \hfill \TeX{}info \texinfoversion\par
 }
 @end tex
@@ -45,7 +45,7 @@
 @page
 
 @node Top, Getting started, (dir), (dir)
-@top Debugging with ruby-debug under GNU Emacs
+@top Debugging with rdebug in GNU Emacs
 
 @menu
 * Getting started::             
@@ -168,7 +168,6 @@ light-weight file, basically it only contains a handful of
 @code{autoload} directives.
 
 For example, you can place the either of the following in your @code{~/.emacs} file:
-
 @smallexample
   (require 'rdebug)
 @end smallexample
