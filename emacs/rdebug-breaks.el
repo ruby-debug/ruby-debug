@@ -129,7 +129,8 @@ Argument COMINT-BUFFER is the assocaited gud process buffer."
                                          'keymap rdebug-breakpoint-mode-map)))
             (forward-line)))
 	(goto-char (point-min))
-	(forward-line (1- old-line-number))))
+	(forward-line (1- old-line-number))
+	))
     (rdebug-breakpoint-parse-and-update-cache)
     (rdebug-breakpoint-update-icons (rdebug-breakpoint-all))))
 
@@ -368,7 +369,7 @@ Argument PT indicates the file and line where the breakpoint should be set."
               (set-buffer buf)
               (save-excursion
 		(goto-char (point-min))
-		(forward-line (nth 4 entry))
+		(forward-line (1- (nth 4 entry)))
                 ;; Workaround for bug in `gdb-ui'. (It checks
                 ;; `left-fringe-width' but it doesn't interpret the
                 ;; `nil' value correctly.
