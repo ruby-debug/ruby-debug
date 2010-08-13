@@ -101,7 +101,7 @@ module Debugger
         end
       end
       print file_line
-      if ENV['EMACS'] && adjust
+      if Debugger.inside_emacs? && adjust
         fmt = (Debugger.annotate.to_i > 1 ?
                "\032\032source %s:%d\n" : "\032\032%s:%d\n")
         print fmt % [CommandProcessor.canonic_file(file), line]

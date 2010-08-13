@@ -103,7 +103,7 @@ module Debugger
       # FIXME: use annotations routines
       if Debugger.annotate.to_i > 2
         file_line = "\032\032source #{file_line}"
-      elsif ENV['EMACS']
+      elsif Debugger.inside_emacs?
         file_line = "\032\032#{file_line}"
       end
       print file_line
@@ -144,7 +144,7 @@ module Debugger
       aprint 'stopped' if Debugger.annotate.to_i > 2
       file = CommandProcessor.canonic_file(context.frame_file(0))
       line = context.frame_line(0)
-      print afmt("%s:%d" % [file, line]) if ENV['EMACS']
+      print afmt("%s:%d" % [file, line]) if Debugger.inside_emacs?
       print "Catchpoint at %s:%d: `%s' (%s)\n", file, line, excpt, excpt.class
       fs = context.stack_size
       tb = caller(0)[-fs..-1]

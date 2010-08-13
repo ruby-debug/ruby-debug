@@ -1,3 +1,29 @@
+2010-08-03 02:53  Rocky Bernstein
+
+	* emacs/rdebug-breaks.el: Off by one on showing breakpoint
+	  positions
+
+2010-08-02 19:07  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi: More small document changes
+
+2010-08-02 18:03  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi: A couple more small emacs doc changes
+
+2010-08-02 17:45  Rocky Bernstein
+
+	* doc/rdebug-emacs.texi, emacs/INSTALL, emacs/README: More small
+	  changes to docs.
+
+2010-08-02 12:51  Rocky Bernstein
+
+	* CHANGES, ChangeLog, INSTALL.SVN, configure.ac, emacs/AUTHORS,
+	  emacs/INSTALL, emacs/Makefile.am, emacs/README, emacs/rdebug.el,
+	  lib/ChangeLog: Go over installation instructions for Emacs.
+	  Add a basic files, README, INSTALL and AUTHORS.
+	  Change version from 0.10.4vc to 0.10.4rc1
+
 2010-05-26 20:11  Rocky Bernstein
 
 	* cli/ruby-debug/commands/eval.rb, cli/ruby-debug/commands/kill.rb,

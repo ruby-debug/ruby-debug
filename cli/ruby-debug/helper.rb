@@ -1,5 +1,10 @@
 module Debugger
 
+  def inside_emacs?
+    ENV['EMACS'] || ENV['INSIDE_EMACS']
+  end
+  module_function :inside_emacs?
+  
   module ParseFunctions
     Position_regexp = '(?:(\d+)|(.+?)[:.#]([^.:\s]+))'
 
