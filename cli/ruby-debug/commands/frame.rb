@@ -290,10 +290,10 @@ The position of the current frame is marked with -->.  }
 
           Without an argument, the command prints the current stack
           frame. Since the current position is redisplayed, it may trigger a
-          resyncronization if there is a front end also watching over
+          resynchronization if there is a front end also watching over
           things. 
 
-          If a thread number is given then we set the context for evaluating
+          If a thread number is given, then we set the context for evaluating
           expressions to that frame of that thread. 
         }
       end
