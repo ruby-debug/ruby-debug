@@ -1,3 +1,9 @@
+2010-08-13 05:32  Rocky Bernstein
+
+	* ChangeLog: Add Debugger.inside_emacs? Environment variable EMACS
+	  for inside Emacs is deprecated in favor of INSIDE_EMACS.
+	  Rubyforge #28465.
+
 2010-08-02 12:51  Rocky Bernstein
 
 	* ChangeLog: Go over installation instructions for Emacs.

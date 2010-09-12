@@ -1,4 +1,4 @@
-#!/ursr/bin/env ruby
+#!/usr/bin/env ruby
 # Test Debugger.catchpoint and post-mortem handling
 def zero_div
   x = 5

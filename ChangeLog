@@ -1,3 +1,16 @@
+2010-08-28 18:26  Rocky Bernstein
+
+	* cli/ruby-debug/commands/frame.rb: Spelling mistake:
+	  resyncronization -> resynchronization
+
+2010-08-13 05:32  Rocky Bernstein
+
+	* ChangeLog, cli/ruby-debug/commands/frame.rb,
+	  cli/ruby-debug/helper.rb, cli/ruby-debug/processor.rb,
+	  ext/ruby_debug.c, lib/ChangeLog: Add Debugger.inside_emacs?
+	  Environment variable EMACS for inside Emacs is deprecated in
+	  favor of INSIDE_EMACS. Rubyforge #28465.
+
 2010-08-03 02:53  Rocky Bernstein
 
 	* emacs/rdebug-breaks.el: Off by one on showing breakpoint

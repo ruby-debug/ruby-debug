@@ -111,6 +111,9 @@ buffer}
 This package comes with a number of predefined window layouts. It is
 fully customizable so you can create your own.
 
+@emph{A rewrite of this interface is underway. See
+@url{http://github.com/rocky/emacs-rbdbgr}}
+
 @c -------------------------------------------------------------------
 
 
@@ -159,7 +162,7 @@ Untar this, run configure, make, make check and make install. For example:
 @code{configure --help} gives customization help. 
 
 Environment variable @code{EMACS} can be used to find which emacs to use,
-should need to specify which emacs to use.
+should you need to specify which emacs to use.
 
 After installing the Emacs code on your computer, to use the interface
 inside Emacs load the file @code{rdebug.el} as in @code{M-x
