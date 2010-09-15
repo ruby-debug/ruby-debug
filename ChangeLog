@@ -1,3 +1,8 @@
+2010-09-12 01:30  Rocky Bernstein
+
+	* ChangeLog, doc/home-page.html, doc/rdebug-emacs.texi,
+	  lib/ChangeLog, test/pm.rb: pm.rb: spelling mistake
+
 2010-08-28 18:26  Rocky Bernstein
 
 	* cli/ruby-debug/commands/frame.rb: Spelling mistake:

@@ -6,7 +6,7 @@
 #include <st.h>
 #include <intern.h>
 
-#define DEBUG_VERSION "0.10.4rc1"
+#define DEBUG_VERSION "0.10.4rc2"
 
 
 #ifdef _WIN32
