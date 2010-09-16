@@ -22,6 +22,12 @@ module TestHelper
     end
     
     ENV['RDEBUG'] = debug_pgm
+    ENV['TERM']   = ''
+
+    # The EMACS environment variable(s) cause output to 
+    # get prefaced with null which will mess up file compares.
+    # So turn off EMACS output processing.
+    ENV['EMACS'] = ENV['INSIDE_EMACS'] = nil
 
     if old_code
       cmd = "/bin/sh #{File.join('..', 'runner.sh')} #{args} >#{outfile}"
