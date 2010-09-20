@@ -1,3 +1,10 @@
+2010-09-15 16:58  Rocky Bernstein
+
+	* ChangeLog: Rakefile: make rake --prereqs work if only
+	  ruby-debug.tar.gz is used. Add
+	  test/config.yml to gem. See tracker #28560.
+	  ruby_debug.c: 10.0.4.rc2 now
+
 2010-09-12 01:30  Rocky Bernstein
 
 	* ChangeLog: pm.rb: spelling mistake

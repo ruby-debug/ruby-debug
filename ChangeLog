@@ -1,3 +1,17 @@
+2010-09-16 06:56  Rocky Bernstein
+
+	* test/helper.rb: The EMACS environment variable(s) cause output to
+	  get prefaced with
+	  null which messes up file compares. So turn off EMACS output
+	  processing in testing.
+
+2010-09-15 16:58  Rocky Bernstein
+
+	* ChangeLog, Rakefile, ext/ruby_debug.c, lib/ChangeLog: Rakefile:
+	  make rake --prereqs work if only ruby-debug.tar.gz is used. Add
+	  test/config.yml to gem. See tracker #28560.
+	  ruby_debug.c: 10.0.4.rc2 now
+
 2010-09-12 01:30  Rocky Bernstein
 
 	* ChangeLog, doc/home-page.html, doc/rdebug-emacs.texi,

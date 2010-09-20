@@ -11,11 +11,13 @@ VERSION_FILE = File.dirname(__FILE__) + '/VERSION'
 def make_version_file
   ruby_debug_version = open("ext/ruby_debug.c").
     grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]
-  File.open(VERSION_FILE, 'w').write(
+  File.open(VERSION_FILE, 'w') do |f|
+      f.write(
 "# This file was created automatically from data in ext/ruby_debug.c via:
 # 	rake :make_version_file. 
 #{ruby_debug_version}
 ")
+    end
 end
 
 make_version_file unless File.exist?(VERSION_FILE)
