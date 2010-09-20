@@ -1,3 +1,8 @@
+2010-09-20 09:33  Rocky Bernstein
+
+	* ChangeLog, Rakefile, lib/ChangeLog: Make sure version file is
+	  closed. Thanks to Mamoru Tasaka. Tracker #28581.
+
 2010-09-16 06:56  Rocky Bernstein
 
 	* test/helper.rb: The EMACS environment variable(s) cause output to

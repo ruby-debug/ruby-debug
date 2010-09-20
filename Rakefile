@@ -6,7 +6,8 @@ require 'rake/rdoctask'
 require 'rake/testtask'
 
 SO_NAME = "ruby_debug.so"
-VERSION_FILE = File.dirname(__FILE__) + '/VERSION'
+ROOT_DIR = File.dirname(__FILE__)
+VERSION_FILE = ROOT_DIR + '/VERSION'
 
 def make_version_file
   ruby_debug_version = open("ext/ruby_debug.c").
@@ -35,6 +36,7 @@ COMMON_FILES = FileList[
   'CHANGES',
   'LICENSE',
   'README',
+  'VERSION',
   'Rakefile',
 ]                        
 
@@ -47,11 +49,13 @@ CLI_FILES = COMMON_FILES + FileList[
   'ChangeLog',
   'bin/*',
   'doc/rdebug.1',
+  'test/rdebug-save.1',
   'test/**/data/*.cmd',
   'test/**/data/*.right',
   'test/config.yaml',
   'test/**/*.rb',
   'rdbg.rb',
+  'runner.sh',
    CLI_TEST_FILE_LIST
 ]
 
@@ -73,9 +77,12 @@ BASE_FILES = COMMON_FILES + FileList[
 ]
 
 desc "Test everything."
-task :test => :test_base do 
+ext = File.join(ROOT_DIR, 'ext')
+test_and_args = File.exist?(ext) ? {:test => :test_base} : [:test]
+task test_and_args do 
   Rake::TestTask.new(:test) do |t|
-    t.libs += ['./ext', './lib', './cli']
+    t.libs += %W(#{ROOT_DIR}/lib #{ROOT_DIR}/cli)
+    t.libs << ext if File.exist?(ext)
     t.test_files = CLI_TEST_FILE_LIST
     t.verbose = true
   end

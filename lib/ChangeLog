@@ -1,3 +1,8 @@
+2010-09-20 09:33  Rocky Bernstein
+
+	* ChangeLog: Make sure version file is closed. Thanks to Mamoru
+	  Tasaka. Tracker #28581.
+
 2010-09-15 16:58  Rocky Bernstein
 
 	* ChangeLog: Rakefile: make rake --prereqs work if only

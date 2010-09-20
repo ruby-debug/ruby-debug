@@ -1,7 +1,9 @@
 #!/usr/bin/env ruby
 require 'test/unit'
 require 'rbconfig'
-require File.join(File.dirname(__FILE__), 'helper.rb')
+
+ROOT_DIR=File.dirname(__FILE__)
+require File.join(ROOT_DIR, 'helper.rb')
 
 # begin require 'rubygems' rescue LoadError end
 # require 'ruby-debug'; Debugger.start
@@ -11,6 +13,10 @@ class TestDebuggerInit < Test::Unit::TestCase
   @@SRC_DIR = File.dirname(__FILE__) unless 
     defined?(@@SRC_DIR)
   def test_basic
+    unless File.exist?(File.join(ROOT_DIR, 'ext'))
+      puts "Skipping test #{__FILE__}"
+      return
+    end
     debugger_output = 'test-init.out'
     Dir.chdir(@@SRC_DIR) do 
       old_emacs = ENV['EMACS']
