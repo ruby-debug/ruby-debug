@@ -1,3 +1,9 @@
+2010-09-20 11:06  Rocky Bernstein
+
+	* ChangeLog, Rakefile, lib/ChangeLog, test/test-init.rb: "rake
+	  test" of ruby-debug gem should now work without requiring or
+	  using ruby-debug-base code. Rubyforge tracker #28560.
+
 2010-09-20 09:33  Rocky Bernstein
 
 	* ChangeLog, Rakefile, lib/ChangeLog: Make sure version file is

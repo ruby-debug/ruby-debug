@@ -3,6 +3,7 @@
  - Various bug fixes: 
    * reload command. 
    * plain 'info' command 
+   * improve list and list - (backwards) handling when hitting end of file
  - Add ability to specify port to debug on
  - Allow breakpoints at class methods
  - "quit!" is same as "quit unconditionally"

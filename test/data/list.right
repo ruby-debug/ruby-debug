@@ -99,7 +99,7 @@ basename is on.
 => 4  def gcd(a, b)
    5    # Make: a <= b
 # list 20
-[15, 24] in ./gcd.rb
+[15, 18] in ./gcd.rb
    15    return gcd(b-a, a)
    16  end
    17  
