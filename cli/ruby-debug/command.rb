@@ -6,14 +6,29 @@ module Debugger
   RUBY_DEBUG_DIR = File.expand_path(File.dirname(__FILE__)) unless
     defined?(RUBY_DEBUG_DIR)
 
-  class Command # :nodoc:
+  # A Debugger::Command object is is the base class for commands that
+  # implement a single debugger command. Individual debugger commands
+  # will be a subclass of this. The singleton class object is the
+  # command manager for all commands.
+  # 
+  # Each debugger command is expected to have the following methods:
+  # _regexp_:: A regular expression which input strings are matched
+  #            against. It is the ruby-debug programmer's responsibility
+  #            to make sure that these regular expressions match disjoint
+  #            sets of strings. Otherwise one is arbitrarily used.
+  # _execute::  Ruby code implement the command.
+  # _help_::  Descriptive help for the commmand. Used by the 'help' command
+  #           Debugger::CommandHelp
+  # _help_command::  The name of the command listed in help.
+  # 
+  class Command
     SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
       defined?(SubcmdStruct)
 
     include Columnize
 
-    # Find param in subcmds. param id downcased and can be abbreviated
-    # to the minimum length listed in the subcommands
+    # Find _param_ in _subcmds_. The _param_ id downcased and can be
+    # abbreviated to the minimum length listed in the subcommands
     def find(subcmds, param)
       param.downcase!
       for try_subcmd in subcmds do
@@ -46,6 +61,11 @@ module Debugger
         commands << klass
       end 
 
+      # Read in and "include" all the subclasses of the
+      # Debugger::Command class. For example
+      # Debugger::CommandQuitCommand is one of them. The list of Ruby
+      # files to read are all the files that end .rb in directory
+      # Debugger::RUBY_DEBUG_DIR
       def load_commands
         Dir[File.join(Debugger.const_get(:RUBY_DEBUG_DIR), 'commands', '*')].each do |file|
           require file if file =~ /\.rb$/

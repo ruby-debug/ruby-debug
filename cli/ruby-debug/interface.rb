@@ -1,5 +1,11 @@
 module Debugger  
-  class Interface # :nodoc:
+  
+  # An _Interface_ is the kind of input/output interaction that goes
+  # on between the user and the debugged program. It includes things
+  # like how one wants to show error messages, or read input. This is
+  # the base class. Subclasses inlcude Debugger::LocalInterface,
+  # Debugger::RemoteInterface and Debugger::ScriptInterface.
+  class Interface 
     attr_writer :have_readline  # true if Readline is available
 
     def initialize
@@ -35,9 +41,16 @@ module Debugger
       print afmt(msg)
     end
 
+    # Things we do before terminating.
+    def finalize
+    end
+    
   end
 
-  class LocalInterface < Interface # :nodoc:
+  # A _LocalInterface_ is the kind of I/O interactive performed when
+  # the user interface is in the same process as the debugged program.
+  # Compare with Debugger::RemoteInterface.
+  class LocalInterface < Interface
     attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
@@ -133,7 +146,11 @@ module Debugger
     end
   end
 
-  class RemoteInterface < Interface # :nodoc:
+  # A _RemoteInterface_ is the kind of I/O interactive performed when
+  # the user interface is in a different process (and possibly
+  # different computer) than the debugged program.  Compare with
+  # Debugger::LocalInterface.
+  class RemoteInterface < Interface
     attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
@@ -165,9 +182,6 @@ module Debugger
       send_command "CONFIRM #{prompt}"
     end
 
-    def finalize
-    end
-    
     def read_command(prompt)
       send_command "PROMPT #{prompt}"
     end
@@ -190,7 +204,11 @@ module Debugger
     end
   end
   
-  class ScriptInterface < Interface # :nodoc:
+  # A _ScriptInterface_ is used when we are reading debugger commands
+  # from a command-file rather than an interactive user. Command files
+  # appear in a users initialization script (e.g. .rdebugrc) and appear
+  # when running the debugger command _source_ (Debugger::SourceCommand).
+  class ScriptInterface < Interface
     attr_accessor :command_queue
     attr_accessor :histfile
     attr_accessor :history_save
@@ -206,10 +224,7 @@ module Debugger
       @history_length = 256  # take gdb default
       @histfile = ''
     end
-    
-    def finalize
-    end
-    
+
     def read_command(prompt)
       while result = @file.gets
         puts "# #{result}" if @verbose
@@ -221,10 +236,15 @@ module Debugger
       result.chomp!
     end
     
+    # Do we have ReadLine support? When running an debugger command
+    # script, we are not interactive so we just return _false_.
     def readline_support?
       false
     end
 
+    # _confirm_ is called before performing a dangerous action. In
+    # running a debugger script, we don't want to prompt, so we'll pretend
+    # the user has unconditionally said "yes" and return String "y".
     def confirm(prompt)
       'y'
     end

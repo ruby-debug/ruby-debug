@@ -1,3 +1,8 @@
+2010-10-14 01:41  Rocky Bernstein
+
+	* ChangeLog: improve list and list - (backwards) handling when
+	  hitting end of file.
+
 2010-09-20 11:06  Rocky Bernstein
 
 	* ChangeLog: "rake test" of ruby-debug gem should now work without

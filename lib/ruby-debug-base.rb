@@ -218,8 +218,9 @@ end
 
 module Kernel
 
-  # Enters the debugger in the current thread after _steps_ line events occur.
-  # Before entering the debugger startup script is read.
+  # Enters the debugger in the current thread after _steps_ line
+  # events occur.  Before entering the debugger, a user-defined
+  # startup script is may be read.
   #
   # Setting _steps_ to 0 will cause a break in the debugger subroutine
   # and not wait for a line event to occur. You will have to go "up 1"
@@ -227,10 +228,12 @@ module Kernel
   # debugger. Settings _steps_ to 0 could be useful you want to stop
   # right after the last statement in some scope, because the next
   # step will take you out of some scope.
-
-  # If a block is given (and the debugger hasn't been started, we run the 
-  # block under the debugger. Alas, when a block is given, we can't support
-  # running the startup script or support the steps option. FIXME.
+  #
+  # If block _block_ is given (and the debugger hasn't been started,
+  # we run the block under the debugger.  
+  #
+  # FIXME: Alas, when a block is given, we can't support running the
+  # startup script or support the steps option.
   def debugger(steps = 1, &block)
     if block
       Debugger.start({}, &block)

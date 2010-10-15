@@ -8,7 +8,6 @@
 
 #define DEBUG_VERSION "0.10.4rc2"
 
-
 #ifdef _WIN32
 struct FRAME {
     VALUE self;
@@ -534,8 +533,9 @@ filename_cmp(VALUE source, char *file)
 }
 
 /*
- * This is a NASTY HACK. For some reasons rb_f_binding is declared
- * static in eval.c. So we create a cons up call to binding in C.
+ * A nasty hack to be able to get at the +Kernel.binding+ method.
+ * +rb_f_binding+ is declared static in eval.c. So copy and save our own value
+ * of it by looking up the method name in the Kernel module.
  */
 static VALUE
 create_binding(VALUE self)
@@ -2173,9 +2173,10 @@ context_stop_reason(VALUE self)
 /*
  *   Document-class: Context
  *
- *   == Summary
- *
- *   Debugger keeps a single instance of this class for each Ruby thread.
+ *   The Debugger module keeps a single instance of this class for
+ *   each Ruby thread. It contains a call-stack information, thread
+ *   information, breakpoint information and the reason the program is
+ *   stopped.
  */
 static void
 Init_context()
@@ -2214,9 +2215,10 @@ Init_context()
 
 /*
  *   call-seq:
- *      Debugger.breakpoints -> array
+ *      Debugger.breakpoints -> Array
  *
- *   Returns an array of breakpoints.
+ *   Returns an Array of Breakpoint objects; all the breakpoints that
+ *   have been created.
  */
 static VALUE
 debug_breakpoints(VALUE self)
@@ -2251,10 +2253,7 @@ debug_add_breakpoint(int argc, VALUE *argv, VALUE self)
 /*
  *   Document-class: Debugger
  *
- *   == Summary
- *
- *   This is a singleton class allows controlling the debugger. Use it to start/stop debugger,
- *   set/remove breakpoints, etc.
+ *   _Debugger_ is the module name space for ruby-debug.
  */
 #if defined(_WIN32)
 __declspec(dllexport)

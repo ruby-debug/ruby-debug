@@ -256,7 +256,7 @@ rdebug_add_catchpoint(VALUE self, VALUE value)
 
 /*
  *   call-seq:
- *      context.breakpoint -> breakpoint
+ *      context.breakpoint -> Breakpoint
  *
  *   Returns a context-specific temporary Breakpoint object.
  */

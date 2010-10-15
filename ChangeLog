@@ -1,3 +1,9 @@
+2010-10-14 01:41  Rocky Bernstein
+
+	* CHANGES, ChangeLog, cli/ruby-debug/commands/list.rb,
+	  lib/ChangeLog, test/data/list.right: improve list and list -
+	  (backwards) handling when hitting end of file.
+
 2010-09-20 11:06  Rocky Bernstein
 
 	* ChangeLog, Rakefile, lib/ChangeLog, test/test-init.rb: "rake

@@ -1,4 +1,5 @@
 0.10.4
+10/27/10
 
  - Various bug fixes: 
    * reload command. 
@@ -9,6 +10,7 @@
  - "quit!" is same as "quit unconditionally"
  - irb improvements: Access to non-executing rdebug commands inside irb via 
    "dbgr" method
+ - Go over documentation including that created by rdoc.
  - For emacs package: add README, INSTALL, AUTHORS.
 
 0.10.3
