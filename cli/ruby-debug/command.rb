@@ -11,16 +11,19 @@ module Debugger
   # will be a subclass of this. The singleton class object is the
   # command manager for all commands.
   # 
-  # Each debugger command is expected to have the following methods:
-  # _regexp_:: A regular expression which input strings are matched
-  #            against. It is the ruby-debug programmer's responsibility
-  #            to make sure that these regular expressions match disjoint
-  #            sets of strings. Otherwise one is arbitrarily used.
-  # _execute::  Ruby code implement the command.
-  # _help_::  Descriptive help for the commmand. Used by the 'help' command
-  #           Debugger::CommandHelp
-  # _help_command::  The name of the command listed in help.
+  # Each debugger command is expected to implement the following methods:
+  # _regexp_::   A regular expression which input strings are matched
+  #              against. If we have a match, run this command. 
+  #              It is the ruby-debug programmer's responsibility
+  #              to make sure that these regular expressions match disjoint
+  #              sets of strings. Otherwise one is arbitrarily used.
+  # _execute_::  Ruby code that implements the command.
+  # _help_::     Should return a String containing descriptive help for
+  #              the commmand. Used by the 'help' command Debugger::HelpCommand
+  # _help_command_:: The name of the command listed via help.
   # 
+  # _help_ and _help_command_ methods are singleton methods, not 
+  # instance methods like _regexp_ and _execute_.
   class Command
     SubcmdStruct=Struct.new(:name, :min, :short_help, :long_help) unless
       defined?(SubcmdStruct)
@@ -41,6 +44,8 @@ module Debugger
     end
 
     class << self
+      # An Array containing Debugger::Command classes that implment each
+      # of the debugger commands.
       def commands
         @commands ||= []
       end
@@ -63,7 +68,7 @@ module Debugger
 
       # Read in and "include" all the subclasses of the
       # Debugger::Command class. For example
-      # Debugger::CommandQuitCommand is one of them. The list of Ruby
+      # Debugger::QuitCommand is one of them. The list of Ruby
       # files to read are all the files that end .rb in directory
       # Debugger::RUBY_DEBUG_DIR
       def load_commands
@@ -95,7 +100,9 @@ module Debugger
         @@settings_map ||= {}
       end
       private :settings_map
-      
+
+      # Returns a Hash of Debugger settings, @settings. If doesn't exist
+      # we create a @settings hash with [] setter and getter and return that.
       def settings
         unless true and defined? @settings and @settings
           @settings = Object.new
@@ -185,10 +192,17 @@ module Debugger
       @state.print(*args)
     end
 
+    # Called when we are about to do a dangerous operation. _msg_
+    # contains a prompt message. Return _true_ if confirmed or _false_
+    # if not confirmed.
     def confirm(msg)
       @state.confirm(msg) == 'y'
     end
 
+    # debug_eval like Kernel.eval or Object.instance_eval but using
+    # the bindings for the debugged program. If there is a
+    # syntax-error like exception in running eval, print an
+    # appropriate message and throw :debug_error
     def debug_eval(str, b = get_binding)
       begin
         val = eval(str, b)
@@ -206,6 +220,10 @@ module Debugger
       end
     end
 
+    # debug_eval like Kernel.eval or Object.instance_eval but using
+    # the bindings for the debugged program. If there is a syntax
+    # error kind of exception in running eval, no warning is given and
+    # nil is returned.
     def debug_silent_eval(str)
       begin
         eval(str, get_binding)
@@ -214,6 +232,7 @@ module Debugger
       end
     end
 
+    # Return a binding object for the debugged program.
     def get_binding
       @state.context.frame_binding(@state.frame_pos)
     end

@@ -4,6 +4,8 @@ module Debugger
   class QuitCommand < Command
     self.allow_in_control = true
 
+    # An input line is matched against this regular expression. If we have
+    # a match, run this command.
     def regexp
       / ^\s*
          (?:q(?:uit)?|exit) \s*
@@ -12,6 +14,7 @@ module Debugger
       /ix
     end
 
+    # The code that implements this command.
     def execute
       if @match[1] or confirm("Really quit? (y/n) ") 
         @state.interface.finalize
@@ -20,10 +23,12 @@ module Debugger
     end
 
     class << self
+      # The command name listed via 'help'
       def help_command
         %w[quit exit]
       end
 
+      # Returns a String given the help description of this command
       def help(cmd)
         %{
           q[uit] [!|unconditionally]\texit from debugger. 

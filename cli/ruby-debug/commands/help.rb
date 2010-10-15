@@ -4,10 +4,13 @@ module Debugger
   class HelpCommand < Command
     self.allow_in_control = true
 
+    # An input line is matched against this regular expression. If we have
+    # a match, run this command.
     def regexp
       /^\s* h(?:elp)? (?:\s+(.+))? $/x
     end
 
+    # The code that implements this command.
     def execute
       if @match[1]
         args = @match[1].split
@@ -41,10 +44,12 @@ module Debugger
     end
 
     class << self
+      # The command name listed via 'help'
       def help_command
         'help'
       end
 
+      # Returns a String given the help description of this command
       def help(cmd)
         %{
           h[elp]\t\tprint this help
