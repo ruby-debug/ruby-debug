@@ -6,7 +6,7 @@
 #include <st.h>
 #include <intern.h>
 
-#define DEBUG_VERSION "0.10.4rc2"
+#define DEBUG_VERSION "0.10.4rc3"
 
 #ifdef _WIN32
 struct FRAME {
@@ -479,7 +479,7 @@ save_call_frame(rb_event_t event, VALUE self, char *file, int line, ID mid, debu
     if(frame_n >= debug_context->stack_len)
     {
         debug_context->stack_len += STACK_SIZE_INCREMENT;
-        debug_context->frames = REALLOC_N(debug_context->frames, debug_frame_t, debug_context->stack_len);
+        REALLOC_N(debug_context->frames, debug_frame_t, debug_context->stack_len);
     }
     debug_frame = &debug_context->frames[frame_n];
     debug_frame->argc = ruby_frame->argc;
