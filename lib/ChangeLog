@@ -1,3 +1,12 @@
+2010-10-15 14:45  Rocky Bernstein
+
+	* ChangeLog, ruby-debug-base.rb: Go over documentation (1st pass)
+	  including that created by rdoc.
+	  Better instructions for how to build on MS Windows and the
+	  include
+	  cross-compile.sh script I use.
+	  Update rubyforge URL's used to building ChangeLogs.
+
 2010-10-14 01:41  Rocky Bernstein
 
 	* ChangeLog: improve list and list - (backwards) handling when

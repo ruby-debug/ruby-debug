@@ -1,3 +1,25 @@
+2010-10-21 21:03  Rocky Bernstein
+
+	* ext/ruby_debug.c: Remove gcc warning and redundant code.
+	  Rubyforge Issue #28654. Thanks to Mamoru Tasaka.
+
+2010-10-15 15:16  Rocky Bernstein
+
+	* cli/ruby-debug/command.rb, cli/ruby-debug/commands/help.rb,
+	  cli/ruby-debug/commands/quit.rb: More rdoc work.
+
+2010-10-15 14:45  Rocky Bernstein
+
+	* CHANGES, ChangeLog, INSTALL.SVN, Rakefile,
+	  cli/ruby-debug/command.rb, cli/ruby-debug/interface.rb,
+	  cli/ruby-debug/processor.rb, cross-compile.sh, ext/breakpoint.c,
+	  ext/ruby_debug.c, lib/ChangeLog, lib/ruby-debug-base.rb: Go over
+	  documentation (1st pass) including that created by rdoc.
+	  Better instructions for how to build on MS Windows and the
+	  include
+	  cross-compile.sh script I use.
+	  Update rubyforge URL's used to building ChangeLogs.
+
 2010-10-14 01:41  Rocky Bernstein
 
 	* CHANGES, ChangeLog, cli/ruby-debug/commands/list.rb,
