@@ -1,3 +1,8 @@
+2010-10-27 12:58  Rocky Bernstein
+
+	* ChangeLog, ext/ruby_debug.c, lib/ChangeLog: Get ready for release
+	  0.10.4
+
 2010-10-21 21:03  Rocky Bernstein
 
 	* ext/ruby_debug.c: Remove gcc warning and redundant code.

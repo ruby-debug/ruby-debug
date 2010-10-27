@@ -1,3 +1,7 @@
+2010-10-27 12:58  Rocky Bernstein
+
+	* ChangeLog: Get ready for release 0.10.4
+
 2010-10-15 14:45  Rocky Bernstein
 
 	* ChangeLog, ruby-debug-base.rb: Go over documentation (1st pass)
