@@ -46,8 +46,6 @@ final class DebugContext {
     private final RubyThread thread;
     private IRubyObject breakpoint;
     private final List<DebugFrame> frames;
-    private int lastLine;
-    private String lastFile;
     private int destFrame;
     private int stopFrame;
     private int stopNext;
@@ -69,8 +67,6 @@ final class DebugContext {
 
     DebugContext(final RubyThread thread) {
         thnum = ++thnumMax;
-        lastFile = null;
-        lastLine = 0;
         stopNext = -1;
         destFrame = -1;
         stopLine = -1;
@@ -143,22 +139,6 @@ final class DebugContext {
 
     void setIgnored(boolean ignored) {
         this.ignored = ignored;
-    }
-
-    String getLastFile() {
-        return lastFile;
-    }
-
-    void setLastFile(String lastFile) {
-        this.lastFile = lastFile;
-    }
-
-    int getLastLine() {
-        return lastLine;
-    }
-
-    void setLastLine(int lastLine) {
-        this.lastLine = lastLine;
     }
 
     boolean isSkipped() {
