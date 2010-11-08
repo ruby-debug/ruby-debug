@@ -118,6 +118,15 @@ final class DebugEventHook extends EventHook {
 //        debug("jrubydebug> %s:%d [%s] %s\n", file, line, EVENT_NAMES[event], methodName);
 
         debugContext.setEnableBreakpoint(true);
+        moved = true;
+        //        else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN) {
+        //            if(debug == Qtrue)
+        //                fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(methodName));
+        //            goto cleanup;
+        //        } else {
+        //            if(debug == Qtrue)
+        //                fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(methodName));
+        //        }
         if (LINE == event) {
             debugContext.setStepped(true);
         }
@@ -137,13 +146,13 @@ final class DebugEventHook extends EventHook {
                     context.callMethod(tCtx, DebugContext.AT_TRACING, args);
                 }
                 if (debugContext.getDestFrame() == -1 || debugContext.getStackSize() == debugContext.getDestFrame()) {
-                    if (!debugContext.isForceMove()) {
+                    if (moved || !debugContext.isForceMove()) {
                         debugContext.setStopNext(debugContext.getStopNext() - 1);
                     }
                     if (debugContext.getStopNext() < 0) {
                         debugContext.setStopNext(-1);
                     }
-                    if ((debugContext.isStepped() && !debugContext.isForceMove())) {
+                    if (moved || (debugContext.isStepped() && !debugContext.isForceMove())) {
                         debugContext.setStopLine(debugContext.getStopLine() - 1);
                         debugContext.setStepped(false);
                     }
