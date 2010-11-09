@@ -3,9 +3,10 @@ require 'irb'
 module IRB # :nodoc:
   module ExtendCommand # :nodoc:
 
-    # FIXME: should we read these out of a directory to 
-    #        make this more user-customizable? 
     # A base command class that resume execution
+    #
+    # FIXME: should we read these out of a directory to make this more
+    #        user-customizable?
     class DebuggerResumeCommand
       def self.execute(conf, *opts)
         name = 
@@ -90,15 +91,13 @@ module IRB # :nodoc:
   end
 end
 
-# Monkeypatch to save the current IRB statement to be run and make the instruction sequence
-# "filename" unique. Possibly not needed.
+# Monkeypatch to save the current IRB statement to be run and make the
+# instruction sequence "filename" unique. Possibly not needed.
 class IRB::Context
+  alias_method :_ruby_debug_original_evaluate, :evaluate
   def evaluate(line, line_no)
     $rdebug_irb_statements = line
-    @line_no = line_no
-    set_last_value(@workspace.evaluate(self, line, irb_path, line_no))
-#    @workspace.evaluate("_ = IRB.conf[:MAIN_CONTEXT]._")
-#    @_ = @workspace.evaluate(line, irb_path, line_no)
+    _ruby_debug_original_evaluate(line, line_no)
   end
 end
 
