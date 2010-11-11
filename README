@@ -22,7 +22,7 @@ installable remotely. But installation is easy enough:
 
    jruby -S gem install --ignore-dependencies ruby-debug 
 
-See also: http://wiki.jruby.org/wiki/Using_the_JRuby_Debugger
+See also: http://kenai.com/projects/jruby/pages/UsingTheJRubyDebugger
 
 == Installation of trunk version
 
