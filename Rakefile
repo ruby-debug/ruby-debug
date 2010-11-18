@@ -6,7 +6,7 @@ require 'rake/testtask'
 require 'rake/rdoctask'
 
 GEM_NAME='ruby-debug-base'
-GEM_VERSION='0.10.3.2'
+GEM_VERSION='0.10.3.4'
 
 RUBY_DEBUG_JAR='ext/ruby_debug.jar'
 
@@ -150,7 +150,7 @@ def jruby_classpath
     classpath = java.lang.System.getProperty('java.class.path')
   rescue LoadError
   end
-
+  classpath = 'C:/jruby-1.5.1/lib/jruby.jar'
   unless classpath
     classpath = FileList["#{ENV['JRUBY_HOME']}/lib/*.jar"].join(File::PATH_SEPARATOR)
   end

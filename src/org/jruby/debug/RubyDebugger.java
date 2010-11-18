@@ -42,7 +42,7 @@ public final class RubyDebugger {
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
     
-    private static final String VERSION = "0.10.3.2";
+    private static final String VERSION = "0.10.3.4";
     private static Debugger debugger;
     
     public static RubyModule createDebuggerModule(Ruby runtime) {

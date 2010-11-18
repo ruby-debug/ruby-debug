@@ -118,7 +118,13 @@ final class DebugEventHook extends EventHook {
 //        debug("jrubydebug> %s:%d [%s] %s\n", file, line, EVENT_NAMES[event], methodName);
 
         debugContext.setEnableBreakpoint(true);
-        boolean moved = true;
+        boolean moved = false;
+        if (!debugContext.isForceMove() ||
+            debugContext.getLastLine() != line || debugContext.getLastFile() == null ||
+            !Util.areSameFiles(debugContext.getLastFile(), file)) {
+            debugContext.setEnableBreakpoint(true);
+            moved = true;
+        }
         //        else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN) {
         //            if(debug == Qtrue)
         //                fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(methodName));
