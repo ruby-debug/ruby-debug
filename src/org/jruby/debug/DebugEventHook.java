@@ -117,7 +117,6 @@ final class DebugEventHook extends EventHook {
 
 //        debug("jrubydebug> %s:%d [%s] %s\n", file, line, EVENT_NAMES[event], methodName);
 
-        debugContext.setEnableBreakpoint(true);
         boolean moved = false;
         if (!debugContext.isForceMove() ||
             debugContext.getLastLine() != line || debugContext.getLastFile() == null ||
@@ -577,6 +576,8 @@ final class DebugEventHook extends EventHook {
         if (debugFrame == null) {
             return;
         }
+        debugContext.setLastFile(debugFrame.getFile());
+        debugContext.setLastLine(debugFrame.getLine());
         debugContext.setEnableBreakpoint(false);
         debugContext.setStepped(false);
         debugContext.setForceMove(false);
