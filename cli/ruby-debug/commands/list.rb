@@ -74,7 +74,7 @@ module Debugger
       if lines
         b = lines.size - (e - b) if b >= lines.size
         e = lines.size if lines.size < e
-        print "[%d, %d] in %s\n", b, e, file
+        print "[%d, %d] in %s\n", b, e, CommandProcessor.canonic_file(file)
         [b, 1].max.upto(e) do |n|
           if n > 0 && lines[n-1]
             if n == current

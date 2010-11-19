@@ -17,10 +17,17 @@ class TestInfo < Test::Unit::TestCase
   def test_basic
     testname='info'
     Dir.chdir(@@SRC_DIR) do 
+       filter = Proc.new{|got_lines, correct_lines|
+        got_lines.each do |s|
+          s.gsub!(/Line 4 of ".*gcd.rb"/, 'Line 4 of "gcd.rb"')
+        end
+      }
+
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- gcd.rb 3 5"))
+                                "--script #{script} -- ./example/gcd.rb 3 5",
+                                nil, filter))
     end
   end
 end

@@ -24,7 +24,7 @@ class TestExceptBug1 < Test::Unit::TestCase
       assert_equal(true, 
                    run_debugger(testname,
                                 "--script #{script} --post-mortem " + 
-                                "#{testname}.rb"))
+                                "./example/#{testname}.rb"))
     end
   end
 

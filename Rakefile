@@ -52,6 +52,7 @@ CLI_FILES = COMMON_FILES + FileList[
   'test/rdebug-save.1',
   'test/**/data/*.cmd',
   'test/**/data/*.right',
+  'test/**/example/*.rb',
   'test/config.yaml',
   'test/**/*.rb',
   'rdbg.rb',

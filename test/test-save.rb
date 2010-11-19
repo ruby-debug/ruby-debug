@@ -15,16 +15,19 @@ class TestSave < Test::Unit::TestCase
   # Test initial variables and setting/getting state.
   def test_basic
     testname='save'
-     filter = Proc.new{|got_lines, correct_lines|
-       got_lines.each do |s|
-         s.sub!(/2 file .*gcd.rb/, '2 file gcd.rb')
-       end
-     }
+    filter = Proc.new{|got_lines, correct_lines|
+      got_lines.each do |s|
+        s.gsub!(/(\d+) file .*gcd.rb/, '\1 file gcd.rb')
+      end
+      got_lines.each do |s|
+        s.gsub!(/break .*gcd.rb:10/, "break gcd.rb:10")
+      end
+    }
     Dir.chdir(@@SRC_DIR) do 
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- gcd.rb 3 5",
+                                "--script #{script} -- ./example/gcd.rb 3 5",
                                 nil, filter))
     end
   end

@@ -19,7 +19,7 @@ class TestBrkptClassBug < Test::Unit::TestCase
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- brkpt-class-bug.rb"))
+                                "--script #{script} -- ./example/brkpt-class-bug.rb"))
     end
   end
   

@@ -7,13 +7,13 @@ def gcd(a, b)
 Currently testing the debugger is on.
 # # Edit using current line position.
 # edit
-FAKE-EDITOR +4 ./gcd.rb
-# edit gcd.rb:5
-FAKE-EDITOR +5 gcd.rb
+FAKE-EDITOR +4 ./example/gcd.rb
+# edit example/gcd.rb:5
+FAKE-EDITOR +5 example/gcd.rb
 # # File should not exist
 # edit foo
 *** Invalid file/line number specification: foo
 # # Add space to the end of 'edit'
 # edit 
-FAKE-EDITOR +4 ./gcd.rb
+FAKE-EDITOR +4 ./example/gcd.rb
 # quit

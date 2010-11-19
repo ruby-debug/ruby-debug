@@ -6,7 +6,7 @@ def gcd(a, b)
 # set basename on
 basename is on.
 # list
-[-1, 8] in ./gcd.rb
+[-1, 8] in gcd.rb
    1  #!/usr/bin/env ruby
    2  
    3  # GCD. We assume positive numbers
@@ -16,7 +16,7 @@ basename is on.
    7      a, b = [b, a]
    8    end
 # list
-[9, 18] in ./gcd.rb
+[9, 18] in gcd.rb
    9  
    10    return nil if a <= 0
    11  
@@ -28,7 +28,7 @@ basename is on.
    17  
    18  gcd(3,5)
 # list
-[9, 18] in ./gcd.rb
+[9, 18] in gcd.rb
    9  
    10    return nil if a <= 0
    11  
@@ -40,7 +40,7 @@ basename is on.
    17  
    18  gcd(3,5)
 # list
-[9, 18] in ./gcd.rb
+[9, 18] in gcd.rb
    9  
    10    return nil if a <= 0
    11  
@@ -52,7 +52,7 @@ basename is on.
    17  
    18  gcd(3,5)
 # list -
-[-1, 8] in ./gcd.rb
+[-1, 8] in gcd.rb
    1  #!/usr/bin/env ruby
    2  
    3  # GCD. We assume positive numbers
@@ -62,7 +62,7 @@ basename is on.
    7      a, b = [b, a]
    8    end
 # list -
-[-1, 8] in ./gcd.rb
+[-1, 8] in gcd.rb
    1  #!/usr/bin/env ruby
    2  
    3  # GCD. We assume positive numbers
@@ -72,7 +72,7 @@ basename is on.
    7      a, b = [b, a]
    8    end
 # list -
-[-1, 8] in ./gcd.rb
+[-1, 8] in gcd.rb
    1  #!/usr/bin/env ruby
    2  
    3  # GCD. We assume positive numbers
@@ -82,7 +82,7 @@ basename is on.
    7      a, b = [b, a]
    8    end
 # list -
-[-1, 8] in ./gcd.rb
+[-1, 8] in gcd.rb
    1  #!/usr/bin/env ruby
    2  
    3  # GCD. We assume positive numbers
@@ -92,14 +92,14 @@ basename is on.
    7      a, b = [b, a]
    8    end
 # list 1
-[-4, 5] in ./gcd.rb
+[-4, 5] in gcd.rb
    1  #!/usr/bin/env ruby
    2  
    3  # GCD. We assume positive numbers
 => 4  def gcd(a, b)
    5    # Make: a <= b
 # list 20
-[15, 18] in ./gcd.rb
+[15, 18] in gcd.rb
    15    return gcd(b-a, a)
    16  end
    17  
@@ -107,21 +107,21 @@ basename is on.
 # set listsize 5
 Number of source lines to list by default is 5.
 # list 5
-[3, 7] in ./gcd.rb
+[3, 7] in gcd.rb
    3  # GCD. We assume positive numbers
 => 4  def gcd(a, b)
    5    # Make: a <= b
    6    if a > b
    7      a, b = [b, a]
 # list =
-[2, 6] in ./gcd.rb
+[2, 6] in gcd.rb
    2  
    3  # GCD. We assume positive numbers
 => 4  def gcd(a, b)
    5    # Make: a <= b
    6    if a > b
 # list 3-4
-[3, 4] in ./gcd.rb
+[3, 4] in gcd.rb
    3  # GCD. We assume positive numbers
 => 4  def gcd(a, b)
 # 

@@ -24,7 +24,7 @@ class TestFileWithSpace < Test::Unit::TestCase
 #       }
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- 'file with space.rb'"))
+                                "--script #{script} -- './example/file with space.rb'"))
     end
   end
 end

@@ -16,6 +16,7 @@ save temp
 eval File.open("temp").readlines
 # Should read in nothing
 source temp
+set basename off
 info break
 # Now try saving something interesting
 break 10

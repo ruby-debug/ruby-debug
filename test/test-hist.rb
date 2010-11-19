@@ -40,8 +40,8 @@ class TestHistory < Test::Unit::TestCase
 
       # Now that we've set up a history file, run the debugger
       # and check that it's reading that correctly.
-      debug_pgm=File.join('..', 'rdbg.rb')
-      debugged=File.join('gcd.rb')
+      debug_pgm=File.join(%w(.. rdbg.rb))
+      debugged=File.join(%w(. example gcd.rb))
       IO.popen("#{debug_pgm} #{debugged} 3 5 >#{debugger_output}", 'w') do 
         |pipe|
         debugger_commands.each do |cmd|

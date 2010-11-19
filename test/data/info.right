@@ -29,7 +29,7 @@ info threads -- information of currently-known threads
 info variables -- Local and instance variables of the current stack frame
 # info args
 # info line
-Line 4 of "./gcd.rb"
+Line 4 of "gcd.rb"
 # info locals
 # info stack
 --> #0 at line gcd.rb:4
@@ -58,8 +58,8 @@ Num Enb What
 Num Enb What
   1 y   at gcd.rb:10
   2 y   at gcd.rb:12
-# info file ./gcd.rb break
-File ./gcd.rb
+# info file ./example/gcd.rb break
+File ./example/gcd.rb
 	breakpoint line numbers:
 4  6  6  7  10  10  12  12  13  15  18
 # i

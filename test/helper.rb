@@ -77,7 +77,7 @@ module TestHelper
   # this kind of test.
   def add_test(base_name, src_dir, script_name=nil, cmd=nil, test_name=nil)
     puts "+++ Adding #{base_name} ++++" if $DEBUG
-    test_name   = base_name unless test_name
+    test_name   = File.join('.', 'example', base_name) unless test_name
     script_name = File.join('data', test_name + '.cmd') unless script_name
     cmd         = 'gcd.rb 3 5' unless cmd
     eval <<-EOF

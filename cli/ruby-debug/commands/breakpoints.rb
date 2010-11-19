@@ -65,11 +65,13 @@ module Debugger
         if LineCache.cache(brkpt_filename, Command.settings[:reload_source_on_change])
           last_line = LineCache.size(brkpt_filename)
           if line > last_line
-            errmsg("There are only %d lines in file \"%s\".\n", last_line, file) 
+            errmsg("There are only %d lines in file \"%s\".\n", last_line, 
+                   CommandProcessor.canonic_file(file))
             return
           end
           unless LineCache.trace_line_numbers(brkpt_filename).member?(line)
-            errmsg("Line %d is not a stopping point in file \"%s\".\n", line, file) 
+            errmsg("Line %d is not a stopping point in file \"%s\".\n", line, 
+                   CommandProcessor.canonic_file(file))
             return
           end
         else
