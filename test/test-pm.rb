@@ -28,7 +28,7 @@ class TestPM < Test::Unit::TestCase
       testname += '-osx' if Config::CONFIG['host_os'] =~ /^darwin/
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} --post-mortem pm.rb"))
+                                "--script #{script} --post-mortem ./example/pm.rb"))
     end
   end
 
@@ -40,7 +40,7 @@ class TestPM < Test::Unit::TestCase
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} --post-mortem pm.rb"))
+                                "--script #{script} --post-mortem ./example/pm.rb"))
     end
   end
   

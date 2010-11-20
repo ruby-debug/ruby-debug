@@ -19,7 +19,7 @@ class TestRaise < Test::Unit::TestCase
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- raise.rb"))
+                                "--script #{script} -- ./example/raise.rb"))
     end
   end
 end

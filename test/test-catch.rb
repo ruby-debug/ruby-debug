@@ -19,7 +19,7 @@ class TestCatch < Test::Unit::TestCase
       script = File.join('data', testname + '.cmd')
       assert_equal(true, 
                    run_debugger(testname,
-                                "--script #{script} -- pm.rb"))
+                                "--script #{script} -- ./example/pm.rb"))
     end
   end
 end
