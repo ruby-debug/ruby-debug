@@ -6,9 +6,9 @@ set callstyle last
 next
 where
 step a
-set forcestep on
+set different on
 step- ; step-
-set forcestep off
+set diff off
 where
 n 2
 step+

@@ -14,13 +14,13 @@ gcd(3,5)
 --> #0 at line gcd.rb:18
 # step a
 Step argument 'a' needs to be a number.
-# set forcestep on
-force-stepping is on.
+# set different on
+different-line stepping is on.
 # step- ; step-
 gcd.rb:6
 if a > b
-# set forcestep off
-force-stepping is off.
+# set diff off
+different-line stepping is off.
 # where
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 at line gcd.rb:18

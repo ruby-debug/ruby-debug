@@ -28,6 +28,8 @@ ruby-debug."],
        ['debuggertesting', 8, false,
         "Used when testing the debugger"],
        ['forcestep', 2, true,
+        "Deprecated - same as 'set different'"],
+       ['different', 2, true,
         "Make sure 'next/step' commands always move to a new line"],
        ['fullpath', 2, true,
         "Display full file names in frames"],
@@ -65,7 +67,8 @@ set history size -- Set the size of the command history"],
         print "\"set\" must be followed by the name of an set command:\n"
         print "List of set subcommands:\n\n"
         for subcmd in Subcommands do
-          print "set #{subcmd.name} -- #{subcmd.short_help}\n"
+          print "set #{subcmd.name} -- #{subcmd.short_help}\n" unless
+            subcmd.name == 'forcestep'
         end
       else
         args = @match[1].split(/[ \t]+/)
@@ -135,7 +138,10 @@ set history size -- Set the size of the command history"],
                 if set_on
                   Command.settings[:basename] = true
                 end
+              when /^different$/
+                self.class.settings[:force_stepping] = set_on
               when /^forcestep$/
+                print "This setting depricated. Please use 'set different'\n"
                 self.class.settings[:force_stepping] = set_on
               when /^history$/
                 if 2 == args.size

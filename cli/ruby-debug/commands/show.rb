@@ -71,9 +71,13 @@ module Debugger
       when /^debuggertesting$/
         on_off = Command.settings[:debuggertesting]
         return "Currently testing the debugger is #{show_onoff(on_off)}."
-      when /^forcestep$/
+      when /^different$/
         on_off = self.class.settings[:force_stepping]
-        return "force-stepping is #{show_onoff(on_off)}."
+        return "different-line stepping is #{show_onoff(on_off)}."
+      when /^forcestep$/
+        print "This setting deprecated. Please use 'show different'\n"
+        on_off = self.class.settings[:force_stepping]
+        return "different-line stepping is #{show_onoff(on_off)}."
       when /^fullpath$/
         on_off = Command.settings[:full_path]
         return "Displaying frame's full file names is #{show_onoff(on_off)}."
@@ -166,7 +170,8 @@ ruby-debug."],
        ['callstyle', 2, "Show paramater style used showing call frames"],
        ['commands',  2, "Show the history of commands you typed",
 "You can supply a command number to start with."],
-       ['forcestep', 1, "Show if sure 'next/step' forces move to a new line"],
+       ['different', 2, "Show if 'next/step' forces move to a new line"],
+       ['forcestep', 1, "Deprecated. Please use 'different'"],
        ['fullpath',  2, "Show if full file names are displayed in frames"],
        ['history', 2, "Generic command for showing command history parameters",
 "show history filename -- Show the filename in which to record the command history
@@ -200,7 +205,8 @@ show history size -- Show the size of the command history"],
         print "\"show\" must be followed by the name of an show command:\n"
         print "List of show subcommands:\n\n"
         for subcmd in Subcommands do
-          print "show #{subcmd.name} -- #{subcmd.short_help}\n"
+          print "show #{subcmd.name} -- #{subcmd.short_help}\n"  unless 
+            'forcestep' == subcmd.name 
         end
       else
         args = @match[1].split(/[ \t]+/)
