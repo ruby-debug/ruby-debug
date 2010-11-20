@@ -75,7 +75,6 @@ module Debugger
         on_off = self.class.settings[:force_stepping]
         return "different-line stepping is #{show_onoff(on_off)}."
       when /^forcestep$/
-        print "This setting deprecated. Please use 'show different'\n"
         on_off = self.class.settings[:force_stepping]
         return "different-line stepping is #{show_onoff(on_off)}."
       when /^fullpath$/

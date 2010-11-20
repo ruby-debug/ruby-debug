@@ -141,7 +141,7 @@ set history size -- Set the size of the command history"],
               when /^different$/
                 self.class.settings[:force_stepping] = set_on
               when /^forcestep$/
-                print "This setting depricated. Please use 'set different'\n"
+                print "This setting depricated. Please use 'set different'.\n"
                 self.class.settings[:force_stepping] = set_on
               when /^history$/
                 if 2 == args.size
