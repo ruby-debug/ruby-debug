@@ -11,7 +11,7 @@
 @c See the "Inserting Quote Characters" node in the Texinfo manual
 @set txicodequoteundirected
 @set txicodequotebacktick
-@set RDEBUG_VERSION 0.10.4
+@set RDEBUG_VERSION 0.10.5
 
 @macro Example {}
 @iftex
@@ -88,6 +88,7 @@ This is the @value{EDITION} Edition, @value{UPDATED}
 
 @menu
 * Summary::                     Overview of Debugger with sample sessions
+* Installation::                Getting this puppy installed
 * Invocation::                  Getting in and out
 * Debugger Command Reference::  rdebug command reference
 * Post-Mortem Debugging::       Debugging on an uncaught exception
@@ -1009,7 +1010,7 @@ def gcd(a, b)
 @end smallexample
 
 If you want @code{step+} to be the default behavior when stepping,
-issue the command @code{set forcestep on}, (@pxref{Forcestep}). I
+issue the command @code{set different on}, (@pxref{Different}). I
 generally put this in my start-up file @code{.rdebugrc}.
 
 Similar to the difference between @code{step+} and @code{step} is
@@ -1159,6 +1160,49 @@ To be continued...
 @end itemize
 @end ifset
 
+@node Installation
+@chapter Installing @code{ruby-debug}
+
+There are a number of pitfalls that one can run into in trying to
+install @code{ruby-debug}. We will try to go over them here.
+
+In the simplest case, one should be able to run:
+
+@smallexample
+  gem install ruby-debug  
+@end smallexample
+
+If however you need root permission to install gems (which is @emph{not}
+the case if your Ruby is installed via rvm
+(@url{http://rvm.beginrescueend.com}), then:
+
+@smallexample
+  sudo gem install ruby-debug  
+@end smallexample
+
+Ruby debug uses a number of packages, namely: @code{ruby-debug-base},
+@code{columnize}, and @code{linecache}. But those gems should get pulled
+in automatically.  The gem @code{ruby-debug-base} is a C extension. To
+install C extensions you need to make sure you have Ruby's C header
+files for compiling extension modules. This includes a file called
+@code{ruby.h}. On Debain/Ubuntu the name of Debian package is called
+@code{ruby1.8-dev} and is not installed when you just install Ruby 1.8.
+
+If you are using an IDE or the Ruby you use is JRuby, then instead of
+installing @code{ruby-debug}, you want the gem @code{ruby-debug-ide}.
+
+Mark Moseley ported @code{ruby-debug} and @code{ruby-debug-ide} for Ruby
+1.9. Those gems are called @code{ruby-debug19} and
+@code{ruby-debug-ide19} respectively.
+
+I (rocky) have however been rewriting @code{ruby-debug} from scratch to
+address a number of failings folks have encountered in
+@code{ruby-debug}. Those debuggers are called the ``trepanning''
+debuggers. For Ruby 1.9.2 you need a patched version of Ruby. See
+@url{https://github.com/rocky/rb-trepanning/wiki/How-to-Install-rb-trepanning}. For
+Rubinius the gem to use is @code{rbx-trepanning}. No patched Ruby is
+needed, however you will need a recent version of Rubinius.
+
 @node Invocation
 @chapter Getting in and out
 
@@ -1203,7 +1247,7 @@ Options:
     -c, --client                     Connect to remote debugger
         --cport PORT                 Port used for control commands
     -d, --debug                      Set $DEBUG=true
-        --emacs                      Activates full Emacs support
+        --emacs LEVEL                Activates full Emacs support at annotation level LEVEL
         --emacs-basic                Activates basic Emacs mode
     -h, --host HOST                  Host name used for remote debugging
     -I, --include PATH               Add PATH to $LOAD_PATH
@@ -1213,6 +1257,7 @@ Options:
         --no-quit                    Do not quit when script finishes
         --no-rewrite-program         Do not set $0 to the program being debugged
         --no-stop                    Do not stop when script is loaded
+    -nx                              Not run debugger initialization files (e.g. .rdebugrc
     -p, --port PORT                  Port used for remote debugging
     -r, --require SCRIPT             Require the library, before executing your script
         --script FILE                Name of the script file to run
@@ -1708,11 +1753,11 @@ ruby-debug help v@value{RDEBUG_VERSION}
 Type 'help <command-name>' for help on a specific command
 
 Available commands:
-backtrace  delete   enable  help    next  quit     show    undisplay
-break      disable  eval    info    p     reload   source  up       
-catch      display  exit    irb     pp    restart  step    var      
-condition  down     finish  list    ps    save     thread  where    
-continue   edit     frame   method  putl  set      trace 
+backtrace  delete   enable  help  method  putl     set     trace    
+break      disable  eval    info  next    quit     show    undisplay
+catch      display  exit    irb   p       reload   source  up       
+condition  down     finish  kill  pp      restart  step    var      
+continue   edit     frame   list  ps      save     thread  where    
 @end smallexample
 @end flushleft
 @c the above line break eliminates huge line overfull...
@@ -2054,9 +2099,11 @@ See also the @code{methods}.
 Run an interactive ruby session (@code{irb}) with the bindings
 environment set to the state you are in the program.
 
-When you leave irb and go back to the debugger command prompt we show
-again the file, line and text position of the program in the same way
-as when entered the debugger. If you issue a @command{list} without
+Inside irb, method @code{dbgr} is available to run debugger
+commands. You give @code{dbgr} a String: the command to run.
+
+When you leave irb and go back to the debugger, the the file, line and
+text position are shown again.  If you issue a @command{list} without
 location information, the default location used is the current line
 rather than the position may have gotten updated via a prior
 @command{list} command.
@@ -2076,6 +2123,13 @@ def triangle(n)
 @b{irb}
 >> @b{(0..6).inject@{|sum, i| sum +=i@}}
 => 21
+>> @b{dbgr 'list'}
+[9, 12] in /src/external-vcs/ruby-debug/trunk/doc/triangle.rb
+   9    return tri
+   10   end
+   11   
+   12  puts triangle(3)
+=> 9
 >> @b{exit}
 triangle.rb:4
 def triangle(n)
@@ -2090,6 +2144,9 @@ def triangle(n)
    7      tri += i
    8    end
 @end smallexample
+
+If you find yourself wanting to go into irb every time you enter the
+debugger, you can do this with the command ``set autolist'' @ref{Autoirb}.
 
 @end table
 
@@ -2728,9 +2785,9 @@ same as @code{step; step; step+}, not @code{step+; step+; step+}}
 
 If you find yourself generally wanting to use @code{step+} rather
 than @code{step}, you may want to consider using @code{set
-forcestep}, (@pxref{Forcestep}).
+different}, (@pxref{Different}).
 
-If you have @code{forcestep} set on but want to temporarily disable it
+If you have @code{different} set on but want to temporarily disable it
 for the next step command, append a minus, or @code{step-}.
 
 With a count, @code{step} will continue running as normal, but do so
@@ -2749,7 +2806,7 @@ This is similar to @code{step}, but function or method calls that
 appear within the line of code are executed without stopping. As with
 step, if you want to make sure that on a step you go to a
 @emph{different} position, add a plus sign (@samp{+}).  Similarly,
-appending a minus disables a @code{forcestep} temporarily, and an
+appending a minus disables a @code{different} temporarily, and an
 argument @var{count} is a repeat count, as for @code{step}.
 @end table
 
@@ -2803,9 +2860,9 @@ commands.
 
 The various parameters to @code{set} are given below. Each parameter
 name needs to to be only enough to make it unique. For example
-@code{set force} is a suitable abbreviation for @code{set forcestep}.
-The letter case is not important, so @code{set FORCE} or @code{set
-Force} are also suitable abbreviations.
+@code{set diff} is a suitable abbreviation for @code{set different}.
+The letter case is not important, so @code{set DIFF} or @code{set
+Diff} are also suitable abbreviations.
 
 Many @code{set} commands are either ``on'' or ``off'', and you can
 indicate which way you want set by supplying the corresponding
@@ -2824,7 +2881,7 @@ allows you to see the current value.
 * Autoreload::           Reload source code when changed
 * Basename::             Report file basename only showing file names
 * Callstyle::            Show Report file basename only showing file names
-* Forcestep::            Make sure 'next/step' commands always move to a new line
+* Different::            Make sure 'next/step' commands always move to a new line
 * Fullpath::             Display full file names in frames
 * History::              Generic command for showing command history parameters.
 * Keepframebindings::    Save frame binding on each call
@@ -2943,7 +3000,7 @@ Shows the whether filename display shows just the file basename or not.
 @item set forcestep @r{[} short | last | tracked @r{]}
 @else
 @kindex set callstyle @r{[} short | last 
-@item set forcestep @r{[} short | last 
+@item set callstyle @r{[} short | last 
 @end ifset
 
 Sets how you want call parameters displayed; @code{short} shows just
@@ -2959,25 +3016,25 @@ overhead. On every call, scalar values of the parameters get
 saved. For non-scalar values the class is saved. 
 @end table
 
-@node Forcestep
-@subsection Set/Show Forces Different Line Step/Next
+@node Different
+@subsection Set/Show Different Line Forcing on Step/Next
 
 @table @code
-@kindex set forcestep @r{[} on | 1 | off | 0 @r{]}
-@item set forcestep @r{[} on | 1 | off | 0 @r{]}
+@kindex set different @r{[} on | 1 | off | 0 @r{]}
+@item set different @r{[} on | 1 | off | 0 @r{]}
 
 Due to the interpretive, expression-oriented nature of the Ruby
 Language and implementation, each line often contains many possible
 stopping points, while in a debugger it is often desired to treat each
 line as an individual stepping unit. 
 
-Setting forcestep on will cause each @code{step} or @code{next}
+Setting ``different'' on will cause each @code{step} or @code{next}
 command to stop at a different line number. See also @ref{Step} and
 @ref{Next}.
 
-@kindex show forcestep
-@item show forcestep
-Shows whether forcestep is in effect or not.
+@kindex show different
+@item show different
+Shows whether ``set different'' is in effect or not.
 @end table
 
 @node Fullpath
@@ -3456,7 +3513,7 @@ Symbol: @code{:short} or @code{:last}. @xref{Callstyle}.
 Boolean. True if currently testing the debugger.
 @item :force_stepping
 Boolean. True if stepping should go to a line different from the last
-step. @xref{Forcestep}.
+step. @xref{Different}.
 @item :full_path
 Boolean. @xref{Fullpath}.
 @item :listsize
@@ -3651,7 +3708,7 @@ ruby /tmp/testit.rb:
 /tmp/testit.rb:7
 y=2
 (rdb:1) help
-ruby-debug help v0.10.3
+ruby-debug help v0.10.5
 Type 'help <command-name>' for help on a specific command
 Available commands:
 backtrace delete  enable help method putl    set    trace
@@ -3659,7 +3716,7 @@ break     disable eval   info next   quit    show   undisplay
 catch     display exit   irb  p      reload  source up
 condition down    finish list pp     restart step   var
 continue edit     frame  me   ps     save    thread where
-                  ^^ This is you
+                         ^^ This is you
 
 (rdb:1) help me
 This does whatever it is I want to do
