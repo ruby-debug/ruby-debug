@@ -129,3 +129,10 @@ ruby-debug-base-xxx-mswin32.gem
    make # Not rake
    cd ../..   # back in ruby-debug/trunk
    rake win32_gem
+
+3. Customizing C extension compile options
+
+If you want to change C flags used for compilation, if you create a file
+in the ext directory called config_options.rb, that is loaded by extconf.rb.
+For example I typically have this in my config_options.rb file:
+   $CFLAGS='-fPIC -fno-strict-aliasing -g3 -ggdb -O2 -fPIC'

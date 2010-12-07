@@ -287,7 +287,7 @@ end
 
 def install(spec, *opts)
   args = ['gem', 'install', "pkg/#{spec.name}-#{spec.version}.gem"] + opts
-  args.unshift 'sudo' unless 0 == Process.uid
+  args.unshift 'sudo' unless 0 == Process.uid || ENV['rvm_path']
   system(*args)
 end
 
