@@ -1,3 +1,10 @@
+2010-12-07 02:33  Rocky Bernstein
+
+	* ChangeLog, INSTALL.SVN, Rakefile, ext, ext/extconf.rb,
+	  lib/ChangeLog: Admnistrivia. Rakefile: rake test shouldn't su if
+	  we're rvm. extconf.rb allow for user compile options. INSTALL.SVN
+	  note how to configure compile options.
+
 2010-11-21 12:57  Rocky Bernstein
 
 	* CHANGES, ChangeLog, cli/ruby-debug/commands/set.rb,

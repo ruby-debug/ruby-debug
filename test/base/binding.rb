@@ -24,7 +24,7 @@ class TestBinding < Test::Unit::TestCase
     Debugger.start
     b = Kernel::binding_n(0)
     y = eval('s', b)
-    assert_equal(y, s)
+    assert_equal(s, y)
     inside_fn
     Debugger.stop
   end

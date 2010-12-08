@@ -1,3 +1,9 @@
+2010-12-07 02:33  Rocky Bernstein
+
+	* ChangeLog: Admnistrivia. Rakefile: rake test shouldn't su if
+	  we're rvm. extconf.rb allow for user compile options. INSTALL.SVN
+	  note how to configure compile options.
+
 2010-11-09 11:49  Rocky Bernstein
 
 	* ChangeLog: Monkey patch in a wrapping/chaining way so as to
