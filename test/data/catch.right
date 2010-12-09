@@ -36,4 +36,6 @@ pm.rb:5
     #1 at line pm.rb:8
 Warning: saved frames may be incomplete;
 compare debugger backtrace (bt) with Ruby caller(0).
+# info program
+Program stopped. It stopped at catchpoint `divided by 0' (ZeroDivisionError) .
 # quit

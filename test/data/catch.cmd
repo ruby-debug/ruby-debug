@@ -14,4 +14,5 @@ info catch
 catch ZeroDivisionError
 c
 where
+info program
 quit

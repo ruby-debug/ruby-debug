@@ -40,7 +40,7 @@ return nil if a <= 0
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
     #1 at line gcd.rb:18
 # info program
-Program stopped. It stopped at a breakpoint.
+Program stopped. It stopped at breakpoint 2.
 # c 6
 Breakpoint 3 at Object:gcd
 gcd.rb:4

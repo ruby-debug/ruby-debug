@@ -305,15 +305,16 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
       end
       
       print "Program stopped. "
+      event_arg = @state.processor.event_arg
       case @state.context.stop_reason
       when :step
         print "It stopped after stepping, next'ing or initial start.\n"
       when :breakpoint
-        print("It stopped at a breakpoint.\n")
+        print("It stopped at breakpoint %d.\n",
+              Debugger.breakpoints.index(event_arg) + 1)
       when :catchpoint
-        print("It stopped at a catchpoint.\n")
-      when :catchpoint
-        print("It stopped at a catchpoint.\n")
+        print("It stopped at catchpoint `%s' (%s) .\n", event_arg,  
+              event_arg.class)
       else
         print "unknown reason: %s\n" % @state.context.stop_reason.to_s
       end

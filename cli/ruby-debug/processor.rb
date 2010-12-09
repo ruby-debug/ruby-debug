@@ -12,6 +12,10 @@ module Debugger
     attr_reader   :processor
     attr_reader   :commands
 
+    # optional argument passed passed in callback. For catchpoints it is
+    # the catch object. For breakpoints it is the breakpoint object.
+    attr_reader   :event_arg
+
     # Format _msg_ with gdb-style annotation header.
     def afmt(msg, newline="\n")
       "\032\032#{msg}#{newline}"
@@ -147,6 +151,7 @@ module Debugger
     # This is a callback routine when the debugged program hits a 
     # breakpoint event. For example ruby-debug-base calls this.
     def at_breakpoint(context, breakpoint)
+      @event_arg = breakpoint
       aprint 'stopped' if Debugger.annotate.to_i > 2
       n = Debugger.breakpoints.index(breakpoint) + 1
       file = CommandProcessor.canonic_file(breakpoint.source)
@@ -161,6 +166,7 @@ module Debugger
     # This is a callback routine when the debugged program hits a 
     # catchpoint. For example ruby-debug-base calls this.
     def at_catchpoint(context, excpt)
+      @event_arg = excpt
       aprint 'stopped' if Debugger.annotate.to_i > 2
       file = CommandProcessor.canonic_file(context.frame_file(0))
       line = context.frame_line(0)
