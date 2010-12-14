@@ -26,6 +26,7 @@ class TestRubyDebug < Test::Unit::TestCase
     assert_equal(1, Debugger.current_context.stack_size)
     assert_equal(TestRubyDebug, Debugger.current_context.frame_class)
     assert_equal(false, Debugger.current_context.dead?, 'Not dead yet!')
+  ensure
     Debugger.stop
     assert_equal(false, Debugger.started?, 
                  'Debugger should no longer be started.')
@@ -47,6 +48,7 @@ class TestRubyDebug < Test::Unit::TestCase
                  'There should only be one context.')
     assert_equal(Array, a.class, 
                  'Context should be an array.')
+  ensure
     Debugger.stop
     assert_equal(false, Debugger.started?, 
                  'debugger should no longer be started.')
@@ -68,6 +70,7 @@ class TestRubyDebug < Test::Unit::TestCase
     Debugger.remove_breakpoint(1)
     assert_equal(0, Debugger.breakpoints.size,
                  'There should no longer be any breakpoints set.')
+  ensure
     Debugger.stop
   end
 end

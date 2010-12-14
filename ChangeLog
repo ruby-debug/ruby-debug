@@ -1,3 +1,8 @@
+2010-12-13 00:12  Rocky Bernstein
+
+	* test/runall: Stop at first failure. Clean up some of the crud
+	  that's accumulated over the years.
+
 2010-12-09 14:45  Rocky Bernstein
 
 	* cli/ruby-debug/commands/info.rb, cli/ruby-debug/processor.rb,
