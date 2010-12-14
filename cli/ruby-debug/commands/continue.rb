@@ -20,6 +20,7 @@ module Debugger
         end
         @state.context.set_breakpoint(filename, line_number)
       end
+      @state.processor.next_level = -1
       @state.proceed
     end
 

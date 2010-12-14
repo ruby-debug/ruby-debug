@@ -13,9 +13,5 @@ where
 n 2
 step+
 where
-step 3
-step+
-where
-next+	
-# finish
+step
 quit

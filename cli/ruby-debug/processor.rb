@@ -55,6 +55,18 @@ module Debugger
   class CommandProcessor < Processor 
     attr_reader   :display
 
+    # Set if we want a different line. The initial values come from
+    # Command.settings[:force_step] but individual step/next commands
+    # can adjust for the upcoming step. 
+    attr_accessor :different
+
+    # Fixnum. frame.stack_size has to be <= than this.  If next'ing,
+    # this will be > 0. There is some code inside the C extension to
+    # handle this, which I've been ripping out because it is too
+    # complicated and wrong -- doesn't account for threads or
+    # breakpoints vs stepping. So for now, beware of that code as well
+    attr_accessor :next_level      
+
     # FIXME: get from Command regexp method.
     @@Show_breakpoints_postcmd = [
                                   /^\s*b(?:reak)?/, 
@@ -84,11 +96,18 @@ module Debugger
       
       @mutex = Mutex.new
       @last_cmd = nil
+
+      # These are used to figure out if we are on a different position for
+      # "set different"
       @last_file = nil   # Filename the last time we stopped
       @last_line = nil   # line number the last time we stopped
+      @last_stack_size = nil 
+
       @debugger_breakpoints_were_empty = false # Show breakpoints 1st time
       @debugger_displays_were_empty = true # No display 1st time
       @debugger_context_was_dead = true # Assume we haven't started.
+      @different = Command.settings[:force_stepping]
+      @next_level = 10000
     end
     
     def interface=(interface)
@@ -152,14 +171,28 @@ module Debugger
     # breakpoint event. For example ruby-debug-base calls this.
     def at_breakpoint(context, breakpoint)
       @event_arg = breakpoint
+      if :breakpoint == @last_event && @different &&
+          same_position?(context)
+        # callback sometimes calls breakpoints twice. Until we
+        # have a better way to disambiguate...
+        breakpoint.hit_count -= 1
+        return 
+      end
+      save_position(context)
       aprint 'stopped' if Debugger.annotate.to_i > 2
-      n = Debugger.breakpoints.index(breakpoint) + 1
+
       file = CommandProcessor.canonic_file(breakpoint.source)
       line = breakpoint.pos
       if Debugger.annotate.to_i > 2
         print afmt("source #{file}:#{line}")
       end
-      print "Breakpoint %d at %s:%s\n", n, file, line
+      if :breakpoint == context.stop_reason
+        n = Debugger.breakpoints.index(breakpoint) + 1
+        print "Breakpoint %d at %s:%s\n", n, file, line
+      else
+        print "Temporary breakpoint at %s:%s\n", file, line
+      end
+      process_commands(context)
     end
     protect :at_breakpoint
     
@@ -167,6 +200,7 @@ module Debugger
     # catchpoint. For example ruby-debug-base calls this.
     def at_catchpoint(context, excpt)
       @event_arg = excpt
+      save_position(context)
       aprint 'stopped' if Debugger.annotate.to_i > 2
       file = CommandProcessor.canonic_file(context.frame_file(0))
       line = context.frame_line(0)
@@ -179,30 +213,36 @@ module Debugger
           print "\tfrom %s\n", i
         end
       end
+      process_commands(context)
     end
     protect :at_catchpoint
     
     def at_tracing(context, file, line)
       return if defined?(Debugger::RDEBUG_FILE) && 
         Debugger::RDEBUG_FILE == file # Don't trace ourself
-      @last_file = CommandProcessor.canonic_file(file)
-      canonic_file = CommandProcessor.canonic_file(file)
-      unless canonic_file == @last_file and @last_line == line and 
-          Command.settings[:tracing_plus]
+      unless Command.settings[:tracing_plus] && same_position?(context)
+        canonic_file = CommandProcessor.canonic_file(file)
         print "Tracing(%d):%s:%s %s",
         context.thnum, canonic_file, line, Debugger.line_at(file, line)
-        @last_file = canonic_file
-        @last_line = line
       end
+      save_position(context)
       always_run(context, file, line, 2)
     end
     protect :at_tracing
+
+    # This is a callback routine when the debugged program goes into
+    # post-mortem.
+    def at_post_mortem(context)
+      process_commands(context)
+    end
+    protect :at_post_mortem
 
     # This is a callback routine when the debugged program hits a
     # "line" (or statement boundary) event. For example
     # ruby-debug-base calls this.
     def at_line(context, file, line)
-      process_commands(context, file, line)
+      process_commands(context) unless stepping_skip?(context) 
+      save_position(context)
     end
     protect :at_line
     
@@ -212,7 +252,8 @@ module Debugger
     # other bases routines such as the one in JRuby do.
     def at_return(context, file, line)
       context.stop_frame = -1
-      process_commands(context, file, line)
+      save_position(context)
+      process_commands(context)
     end
 
     # Return the command object to run given input string _input_.
@@ -242,6 +283,50 @@ module Debugger
     end
     
     private
+
+    # Used to be able to see if we are at the same line.
+    def save_position(context)
+      @last_file = context.frame_file(0)
+      @last_event = context.stop_reason
+      @last_line = context.frame_line(0)
+      @last_thread = context.thnum
+      @last_stack_size = context.stack_size
+      @last_event = context.stop_reason
+    end
+
+    # Used when "set different" is on to test if we are at the same
+    # line.
+    def same_position?(context)
+      if Command.settings[:debugskip]
+        print ("old: #{@last_file}, #{@last_line}, #{@last_thread}, " +
+            "#{@last_stack_size}\n")
+        print ("new: #{context.frame_file(0)}, #{context.frame_line(0)}, " +
+            "#{context.thnum}, #{context.stack_size}\n")
+      end
+      @last_file == context.frame_file(0) && 
+        @last_line == context.frame_line(0) && 
+        @last_thread == context.thnum && 
+        @last_stack_size == context.stack_size
+    end
+
+
+    # Used to test should skip because we are in a "step over". 
+    def skip_level?(context)
+      @next_level < context.stack_size && @last_thread == context.thnum
+    end
+
+    def stepping_skip?(context)
+      should_skip = (@different && same_position?(context)) || 
+        skip_level?(context)
+        
+      if should_skip
+        # FIXME should be 
+        # context.step(context.stop_next+1)
+        context.step(0)
+      end
+      print "skipping: #{should_skip} #{@different}\n" if Command.settings[:debugskip]
+      return should_skip
+    end
 
     # Return a prompt string to show before reading a command.
     def prompt(context)
@@ -286,7 +371,9 @@ module Debugger
     # This the main debugger command-line loop. Here we read a
     # debugger command, perform it, and ask for another one unless we
     # are told to continue execution or terminate.
-    def process_commands(context, file, line)
+    def process_commands(context)
+      file = context.frame_file(0)
+      line = context.frame_line(0)
       state, @commands = always_run(context, file, line, 1)
       $rdebug_state = state if Command.settings[:debuggertesting]
       splitter = lambda do |str|
@@ -420,6 +507,7 @@ module Debugger
         @previous_line = nil
         @proceed       = false
         @processor     = processor
+        @last_event    = nil
         yield self
       end
 

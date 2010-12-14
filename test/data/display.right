@@ -5,6 +5,8 @@ def gcd(a, b)
 # # ***************************************************
 # set debuggertesting on
 Currently testing the debugger is on.
+# set different on
+different-line stepping is on.
 # b 6
 Breakpoint 1 file gcd.rb, line 6
 # c
@@ -23,7 +25,7 @@ Disable display argument 'b' needs to be a number.
 # disable display 1
 # c
 Breakpoint 1 at gcd.rb:6
-2: b  = 3
+2: b  = 5
 gcd.rb:6
 if a > b
 # enable display b

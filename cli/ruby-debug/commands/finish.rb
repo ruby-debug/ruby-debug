@@ -16,6 +16,7 @@ module Debugger
         frame_pos = get_int(@match[1], "Finish", 0, max_frame-1, 0)
         return nil unless frame_pos
       end
+      @state.processor.next_level = -1
       @state.context.stop_frame = frame_pos
       @state.frame_pos = 0
       @state.proceed

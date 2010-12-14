@@ -94,9 +94,6 @@ check_breakpoints_by_pos(debug_context_t *debug_context, char *file, int line)
     VALUE breakpoint;
     int i;
 
-    if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
-        return Qnil;
-    
     if(check_breakpoint_by_pos(debug_context->breakpoint, file, line))
         return debug_context->breakpoint;
 
@@ -117,9 +114,6 @@ check_breakpoints_by_method(debug_context_t *debug_context, VALUE klass, ID mid,
     VALUE breakpoint;
     int i;
 
-    if(!CTX_FL_TEST(debug_context, CTX_FL_ENABLE_BKPT))
-        return Qnil;
-        
     if(check_breakpoint_by_method(debug_context->breakpoint, klass, mid, self))
         return debug_context->breakpoint;
 
@@ -461,6 +455,22 @@ breakpoint_hit_count(VALUE self)
 
 /*
  *   call-seq:
+ *      breakpoint.hit_count = int
+ *
+ *   Sets the hit count of the breakpoint.
+ */
+static VALUE
+breakpoint_set_hit_count(VALUE self, VALUE value)
+{
+    debug_breakpoint_t *breakpoint;
+
+    Data_Get_Struct(self, debug_breakpoint_t, breakpoint);
+    breakpoint->hit_count = FIX2INT(value);
+    return value;
+}
+
+/*
+ *   call-seq:
  *      breakpoint.hit_value -> int
  *
  *   Returns the hit value of the breakpoint.
@@ -567,6 +577,7 @@ Init_breakpoint()
     rb_define_method(cBreakpoint, "hit_condition", breakpoint_hit_condition, 0);
     rb_define_method(cBreakpoint, "hit_condition=", breakpoint_set_hit_condition, 1);
     rb_define_method(cBreakpoint, "hit_count", breakpoint_hit_count, 0);
+    rb_define_method(cBreakpoint, "hit_count=", breakpoint_set_hit_count, 1);
     rb_define_method(cBreakpoint, "hit_value", breakpoint_hit_value, 0);
     rb_define_method(cBreakpoint, "hit_value=", breakpoint_set_hit_value, 1);
     rb_define_method(cBreakpoint, "id", breakpoint_id, 0);

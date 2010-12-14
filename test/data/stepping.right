@@ -33,18 +33,7 @@ if a == 1 or b-a == 0
 # where
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:12
     #1 at line gcd.rb:18
-# step 3
-gcd.rb:6
-if a > b
-# step+
-gcd.rb:10
-return nil if a <= 0
-# where
---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
-    #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #2 at line gcd.rb:18
-# next+	
+# step
 gcd.rb:12
 if a == 1 or b-a == 0
-# # finish
 # quit

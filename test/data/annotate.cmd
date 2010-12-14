@@ -6,7 +6,8 @@ set callstyle last
 set different off
 set annotate 3
 # Get into gcd
-step 2
+step
+step
 # "break" should trigger break annotation
 break 10
 # "delete" should trigger break annotation

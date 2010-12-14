@@ -1,7 +1,7 @@
 #include <ruby.h>
 /* Context info */
 enum ctx_stop_reason {CTX_STOP_NONE, CTX_STOP_STEP, CTX_STOP_BREAKPOINT, 
-		      CTX_STOP_CATCHPOINT};
+		      CTX_STOP_CATCHPOINT, CTX_STOP_TEMP_BREAKPOINT};
 
 /* Context flags */
 #define CTX_FL_SUSPEND      (1<<1)

@@ -54,6 +54,10 @@ module Debugger
       handler.at_line(self, file, line)
     end
 
+    def at_post_mortem
+      handler.at_post_mortem(self)
+    end
+
     def at_return(file, line)
       handler.at_return(self, file, line)
     end
@@ -151,7 +155,7 @@ module Debugger
       orig_tracing = Debugger.tracing, Debugger.current_context.tracing
       Debugger.tracing = Debugger.current_context.tracing = false
       Debugger.last_exception = exp
-      handler.at_line(exp.__debug_context, exp.__debug_file, exp.__debug_line)
+      handler.at_post_mortem(exp.__debug_context)
     ensure
       Debugger.tracing, Debugger.current_context.tracing = orig_tracing
       Debugger.resume

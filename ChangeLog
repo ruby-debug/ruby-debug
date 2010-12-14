@@ -1,3 +1,21 @@
+2010-12-09 14:45  Rocky Bernstein
+
+	* cli/ruby-debug/commands/info.rb, cli/ruby-debug/processor.rb,
+	  test/data/breakpoints.right, test/data/catch.cmd,
+	  test/data/catch.right: "info program" gives is a little more
+	  descriptive of the program stop events for "catch" and
+	  "breakpoint".
+
+2010-12-08 03:37  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/base/binding.rb: Order of expect,
+	  got reversed in assert_equal
+
+2010-12-07 10:27  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Add "installation" section. "set forcestep"
+	  -> "set different". Update example output.
+
 2010-12-07 02:33  Rocky Bernstein
 
 	* ChangeLog, INSTALL.SVN, Rakefile, ext, ext/extconf.rb,

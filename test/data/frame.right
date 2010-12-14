@@ -12,6 +12,7 @@ Frame call-display style is last.
 *** Line 3 is not a stopping point in file "gcd.rb".
 # # This time, for sure!
 # continue 6
+Temporary breakpoint at gcd.rb:6
 gcd.rb:6
 if a > b
 # where

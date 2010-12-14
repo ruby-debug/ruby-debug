@@ -9,8 +9,8 @@ module Debugger
       elsif match[1] == '-' 
         force = false
       end
-      steps = get_int(match[2], command_name, 1)
-      return [steps, force]
+      step_count = get_int(match[2], command_name, 1)
+      return [step_count, force]
     end
   end
   # Implements debugger "next" command.
@@ -25,9 +25,10 @@ module Debugger
     end
 
     def execute
-      steps, force = parse_stepping_args("Next", @match)
+      steps, @state.processor.different = parse_stepping_args("Next", @match)
       return unless steps
-      @state.context.step_over steps, @state.frame_pos, force
+      @state.processor.next_level = @state.context.stack_size - @state.frame_pos
+      @state.context.step_over steps, @state.frame_pos
       @state.proceed
     end
 
@@ -58,9 +59,10 @@ module Debugger
     end
 
     def execute
-      steps, force = parse_stepping_args("Step", @match)
+      steps, @state.processor.different = parse_stepping_args("Step", @match)
       return unless steps
-      @state.context.step(steps, force)
+      @state.processor.next_level = 10000
+      @state.context.step(steps-1)
       @state.proceed
     end
 

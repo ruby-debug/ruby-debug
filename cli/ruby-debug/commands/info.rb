@@ -312,6 +312,8 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
       when :breakpoint
         print("It stopped at breakpoint %d.\n",
               Debugger.breakpoints.index(event_arg) + 1)
+      when :tbreakpoint
+        print("It stopped at a temporary breakpoint.\n")
       when :catchpoint
         print("It stopped at catchpoint `%s' (%s) .\n", event_arg,  
               event_arg.class)

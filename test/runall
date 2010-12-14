@@ -1,12 +1,37 @@
 #!/usr/bin/env ruby
-#-*- Ruby -*-
-debug_opt = '-d ' if $DEBUG or 'd' == ARGV[0]
-for file in Dir.glob("test-*.rb")  do 
+require 'optparse'
+
+program = File.basename($0)
+opt_debug =''
+opt_continue = false
+opt_base = false
+opts = OptionParser.new do |opts|
+  opts.on('-d', '--debug', 'Run passing -d') do 
+    opt_debug = '-d '
+  end
+  opts.on('--continue', 'continue running even if a test fails') do 
+    opt_continue = true
+  end
+  # opts.on('--base', 'run also "base" directory') do 
+  #   opt_base = true
+  # end
+  opts.on_tail('--help', 'Show this message') do
+    puts opts
+    exit 100
+  end
+end
+opts.parse! ARGV
+
+files = ARGV.empty? ? Dir.glob("test-*.rb") : ARGV
+
+# if opt_base
+#   Dir.chdir('base') do
+#     system("ruby #{opt_debug}../runall " + Dir.glob("*.rb").join(" "))
+#   end
+# end
+files.each do |file|
   puts "=" * 50
   puts "== running #{file}..."
-  system("ruby #{file}");
-end
-if ARGV[0] == "really"
-   system("(cd test && ruby #{debug_opt}runall)")
-   system("(cd examples && ruby #{debug_opt}runall)")
+  system("ruby #{opt_debug}#{file}");
+  exit $? >> 8 if ($? >> 8) != 0 && !opt_continue
 end

@@ -5,10 +5,15 @@ def zero_div
 # # ******************************************************
 # set debuggertesting on
 Currently testing the debugger is on.
-# next 2
+# next
+pm.rb:7
+x = 2
+# next
 pm.rb:8
 zero_div
 # next
 pm.rb:5
 1/0
+# next
+*** Unknown command: "next".  Try "help".
 # quit

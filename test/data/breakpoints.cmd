@@ -16,7 +16,7 @@ info break
 continue
 where
 info program
-c 6
+c
 info break
 break foo
 info break

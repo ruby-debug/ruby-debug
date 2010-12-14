@@ -155,6 +155,7 @@ module Debugger
 
     register_setting_var(:basename, false)  # use basename in showing files? 
     register_setting_var(:callstyle, :last)
+    register_setting_var(:debugskip, false)
     register_setting_var(:debuggertesting, false)
     register_setting_var(:force_stepping, false)
     register_setting_var(:full_path, true)

@@ -6,7 +6,7 @@
 #include <st.h>
 #include <intern.h>
 
-#define DEBUG_VERSION "0.10.5.dev"
+#define DEBUG_VERSION "0.11.0.dev"
 
 #ifdef _WIN32
 struct FRAME {
@@ -603,12 +603,10 @@ save_current_position(debug_context_t *debug_context)
     if(!debug_frame) return;
     debug_context->last_file = debug_frame->file;
     debug_context->last_line = debug_frame->line;
-    CTX_FL_UNSET(debug_context, CTX_FL_ENABLE_BKPT);
     CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
-    CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
 }
 
-inline static char *
+static char *
 get_event_name(rb_event_t event)
 {
   switch (event) {
@@ -649,7 +647,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     VALUE breakpoint = Qnil, binding = Qnil;
     debug_context_t *debug_context;
     char *file = NULL;
-    int line = 0, moved = 0;
+    int line = 0;
 
     hook_count++;
 
@@ -700,32 +698,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
       if(debug == Qtrue)
           fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));
 
-      /* There can be many event calls per line, but we only want
-      *one* breakpoint per line. */
-      if(debug_context->last_line != line || debug_context->last_file == NULL ||
-          strcmp(debug_context->last_file, file) != 0)
-      {
-          CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
-          moved = 1;
-      } 
-      else if(event == RUBY_EVENT_LINE)
-      {
-        /* There are two line-event trace hook calls per IF node - one
-          before the expression eval an done afterwards. 
-        */
-        /* FIXME: the static variable can't be safely used here, since this method 
-        is re-entrant by multiple threads. If we want to provide this kind of functionality 
-        if_eval_event variable must be moved to debug_context structure.
-        */
-        /*
-        static int if_eval_event = 0;
-        if_eval_event = (NODE_IF == nd_type(node)) ? !if_eval_event : 0;
-        if (!if_eval_event)
-        {
-            CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
-        }
-        */
-      }
     }
     else if(event != RUBY_EVENT_RETURN && event != RUBY_EVENT_C_RETURN)
     {
@@ -739,8 +711,11 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             fprintf(stderr, "nodeless [%s] %s\n", get_event_name(event), rb_id2name(mid));
     }
     
-    if(event != RUBY_EVENT_LINE)
+    if(event != RUBY_EVENT_LINE) {
+	/* There is no chance on the next event that we have neither
+	   stepped, or hit a different breakpoint. */
         CTX_FL_SET(debug_context, CTX_FL_STEPPED);
+    }
 
     switch(event)
     {
@@ -755,18 +730,20 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
         if(RTEST(tracing) || CTX_FL_TEST(debug_context, CTX_FL_TRACING))
             rb_funcall(context, idAtTracing, 2, rb_str_new2(file), INT2FIX(line));
 
+	if(debug == Qtrue)
+	    fprintf(stderr, 
+		    "stop_line: %d, stop_next: %d, dest_frame, %d size: %d\n", 
+		    debug_context->stop_next, debug_context->stop_line,
+		    debug_context->dest_frame, debug_context->stack_size
+		);
+
         if(debug_context->dest_frame == -1 ||
             debug_context->stack_size == debug_context->dest_frame)
         {
-            if(moved || !CTX_FL_TEST(debug_context, CTX_FL_FORCE_MOVE))
-                debug_context->stop_next--;
-            if(debug_context->stop_next < 0)
-                debug_context->stop_next = -1;
-            if(moved || (CTX_FL_TEST(debug_context, CTX_FL_STEPPED) && 
-                        !CTX_FL_TEST(debug_context, CTX_FL_FORCE_MOVE)))
+	    if (debug_context->stop_line >= 0) debug_context->stop_line--;
+            if (CTX_FL_TEST(debug_context, CTX_FL_STEPPED))
             {
-                debug_context->stop_line--;
-                CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
+		CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
             }
         }
         else if(debug_context->stack_size < debug_context->dest_frame)
@@ -774,7 +751,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             debug_context->stop_next = 0;
         }
 
-        if(debug_context->stop_next == 0 || debug_context->stop_line == 0 ||
+	if(debug_context->stop_next == 0 || debug_context->stop_line == 0 ||
             (breakpoint = check_breakpoints_by_pos(debug_context, file, line)) != Qnil)
         {
             binding = self? create_binding(self) : Qnil;
@@ -789,17 +766,19 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
                     break;
                 if(!check_breakpoint_hit_condition(breakpoint))
                     break;
-                if(breakpoint != debug_context->breakpoint)
-                {
-                  debug_context->stop_reason = CTX_STOP_BREAKPOINT;
-                  rb_funcall(context, idAtBreakpoint, 1, breakpoint);
-                }
-                else
+                if(breakpoint == debug_context->breakpoint) {
+		    /* Temporary breakpoint. Clear it now. */
                     debug_context->breakpoint = Qnil;
+		    debug_context->stop_reason = CTX_STOP_TEMP_BREAKPOINT;
+		    reset_stepping_stop_points(debug_context);
+		} else
+		    debug_context->stop_reason = CTX_STOP_BREAKPOINT;
+		rb_funcall(context, idAtBreakpoint, 1, breakpoint);
+		break;
             }
-
             reset_stepping_stop_points(debug_context);
-            call_at_line(context, debug_context, rb_str_new2(file), INT2FIX(line));
+            call_at_line(context, debug_context, rb_str_new2(file), 
+			 INT2FIX(line));
         }
         break;
     }
@@ -836,15 +815,19 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     {
         if(c_call_new_frame_p(klass, mid))
             save_call_frame(event, self, file, line, mid, debug_context);
+/*
         else
             set_frame_source(event, debug_context, self, file, line, mid);
+*/
         break;
     }
     case RUBY_EVENT_C_RETURN:
     {
+
         /* note if a block is given we fall through! */
         if(!node || !c_call_new_frame_p(klass, mid))
             break;
+	
     }
     case RUBY_EVENT_RETURN:
     case RUBY_EVENT_END:
@@ -863,7 +846,6 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
             if(debug_context->frames[debug_context->stack_size].orig_id == mid)
                 break;
         }
-        CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
         break;
     }
     case RUBY_EVENT_CLASS:
@@ -1027,6 +1009,7 @@ debug_start(VALUE self)
         rdebug_threads_tbl = threads_table_create();
 
         rb_add_event_hook(debug_event_hook, RUBY_EVENT_ALL);
+
         result = Qtrue;
     }
 
@@ -1403,7 +1386,7 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
     Data_Get_Struct(context, debug_context_t, debug_context);
     debug_context->stack_size = 0;
     if(RTEST(stop))
-      debug_context->stop_next = 1;
+      debug_context->stop_next = 0;
     /* Initializing $0 to the script's path */
     ruby_script(RSTRING(file)->ptr);
     rb_load_protect(file, 0, &state);
@@ -1501,45 +1484,53 @@ debug_at_exit(VALUE self)
 
 /*
  *   call-seq:
- *      context.step(steps, force = false)
+ *      context.step(steps)
  *
  *   Stops the current context after a number of +steps+ are made.
- *   +force+ parameter (if true) ensures that the cursor moves from the current line.
  */
 static VALUE
-context_stop_next(int argc, VALUE *argv, VALUE self)
+context_step_into(VALUE self, VALUE steps)
 {
-    VALUE steps, force;
     debug_context_t *debug_context;
 
     debug_check_started();
 
-    rb_scan_args(argc, argv, "11", &steps, &force);
     if(FIX2INT(steps) < 0)
         rb_raise(rb_eRuntimeError, "Steps argument can't be negative.");
 
     Data_Get_Struct(self, debug_context_t, debug_context);
     debug_context->stop_next = FIX2INT(steps);
-    if(RTEST(force))
-        CTX_FL_SET(debug_context, CTX_FL_FORCE_MOVE);
-    else
-        CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
-
     return steps;
 }
 
 /*
  *   call-seq:
- *      context.step_over(steps, frame = nil, force = false)
+ *      context.stop_next
+ *
+ *   Shows how many steps remain to be skipped.
+ */
+static VALUE
+context_stop_next(VALUE self)
+{
+    debug_context_t *debug_context;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    return INT2FIX(debug_context->stop_next);
+}
+
+/*
+ *   call-seq:
+ *      context.step_over(steps, frame = nil)
  *
  *   Steps over a +steps+ number of times.
  *   Make step over operation on +frame+, by default the current frame.
- *   +force+ parameter (if true) ensures that the cursor moves from the current line.
  */
 static VALUE
 context_step_over(int argc, VALUE *argv, VALUE self)
 {
-    VALUE lines, frame, force;
+    VALUE lines, frame;
     debug_context_t *debug_context;
 
     debug_check_started();
@@ -1547,7 +1538,7 @@ context_step_over(int argc, VALUE *argv, VALUE self)
     if(debug_context->stack_size == 0)
         rb_raise(rb_eRuntimeError, "No frames collected.");
 
-    rb_scan_args(argc, argv, "12", &lines, &frame, &force);
+    rb_scan_args(argc, argv, "11", &lines, &frame);
     debug_context->stop_line = FIX2INT(lines);
     CTX_FL_UNSET(debug_context, CTX_FL_STEPPED);
     if(frame == Qnil)
@@ -1560,10 +1551,6 @@ context_step_over(int argc, VALUE *argv, VALUE self)
             rb_raise(rb_eRuntimeError, "Destination frame is out of range.");
         debug_context->dest_frame = debug_context->stack_size - FIX2INT(frame);
     }
-    if(RTEST(force))
-        CTX_FL_SET(debug_context, CTX_FL_FORCE_MOVE);
-    else
-        CTX_FL_UNSET(debug_context, CTX_FL_FORCE_MOVE);
 
     return Qnil;
 }
@@ -2156,6 +2143,9 @@ context_stop_reason(VALUE self)
         case CTX_STOP_BREAKPOINT:
             sym_name = "breakpoint";
             break;
+        case CTX_STOP_TEMP_BREAKPOINT:
+            sym_name = "tbreakpoint";
+            break;
         case CTX_STOP_CATCHPOINT:
             sym_name = "catchpoint";
             break;
@@ -2182,8 +2172,8 @@ static void
 Init_context()
 {
     cContext = rb_define_class_under(mDebugger, "Context", rb_cObject);
-    rb_define_method(cContext, "stop_next=", context_stop_next, -1);
-    rb_define_method(cContext, "step", context_stop_next, -1);
+    rb_define_method(cContext, "stop_next", context_stop_next, 0);
+    rb_define_method(cContext, "step", context_step_into, 1);
     rb_define_method(cContext, "step_over", context_step_over, -1);
     rb_define_method(cContext, "stop_frame=", context_stop_frame, 1);
     rb_define_method(cContext, "thread", context_thread, 0);

@@ -2,6 +2,8 @@ bp_loop_issue.rb:1
 1.upto(2) {
 # set debuggertesting on
 Currently testing the debugger is on.
+# set different off
+different-line stepping is off.
 # break 2
 Breakpoint 1 file bp_loop_issue.rb, line 2
 # cont

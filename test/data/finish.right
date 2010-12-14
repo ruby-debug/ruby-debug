@@ -25,7 +25,21 @@ gcd.rb:6
 if a > b
 # where
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
-    #1 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #2 Object.-(a#Fixnum, b#Fixnum) at line gcd.rb:15
-    #3 at line gcd.rb:18
+    #1 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:15
+    #2 at line gcd.rb:18
 # finish 0
+Breakpoint 1 at gcd.rb:6
+gcd.rb:6
+if a > b
+# where
+--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
+    #1 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:15
+    #2 at line gcd.rb:18
+# p a
+2
+# p b
+3
+# finish
+Breakpoint 1 at gcd.rb:6
+gcd.rb:6
+if a > b

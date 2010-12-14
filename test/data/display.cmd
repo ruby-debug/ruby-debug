@@ -2,6 +2,7 @@
 # This tests display expressions.
 # ***************************************************
 set debuggertesting on
+set different on
 b 6
 c
 # Should be no display expression yet.

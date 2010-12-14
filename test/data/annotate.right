@@ -12,12 +12,23 @@ different-line stepping is off.
 # set annotate 3
 Annotation level is 3
 # # Get into gcd
-# step 2
+# step
 starting
 stopped
 breakpoints
 No breakpoints.
 
+stack
+--> #0 at line gcd.rb:18
+
+variables
+self = main
+
+source gcd.rb:18
+gcd(3,5)
+# step
+starting
+stopped
 stack
 --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
     #1 at line gcd.rb:18
