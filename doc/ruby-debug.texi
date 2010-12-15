@@ -98,9 +98,10 @@ Appendix
 * Using from Subversion::
 
 Indexes (nodes containing large menus)
-* Class Module Index::        An item for Class, Module, and Methods.
-* Command Index::             An item for each command name.
-* General Index::             An item for each concept.
+* Class Module Index::         An item for Class, Module, and Methods.
+* Command Index::              An item for each command name.
+* RDebug Command Flags Index:: An item for each flags you can pass to rdebug.
+* General Index::              An item for each concept.
 @end menu
 
 @end ifnottex
@@ -1297,60 +1298,63 @@ option the double dash can be omitted.
 
 @table @code
 @item --help
-@cindex @option{-h}
-@cindex @option{--help}
+@findex @code{-h} (@code{--help})
+@findex @code{--help}
 This option causes @ttDBG{} to print some basic help and exit.
 
 @item -v | --version
-@cindex @option{-v}
+@findex @code{-v} (@code{--version})
+@findex @code{--version}
 This option causes @ttDBG{} to print its version number and exit.
 
 @item -A | --annotate @var{level}
-@cindex @option{-A}
-@cindex @option{--annotation} @var{level}
+@findex @code{-A} @var{level} (@code{--annotation})
+@findex @code{--annotation} @var{level}
 Set gdb-style annotation @var{level}, a number. Additional information is output
 automatically when program state is changed. This can be used by
 front-ends such as GNU Emacs to post this updated information without
 having to poll for it.
 @item -c | --client
-@cindex @option{-c}
-@cindex @option{--client}
+@findex @code{-c} (@code{--client})
+@findex @code{--client}
 Connect to remote debugger. The remote debugger should have been set
 up previously our you will get a connection error and @code{rdebug}
 will terminate. 
 
 @item --cport @var{port}
-@cindex @option{--cport} @var{port}
+@findex @code{--cport} @var{port}
 Port used for control commands.
 
 @item --debug
-@cindex @option{--debug}
+@findex @code{--debug}
 Set @code{$DEBUG} to @code{true}. This option is compatible with
 Ruby's.
 
 @item --emacs
+@findex @code{--emacs}
 Activates GNU Emacs mode.
 @c @pxref{GNU Emacs}. 
 Debugger output is tagged in such a way to allow GNU Emacs to track
 where you are in the code.
 
 @item --emacs-basic
+@findex @code{--emacs-basic}
 Activates full GNU Emacs mode.
 @c (@pxref{GNU Emacs}). 
-This is the equivalent of setting the options @option{--emacs-basic},
-@code{annotate=3}, @option{--no-stop}, @option{-no-control} and
-@option{--post-mortem}.
+This is the equivalent of setting the options @code{--emacs-basic},
+@code{annotate=3}, @code{--no-stop}, @code{-no-control} and
+@code{--post-mortem}.
 
 @item -h | --host @var{host-address}
 Connect host address for remote debugging.
 
 @item -I --include @var{PATH}
-@cindex @option{-I} @var{PATH}
-@cindex @option{--include} @var{PATH}
+@findex @code{-I} @var{PATH} (@code{--include})
+@findex @code{--include} @var{PATH}
 Add @var{PATH} to @code{$LOAD_PATH}
 
 @item --keep-frame-binding
-@cindex @option{--keep-frame-binding}
+@findex @code{--keep-frame-binding}
 Bindings are used to set the proper environment in evaluating
 expression inside the debugger. Under normal circumstances, I don't
 believe most people will ever need this option.
@@ -1382,66 +1386,66 @@ compile.) In fact, in Ruby 1.9 these structures have changed and that
 is partly why this debugger doesn't work on Ruby 1.9.
 
 @item -m | --post-mortem
-@cindex @option{-m}
-@cindex @option{--post-mortem}
+@findex @code{-m} (@code{--post-mortem})
+@findex @code{--post-mortem}
 If your program raises an exception that isn't caught you can enter
 the debugger for inspection of what went wrong. You may also want to
-use this option in conjunction with @option{--no-stop}. See also 
+use this option in conjunction with @code{--no-stop}. See also 
 @ref{Post-Mortem Debugging}. 
 
 @item --no-control
-@cindex @option{--no-control}
+@findex @code{--no-control}
 Do not automatically start control thread.
 
 @item --no-quit
-@cindex @option{--no-quit}
+@findex @code{--no-quit}
 Restart the debugger when your program terminates normally.
 
 @item --no-rewrite-program
-@cindex @option{--no-rewrite-program}
+@findex @code{--no-rewrite-program}
 Normally @code{rdebug} will reset the program name @code{$0} from its
 name to the debugged program, and set the its name in variable
 @code{$RDEBUG_0}. In the unlikely even you don't want this use this option.
 
 @item --no-stop
-@cindex @option{--no-stop}
+@findex @code{--no-stop}
 Normally the @code{rdebug} stops before executing the first
 statement. If instead you want it to start running initially and will
 perhaps break it later in the running, use this options.
 
 @item -p | --port @var{port}
-@cindex @option{-p} @var{port}
-@cindex @option{--port} @var{port}
+@findex @code{-p} @var{port} (@code{--port})
+@findex @code{--port} @var{port}
 Port used for remote debugging.
 
 @item -r | --require @var{library}
-@cindex @option{-r}
-@cindex @option{--require}
+@findex @code{-r} @var{library} (@code{--require})
+@findex @code{--require} @var{library}
 Require the library, before executing your script. However if the
 library happened to be @code{debug}, we'll just ignore the require
 (since we're already a debugger). This option is compatible with Ruby's.
 
 @item --script @var{file}
-@cindex @option{--script}
+@findex @code{--script} @var{file}
 Require the library, before executing your script. However if the
 library hap-pend to be @code{debug}, we'll just ignore the require
 (since we're already a debugger). This option is compatible with Ruby's.
 
 @item -s | --server
-@cindex @option{-s}
-@cindex @option{--server}
+@findex @code{-s} (@code{--server})
+@findex @code{--server}
 Debug the program but listen for remote connections on the default
-port or port set up via the @option{--port} option. See also @option{--wait}.
+port or port set up via the @code{--port} option. See also @code{--wait}.
 
 @item -w | --wait
-@cindex @option{-w}
-@cindex @option{--wait}
+@findex @code{-w} (@code{--wait})
+@findex @code{--wait}
 Debug the program but stop waiting for a client connection first. This
-option automatically sets @option{--server} option.
+option automatically sets @code{--server} option.
 
 @item -x | --trace
-@cindex @option{-x}
-@cindex @option{--trace}
+@findex @code{--trace}
+@findex @code{-x} (@code{--trace})
 Turn on line tracing. Running @command{rdebug --trace @emph{rubyscript.rb}}
 is much like running: @command{ruby -rtracer @emph{rubyscript.rb}}
 
@@ -4015,6 +4019,10 @@ So let's say you've installed the cross-compiled install ruby in
 @node Command Index
 @unnumbered Command Index
 @printindex ky
+
+@node RDebug Command Flags Index
+@unnumbered RDebug Command Flags Index
+@printindex fn
 
 @node General Index
 @unnumbered General Index
