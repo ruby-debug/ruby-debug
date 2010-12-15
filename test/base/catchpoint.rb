@@ -19,6 +19,7 @@ class TestRubyDebugCatchpoint < Test::Unit::TestCase
     Debugger.add_catchpoint('RuntimeError')
     assert_equal(['RuntimeError', 'ZeroDivisionError'], 
                  Debugger.catchpoints.keys.sort)
+  ensure
     Debugger.stop
   end
 

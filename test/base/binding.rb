@@ -26,6 +26,7 @@ class TestBinding < Test::Unit::TestCase
     y = eval('s', b)
     assert_equal(s, y)
     inside_fn
+  ensure
     Debugger.stop
   end
 end
