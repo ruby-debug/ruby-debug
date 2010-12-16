@@ -1178,7 +1178,7 @@ the case if your Ruby is installed via rvm
 (@url{http://rvm.beginrescueend.com}), then:
 
 @smallexample
-  sudo gem install ruby-debug  
+  sudo gem install ruby-debug # Note: nuke the 'sudo' if using rvm!
 @end smallexample
 
 Ruby debug uses a number of packages, namely: @code{ruby-debug-base},
