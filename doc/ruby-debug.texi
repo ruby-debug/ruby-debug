@@ -241,6 +241,9 @@ the initial number of lines, 10, use the @code{set listsize} command
 (@pxref{Listsize}). To see the entire program in one shot, we gave an
 explicit starting and ending line number.
 
+If you want a list command to run every time the debugger stops, use
+@code{set autolist} (@pxref{Autolist}).
+
 If you use a front-end to the debugger such as the Emacs interface,
 @c (@pxref{GNU Emacs})
 you probably won't use @code{list} all that much.
@@ -316,7 +319,7 @@ Really quit? (y/n) y
 So far, so good. A you can see from the above to get out of the
 debugger, one can issue a @code{quit} command. (@code{q} and
 @code{exit} are just as good. If you want to quit without being
-prompted, suffix the command with an exclamation mark, e.g.\@code{q!}.
+prompted, suffix the command with an exclamation mark, e.g.@: @code{q!}.
 
 @node Second Sample Session
 @section Sample Session 2: Delving Deeper (@code{where}, @code{frame}, @code{restart}, @code{autoeval}, @code{break}, @code{ps})
@@ -2150,7 +2153,7 @@ def triangle(n)
 @end smallexample
 
 If you find yourself wanting to go into irb every time you enter the
-debugger, you can do this with the command ``set autolist'' @ref{Autoirb}.
+debugger, you can do this with the command ``set autolist'' @ref{Autolist}.
 
 @end table
 
@@ -2880,8 +2883,8 @@ allows you to see the current value.
 @menu
 * Args::                 Annotation Level
 * Autoeval::             Evaluate unrecognized commands
-* Autolist::             Execute ``list'' command on every breakpoint
 * Autoirb::              Invoke IRB on every stop
+* Autolist::             Execute ``list'' command on every stop
 * Autoreload::           Reload source code when changed
 * Basename::             Report file basename only showing file names
 * Callstyle::            Show Report file basename only showing file names
@@ -2948,9 +2951,6 @@ NameError Exception: undefined local variable or method `stepp' for ...
 Shows whether Ruby evaluation of debugger input should occur or not.
 @end table
 
-@node Autolist
-@subsection Execute ``list'' command on every breakpoint
-
 @node Autoirb
 @subsection Set/Show auto-irb
 
@@ -2967,6 +2967,25 @@ evaluation occasionally.
 @kindex show autoirb
 @item show autoirb
 Shows whether the debugger will go into irb on stop or not.
+@end table
+
+@node Autolist
+@subsection Execute ``list'' Command on Every Stop
+
+@table @code
+@kindex set autolist @r{[} on | 1 | off | 0 @r{]}
+@item set autolist @r{[} on | 1 | off | 0 @r{]}
+Normally, before prompting for debugger commands, the location and line
+text are displayed. However many people find it nicer to show more
+context around the line the program is stopped at. This can be done via
+the @kbd{list} command. @xref{List}.
+
+However if you would like a @kbd{list} command to get run the program
+stops turn this setting on.
+
+@kindex show autolist
+@item show autolist
+Shows whether the debugger will list lines on stop or not.
 @end table
 
 @node Autoreload
@@ -2996,7 +3015,7 @@ Shows the whether filename display shows just the file basename or not.
 @end table
 
 @node Callstyle
-@subsection Set/Show call style
+@subsection Set/Show Call Style
 
 @table @code
 @ifset FINISHED
@@ -3042,7 +3061,7 @@ Shows whether ``set different'' is in effect or not.
 @end table
 
 @node Fullpath
-@subsection Set/Show Frame full path
+@subsection Set/Show Frame Full Path
 
 @node History
 @subsection Command History Parameters
@@ -3079,10 +3098,10 @@ commands to keep a record of.
 @end table
 
 @node Keepframebindings
-@subsection Save frame binding on each call
+@subsection Save Frame Binding on each Call
 
 @node Linetrace
-@subsection Set/Show Line tracing
+@subsection Set/Show Line Tracing
 
 @table @code
 @kindex set linetrace @r{[} on | 1 | off | 0 @r{]}
@@ -3096,7 +3115,7 @@ Shows whether line tracing is in effect or not.
 @end table
 
 @node Linetrace+
-@subsection Set/Show Line tracing style
+@subsection Set/Show Line Tracing Style
 
 @table @code
 @kindex set linetrace+ @r{[} on | 1 | off | 0 @r{]}
@@ -3113,7 +3132,7 @@ duplicates linetrace lines when it is a repeat of the previous line.
 @end table
 
 @node Listsize
-@subsection Set/Show lines in a List command
+@subsection Set/Show Number of Lines Shown in a List Command
 
 @table @code
 @kindex set listsize @var{number-of-lines}
@@ -3125,7 +3144,7 @@ Shows the list-size setting.
 @end table
 
 @node Post-mortem
-@subsection Show Post-mortem handling
+@subsection Show Post-mortem Handling
 @table @code
 @kindex show post-mortem
 Shows wither post-mortem debugging is in effect. Right now we don't
@@ -3136,7 +3155,7 @@ have the ability to change the state inside the debugger.
 @subsection Display stack trace when 'eval' raises exception
 
 @node Width
-@subsection Set/Show Line width
+@subsection Set/Show Line Width
 
 @table @code
 @kindex set width @var{column-width}
