@@ -3848,6 +3848,8 @@ Here this an example showing use inside @emph{irb}:
     ruby-1.8.7-p302 > require 'ruby-debug-base'
      => true 
     ruby-1.8.7-p302 > Debugger.start
+     => true 
+    ruby-1.8.7-p302 > puts caller
     /tmp/.rvm/rubies/ruby-1.8.7-p302/lib/ruby/1.8/irb/workspace.rb:52  :i  n `irb_binding'
     /tmp/.rvm/rubies/ruby-1.8.7-p302/lib/ruby/1.8/irb/workspace.rb:52
     => nil 
