@@ -3758,11 +3758,11 @@ hi
 @end menu
 
 @node debugger
-@unnumberedsubsec debugger
+@subsection debugger
 
 @table @code
 @item Kernel::debugger @ovar{steps=1}
-@vindex @code{Kernel::debugger}
+@vindex @code{Kernel.debugger}
 Enters the debugger in the current thread after a stepping @var{steps} line-event steps.
 Before entering the debugger startup script is read.
 
@@ -3821,19 +3821,19 @@ your debugged program rather than in the debugger.
 @end table
 
 @node breakpoint
-@unnumberedsubsec breakpoint
+@subsection breakpoint
 
 @table @code
 @item breakpoint @ovar{steps=1}
-@vindex @code{Kernel::breakpoint}
+@vindex @code{Kernel.breakpoint}
 An alias for debugger.  
 @end table
 
 @node binding_n
-@unnumberedsubsec binding_n
+@subsection binding_n
 @table @code
 @item binding_n @ovar{n=0}
-@vindex @code{Kernel::binding_n}
+@vindex @code{Kernel.binding_n}
 Returns a @samp{binding()} for the @var{n}-th call frame. Note however
 that you need to first call @samp{Debugger.start} before issuing this
 call.
