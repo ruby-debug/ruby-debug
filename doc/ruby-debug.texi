@@ -3751,9 +3751,17 @@ hi
 @node Kernel routines
 @section Additions to @code{Kernel}
 
-@table @code
+@menu
+* debugger::    Call the debugger inside your program
+* breakpoint::  Set a breakpoint 
+* binding_n::   Access to call-stack variables
+@end menu
 
-@item debugger @ovar{steps=1}
+@node debugger
+@unnumberedsubsec debugger
+
+@table @code
+@item Kernel::debugger @ovar{steps=1}
 @vindex @code{Kernel::debugger}
 Enters the debugger in the current thread after a stepping @var{steps} line-event steps.
 Before entering the debugger startup script is read.
@@ -3810,17 +3818,43 @@ Debugger.current_context.stop_frame = 0
 @end smallexample
 As seen above you will have to position the frame up one to be back in
 your debugged program rather than in the debugger.
+@end table
 
+@node breakpoint
+@unnumberedsubsec breakpoint
+
+@table @code
 @item breakpoint @ovar{steps=1}
 @vindex @code{Kernel::breakpoint}
 An alias for debugger.  
+@end table
 
+@node binding_n
+@unnumberedsubsec binding_n
+@table @code
 @item binding_n @ovar{n=0}
 @vindex @code{Kernel::binding_n}
 Returns a @samp{binding()} for the @var{n}-th call frame. Note however
 that you need to first call @samp{Debugger.start} before issuing this
 call.
 
+Here is an example showing its use to introspect what is going on inside @kbd{irb} (a Ruby program). One could put the @emph{require}'s and @emph{Debugger.start} inside your own Ruby code as well.
+
+Here this an example showing use inside @emph{irb}:
+@smallexample
+    $ irb
+    ruby-1.8.7-p302 > require 'rubygems'
+     => true 
+    ruby-1.8.7-p302 > require 'ruby-debug-base'
+     => true 
+    ruby-1.8.7-p302 > Debugger.start
+    /tmp/.rvm/rubies/ruby-1.8.7-p302/lib/ruby/1.8/irb/workspace.rb:52  :i  n `irb_binding'
+    /tmp/.rvm/rubies/ruby-1.8.7-p302/lib/ruby/1.8/irb/workspace.rb:52
+    => nil 
+    ruby-1.8.7-p302 > eval "main", binding_n(2)
+     => #<Object:0xb7762958 @@prompt=@{:PROMPT_I=>"ruby-1.8.7-p302 > ", :PROMPT_N=>"  ruby-1.8.7-p302 ?> ", :PROMPT_S=>"ruby-1.8.7-p302%l> ", :PROMPT_C=>"ruby-1.8.7-p302 > ", :AUTO_INDENT=>true, :RETURN=>" => %s \n"@}> 
+    ruby-1.8.7-p302 > 
+@end smallexample
 @end table
 
 @node Using from Subversion
