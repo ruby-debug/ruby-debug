@@ -1,7 +1,7 @@
 0.10.5
-
+12/25/10 
+ - Remove extraneous .RB files messing up Microsoft Windows
  - Deprecate "set force". Use "set di[fferent]. 
-   
 
 0.10.4
 10/27/10

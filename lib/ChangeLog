@@ -1,3 +1,7 @@
+2010-12-08 03:37  Rocky Bernstein
+
+	* ChangeLog: Order of expect, got reversed in assert_equal
+
 2010-12-07 02:33  Rocky Bernstein
 
 	* ChangeLog: Admnistrivia. Rakefile: rake test shouldn't su if

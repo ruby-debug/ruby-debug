@@ -1,3 +1,58 @@
+2010-12-22 11:21  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Number some unnumberred sections. Kernel::
+	  -> Kernel. since :: messes up texinfo.
+
+2010-12-22 11:14  Rocky Bernstein
+
+	* doc/ruby-debug.texi: A couple of lines in binding_n example were
+	  missing
+
+2010-12-22 11:07  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Show how to use binding_n inside irb. Better
+	  tagging of Kernel routines debugger, binding_n and breakpoint.
+
+2010-12-16 14:17  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Document autolist better. Texinfo uses @:
+	  for TeX's \ . Regularize titles better.
+
+2010-12-16 12:44  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Note no sudo in rvm's gem install
+
+2010-12-15 10:12  Rocky Bernstein
+
+	* doc/ruby-debug.texi, test/base/base.rb, test/base/binding.rb,
+	  test/base/catchpoint.rb: Make sure to ensure Debugger.stop in
+	  tests. Thanks to Denis Ushakov for the patch
+	  ruby-debug.texi: Add separate section index for rdebug command
+	  flags
+
+2010-12-13 00:12  Rocky Bernstein
+
+	* test/runall: Stop at first failure. Clean up some of the crud
+	  that's accumulated over the years.
+
+2010-12-09 14:45  Rocky Bernstein
+
+	* cli/ruby-debug/commands/info.rb, cli/ruby-debug/processor.rb,
+	  test/data/breakpoints.right, test/data/catch.cmd,
+	  test/data/catch.right: "info program" gives is a little more
+	  descriptive of the program stop events for "catch" and
+	  "breakpoint".
+
+2010-12-08 03:37  Rocky Bernstein
+
+	* ChangeLog, lib/ChangeLog, test/base/binding.rb: Order of expect,
+	  got reversed in assert_equal
+
+2010-12-07 10:27  Rocky Bernstein
+
+	* doc/ruby-debug.texi: Add "installation" section. "set forcestep"
+	  -> "set different". Update example output.
+
 2010-12-07 02:33  Rocky Bernstein
 
 	* ChangeLog, INSTALL.SVN, Rakefile, ext, ext/extconf.rb,

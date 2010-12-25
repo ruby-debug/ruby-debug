@@ -6,7 +6,7 @@
 #include <st.h>
 #include <intern.h>
 
-#define DEBUG_VERSION "0.10.5.dev"
+#define DEBUG_VERSION "0.10.5"
 
 #ifdef _WIN32
 struct FRAME {
