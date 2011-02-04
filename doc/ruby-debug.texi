@@ -162,6 +162,7 @@ such as:
 @smallexample
   def triangle(n) (n * (n+1)) / 2 end
 @end smallexample
+
 The code we use in this example and the next is more for pedagogical
 purposes than how to write short Ruby code.}
 
@@ -655,6 +656,7 @@ to stop:
   require 'rubygems'
   require 'ruby-debug/debugger'
 @end smallexample
+
 The line @code{require "rubygems"} is needed if @code{ruby-debug} is
 installed as a Ruby gem.
 
@@ -677,7 +679,7 @@ Now we run the program..
   solutions = []
   (rdb:1)
 @end smallexample
-and we see that we are stopped at line 9 just before the
+@noindent and we see that we are stopped at line 9 just before the
 initialization of the list @code{solutions}.
 
 Now let's see where we are...
@@ -951,14 +953,16 @@ example, the first line:
 @smallexample
 Tracing(1):gcd.rb:18 a, b = ARGV[0..1].map @{|arg| arg.to_i@}
 @end smallexample
-appears three times. If we were to break this line into the equivalent
+
+@noindent appears three times. If we were to break this line into the equivalent
 multi-line expression:
 @smallexample
 a, b = ARGV[0..1].map do |arg| 
   arg.to_i
 end
 @end smallexample
-we would find one stop at the first line before running @code{map} and
+
+@noindent we would find one stop at the first line before running @code{map} and
 two listings of @code{arg.to_i}, once for each value of arg which here
 is 0 and then 1. Perhaps this is is not surprising because we have a
 loop here which gets run in this situation 3 times. A similar command
@@ -1166,9 +1170,59 @@ To be continued...
 
 @node Installation
 @chapter Installing @code{ruby-debug}
+@menu
+* ruby-debug is not debug.rb::
+* Installing the gem:: 
+@end menu
 
 There are a number of pitfalls that one can run into in trying to
 install @code{ruby-debug}. We will try to go over them here.
+
+@node ruby-debug is not debug.rb
+@section @code{ruby-debug} is not @code{debug.rb}
+
+One problem that comes up a bit is a confusion of this gem package,
+@code{ruby-debug}, with the Ruby library program @code{debug.rb}. The
+latter comes distributed with Ruby.
+
+When you run @code{ruby -r debug test.rb} or without the space between the
+@code{-r} and the @code{debug}:
+
+@smallexample
+   $ ruby -rdebug test.rb  # This is something not described here
+@end smallexample
+
+@noindent you are getting the program that comes installed with Ruby. Although
+what we describe here, @code{ruby-debug}, has commands which are largely
+a superset of the @code{debug.rb} commands, @code{ruby-debug} is
+something vastly different.
+
+@code{ruby-debug} is a packaged as a gem. When installed, the program
+@code{bin/rdebug} is installed. This allows you to invoke the debugger
+from the outset. But don't confuse the example above with
+
+@smallexample
+   $ rdebug test.rb  # not the same as the above!
+@end smallexample
+
+The Pickaxe books talk about @code{debug.rb}, not the @code{ruby-debug}
+gem. I think it safe to say that most folks who use any sort of debugger
+are nowadays using ruby-debug. (Even the IDE's like the ones from
+Eclipse, JetBrains, or Aptana use common code from @code{ruby-debug} and
+none import any code from @code{debug.rb})
+
+I realize all of this is confusing. Unfortunately it is a bit too late
+to change this in any significant way.
+
+In the next round of debuggers, the ``trepanning'' debuggers ---
+@url{http://github.com/rocky/rb-trepanning} and
+@url{http://github.com/rocky/rbx-trepanning} --- I've tried to make the
+distinction more clear. The command-line invocation is no longer
+@code{rdebug}. And the prompt which had been inside the debugger
+@code{(rdb)} is now different.
+
+@node Installing the gem
+@section Installing the gem
 
 In the simplest case, one should be able to run:
 
