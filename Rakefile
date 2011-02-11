@@ -85,7 +85,7 @@ task test_and_args do
     t.libs += %W(#{ROOT_DIR}/lib #{ROOT_DIR}/cli)
     t.libs << ext if File.exist?(ext)
     t.test_files = CLI_TEST_FILE_LIST
-    t.verbose = true
+    t.options = '--verbose' if $VERBOSE
   end
 end
 
@@ -94,7 +94,7 @@ task :test_base => :lib do
   Rake::TestTask.new(:test_base) do |t|
     t.libs += ['./ext', './lib']
     t.test_files = FileList[BASE_TEST_FILE_LIST]
-    t.verbose = true
+    t.options = '--verbose' if $VERBOSE
   end
 end
 
