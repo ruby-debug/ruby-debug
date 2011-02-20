@@ -1606,7 +1606,7 @@ $
 @subsection Options for Out-of-process execution
 
 Option @option{--wait} (pause execution until a client connects to the
-program) is only meaningful in ``server'' mode or with @option{server}.
+program) is only meaningful in ``server'' mode or with @option{--server}.
 
 With option @option{--client} you don't give the name of a program to
 debug. That was done when running the server. 
