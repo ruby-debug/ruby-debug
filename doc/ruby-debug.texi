@@ -813,7 +813,7 @@ issuing another @code{debugger} call will not have any effect even if
 it is nested inside another @code{Debugger.start}.
 
 @node Remote Debugging
-@section Connectiong to the debugger from the Outside
+@section Connecting to the debugger from the Outside
 @menu
 * Remote Execution from the outset::
 * Remote Execution from inside a Ruby program::
