@@ -1354,6 +1354,12 @@ exception. See See also @ref{Post-Mortem Debugging}.
 @node Starting the debugger
 @section Starting the debugger
 
+@menu
+* rdebug command-line options::   Options you can pass to rdebug
+* Out-of-process execution options::
+* rdebug default options::        How to Set Default Command-Line Options
+@end menu
+
 Although one can enter @DBG{} via Emacs (described in a later section)
 and possibly others interfaces, probably the most familiar thing to do
 is invoke the debugger from a command line.
@@ -1408,12 +1414,6 @@ Common options:
 @end smallexample
 
 Options for the @code{rdebug} are shown in the following list.  
-
-@menu
-* rdebug command-line options::   Options you can pass to rdebug
-* Out-of-process execution options::
-* rdebug default options::        How to Set Default Command-Line Options
-@end menu
 
 @node rdebug command-line options
 @subsection Options you can pass to rdebug
