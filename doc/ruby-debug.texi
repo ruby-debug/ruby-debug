@@ -141,6 +141,7 @@ debugger.
 * Second Sample Session::  Second Session Delving a little deeper @code{rdebug} session
 * Unit Testing Session::   Using the debugger in unit testing
 * Debugger.start with a block::   Using the Debugger.start with a block
+* Remote Debugging::       Connecting to the debugger from the outside
 * Debugging Oddities::     How debugging Ruby may be different...
 @end menu
 
@@ -811,6 +812,82 @@ inside of outer one. However if you are stopped inside the debugger,
 issuing another @code{debugger} call will not have any effect even if
 it is nested inside another @code{Debugger.start}.
 
+@node Remote Debugging
+@section Connectiong to the debugger from the Outside
+@menu
+* Remote Execution from the outset::
+* Remote Execution from inside a Ruby program::
+@end menu
+
+@node Remote Execution from the outset
+@subsection Remote execution from the outset
+
+It is possible to set up debugging so that you can issue debugger
+commands from outside of the process running the Ruby code. In fact, you
+might even be on a different computer than the one running the Ruby
+program.
+
+To do this one sets up the to debug a program a ``server'' mode. For
+this use the @option{--server}. We will use one other option in the
+command below @option{--wait}:
+
+@smallexample
+$ @b{rdebug --server --wait tri3.rb}
+# Nothing happens
+@end smallexample
+
+Without @option{--wait} the program would run and terminate before we
+have a chance to connect to it. In a different window on the same
+machine we now run the ``client'' side to connect to this waiting program:
+
+@smallexample
+$ @b{rdebug --client}
+Connected.
+(rdb:1) @b{bt}
+--> #0 at line triangle.rb:4
+@end smallexample
+
+Other options related to remote debugging on both the client and servers
+side are the @option{--host}, @option{--port} options. By setting these
+options appropriately, is possible that to debug the program over a
+TCP/IP connection. 
+
+Note however that program output is still going to the place it normally
+would go; output is not redirected across the debugger connection.
+
+@node Remote Execution from inside a Ruby program
+@subsection Going into Remote execution from inside a Ruby program
+
+Arrange for the following code to get executed. It only needs to happen
+one sometime before you code gets run that needs the debugger. As
+before, you probably want to put before to many methods get nested in
+the call chain, because you won't be able to inspect frames of those
+that were created before the ``start_remote'' below
+
+@smallexample
+  require 'rubygems'; require 'ruby-debug';
+
+  # Omit the following assignment statment line if don't want to wait
+  # for a client before continuing...
+  Debugger.wait_connection = true
+  Debugger.start_remote
+@end smallexample
+
+Now at a place of program execution wich gets run before you might ever
+want a debugger stop, add a call to ``debugger'' as was done without
+remote execution:
+
+@smallexample
+   # work, work, work....  
+   debugger 
+   some ruby code  # debugger will stop before this is run
+@end smallexample
+
+I've not tried this, but I think you could but the call ``debugger''
+inside a signal handler. When the signal handler returns you would be at
+the place you interrupted the Ruby program.
+
+
 @node Debugging Oddities
 @section How debugging Ruby may be different than debugging other Languages
 
@@ -1334,6 +1411,7 @@ Options for the @code{rdebug} are shown in the following list.
 
 @menu
 * rdebug command-line options::   Options you can pass to rdebug
+* Out-of-process execution options::
 * rdebug default options::        How to Set Default Command-Line Options
 @end menu
 
@@ -1523,6 +1601,26 @@ $
 @end smallexample
 
 @end table
+
+@node Out-of-process execution options
+@subsection Options for Out-of-process execution
+
+Option @option{--wait} (pause execution until a client connects to the
+program) is only meaningful in ``server'' mode or with @option{server}.
+
+With option @option{--client} you don't give the name of a program to
+debug. That was done when running the server. 
+
+With both @option{--client} and @option{--server} you can specify the
+interface name to listen on (for server) or connect to (for client) as
+either a DNS name or as an IP address. Likewise one can specify a port
+number to listen on or connect to. As with any other TCP/IP connection
+the port names and interface name (as either an IP or a name) much
+correspond for the client to connect to a program in server mode.  In
+the simple cases, the port names and host names will be the
+same. However due to port forwarding and NAT translation that sometimes
+occurs behind firewalls, it is possible these may be different.
+
 
 @node rdebug default options
 @subsection How to Set Default Command-Line Options
