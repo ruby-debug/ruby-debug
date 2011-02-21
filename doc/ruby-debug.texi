@@ -873,7 +873,7 @@ that were created before the ``start_remote'' below
   Debugger.start_remote
 @end smallexample
 
-Now at a place of program execution wich gets run before you might ever
+Now at a place of program execution which gets run before you might ever
 want a debugger stop, add a call to ``debugger'' as was done without
 remote execution:
 
