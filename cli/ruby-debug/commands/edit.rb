@@ -19,9 +19,10 @@ module Debugger
         errmsg "Invalid file/line number specification: #{@match[1]}\n"
         return
       end
-      editor = ENV['EDITOR'] || 'ex'
+      editor = ENV['EDITOR'] || '/bin/ex'
       if File.readable?(file)
-        system("#{editor} +#{line_number} #{file}")
+        system("#{editor} +#{line_number} \"#{file}\"")
+        msg "Warning: return code was #{$?.exitstatus}" if $?.exitstatus != 0
       else
         errmsg "File \"#{file}\" is not readable.\n"
       end
