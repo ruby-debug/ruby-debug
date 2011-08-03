@@ -1,0 +1,4 @@
+*.gem
+pkg/*
+tmp/*
+ruby_debug.jar

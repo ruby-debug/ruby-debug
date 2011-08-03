@@ -1,30 +1,13 @@
-require 'rake'
-require 'rubygems'
 require 'rake/clean'
-require 'rake/gempackagetask'
 require 'rake/testtask'
-require 'rake/rdoctask'
+require 'rdoc/task'
+require 'rubygems/package_task'
+require 'rake/javaextensiontask'
 
-GEM_NAME='ruby-debug-base'
-GEM_VERSION='0.10.4'
-
-RUBY_DEBUG_JAR='ext/ruby_debug.jar'
+GEM_VERSION = '0.10.4'
 
 CLEAN.include('ext')
 CLEAN.include('lib/ruby_debug.jar')
-
-DIST_FILES = FileList[
-  'AUTHORS',
-  'ChangeLog',
-  'lib/linecache.rb',
-  'lib/linecache-ruby.rb',
-  'lib/ruby-debug-base.rb',
-  'lib/ruby_debug.jar',
-  'lib/tracelines.rb',
-  'MIT-LICENSE',
-  'Rakefile',
-  'README'
-]
 
 BASE_TEST_FILE_LIST = %w(
   test/base/base.rb
@@ -87,21 +70,22 @@ EOF
   sh "patch -p0 < patch-#{GEM_VERSION}.diff"
 end
 
-desc "Create the core ruby-debug shared library extension"
-task :lib do
-  compile_java
-  make_jar
-end
-
-file RUBY_DEBUG_JAR => :lib
-
 spec = Gem::Specification.new do |s|
   s.platform = "java"
   s.summary  = "Java implementation of Fast Ruby Debugger"
-  s.name     = GEM_NAME
+  s.name     = 'ruby-debug-base'
   s.version  = GEM_VERSION
   s.require_path = 'lib'
-  s.files    = DIST_FILES
+  s.files    = ['AUTHORS',
+                'ChangeLog',
+                'lib/linecache.rb',
+                'lib/linecache-ruby.rb',
+                'lib/ruby-debug-base.rb',
+                'lib/ruby_debug.jar',
+                'lib/tracelines.rb',
+                'MIT-LICENSE',
+                'Rakefile',
+                'README']
   s.description = <<-EOF
 Java extension to make fast ruby debugger run on JRuby.
 It is the same what ruby-debug-base is for native Ruby.
@@ -112,27 +96,13 @@ EOF
   s.rubyforge_project = 'debug-commons'
 end
 
-gem_name = "#{GEM_NAME}-#{GEM_VERSION}-#{spec.platform}.gem"
+Gem::PackageTask.new(spec) {}
 
-desc "Build the gem file #{gem_name}"
-task :gem => :lib do
-  gem_task = Rake::GemPackageTask.new(spec)
-  current_dir = File.expand_path(File.dirname(__FILE__))
-  source = File.join(current_dir, RUBY_DEBUG_JAR)
-  target = File.join(current_dir, "lib", "ruby_debug.jar")
-  cp(source, target)
-  # Create the gem, then move it to pkg.
-  Gem::Builder.new(spec).build
-  gem_file = "#{spec.name}-#{spec.version}-#{spec.platform}.gem"
-  mv(gem_task.gem_file, "pkg/#{gem_task.gem_file}")
-  # Delete the temporary target
-  rm target
+Rake::JavaExtensionTask.new('ruby_debug') do |t|
+  t.ext_dir = "src"
 end
 
-desc 'Build all the packages'
-task :package => :gem
-
-Rake::RDocTask.new do |t|
+RDoc::Task.new do |t|
   t.main = 'README'
   t.rdoc_files.include 'README'
 end
@@ -142,33 +112,3 @@ desc "Create a GNU-style ChangeLog via svn2cl"
 task :ChangeLog do
   system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/debug-commons/jruby-debug/trunk")
 end
-
-# Builds classpath containing needed JRuby's jars (like jruby.jar).
-def jruby_classpath
-  begin
-    require 'java'
-    classpath = java.lang.System.getProperty('java.class.path')
-  rescue LoadError
-  end
-  classpath = 'C:/jruby-1.5.1/lib/jruby.jar'
-  unless classpath
-    classpath = FileList["#{ENV['JRUBY_HOME']}/lib/*.jar"].join(File::PATH_SEPARATOR)
-  end
-
-  classpath ? "-cp #{classpath}" : ""
-end
-
-# Compiles Java classes into the pkg/classes directory.
-def compile_java
-  mkdir_p "pkg/classes"
-  sh "javac -Xlint -Xlint:-serial -g -target 1.5 -source 1.5 -d pkg/classes #{jruby_classpath} #{FileList['src/**/*.java'].join(' ')}"
-end
-
-def make_jar
-  require 'fileutils'
-  ext = File.join(File.dirname(__FILE__), 'ext')
-  FileUtils.mkdir_p(ext)
-  separator = File::ALT_SEPARATOR || File::SEPARATOR
-  sh "jar cf #{RUBY_DEBUG_JAR} -C pkg#{separator}classes ."
-end
-
