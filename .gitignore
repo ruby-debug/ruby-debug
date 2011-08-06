@@ -3,6 +3,7 @@ INSTALL
 Makefile
 Makefile.in
 NEWS
+VERSION
 aclocal.m4
 autom4te.cache
 config.log
@@ -13,3 +14,5 @@ install-sh
 missing
 pkg
 ruby-debug-*.tar.gz
+ext/*.o
+ext/ruby_debug.bundle

@@ -1,4 +1,4 @@
 config.private.yaml
 *.out
-
-
+temp
+.rdebug_hist
