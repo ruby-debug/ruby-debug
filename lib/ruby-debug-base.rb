@@ -1,5 +1,4 @@
-require 'ruby_debug.so'
-require 'rubygems'
+require 'ruby_debug'
 
 if defined?(JRUBY_VERSION)
   require 'jruby/linecache'
