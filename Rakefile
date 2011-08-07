@@ -91,10 +91,16 @@ end
 task :test => :test_base if File.exist?(ext)
 
 desc "Test ruby-debug-base."
-Rake::TestTask.new(:test_base => :compile) do |t|
+Rake::TestTask.new(:test_base) do |t|
   t.libs += ['./ext', './lib']
   t.test_files = FileList[BASE_TEST_FILE_LIST]
   t.options = '--verbose' if $VERBOSE
+end
+
+if defined?(JRUBY_VERSION)
+  task :test_base => 'jruby:compile:java'
+else
+  task :test_base => :compile
 end
 
 desc "Test everything - same as test."
