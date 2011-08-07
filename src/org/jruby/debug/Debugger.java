@@ -102,7 +102,6 @@ final class Debugger {
         if (startCount > 0) {
             return false;
         }
-        runtime.tearDown();   
         runtime.removeEventHook(debugEventHook);
         breakpoints = null;
         catchpoints = null;
