@@ -1,6 +1,11 @@
 require 'ruby_debug.so'
 require 'rubygems'
-require 'linecache'
+
+if defined?(JRUBY_VERSION)
+  require 'jruby/linecache'
+else
+  require 'linecache'
+end
 
 module Debugger
   

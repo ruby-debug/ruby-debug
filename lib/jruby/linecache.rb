@@ -58,13 +58,13 @@
 # and never destroys SCRIPT_LINES__
 SCRIPT_LINES__ = {} unless defined? SCRIPT_LINES__
 
-require 'linecache-ruby'
+require 'jruby/linecache-ruby'
 
 require 'digest/sha1'
 require 'set'
 
 begin require 'rubygems' rescue LoadError end
-require 'tracelines'
+require 'jruby/tracelines'
 # require 'ruby-debug' ; Debugger.start
 
 # = module LineCache

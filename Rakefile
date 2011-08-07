@@ -341,11 +341,11 @@ ruby_params: --debug
     s.require_path = 'lib'
     s.files    = ['AUTHORS',
                   'ChangeLog',
-                  'lib/linecache.rb',
-                  'lib/linecache-ruby.rb',
+                  'lib/jruby/linecache.rb',
+                  'lib/jruby/linecache-ruby.rb',
+                  'lib/jruby/tracelines.rb',
                   'lib/ruby-debug-base.rb',
                   'lib/ruby_debug.jar',
-                  'lib/tracelines.rb',
                   'MIT-LICENSE',
                   'Rakefile',
                   'README']
