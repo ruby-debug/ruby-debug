@@ -87,6 +87,7 @@ Rake::TestTask.new(:test) do |t|
   t.libs << ext if File.exist?(ext)
   t.test_files = CLI_TEST_FILE_LIST
   t.options = '--verbose' if $VERBOSE
+  t.ruby_opts << "--debug" if defined?(JRUBY_VERSION)
 end
 
 task :test => :test_base if File.exist?(ext)
@@ -96,6 +97,7 @@ Rake::TestTask.new(:test_base) do |t|
   t.libs += ['./ext', './lib']
   t.test_files = FileList[BASE_TEST_FILE_LIST]
   t.options = '--verbose' if $VERBOSE
+  t.ruby_opts << "--debug" if defined?(JRUBY_VERSION)
 end
 
 if defined?(JRUBY_VERSION)
@@ -319,17 +321,6 @@ end
 namespace :jruby do
   desc "Helps to setup the project to be able to run tests"
   task :prepare_tests do
-    File.open('test/config.private.yaml', 'w') do |f|
-      f.write <<-EOF
-# either should be on the $PATH or use full path
-ruby: jruby
-
-# possibility to specify interpreter parameters
-ruby_params: --debug
-      EOF
-    end
-
-    # - prepare default customized test/config.private.yaml suitable for JRuby
     # - tweak test suite to be able to pass for jruby-debug-base which does not
     #   support e.g. TraceLineNumbers yet.
     sh "patch -p0 < patch-#{ruby_debug_version}.diff"

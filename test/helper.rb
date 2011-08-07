@@ -128,7 +128,13 @@ module TestHelper
   # Loads key from the _config_._yaml_ file.
   def config_load(key, may_be_nil=false, default_value='')
     conf = File.join('config.private.yaml') # try private first
-    conf = File.join('config.yaml') unless File.exists?(conf)
+    unless File.exists?(conf)
+      if defined?(JRUBY_VERSION)
+        conf = File.join('config.jruby.yaml')
+      else
+        conf = File.join('config.yaml')
+      end
+    end
     value = YAML.load_file(conf)[key]
     assert_not_nil(value, "#{key} is set in config.yaml") unless may_be_nil
     value || default_value
