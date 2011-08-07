@@ -78,25 +78,23 @@ BASE_FILES = COMMON_FILES + FileList[
   BASE_TEST_FILE_LIST,
 ]
 
-desc "Test everything."
 ext = File.join(ROOT_DIR, 'ext')
-test_and_args = File.exist?(ext) ? {:test => :test_base} : [:test]
-task test_and_args do 
-  Rake::TestTask.new(:test) do |t|
-    t.libs += %W(#{ROOT_DIR}/lib #{ROOT_DIR}/cli)
-    t.libs << ext if File.exist?(ext)
-    t.test_files = CLI_TEST_FILE_LIST
-    t.options = '--verbose' if $VERBOSE
-  end
+
+desc "Test everything."
+Rake::TestTask.new(:test) do |t|
+  t.libs += %W(#{ROOT_DIR}/lib #{ROOT_DIR}/cli)
+  t.libs << ext if File.exist?(ext)
+  t.test_files = CLI_TEST_FILE_LIST
+  t.options = '--verbose' if $VERBOSE
 end
 
+task :test => :test_base if File.exist?(ext)
+
 desc "Test ruby-debug-base."
-task :test_base => :compile do
-  Rake::TestTask.new(:test_base) do |t|
-    t.libs += ['./ext', './lib']
-    t.test_files = FileList[BASE_TEST_FILE_LIST]
-    t.options = '--verbose' if $VERBOSE
-  end
+Rake::TestTask.new(:test_base => :compile) do |t|
+  t.libs += ['./ext', './lib']
+  t.test_files = FileList[BASE_TEST_FILE_LIST]
+  t.options = '--verbose' if $VERBOSE
 end
 
 desc "Test everything - same as test."
