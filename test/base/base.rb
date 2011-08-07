@@ -3,7 +3,7 @@ require 'test/unit'
 
 # Some tests of Debugger module in C extension ruby_debug 
 class TestRubyDebug < Test::Unit::TestCase
-  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
+  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
   require 'ruby_debug'
   $:.shift
 

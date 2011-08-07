@@ -14,7 +14,6 @@ install-sh
 missing
 pkg
 ruby-debug-*.tar.gz
-ext/*.o
-ext/ruby_debug.bundle
+lib/ruby_debug.bundle
+lib/ruby_debug.jar
 tmp/*
-ruby_debug.jar

@@ -4,6 +4,7 @@ require 'rubygems'
 require 'rubygems/package_task'
 require 'rdoc/task'
 require 'rake/testtask'
+require 'rake/extensiontask'
 require 'rake/javaextensiontask'
 
 SO_NAME = "ruby_debug.so"
@@ -106,13 +107,6 @@ end
 desc "Test everything - same as test."
 task :check => :test
 
-desc "Create the core ruby-debug shared library extension"
-task :compile do
-  Dir.chdir("ext") do
-    system("#{Gem.ruby} extconf.rb && make")
-  end
-end
-
 desc "Compile Emacs code"
 task :emacs => "emacs/rdebug.elc"
 file "emacs/rdebug.elc" => ["emacs/elisp-comp", "emacs/rdebug.el"] do
@@ -204,6 +198,10 @@ Gem::PackageTask.new(cli_spec) do |pkg|
   pkg.need_tar = true
 end
 
+Rake::ExtensionTask.new('ruby_debug', base_spec) do |t|
+  t.ext_dir = "ext"
+end
+
 task :default => [:package]
 
 # Windows specification
@@ -292,7 +290,7 @@ task :rubyforge_upload do
   end
 end
 
-def install(spec, *opts)
+def install_gem(spec, *opts)
   args = ['gem', 'install', "pkg/#{spec.name}-#{spec.version}.gem"] + opts
   args.unshift 'sudo' unless 0 == Process.uid || ENV['rvm_path']
   system(*args)
@@ -302,15 +300,15 @@ desc 'Install locally'
 task :install => :package do
   Dir.chdir(File::dirname(__FILE__)) do
     # ri and rdoc take lots of time
-    install(base_spec, '--no-ri', '--no-rdoc')
-    install(cli_spec, '--no-ri', '--no-rdoc')
+    install_gem(base_spec, '--no-ri', '--no-rdoc')
+    install_gem(cli_spec, '--no-ri', '--no-rdoc')
   end
 end    
 
 task :install_full => :package do
   Dir.chdir(File::dirname(__FILE__)) do
-    install(base_spec)
-    install(cli_spec)
+    install_gem(base_spec)
+    install_gem(cli_spec)
   end
 end    
 
