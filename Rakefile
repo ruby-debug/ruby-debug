@@ -1,9 +1,10 @@
 #!/usr/bin/env rake
 # -*- Ruby -*-
 require 'rubygems'
-require 'rake/gempackagetask'
-require 'rake/rdoctask'
+require 'rubygems/package_task'
+require 'rdoc/task'
 require 'rake/testtask'
+require 'rake/javaextensiontask'
 
 SO_NAME = "ruby_debug.so"
 ROOT_DIR = File.dirname(__FILE__)
@@ -73,7 +74,7 @@ BASE_FILES = COMMON_FILES + FileList[
   'ext/ruby_debug.c',
   'ext/ruby_debug.h',
   'ext/win32/*',
-  'lib/**/*',
+  'lib/ruby-debug-base.rb',
   BASE_TEST_FILE_LIST,
 ]
 
@@ -90,7 +91,7 @@ task test_and_args do
 end
 
 desc "Test ruby-debug-base."
-task :test_base => :lib do 
+task :test_base => :compile do
   Rake::TestTask.new(:test_base) do |t|
     t.libs += ['./ext', './lib']
     t.test_files = FileList[BASE_TEST_FILE_LIST]
@@ -102,7 +103,7 @@ desc "Test everything - same as test."
 task :check => :test
 
 desc "Create the core ruby-debug shared library extension"
-task :lib do
+task :compile do
   Dir.chdir("ext") do
     system("#{Gem.ruby} extconf.rb && make")
   end
@@ -121,6 +122,7 @@ task :ChangeLog do
   system('svn2cl --authors=svn2cl_usermap http://ruby-debug.rubyforge.org/svn/trunk')
   system("svn2cl --authors=svn2cl_usermap http://ruby-debug.rubyforge.org/svn/trunk/ext -o ext/ChangeLog")
   system("svn2cl --authors=svn2cl_usermap http://ruby-debug.rubyforge.org/svn/trunk/lib -o lib/ChangeLog")
+  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/debug-commons/jruby-debug/trunk")
 end
 
 # Base GEM Specification
@@ -191,10 +193,10 @@ EOF
 end
 
 # Rake task to build the default package
-Rake::GemPackageTask.new(base_spec) do |pkg|
+Gem::PackageTask.new(base_spec) do |pkg|
   pkg.need_tar = true
 end
-Rake::GemPackageTask.new(cli_spec) do |pkg|
+Gem::PackageTask.new(cli_spec) do |pkg|
   pkg.need_tar = true
 end
 
@@ -245,11 +247,12 @@ task :clean do
     derived_files = Dir.glob(".o") + Dir.glob("*.so")
     rm derived_files unless derived_files.empty?
   end
+  rm 'lib/ruby_debug.jar' if File.exists?("lib/ruby_debug.jar")
 end
 
 # ---------  RDoc Documentation ------
 desc "Generate rdoc documentation"
-Rake::RDocTask.new("rdoc") do |rdoc|
+RDoc::Task.new("rdoc") do |rdoc|
   rdoc.rdoc_dir = 'doc/rdoc'
   rdoc.title    = "ruby-debug"
   # Show source inline with line numbers
@@ -309,4 +312,56 @@ end
 
 task :make_version_file do 
   make_version_file 
+end
+
+namespace :jruby do
+  desc "Helps to setup the project to be able to run tests"
+  task :prepare_tests do
+    File.open('test/config.private.yaml', 'w') do |f|
+      f.write <<-EOF
+# either should be on the $PATH or use full path
+ruby: jruby
+
+# possibility to specify interpreter parameters
+ruby_params: --debug
+      EOF
+    end
+
+    # - prepare default customized test/config.private.yaml suitable for JRuby
+    # - tweak test suite to be able to pass for jruby-debug-base which does not
+    #   support e.g. TraceLineNumbers yet.
+    sh "patch -p0 < patch-#{ruby_debug_version}.diff"
+  end
+
+  jruby_spec = Gem::Specification.new do |s|
+    s.platform = "java"
+    s.summary  = "Java implementation of Fast Ruby Debugger"
+    s.name     = 'ruby-debug-base'
+    s.version  = ruby_debug_version
+    s.require_path = 'lib'
+    s.files    = ['AUTHORS',
+                  'ChangeLog',
+                  'lib/linecache.rb',
+                  'lib/linecache-ruby.rb',
+                  'lib/ruby-debug-base.rb',
+                  'lib/ruby_debug.jar',
+                  'lib/tracelines.rb',
+                  'MIT-LICENSE',
+                  'Rakefile',
+                  'README']
+    s.description = <<-EOF
+Java extension to make fast ruby debugger run on JRuby.
+It is the same what ruby-debug-base is for native Ruby.
+  EOF
+    s.author   = 'debug-commons team'
+    s.homepage = 'http://rubyforge.org/projects/debug-commons/'
+    s.has_rdoc = true
+    s.rubyforge_project = 'debug-commons'
+  end
+
+  Gem::PackageTask.new(jruby_spec) {}
+
+  Rake::JavaExtensionTask.new('ruby_debug') do |t|
+    t.ext_dir = "src"
+  end
 end

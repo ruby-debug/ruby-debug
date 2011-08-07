@@ -63,7 +63,7 @@ little more detail as to what happens under the covers when you do the
 gem install.
 
 Run (from trunk)
-  rake lib
+  rake compile
 
 This creates a Makefile and builds the ruby-debug shared library. (On
 Unix the name is ruby_debug.so).

@@ -16,3 +16,5 @@ pkg
 ruby-debug-*.tar.gz
 ext/*.o
 ext/ruby_debug.bundle
+tmp/*
+ruby_debug.jar

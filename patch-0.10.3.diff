@@ -1,0 +1,297 @@
+
+Property changes on: test
+___________________________________________________________________
+Name: svn:ignore
+   - config.private.yaml
+
+   + config.private.yaml
+.rdebug_hist
+
+
+Index: test/data/breakpoints.right
+===================================================================
+--- test/data/breakpoints.right	(revision 859)
++++ test/data/breakpoints.right	(working copy)
+@@ -16,7 +16,7 @@
+ # break 10
+ Breakpoint 2 file ./gcd.rb, line 10
+ # break 11
+-*** Line 11 is not a stopping point in file "gcd.rb".
++Breakpoint 3 file ./gcd.rb, line 11
+ # continue
+ Breakpoint 1 at gcd.rb:6
+ gcd.rb:6
+@@ -25,13 +25,14 @@
+ --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
+     #1 at line gcd.rb:18
+ # break Object.gcd
+-Breakpoint 3 at Object::gcd
++Breakpoint 4 at Object::gcd
+ # info break
+ Num Enb What
+   1 y   at gcd.rb:6
+ 	breakpoint already hit 1 time
+   2 y   at gcd.rb:10
+-  3 y   at Object:gcd
++  3 y   at gcd.rb:11
++  4 y   at Object:gcd
+ # continue
+ Breakpoint 2 at gcd.rb:10
+ gcd.rb:10
+@@ -83,7 +84,7 @@
+ # disable
+ *** "disable" must be followed "display", "breakpoints" or breakpoint numbers.
+ # # We should be able to delete 2
+-# delete 2 3
++# delete 2 3 4
+ # info break
+ No breakpoints.
+ # # Should get a message about having no breakpoints.
+Index: test/data/frame.right
+===================================================================
+--- test/data/frame.right	(revision 859)
++++ test/data/frame.right	(working copy)
+@@ -7,10 +7,6 @@
+ Currently testing the debugger is on.
+ # set callstyle last
+ Frame call-display style is last.
+-# # Invalid line number in continue command
+-# continue 3
+-*** Line 3 is not a stopping point in file "gcd.rb".
+-# # This time, for sure!
+ # continue 6
+ gcd.rb:6
+ if a > b
+Index: test/data/stepping.cmd
+===================================================================
+--- test/data/stepping.cmd	(revision 859)
++++ test/data/stepping.cmd	(working copy)
+@@ -7,13 +7,13 @@
+ where
+ step a
+ set forcestep on
+-step- ; step-
++step-
+ set forcestep off
+ where
+-n 2
++n
+ step+
+ where
+-step 3
++step 2
+ step+
+ where
+ next+	
+Index: test/data/frame.cmd
+===================================================================
+--- test/data/frame.cmd	(revision 859)
++++ test/data/frame.cmd	(working copy)
+@@ -3,9 +3,6 @@
+ # ***************************************************
+ set debuggertesting on
+ set callstyle last
+-# Invalid line number in continue command
+-continue 3
+-# This time, for sure!
+ continue 6
+ where
+ up
+Index: test/data/test-init.right
+===================================================================
+--- test/data/test-init.right	(revision 859)
++++ test/data/test-init.right	(working copy)
+@@ -1,5 +1,7 @@
+ gcd-dbg.rb:18
+ if a > b
+-(rdb:1) "./gcd-dbg.rb"
+-(rdb:1) Argument list to give program being debugged when it is started is "5".
+-(rdb:1) 
+\ No newline at end of file
++(rdb:1) p Debugger::PROG_SCRIPT
++"./gcd-dbg.rb"
++(rdb:1) show args
++Argument list to give program being debugged when it is started is "5".
++(rdb:1) quit unconditionally
+Index: test/data/annotate.cmd
+===================================================================
+--- test/data/annotate.cmd	(revision 859)
++++ test/data/annotate.cmd	(working copy)
+@@ -25,5 +25,4 @@
+ # Test error annotations
+ up 10
+ frame 100
+-break bogus:5
+ quit
+Index: test/data/emacs_basic.cmd
+===================================================================
+--- test/data/emacs_basic.cmd	(revision 859)
++++ test/data/emacs_basic.cmd	(working copy)
+@@ -16,7 +16,6 @@
+ continue
+ where
+ info program
+-c 10
+ info break
+ break foo
+ info break
+Index: test/data/stepping.right
+===================================================================
+--- test/data/stepping.right	(revision 859)
++++ test/data/stepping.right	(working copy)
+@@ -16,7 +16,7 @@
+ Step argument 'a' needs to be a number.
+ # set forcestep on
+ force-stepping is on.
+-# step- ; step-
++# step-
+ gcd.rb:6
+ if a > b
+ # set forcestep off
+@@ -24,7 +24,7 @@
+ # where
+ --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
+     #1 at line gcd.rb:18
+-# n 2
++# n
+ gcd.rb:10
+ return nil if a <= 0
+ # step+
+@@ -33,7 +33,7 @@
+ # where
+ --> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:12
+     #1 at line gcd.rb:18
+-# step 3
++# step 2
+ gcd.rb:6
+ if a > b
+ # step+
+Index: test/data/break_bad.right
+===================================================================
+--- test/data/break_bad.right	(revision 859)
++++ test/data/break_bad.right	(working copy)
+@@ -18,10 +18,10 @@
+ # # Line one isn't a valid stopping point.
+ # # It is a comment.
+ # break gcd.rb:1
+-*** Line 1 is not a stopping point in file "gcd.rb".
++Breakpoint 1 file gcd.rb, line 1
+ # # This line is okay
+ # break gcd.rb:4
+-Breakpoint 1 file gcd.rb, line 4
++Breakpoint 2 file gcd.rb, line 4
+ # # No class Foo.
+ # break Foo.bar
+ *** Unknown class Foo.
+Index: test/data/breakpoints.cmd
+===================================================================
+--- test/data/breakpoints.cmd	(revision 859)
++++ test/data/breakpoints.cmd	(working copy)
+@@ -30,7 +30,7 @@
+ disable bar
+ disable
+ # We should be able to delete 2
+-delete 2 3
++delete 2 3 4
+ info break
+ # Should get a message about having no breakpoints.
+ disable 1
+Index: test/data/annotate.right
+===================================================================
+--- test/data/annotate.right	(revision 859)
++++ test/data/annotate.right	(working copy)
+@@ -83,7 +83,7 @@
+ display
+ 
+ stack
+---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
++--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+     #1 at line gcd.rb:18
+ 
+ variables
+@@ -91,8 +91,8 @@
+ b = 5
+ self = main
+ 
+-source gcd.rb:6
+-if a > b
++source gcd.rb:10
++return nil if a <= 0
+ # # Test error annotations
+ # up 10
+ error-begin
+@@ -101,7 +101,7 @@
+ display
+ 
+ stack
+---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
++--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+     #1 at line gcd.rb:18
+ 
+ variables
+@@ -116,7 +116,7 @@
+ display
+ 
+ stack
+---> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:6
++--> #0 Object.gcd(a#Fixnum, b#Fixnum) at line gcd.rb:10
+     #1 at line gcd.rb:18
+ 
+ variables
+@@ -124,14 +124,4 @@
+ b = 5
+ self = main
+ 
+-# break bogus:5
+-error-begin
+-No source file named bogus
+-
+-breakpoints
+-Num Enb What
+-  2 y   at gcd.rb:12
+-
+-display
+-
+ # quit
+Index: test/data/emacs_basic.right
+===================================================================
+--- test/data/emacs_basic.right	(revision 859)
++++ test/data/emacs_basic.right	(working copy)
+@@ -41,9 +41,6 @@
+     #1 at line gcd.rb:18
+ # info program
+ Program stopped. It stopped at a breakpoint.
+-# c 10
+-gcd.rb:10
+-return nil if a <= 0
+ # info break
+ Num Enb What
+   1 y   at gcd.rb:6
+Index: test/data/info.right
+===================================================================
+--- test/data/info.right	(revision 859)
++++ test/data/info.right	(working copy)
+@@ -61,5 +61,5 @@
+ # info file ./gcd.rb break
+ File ./gcd.rb
+ 	breakpoint line numbers:
+-4  6  6  7  10  10  12  12  13  15  18
++1  2  3  4  5  6  7  8  9  10  11  12  13  14  15  16  17  18
+ # quit
+Index: test/helper.rb
+===================================================================
+--- test/helper.rb	(revision 859)
++++ test/helper.rb	(working copy)
+@@ -42,7 +42,11 @@
+   end
+ 
+   def cheap_diff(got_lines, correct_lines)
+-    puts got_lines if $DEBUG
++    if $DEBUG
++      got_lines.each_with_index do |line, i|
++        printf "%3d %s\n", i+1, line
++      end
++    end
+     correct_lines.each_with_index do |line, i|
+       correct_lines[i].chomp!
+       if got_lines[i] != correct_lines[i]

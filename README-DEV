@@ -1,0 +1,20 @@
+== How to setup and run tests
+
+0) checkout the sources (see README, section "Installation of trunk version")
+1) apply patch by running:
+
+    $ rake prepare_tests'
+
+
+You are ready to run all tests, e.g.:
+
+  $ jruby test/test-help.rb 
+  $ jruby --debug -S rake test_stable
+
+
+We need to tweak MRI ruby-debug test suite since the debuggers differs in some
+cases:
+
+  - JRuby does not support invalid breakpoint places
+  - MRI stops at some expressions, like 'if', twice, JRuby once
+
