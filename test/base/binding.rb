@@ -1,18 +1,8 @@
 #!/usr/bin/env ruby
-
-require 'test/unit'
+require File.expand_path("../../helper", __FILE__)
 
 # Test binding_n command
 class TestBinding < Test::Unit::TestCase
-
-  SRC_DIR = File.expand_path(File.dirname(__FILE__)) unless 
-    defined?(SRC_DIR)
-  %w(ext lib).each do |dir|
-    $:.unshift File.join(SRC_DIR, '..', '..', dir)
-  end
-  require File.join(SRC_DIR, '..', '..', 'lib', 'ruby-debug-base')
-  $:.shift; $:.shift
-
   def test_basic
     def inside_fn
       s = 'some other string'

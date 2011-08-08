@@ -1,50 +1,53 @@
 # Some common routines used in testing.
 
+require 'rubygems'
+require 'test/unit'
+
+$LOAD_PATH.unshift File.expand_path("../../lib", __FILE__)
+$LOAD_PATH.unshift File.expand_path("../../cli", __FILE__)
+require 'ruby-debug'
+
 require 'fileutils'
 require 'yaml'
-# require 'diff/lcs'
-# require 'diff/lcs/hunk'
 
 # begin require 'rubygems' rescue LoadError end
 # require 'ruby-debug'; Debugger.start
 
 module TestHelper
+  def run_debugger(testname, args = '', opts = {})
+    Dir.chdir(File.dirname(__FILE__)) do
+      rightfile = opts[:rightfile] || File.join('data', "#{testname}.right")
+      outfile   = opts[:outfile]   || "#{testname}.out"
+      debug_pgm = opts[:runner]    || 'tdebug.rb'
+      filter    = opts[:filter]
 
-  # FIXME: turn args into a hash.
-  def run_debugger(testname, args='', outfile=nil, filter=nil, old_code=false,
-                   debug_pgm='tdebug.rb')
-    rightfile = File.join('data', "#{testname}.right")
-    
-    outfile = "#{testname}.out" unless outfile
+      if File.exists?(outfile)
+        FileUtils.rm(outfile)
+      end
 
-    if File.exists?(outfile)
-      FileUtils.rm(outfile)
+      ENV['RDEBUG'] = debug_pgm
+      ENV['TERM']   = ''
+
+      # The EMACS environment variable(s) cause output to 
+      # get prefaced with null which will mess up file compares.
+      # So turn off EMACS output processing.
+      ENV['EMACS'] = ENV['INSIDE_EMACS'] = nil
+
+      cmd = "#{load_ruby} #{load_params} ../rdbg.rb #{args} > #{outfile}"
+      puts "'#{cmd}'" if $DEBUG
+      `#{cmd}`
+
+      got_lines     = File.read(outfile).split(/\n/)
+      correct_lines = File.read(rightfile).split(/\n/)
+      filter.call(got_lines, correct_lines) if filter
+
+      if cheap_diff(got_lines, correct_lines)
+        FileUtils.rm(outfile)
+        return true
+      end
+
+      false
     end
-    
-    ENV['RDEBUG'] = debug_pgm
-    ENV['TERM']   = ''
-
-    # The EMACS environment variable(s) cause output to 
-    # get prefaced with null which will mess up file compares.
-    # So turn off EMACS output processing.
-    ENV['EMACS'] = ENV['INSIDE_EMACS'] = nil
-
-    if old_code
-      cmd = "/bin/sh #{File.join('..', 'runner.sh')} #{args} >#{outfile}"
-    else
-      cmd = "#{"#{load_ruby} #{load_params} "}../rdbg.rb #{args} > #{outfile}"
-    end
-    puts "'#{cmd}'" if $DEBUG
-    output = `#{cmd}`
-    
-    got_lines     = File.read(outfile).split(/\n/)
-    correct_lines = File.read(rightfile).split(/\n/)
-    filter.call(got_lines, correct_lines) if filter
-    if cheap_diff(got_lines, correct_lines)
-      FileUtils.rm(outfile)
-      return true
-    end
-    return false
   end
 
   def cheap_diff(got_lines, correct_lines)

@@ -1,12 +1,8 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require File.expand_path("../../helper", __FILE__)
 
 # Some tests of Debugger module in C extension ruby_debug 
 class TestRubyDebug < Test::Unit::TestCase
-  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib')
-  require 'ruby_debug'
-  $:.shift
-
   # test current_context
   def test_current_context
     assert_equal(false, Debugger.started?, 

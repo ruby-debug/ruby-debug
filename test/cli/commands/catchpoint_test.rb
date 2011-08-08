@@ -1,18 +1,7 @@
 #!/usr/bin/env ruby
-
-require 'test/unit'
+require File.expand_path("../../../helper", __FILE__)
 
 class TestCatchCommand < Test::Unit::TestCase
-  
-  base_dir = File.expand_path(File.join(File.dirname(__FILE__), 
-                                        '..', '..', '..'))
-  
-  %w(ext lib cli).each do |dir|
-    $: <<  File.join(base_dir, dir)
-  end
-  
-  require File.join(base_dir, 'cli', 'ruby-debug')
-  
   class MockState
     attr_accessor :message 
     def context; end
@@ -32,5 +21,4 @@ class TestCatchCommand < Test::Unit::TestCase
     end
     assert_equal(nil, state.message)
   end
-
 end

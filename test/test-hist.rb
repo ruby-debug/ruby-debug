@@ -1,8 +1,5 @@
 #!/usr/bin/env ruby
-require 'test/unit'
-
-# begin require 'rubygems' rescue LoadError end
-# require 'ruby-debug'; Debugger.start
+require File.expand_path("../helper", __FILE__)
 
 # Test history commands
 
@@ -11,7 +8,6 @@ class TestHistory < Test::Unit::TestCase
   @@SRC_DIR = File.dirname(__FILE__) unless 
     defined?(@@SRC_DIR)
 
-  require File.join(@@SRC_DIR, 'helper')
   include TestHelper
 
   unless defined?(@@FILE_HISTORY)

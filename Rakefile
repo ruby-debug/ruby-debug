@@ -58,7 +58,6 @@ CLI_FILES = COMMON_FILES + FileList[
   'test/config.yaml',
   'test/**/*.rb',
   'rdbg.rb',
-  'runner.sh',
    CLI_TEST_FILE_LIST
 ]
 

@@ -1,15 +1,9 @@
 #!/usr/bin/env ruby
-require 'test/unit'
+require File.expand_path("../../helper", __FILE__)
 
 # Test catchpoint in C ruby_debug extension.
   
 class TestRubyDebugCatchpoint < Test::Unit::TestCase
-
-  $:.unshift File.join(File.dirname(__FILE__), '..', '..', 'ext')
-  require 'ruby_debug'
-  $:.shift
-
-  # test current_context
   def test_catchpoints
     assert_raise(RuntimeError) {Debugger.catchpoints}
     Debugger.start_
@@ -22,6 +16,4 @@ class TestRubyDebugCatchpoint < Test::Unit::TestCase
   ensure
     Debugger.stop
   end
-
 end
-

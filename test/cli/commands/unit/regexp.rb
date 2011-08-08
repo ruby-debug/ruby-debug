@@ -1,12 +1,7 @@
-require 'test/unit'
-
+#!/usr/bin/env ruby
+require File.expand_path("../../../../helper", __FILE__)
 
 class TestCommandREs < Test::Unit::TestCase
-  base_dir=File.expand_path(File.join(File.dirname(__FILE__), 
-                                      '..', '..', '..', '..',
-                                      'cli', 'ruby-debug'))
-  require File.join(base_dir, 'command')
-  require File.join(base_dir, 'commands', 'frame')
   include Debugger
  
   def test_quit
@@ -39,4 +34,3 @@ class TestCommandREs < Test::Unit::TestCase
     assert_equal(nil, c.regexp.match('dow'))
   end
 end
-
