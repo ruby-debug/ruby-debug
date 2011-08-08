@@ -1,0 +1,1096 @@
+2011-08-05  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ext/win32/.cvsignore, ext/win32/.gitignore: .cvsignore ->
+	.gitignore
+
+2010-12-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Get ready for 0.10.5 release git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@985
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-12-07  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/extconf.rb: Admnistrivia. Rakefile: rake test shouldn't su if
+	we're rvm. extconf.rb allow for user compile options. INSTALL.SVN
+	note how to configure compile options.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@969
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-11-09  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Monkey patch in a wrapping/chaining way so as to
+	preserve the prior monkey patches. Patch #28696 from Jens Wille
+	(jwille).  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@962
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-10-27  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Get ready for release 0.10.4 git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@958
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-10-21  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Remove gcc warning and redundant code. Rubyforge
+	Issue #28654. Thanks to Mamoru Tasaka.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@956
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-10-15  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c, ext/ruby_debug.c: Go over documentation (1st
+	pass) including that created by rdoc.  Better instructions for how
+	to build on MS Windows and the include cross-compile.sh script I
+	use.  Update rubyforge URL's used to building ChangeLogs.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@954
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-09-15  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Rakefile: make rake --prereqs work if only
+	ruby-debug.tar.gz is used. Add test/config.yml to gem. See tracker
+	#28560.  ruby_debug.c: 10.0.4.rc2 now git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@949
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-08-13  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Add Debugger.inside_emacs? Environment variable
+	EMACS for inside Emacs is deprecated in favor of INSIDE_EMACS.
+	Rubyforge #28465.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@946
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-03-21  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c, ext/ruby_debug.c, ext/ruby_debug.h: Allow
+	breakpoints at class methods. Patch #26987 from Mark Moseley. See
+	also http://www.ruby-forum.com/topic/193901 git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@929
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2010-03-16  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Fix for what looks like an optimization bug on
+	64-bit gcc systems with optimization. The Symptom is that debugger
+	"catch" causes the program to immediately terminate when the Ruby
+	exception is raised. Possibly a problem in using
+	INT2FIX(FIX2INT...)..) and/or possibly a bug in those macros.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@928
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Frame without a frame number means frame 0, same
+	as gdb. We are now in 0.10.4 territory now.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@903
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-15  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Go over RDOC documentation.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@898
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-15  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/win32/.cvsignore: More administrivia git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@895
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-14  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Move Debugger#debugger from base to cli. Revert
+	code in ruby_debug.c and block parameter in debugger. cf. -> Compare
+	with. Document Debugger.start better.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@888
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-13  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Make Debugger.start{block} work if
+	Debugger.started? is false. Second try.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@887
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: register debug_frame_t->arg_ary with GC git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@882
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Trying to fix "if $0 == __FILE__" ruby's idiom.
+	Apparently setting $0 to a new value doesn't work correctly. (Ruby's
+	bug?) $ cat t3.rb p $0 p File.expand_path $0 $0 = File.expand_path $0 p $0
+	$ ruby t3.rb "t3.rb" "/Users/kent/Work/ruby-debug/trunk/t3.rb"
+	"/Users/ke" git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@881
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.h: added declaration of check_breakpoints_by_method
+	method to remove compiler warning git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@880
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: running at_exit hooks at the end of the
+	debug_load method in order to fix test cases a chance to run git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@878
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: can't store a copy of the debug_context in the
+	stack like that, it doesn't play along with garbage collector.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@877
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: these two methods are unused git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@876
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c: fix the compiler warning git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@875
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-11-02  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Debugger.start with a block now stops inside the
+	block. Debugger.debugger with a block works like Debugger.start with
+	a block.  The whole interface is hopelessly kludgy and needs to be redone.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@870
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-10-26  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/extconf.rb, ext/ruby_debug.c: Doc typo. Add comment to remind
+	me how to turn off optimizationin extconf.rb git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@868
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-10-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Warn and add a "confirmation" when setting a
+	breakpoint on a file that is not loaded. Regression tests no longer
+	fail.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@866
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-09-21  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: tdebug.rb: modify frozen string taken from
+	rdebug. Patch from Martin Krauskopf.  ruby_debug.c: in 0.10.3 now.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@862
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-08-28  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/trunk@857
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-07-10  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed segfault and finish command git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@853
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-05-23  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c: Lots of bogosity fixed in catchpoint handling.
+	Added "catch xxx off".  Confirm when deleting all catchpoints.
+	Correct C rdoc.  #20237 git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@842
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-05-11  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Remove stop in debug_load due to Debugger.start
+	getting called twice.  The fix -- for now -- is to add another
+	parameter to debug_load to indicate not to increment debug_count. We
+	could also make that the default in debug_load as well, but
+	debug_load might be useful in other situations and where
+	control_threads are not relevant (which is why we need to call
+	Debugger.start rather than let debug_load do it).  Bug #19930 git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@832
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-04-19  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Change test for whether we have moved off a line
+	or not for purposes of stopping at a breakpoint on a line. The line
+	events for which there are normally two stops are on NODE if's
+	before the if and after the expression evaluation. Tracker #19594.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@818
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-04-16  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: In 0.10.2 now. Some work to cope systems without
+	readline. More work is needed.  Add test of "set autoeval."
+	Undefined command message more closely like gdb's.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@817
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-03-13  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: INCOMPATIBLE CHANGE: "finish" works like gdb -
+	stop just before the most recent method finishes. Will now accept a
+	number which stops that many frames completed. (Note that return
+	line numbers will be funny, the first line of the method until Ruby
+	1.8.7.) git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@756
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-02-09  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Fix bug where we entered debugger code if we
+	"next" over code that goes raises an uncaught exception. Needed to
+	reset stepping parameters. Added a routine to do so.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@672
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-02-02  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Remove Debugger.init and fold options parameter
+	into Debugger.start.  Old Debugger.start has been renamed
+	Deebugger.start_ git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@657
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-02-01  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c, ext/ruby_debug.c, ext/ruby_debug.h: Allow
+	multiple exceptions to be caught.  INCOMPATIBLE CHANGE: varible Debugger.catchpoint a String was turned
+	into Debugger.catchpoints, a Hash. Debugger.catchpoint= no longer
+	exists. Debugger.set_catchpoint was turned into
+	Debugger.add_catchpoint "info catch" added.  INCOMPATIBLE CHANGE: variable Debugger.catchpoint is now
+	  Debugger.catchpoints which is a now hash rather than a String.
+	  Debugger.catchpoint= no longer exists.  A catchpoint ruby-debug-base test added. use unshift in requires.  rdebug: --post-mortem now really catches uncaught exceptions and   brings you to post-mortem handling.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@656
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Leave ruby_debug.c this way for now.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@654
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ruby_debug.c: more adventures in exception
+	handling processor.rb: Removal of crash when annotate is on. Need to
+	fix the source of the problem though.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@653
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Have Debug.load recover from uncaught error
+	raised in a debugged program.  Go over regression tests.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@651
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-13  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c: Some stack -> frame renaming ext/breakpoint.c:
+	put methods in alpha order (to help with reference man)
+	breakpoints.rb: one print -> errmsg git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@595
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-10  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c: Add condition command.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@578
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-07  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Split out ChangeLogs better (I hope).  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@557
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-06  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: test/*-emacs-basic*, tdebug: Add test of running in
+	Emacs without annotations.  emacs/*.el: make regexp tests work again, move regexp to from core
+	   to regexp.  Add an annotate regexp test.  processor.rb: Remove some anotation print from bleeding into output   when annotations are not wanted. Reinstate "Program finished" in   annotations and outside (rdebug).  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@555
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-06  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Create Processor class and subclass that. Perhaps a
+	mixin would be good.  Remove annotation output bleanding when
+	annotate is off.  Try to reduce the mess annotations is adding to
+	processor.rb rdebug-core.el: fix indentation to pass the regression
+	test Anders added Makefile.am: Add rdebug-source.el to distribution.
+	Make sure "rake test" git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@554
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-06  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Some work on saving state across a restart. More
+	work is needed on the script command to get this working. The
+	save-file name is now optional.  save.rb split off from script.rb
+	Display expressions and some settings are now captured in the
+	save/restore file.  Add interface.finalize - things that need to be
+	done before quit or restart.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@550
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-05  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: More work to make annotate more like gdb's.
+	starting/stopping/exiting should be more similar. Some code has been
+	commented out until we get the Emacs interface to match. See "FIXME:
+	ANNOTATE" in processor.rb.  Also regression tests for output and
+	annotate currently fail for this reason.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@549
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-02  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: helper.rb: add regexp for a position. TODO: add
+	parsing routine and use in various commands git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@534
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-02  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: processor.rb: Redo where starting/exiting
+	annotations are done.  rdebug.el: back off on setting output command
+	for now.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@531
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-01  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Fix --emacs to do --no-quit properly.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@528
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-01  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog, ext/breakpoint.c, ext/ruby_debug.c,
+	ext/ruby_debug.h: Remove RDoc warnings caused because C files have
+	been split up.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@527
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2008-01-01  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: reindent -> indent. Makefile.am: wasn't including
+	all test files.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@525
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Rakefile: add spit-off C files to ruby-debug-base
+	gem.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@521
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: rdebug-test-cmd.el: Indentation git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@520
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/breakpoint.c: Was missing check_breakpoint_expression().  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@519
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-31  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog, ext/breakpoint.c, ext/ruby_debug.c,
+	ext/ruby_debug.h: Split off breakpoint code from ruby_debug.c; add
+	common ruby_debug.h header Alas this means some statics are now
+	externs and one inline was dropped.  In some cases though moving
+	static to extern might be desirable for other packages that want to
+	hook into ruby_debug.  Start to preface the global ruby_debug
+	variables with rdebug.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@517
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-29  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Remove looping on quit. "-n" is broken so remove it
+	for now.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@508
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-28  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: info.rb: Incorrect test for no display expressions.
+	display.rb: Grammar thing.  processor.rb: Slightly cleaner code
+	test/* more/better tests.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@499
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-27  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Be more agressive about resetting gud-last-frame
+	and gud-last-last-frame. These foul up tracking when debugging is
+	interrupted.  We probably need a special "reset" command.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@488
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-26  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog, ext/ruby_debug.c: Version number games - maybe
+	0.10.1 is better.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@481
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-26  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: 2nd attempt to deal with *both* problems Timur
+	reported.  1. Catchpoint is never called when program raises an object of type
+	Exception. So, my exceptional breakpoints doesn't work for Exception
+	class.  2. When SystemExit exception is raised debugger become stopped and
+	stop method is called as many times, as a number of threads running
+	in application. For example, in next code debugger become stopped in
+	rescue block, but program continues its execution.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@478
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Add step- and step+. Document as well as the new
+	toggle command.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@477
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Expermimental patch to address a problems
+	reported by Timur Shipilov, Software engineer, Xored Software Inc.:   When SystemExit exception is raised debugger become stopped and   stop method is called as many times, as a number of threads
+	  running in application. For example, in next code debugger become
+	  stopped in rescue block, but program continues its execution.  Example: # Stuff to set up debugger begin # if you throw another Exception
+	here, all will be fine exit sleep 20 rescue Exception   puts 'This line is not traced' end puts 'And this too' # Debugger.stop was implicitly called when SystemExit exception was
+	thrown # So, there will be an runtime error Debugger.stop git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@475
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Small doc fixes.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@473
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Last commit before 0.10.0 release.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@471
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: breakpoints.*: main -> Object. Add bad Class name
+	test AUTHOR: Add Anders README: note ruby-debug-extra. More precise
+	(I think) git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@470
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-24  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Rakefile: set up gem unit test for ruby-debug-base.
+	  Add file in test/ so we could do the same for ruby-debug were it not
+	  for other mysterious problems.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@466
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-23  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ChangeLog: Go over packaging: ChangeLogs for ruby-debug-base
+	(in ext and lib) separate from CLI ChangeLog ChangeLogs now map
+	userid to names ruby-debug-base regression test included in
+	ruby-debug-base Columnize test separated. (It will disappear when
+	ruby-debug requires it as an external) git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@464
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-17  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Doc typo.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@433
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-14  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Change version to 0.10.0 git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@413
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-14  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ruby-debug.c, configure.ac, ruby-debug.texi: Up
+	version to 0.9.9 rdebug.1: document --no-quit ruby-debu.texi: More
+	work on Emacs section.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@410
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-12-02  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Allow enabling/disabling breakpoints. Add unit
+	test of enabling/disabling and emacs regexp checking. Adjust
+	rdebug.el accordingly.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@383
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-11-24  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Some documentation typos.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@367
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-11-24  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Ooops, forgot to do frame_locals and update the
+	rb_define_method argument count in a couple of places.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@365
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-11-24  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ruby_debug.c: context.frame things now allow the
+	frame postion number to be optional. We'll assume 0 (the top) as the
+	default.  test-ruby-debug.rb: add tests of the above an of these routines in
+	  general. Make this be able to run outside of rake.  Rakefile: Removed emacs/elisp since that's now part of a different
+	package.  doc/Makefile.am: Make manual page doc/ruby-debug.texi: try to clarify blocks/frames. Redo incorrect
+	frame passages as a result of vestiges of the bashdb manual.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@364
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-11-15  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Fix misspelling of declared.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@349
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-10-12  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Bug in setting a breakpoint at a main method
+	(e.g. main.gcd). Inside breakpoint_by method we seem to get nil for
+	the class name. The fix here is to change that to the string "main".
+	Better might be to have that class name not be nil.  test/breakpoints.cmd has a sequence of commands that when run on
+	gcd.rb will show the problem.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@312
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-08-05  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Typo.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@281
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-08-04  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: settings, processor, show: display expressions
+	should be shown when line tracing. To this end change always_run
+	from a boolean on integer "level" number.  eval.rb pc -> putl ruby_debug.c: replace a non-word in a comment its equivalent
+	ruby-debug.texi: document recent changes pc->putl, display
+	expresions appear when line tracing git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@279
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-07-21  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Changes to make ruby-debug work for 1.9 (at
+	least minimally).  ruby_debug.c: parameter saving seems to have a
+	bug in it. Don't turn on by default.  runner.sh: set which ruby
+	using environment variable RUBY.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@276
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-07-19  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Add "set" option to save scalar values and class
+	names on each call.  Add pc (print columnized) and ps (print sorted
+	columnized).  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@275
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-06-21  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: test-ruby-debug.rb, Rakefile: revise so "rake
+	test" works with recent reorganization.  ruby-debug.c: remove unused
+	variable declaration (and compile warning) command.rb: remove a
+	warning given when "$DEBUG" or warnings are set script.rb: rename
+	"script" to "source" to be more in line with gdb ruby-debug.texi:
+	document "source" command, .rdebugrc and how command files work.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@265
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-06-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: code reorganization.  reverted 'run' command.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@263
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-06-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: tabs to spaces changed copy.args to play nicely
+	with GC git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@260
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-06-03  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Get warm restart working for one thread - it
+	might even work on OSX ;-) git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@254
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-05-25  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Have to back off from showing parameter values
+	since we are showing the dynamic value. So instead we show the
+	paramater class.  It should be possible to show the value however if
+	--keep-frame-bindings is true.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@223
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-05-24  rockyb <rockyb@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Add sandbox for rocky to work in git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@220
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-05-17  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: removed debug message git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@202
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-05-09  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: '-r' option can be used to require additional
+	libraries git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@199
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Ctrl-C exits irb and continutes execution
+	bypassing the debugger prompt git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@185
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-07  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: removed wrong if node check git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@183
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-04  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added hit conditions to breakpoints git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@182
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-03  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Fixed file comparision on Windows platform git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@180
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-03  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Added force parameter to stepping commands git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@178
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-03  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added force option to Context#step_over git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@177
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-04-02  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed incorrect stack calculation break help fix git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@176
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-30  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/trunk@171
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-30  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/trunk@170
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-30  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/trunk@169
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-30  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: All Ruby's 'eval' and require/load methods
+	create a new frame.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@168
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-29  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Added new Context.frame_class method 'frame' command will display a class name along with method name Added new 'fullpath' setting.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@164
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-29  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: too many internal changes require a new major
+	release git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@163
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-29  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: remove useless stops when performing 'step_over'
+	operation git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@162
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-28  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Added the possibility to add a temporary
+	context-specific breakpoint.  Context#breakpoint and Context#set_breakpoint methods are added.  'cont' command now accepts a numerical parameter which implements
+	'Continue until line' behavior.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@161
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed previous optimization for Proc objects git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@160
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: we don't need to create a new frame if there is
+	no block for a c-call git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@159
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Calling a method with a block will create a new
+	frame. This changes the behavior of 'next' command. So in order to
+	step into a block, 'step' command must be used. That fixes bug
+	#9629.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@158
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: step over shouldn't check that we moved to
+	another line git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@157
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-26  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ditto git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@156
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-26  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: the frame must be captured when calling
+	Proc#call method git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@154
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-24  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ported stop reason from the trunk git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@148
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-03-19  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixes processor to handler renaming added a
+	shortcut module git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@145
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: repackaging ruby-debug git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@132
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-23  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added an option for Debugger.debug_load to stop
+	at the first line of code git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@130
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-09  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: in remote mode the debugger shouldn't stop
+	inside of rdebug script git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@127
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-07  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: should use ignored? method to check for the
+	debugger's thread git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@120
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: -- git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@113
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed another issue where a bogus frame is being
+	left in the stack git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@112
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: should save frame id as well git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@111
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fix stack corruption error git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@110
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-05  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: store frame's self and dyna_vars along with
+	file/line information git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@109
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-04  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: seg fault bugfixes fixed suspend/resume git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@108
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-04  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: restore prev patch git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@107
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-04  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: -- git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@106
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-04  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: A better fix for the segmentation fault git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@105
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-03  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: found a better patch git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@104
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-03  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fix seg fault by avoiding ruby's bug fixed
+	Context#resume when handling post-mortem all threads must be
+	suspended git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@102
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-02  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: removed ambiguity with down command git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@101
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-01  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: made eval command available from the control
+	thread git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@98
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-01  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed dllexport for windows platform git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@97
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-01  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ditto git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@96
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-02-01  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added setting command added Context#suspended?
+	method dispay suspended status in the thread list display frame
+	starting from zero git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@95
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-31  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: store object ids in VALUE type git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@94
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-31  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: ditto git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@91
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-31  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: make a deep copy when capturing post mortem
+	context git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@90
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-31  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed frame count added frame_self method to
+	context git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@89
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-31  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: removed all references to frames array fixed
+	post-mortem debugging git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@88
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-31  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: refactored out frame class and preallocate stack
+	made local variable available even when bindings are not collected.  git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@86
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-28  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: - Control thread is always started by rdebug script.  - Ability to specify negative frame number to frame commands. Patch
+	from R. Bernstein.  git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@83
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-28  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: -- git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@82
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-28  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added top frame caching control thread is always
+	started by rdebug script git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@81
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-28  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@80
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-27  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: another performance optimization git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@76
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-26  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: -- git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@73
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-26  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: revisited file name comparing procedure git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@71
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-26  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: performance improvements git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@70
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-26  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added option to exclude collecting of frame
+	bindings git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@69
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-25  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: small optimization git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@67
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-25  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: remove the live thread ref from locker structure
+	as well git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@66
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-24  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: don't keep a ref to a live thread.  check
+	contexts that their threads are alive git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@64
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-21  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: assign an id to the breakpoint git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@58
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2007-01-21  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added post_mortem_method wrap method git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@56
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-21  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* : fix of restart command for windows platform git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@55
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-21  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed trace command in post-mortem mode git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@48
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-21  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixes irb help command git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@44
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-20  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: check that debugger has been started git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@42
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-20  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* : git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@41
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-20  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: bumped version git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@39
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-20  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: initial support for post-mortem debugging git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@35
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-18  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added irb command fixed source_for method git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@32
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-12-01  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: git-svn-id:
+	svn://rubyforge.org/var/svn/ruby-debug/branches/stable@23
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-15  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* : remove unused require uploaded new windows binary git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@12
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-15  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: Debugger.start yields to the block even if it's
+	already started git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@11
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-15  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: new logic of context suspend/resume git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@8
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-15  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixed locking of debugger threads git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@6
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-14  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: make skip status local to a thread instead of
+	globally disabling the debugger.  git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@5
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-09  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: fixes for windows version git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@4
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-09  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/ruby_debug.c: added Debugger.skip and Debugger.debug_at_exit
+	methods git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@3
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-09  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* ext/.gdb_history, ext/Makefile: remove intermediate files git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@2
+	453b2852-3d18-0410-866e-d09c099698e4
+
+2006-10-09  kent <kent@453b2852-3d18-0410-866e-d09c099698e4>
+
+	* initial import git-svn-id: svn://rubyforge.org/var/svn/ruby-debug/trunk@1
+	453b2852-3d18-0410-866e-d09c099698e4
+

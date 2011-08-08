@@ -119,10 +119,9 @@ end
 
 desc "Create a GNU-style ChangeLog via svn2cl"
 task :ChangeLog do
-  system('svn2cl --authors=svn2cl_usermap http://ruby-debug.rubyforge.org/svn/trunk')
-  system("svn2cl --authors=svn2cl_usermap http://ruby-debug.rubyforge.org/svn/trunk/ext -o ext/ChangeLog")
-  system("svn2cl --authors=svn2cl_usermap http://ruby-debug.rubyforge.org/svn/trunk/lib -o lib/ChangeLog")
-  system("svn2cl --authors=svn2cl_usermap svn://rubyforge.org/var/svn/debug-commons/jruby-debug/trunk")
+  system('git log --pretty --numstat --summary     | git2cl >     ChangeLog')
+  system('git log --pretty --numstat --summary ext | git2cl > ext/ChangeLog')
+  system('git log --pretty --numstat --summary lib | git2cl > lib/ChangeLog')
 end
 
 # Base GEM Specification
