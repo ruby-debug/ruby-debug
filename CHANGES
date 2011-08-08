@@ -2,6 +2,9 @@
 12/25/10 
  - Remove extraneous .RB files messing up Microsoft Windows
  - Deprecate "set force". Use "set di[fferent]. 
+ - Moved to github.
+ - Merged JRuby extension.
+ - Moved ruby-debug-extra to a separate repository.
 
 0.10.4
 10/27/10
