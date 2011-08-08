@@ -8,6 +8,6 @@ class TestStartingAnnotate < Test::Unit::TestCase
   def test_basic
     testname='output'
     script = File.join('data', testname + '.cmd')
-    assert(run_debugger(testname, "-A 3 --script #{script} -- output.rb"))
+    assert(run_debugger(testname, "-A 3 --script #{script} -- ./example/output.rb"))
   end
 end
