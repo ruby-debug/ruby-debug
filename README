@@ -129,18 +129,6 @@ It is the same as ruby-debug-base native C extension from ruby-debug project
 
    jruby -S gem install ruby-debug-base
 
-== Installation of trunk version
-
-Handy for developers or users living on the cutting-edge.
-
-$ cd ~/tmp
-$ svn co svn://rubyforge.org/var/svn/debug-commons/jruby-debug/trunk jruby-debug
-$ cd jruby-debug
-$ rake gem
-$ jruby -S gem install -l pkg/ruby-debug-base-0.10.3-java.gem 
-$ jruby -S gem install columnize
-$ jruby -S gem install -r ruby-debug -v 0.10.3 --ignore-dependencies
-
 == Usage
 
 The usage is then the same as with native ruby-debugger, but you might need to
