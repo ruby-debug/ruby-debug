@@ -109,14 +109,6 @@ end
 desc "Test everything - same as test."
 task :check => :test
 
-desc "Compile Emacs code"
-task :emacs => "emacs/rdebug.elc"
-file "emacs/rdebug.elc" => ["emacs/elisp-comp", "emacs/rdebug.el"] do
-  Dir.chdir("emacs") do
-    system("./elisp-comp ./rdebug.el")
-  end
-end
-
 desc "Create a GNU-style ChangeLog via svn2cl"
 task :ChangeLog do
   system('git log --pretty --numstat --summary     | git2cl >     ChangeLog')

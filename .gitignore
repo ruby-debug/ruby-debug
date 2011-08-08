@@ -1,17 +1,4 @@
-COPYING
-INSTALL
-Makefile
-Makefile.in
-NEWS
 VERSION
-aclocal.m4
-autom4te.cache
-config.log
-config.status
-configure
-elisp-comp
-install-sh
-missing
 pkg
 ruby-debug-*.tar.gz
 lib/ruby_debug.bundle
