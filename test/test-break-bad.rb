@@ -11,6 +11,12 @@ class TestBadBreak < Test::Unit::TestCase
     assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5"))
   end
 
+  def test_tracelines
+    testname = 'break_tracelines'
+    script = File.join('data', testname + '.cmd')
+    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5"))
+  end unless defined?(JRUBY_VERSION) # JRuby doesn't yet support tracelines
+
   def test_break_loop
     testname = 'break_loop_bug'
     script = File.join('data', testname + '.cmd')

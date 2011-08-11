@@ -1,0 +1,17 @@
+gcd.rb:4
+def gcd(a, b)
+# set debuggertesting on
+Currently testing the debugger is on.
+# set callstyle last
+Frame call-display style is last.
+# set autoeval off
+autoeval is off.
+# set basename on
+basename is on.
+# # Line one isn't a valid stopping point.
+# # It is a comment.
+# break example/gcd.rb:1
+*** Line 1 is not a stopping point in file "gcd.rb".
+# break 11
+*** Line 11 is not a stopping point in file "gcd.rb".
+# q

@@ -9,9 +9,6 @@ set basename on
 # There aren't 100 lines in gcd.rb.
 break 100
 break example/gcd.rb:100
-# Line one isn't a valid stopping point.
-# It is a comment.
-break example/gcd.rb:1
 # This line is okay
 break example/gcd.rb:4
 # No class Foo.
