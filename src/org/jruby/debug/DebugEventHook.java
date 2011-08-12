@@ -440,7 +440,12 @@ final class DebugEventHook extends EventHook {
             return false;
         }
         String source = debugBreakpoint.getSource().toString();
-        return new File(source).equals(new File(file));
+        String sourceName = new File(source).getName();
+        String fileName = new File(file).getName();
+        if (sourceName.equals(fileName)) {
+            return true;
+        }
+        return false;
     }
 
     private IRubyObject checkBreakpointsByMethod(DebugContext debugContext,
