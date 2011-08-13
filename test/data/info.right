@@ -58,10 +58,6 @@ Num Enb What
 Num Enb What
   1 y   at gcd.rb:10
   2 y   at gcd.rb:12
-# info file ./example/gcd.rb break
-File ./example/gcd.rb
-	breakpoint line numbers:
-4  6  6  7  10  10  12  12  13  15  18
 # i
 *** "info" must be followed by the name of an info command:
 List of info subcommands:

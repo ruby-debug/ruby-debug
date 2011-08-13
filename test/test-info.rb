@@ -18,4 +18,10 @@ class TestInfo < Test::Unit::TestCase
     assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5",
                         :filter => filter))
   end
+
+  def test_file_break
+    testname='info-file-break'
+    script = File.join('data', testname + '.cmd')
+    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5"))
+  end unless defined?(JRUBY_VERSION) # JRuby doesn't yet support tracelines
 end

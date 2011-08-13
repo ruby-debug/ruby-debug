@@ -1,0 +1,11 @@
+gcd.rb:4
+def gcd(a, b)
+# set debuggertesting on
+Currently testing the debugger is on.
+# set callstyle last
+Frame call-display style is last.
+# info file ./example/gcd.rb break
+File ./example/gcd.rb
+	breakpoint line numbers:
+4  6  6  7  10  10  12  12  13  15  18
+# quit

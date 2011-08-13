@@ -19,4 +19,10 @@ class TestFrame < Test::Unit::TestCase
     assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5",
                         :filter => filter))
   end
+
+  def test_bad_continue
+    testname='continue_bad'
+    script = File.join('data', testname + '.cmd')
+    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5"))
+  end unless defined?(JRUBY_VERSION) # JRuby doesn't yet support tracelines
 end

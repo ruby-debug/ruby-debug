@@ -1,0 +1,9 @@
+gcd.rb:4
+def gcd(a, b)
+# set debuggertesting on
+Currently testing the debugger is on.
+# set callstyle last
+Frame call-display style is last.
+# # Invalid line number in continue command
+# continue 3
+*** Line 3 is not a stopping point in file "gcd.rb".
