@@ -484,7 +484,11 @@ final class DebugEventHook extends EventHook {
         if (! debugBreakpoint.getPos().getMethodName().equals(methodName)) {
             return false;
         }
-        if (debugBreakpoint.getSource().asString().eql(klass.asString())) {
+        RubyString source = debugBreakpoint.getSource().asString();
+        if (source.eql(klass.asString())) {
+            return true;
+        }
+        if (klass instanceof MetaClass && source.eql(((MetaClass)klass).getAttached().asString())) {
             return true;
         }
         return false;
