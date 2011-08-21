@@ -131,6 +131,9 @@ final class Debugger {
             debugContext.setStopNext(1);
         }
 
+        /* Initializing $0 to the script's path */
+        rt.getGlobalVariables().set("$0", file);
+
         try {
           RubyString fileText = file.convertToString();
           rt.getLoadService().load(fileText.getByteList().toString(), false);
