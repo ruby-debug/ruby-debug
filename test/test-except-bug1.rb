@@ -13,4 +13,4 @@ class TestExceptBug1 < Test::Unit::TestCase
     script = File.join('data', testname + '.cmd')
     assert(run_debugger(testname, "--script #{script} --post-mortem ./example/#{testname}.rb"))
   end
-end
+end unless defined?(JRUBY_VERSION) # post-mortem not yet supported on JRuby
