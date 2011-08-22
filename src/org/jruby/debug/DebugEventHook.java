@@ -393,7 +393,7 @@ final class DebugEventHook extends EventHook {
             topFrame.setFile(file);
             topFrame.setLine(line);
             topFrame.setMethodName(methodName);
-            topFrame.getInfo().setDynaVars(event == C_CALL ? null : tCtx.getCurrentScope());
+            topFrame.getInfo().setDynaVars(tCtx.getCurrentScope());
         }
     }
 
