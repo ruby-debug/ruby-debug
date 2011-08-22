@@ -1,8 +1,7 @@
 #!/usr/bin/env ruby
 require File.expand_path("../helper", __FILE__)
 
-# Test 'edit' command handling.
-class TestEdit < Test::Unit::TestCase
+class TestTrace < Test::Unit::TestCase
   include TestHelper
 
   def test_trace_option
