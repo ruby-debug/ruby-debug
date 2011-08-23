@@ -8,21 +8,21 @@ class TestFrame < Test::Unit::TestCase
   # Test commands in frame.rb
   def test_basic
     testname='frame'
-    # Ruby 1.8.6 and earlier have a trace-line number bug for return
-    # statements.
-    filter = Proc.new{|got_lines, correct_lines|
-      [got_lines[11], correct_lines[11]].flatten.each do |s|
-        s.sub!(/in file ".*gcd.rb/, 'in file "gcd.rb')
-      end
-    }
     script = File.join('data', testname + '.cmd')
-    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5",
-                        :filter => filter))
+    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5"))
   end
 
   def test_bad_continue
+    # Remove absolute paths in output.
+    filter = Proc.new{|got_lines, correct_lines|
+      [got_lines, correct_lines].flatten.each do |s|
+        s.sub!(/in file ".*gcd.rb/, 'in file "gcd.rb')
+      end
+    }
+
     testname='continue_bad'
     script = File.join('data', testname + '.cmd')
-    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5"))
+    assert(run_debugger(testname, "--script #{script} -- ./example/gcd.rb 3 5",
+                        :filter => filter))
   end unless defined?(JRUBY_VERSION) # JRuby doesn't yet support tracelines
 end
