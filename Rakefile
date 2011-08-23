@@ -304,36 +304,6 @@ task :make_version_file do
 end
 
 namespace :jruby do
-  desc "Helps to setup the project to be able to run tests"
-  task :prepare_tests do
-    # - tweak test suite to be able to pass for jruby-debug-base which does not
-    #   support e.g. TraceLineNumbers yet.
-    sh "patch -p0 < patch-#{ruby_debug_version}.diff"
-  end
-
-  ALL_TEST_FILES = FileList['test/test*.rb']
-
-  # TODO: describe why below are excluded
-  UNSTABLE_TEST_FILES = %w(
-    test/test-finish.rb
-    test/test-pm.rb
-    test/test-trace.rb
-  )
-
-  # Does not pass, because exception is written to stderr instead of stdout as in
-  # MRI. Investigate.
-  UNSTABLE_TEST_FILES << 'test/test-raise.rb'
-  STABLE_TEST_FILES = ALL_TEST_FILES - UNSTABLE_TEST_FILES
-
-  desc "Test passing with jruby-debug-base."
-  Rake::TestTask.new(:test_stable => :test_base) do |t|
-    t.libs << './ext'
-    t.libs << './lib'
-    t.libs << './cli'
-    t.test_files = STABLE_TEST_FILES
-    t.verbose = true
-  end
-
   jruby_spec = Gem::Specification.new do |s|
     s.platform = "java"
     s.summary  = "Java implementation of Fast Ruby Debugger"
