@@ -1,0 +1,12 @@
+at-exit.rb:1
+at_exit do
+# set debuggertesting on
+Currently testing the debugger is on.
+# break 2
+Breakpoint 1 file at-exit.rb, line 2
+# c
+Breakpoint 1 at at-exit.rb:2
+at-exit.rb:2
+puts "Hello world!"
+# c
+Hello world!
