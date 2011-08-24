@@ -204,8 +204,7 @@ public final class RubyDebugger {
      */
     @JRubyMethod(name="debug_load", module=true, required=1, optional=2)
     public static IRubyObject debug_load(IRubyObject recv, IRubyObject[] args, Block block) {
-        debugger().load(recv, args);
-        return Util.nil(recv);
+        return debugger().load(recv, args);
     }
 
     @JRubyMethod(name="skip", module=true)

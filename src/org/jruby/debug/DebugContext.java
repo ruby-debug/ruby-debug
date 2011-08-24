@@ -260,4 +260,13 @@ final class DebugContext {
     void setDead(boolean dead) {
         this.dead = dead;
     }
+
+    /* "Step", "Next" and "Finish" do their work by saving information
+       about where to stop next. resetSteppingStopPoints removes/resets this
+       information. */
+    void resetSteppingStopPoints() {
+        this.destFrame = -1;
+        this.stopLine = -1;
+        this.stopNext = -1;
+    }
 }

@@ -16,7 +16,7 @@ require 'yaml'
 module TestHelper
   def run_debugger(testname, args = '', opts = {})
     Dir.chdir(File.dirname(__FILE__)) do
-      rightfile = opts[:rightfile] || File.join('data', "#{testname}.right")
+      rightfile = opts[:rightfile] || rightfile(testname)
       outfile   = opts[:outfile]   || "#{testname}.out"
       debug_pgm = opts[:runner]    || 'tdebug.rb'
       filter    = opts[:filter]
@@ -47,6 +47,15 @@ module TestHelper
       end
 
       false
+    end
+  end
+
+  def rightfile(testname)
+    jruby_file = File.join('data', "#{testname}-jruby.right")
+    if defined?(JRUBY_VERSION) && File.exists?(jruby_file)
+      jruby_file
+    else
+      File.join('data', "#{testname}.right")
     end
   end
 

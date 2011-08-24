@@ -36,6 +36,7 @@ import org.jruby.RubyHash;
 import org.jruby.RubyString;
 import org.jruby.RubyThread;
 import org.jruby.debug.DebugBreakpoint.Type;
+import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -117,7 +118,7 @@ final class Debugger {
     }
 
     /** see {@link RubyDebugger#debug_load} */
-    void load(IRubyObject recv, IRubyObject[] args) {
+    IRubyObject load(IRubyObject recv, IRubyObject[] args) {
         Ruby rt = recv.getRuntime();
         Arity.checkArgumentCount(rt, args, 1, 3);
         IRubyObject[] actual = Arity.scanArgs(rt, args, 1, 2);
@@ -142,6 +143,11 @@ final class Debugger {
         try {
           RubyString fileText = file.convertToString();
           rt.getLoadService().load(fileText.getByteList().toString(), false);
+          return rt.getNil();
+        } catch (RaiseException e) {
+          suspend(recv);
+          debugContext.resetSteppingStopPoints();
+          return e.getException();
         } finally {
           stop(rt);
         }

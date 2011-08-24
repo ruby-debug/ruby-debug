@@ -33,6 +33,6 @@ class TestDebugLoad < Test::Unit::TestCase
     bt = Debugger.debug_load(prog_script, false)
     assert_equal('abc', bt.to_s)
   ensure
-    Debugger.stop
+    Debugger.stop if Debugger.started?
   end
 end
