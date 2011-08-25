@@ -1415,15 +1415,12 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
       return errinfo;
     }
 
-    /* We should run all at_exit handler's in order to provide, 
-     * for instance, a chance to run all defined test cases */
-    rb_exec_end_proc();
-
-    /* We could have issued a Debugger.stop inside the debug
-       session. */
-    if (start_count > 0) {
-      debug_stop(self);
-    }
+    /* We don't want to stop the debugger yet, because the
+     * user may have set breakpoints in at_exit blocks that
+     * should be hit. But we don't want to step out into debugger
+     * code either, so we reset stepping stop points here.
+     */
+    reset_stepping_stop_points(debug_context);
 
     return Qnil;
 }

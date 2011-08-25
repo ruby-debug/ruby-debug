@@ -146,10 +146,9 @@ final class Debugger {
           return rt.getNil();
         } catch (RaiseException e) {
           suspend(recv);
-          debugContext.resetSteppingStopPoints();
           return e.getException();
         } finally {
-          stop(rt);
+          debugContext.resetSteppingStopPoints();
         }
     }
     
