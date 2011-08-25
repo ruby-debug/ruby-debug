@@ -54,8 +54,9 @@ final class Debugger {
     private boolean debug;
     private boolean trackFrameArgs;
 
-    private IRubyObject lastContext;
     private IRubyObject lastThread;
+    private IRubyObject lastContext;
+    private DebugContext lastDebugContext;
 
     private boolean started;
     private int startCount;
@@ -63,7 +64,6 @@ final class Debugger {
     /** Used to for unique breakpoint ID for newly added breakpoints. */
     private int lastBreakpointID;
 
-    private DebugContext lastDebugContext;
 
     IRubyObject start(IRubyObject recv, Block block) {
         Ruby runtime = recv.getRuntime();
@@ -75,8 +75,9 @@ final class Debugger {
         } else {
             IRubyObject nil = runtime.getNil();
             lastThread  = nil;
+            lastContext = nil;
+            lastDebugContext = null;
             started = true;
-            setLastContext(nil);
             debugEventHook = new DebugEventHook(this, runtime);
             breakpoints = runtime.newArray();
             catchpoints = RubyHash.newHash(runtime);
@@ -108,6 +109,10 @@ final class Debugger {
         debugEventHook = null;
         started = false;
         threadsTable = null;
+        IRubyObject nil = runtime.getNil();
+        lastThread = nil;
+        lastContext = nil;
+        lastDebugContext = null;
         return true;
     }
 
@@ -158,30 +163,32 @@ final class Debugger {
         checkStarted(thread);
 
         DebugContextPair ctxs = new DebugContextPair();
-        if (lastThread == thread && !lastContext.isNil()) {
-            ctxs.context = (Context) lastContext;
-            if (wantDebugContext) {
-                ctxs.debugContext = lastDebugContext;
-            }
-            return ctxs;
-        }
 
         synchronized (threadsTable) {
+            if (lastThread == thread && !lastContext.isNil()) {
+                ctxs.context = (Context) lastContext;
+                if (wantDebugContext) {
+                    ctxs.debugContext = lastDebugContext;
+                }
+                return ctxs;
+            }
+
             ctxs.context = threadsTable.get(thread);
             if (ctxs.context == null) {
                 ctxs.context = debugContextCreate(thread);
                 threadsTable.put(thread, ctxs.context);
             }
+
+            DebugContext lDebugContext = (DebugContext) ctxs.context.dataGetStruct();
+            if (wantDebugContext) {
+                ctxs.debugContext = lDebugContext;
+            }
+
+            lastThread = thread;
+            lastContext = ctxs.context;
+            lastDebugContext = lDebugContext;
         }
 
-        DebugContext lDebugContext = (DebugContext) ctxs.context.dataGetStruct();
-        if (wantDebugContext) {
-            ctxs.debugContext = lDebugContext;
-        }
-
-        lastThread = thread;
-        setLastContext(ctxs.context);
-        lastDebugContext = lDebugContext;
         return ctxs;
     }
 
@@ -421,10 +428,6 @@ final class Debugger {
     static final class DebugContextPair {
         Context context;
         DebugContext debugContext;
-    }
-
-    private void setLastContext(IRubyObject value) {
-        lastContext = value;
     }
 
     void setTrackFrameArgs(boolean trackFrameArgs) {
