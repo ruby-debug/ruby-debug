@@ -21,7 +21,7 @@ b 12
 display 1+2
 # undisplay should trigger display annotation
 undisplay 1
-step
+step+
 # Test error annotations
 up 10
 frame 100
