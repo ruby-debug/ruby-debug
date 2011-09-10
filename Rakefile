@@ -7,30 +7,11 @@ require 'rake/testtask'
 require 'rake/extensiontask'
 require 'rake/javaextensiontask'
 
+$:.push File.expand_path("../lib", __FILE__)
+require "ruby-debug/version"
+
 SO_NAME = "ruby_debug.so"
 ROOT_DIR = File.dirname(__FILE__)
-VERSION_FILE = ROOT_DIR + '/VERSION'
-
-def make_version_file
-  ruby_debug_version = open("ext/ruby_debug.c").
-    grep(/^#define DEBUG_VERSION/).first[/"(.+)"/,1]
-  File.open(VERSION_FILE, 'w') do |f|
-      f.write(
-"# This file was created automatically from data in ext/ruby_debug.c via:
-# 	rake :make_version_file. 
-#{ruby_debug_version}
-")
-    end
-end
-
-make_version_file unless File.exist?(VERSION_FILE)
-ruby_debug_version = nil
-open(VERSION_FILE).each do |line| 
-  next if line =~ /^#/
-  ruby_debug_version = line.chomp
-  break
-end
-
 
 # ------- Default Package ----------
 COMMON_FILES = FileList[
@@ -38,7 +19,6 @@ COMMON_FILES = FileList[
   'CHANGES',
   'LICENSE',
   'README',
-  'VERSION',
   'Rakefile',
 ]                        
 
@@ -123,7 +103,7 @@ provides support that front-ends can build on. It provides breakpoint
 handling, bindings for stack frames among other things.
 EOF
 
-  spec.version = ruby_debug_version
+  spec.version = Debugger::VERSION
 
   spec.author = "Kent Sibilev"
   spec.email = "ksibilev@yahoo.com"
@@ -154,7 +134,7 @@ cli_spec = Gem::Specification.new do |spec|
 A generic command line interface for ruby-debug.
 EOF
 
-  spec.version = ruby_debug_version
+  spec.version = Debugger::VERSION
 
   spec.author = "Kent Sibilev"
   spec.email = "ksibilev@yahoo.com"
@@ -168,7 +148,7 @@ EOF
   spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
   spec.add_dependency('columnize', '>= 0.1')
-  spec.add_dependency('ruby-debug-base', "~> #{ruby_debug_version}.0")
+  spec.add_dependency('ruby-debug-base', "~> #{Debugger::VERSION}.0")
   
   # FIXME: work out operational logistics for this
   # spec.test_files = FileList[CLI_TEST_FILE_LIST]
@@ -300,16 +280,12 @@ task :install_full => :package do
   end
 end    
 
-task :make_version_file do 
-  make_version_file 
-end
-
 namespace :jruby do
   jruby_spec = Gem::Specification.new do |s|
     s.platform = "java"
     s.summary  = "Java implementation of Fast Ruby Debugger"
     s.name     = 'ruby-debug-base'
-    s.version  = ruby_debug_version
+    s.version  = Debugger::VERSION
     s.require_path = 'lib'
     s.files    = ['AUTHORS',
                   'ChangeLog',

@@ -6,8 +6,6 @@
 #include <st.h>
 #include <intern.h>
 
-#define DEBUG_VERSION "0.10.5"
-
 #ifdef _WIN32
 struct FRAME {
     VALUE self;
@@ -2262,7 +2260,6 @@ void
 Init_ruby_debug()
 {
     mDebugger = rb_define_module("Debugger");
-    rb_define_const(mDebugger, "VERSION", rb_str_new2(DEBUG_VERSION));
     rb_define_module_function(mDebugger, "start_", debug_start, 0);
     rb_define_module_function(mDebugger, "stop", debug_stop, 0);
     rb_define_module_function(mDebugger, "started?", debug_is_started, 0);
