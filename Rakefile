@@ -136,7 +136,8 @@ EOF
   spec.date = Time.now
   spec.rubyforge_project = 'ruby-debug'
   spec.add_dependency('linecache', '>= 0.3')
-  
+  spec.add_development_dependency('rake-compiler')
+
   spec.test_files = FileList[BASE_TEST_FILE_LIST]
   
   # rdoc
