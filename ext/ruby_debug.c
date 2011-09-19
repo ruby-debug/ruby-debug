@@ -1061,6 +1061,9 @@ debug_stop(VALUE self)
     locker             = Qnil;
     rdebug_breakpoints = Qnil;
     rdebug_threads_tbl = Qnil;
+    last_thread        = Qnil;
+    last_context       = Qnil;
+    last_debug_context = NULL;
 
     return Qtrue;
 }
