@@ -23,3 +23,5 @@ Tracing(1):gcd.rb:6 if a > b
 Tracing(1):gcd.rb:10 return nil if a <= 0
 Tracing(1):gcd.rb:12 if a == 1 or b-a == 0
 Tracing(1):gcd.rb:13 return a
+Tracing(1):linecache.rb:109 at_exit { remove_script_temps }
+Tracing(1):linecache.rb:105 @@script2file.values.each do |filename|
