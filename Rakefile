@@ -282,32 +282,11 @@ task :install_full => :package do
 end    
 
 namespace :jruby do
-  jruby_spec = Gem::Specification.new do |s|
-    s.platform = "java"
-    s.summary  = "Java implementation of Fast Ruby Debugger"
-    s.name     = 'ruby-debug-base'
-    s.version  = Debugger::VERSION
-    s.require_path = 'lib'
-    s.files    = ['AUTHORS',
-                  'ChangeLog',
-                  'lib/jruby/linecache.rb',
-                  'lib/jruby/linecache-ruby.rb',
-                  'lib/jruby/tracelines.rb',
-                  'lib/ruby-debug-base.rb',
-                  'lib/ruby-debug/version.rb',
-                  'lib/ruby_debug.jar',
-                  'MIT-LICENSE',
-                  'Rakefile',
-                  'README']
-    s.description = <<-EOF
-Java extension to make fast ruby debugger run on JRuby.
-It is the same what ruby-debug-base is for native Ruby.
-  EOF
-    s.author   = 'debug-commons team'
-    s.homepage = 'http://rubyforge.org/projects/debug-commons/'
-    s.has_rdoc = true
-    s.rubyforge_project = 'debug-commons'
-  end
+  jruby_spec = base_spec.clone
+  jruby_spec.platform   = "java"
+  jruby_spec.files      = jruby_spec.files.reject {|f| f =~ /^ext/ }
+  jruby_spec.files     += ['lib/ruby_debug.jar']
+  jruby_spec.extensions = []
 
   Gem::PackageTask.new(jruby_spec) {}
 
