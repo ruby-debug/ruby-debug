@@ -190,7 +190,7 @@ Rake::ExtensionTask.new('ruby_debug', base_spec) do |t|
   t.ext_dir = "ext"
 end
 
-task :default => [:package]
+task :default => :test
 
 # Windows specification
 win_spec = base_spec.clone
