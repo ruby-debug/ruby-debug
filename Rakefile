@@ -50,6 +50,7 @@ BASE_FILES = COMMON_FILES + FileList[
   'ext/ruby_debug.h',
   'ext/win32/*',
   'lib/ruby-debug-base.rb',
+  'lib/ruby-debug/version.rb',
   BASE_TEST_FILE_LIST,
 ]
 
@@ -293,6 +294,7 @@ namespace :jruby do
                   'lib/jruby/linecache-ruby.rb',
                   'lib/jruby/tracelines.rb',
                   'lib/ruby-debug-base.rb',
+                  'lib/ruby-debug/version.rb',
                   'lib/ruby_debug.jar',
                   'MIT-LICENSE',
                   'Rakefile',
