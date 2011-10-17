@@ -5,6 +5,15 @@
  - Moved to github.
  - Merged JRuby extension.
  - Moved ruby-debug-extra to a separate repository.
+ - JRuby: fixed race condition that was causing the debugger to hang:
+     http://youtrack.jetbrains.net/issue/RUBY-8123
+     https://github.com/ruby-debug/ruby-debug/issues/7
+     http://jira.codehaus.org/browse/JRUBY-6083
+ - JRuby: fixed stopping in wrong file with the same basename
+ - Use rake-compiler for building extensions
+ - Fix use of stale variables after restarting the debugger (#4)
+ - Use Travis for CI
+ - JRuby: Remove GPL'd linecache code (#3)
 
 0.10.4
 10/27/10
