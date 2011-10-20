@@ -1,3 +1,30 @@
+2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* lib/ruby-debug-base.rb, lib/ruby-debug-base/version.rb,
+	lib/ruby-debug/version.rb: Move Debugger::VERSION definition Naming the file 'ruby-debug/version.rb' conflicts with a file from
+	the current ruby-debug-ide gem. That'll be fixed in the next
+	ruby-debug-id release, but let's avoid breaking the existing
+	version.
+
+2011-09-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* lib/jruby/linecache-ruby.rb, lib/jruby/linecache.rb,
+	lib/jruby/tracelines.rb, lib/ruby-debug-base.rb: Remove GPL'd
+	linecache code (fixes #3)
+
+2011-09-09  John Firebaugh <john.firebaugh@gmail.com>
+
+	* lib/ruby-debug-base.rb, lib/ruby-debug/version.rb: Simplify and
+	centralize version definition
+
+2011-09-14  rocky <rockyb@rubyforge.org>
+
+	* lib/.gitignore: .gitignore administrivia
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* lib/ChangeLog: Update ChangeLog tasks for git
+
 2011-08-06  John Firebaugh <john.firebaugh@gmail.com>
 
 	* lib/ruby-debug-base.rb: Clean up requires

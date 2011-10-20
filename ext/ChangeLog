@@ -1,3 +1,25 @@
+2011-09-09  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ext/ruby_debug.c: Simplify and centralize version definition
+
+2011-09-19  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* ext/ruby_debug.c: Fix use of stale variables after restarting the
+	debugger (#4)
+
+2011-09-14  rocky <rockyb@rubyforge.org>
+
+	* ext/.gitignore: .gitignore administrivia
+
+2011-08-25  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* ext/ruby_debug.c: Alternate fix for at_exit debugging This works on both MRI and JRuby and doesn't require running at_exit
+	blocks manually (and potentially prematurely).
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ext/ChangeLog: Update ChangeLog tasks for git
+
 2011-08-05  John Firebaugh <john.firebaugh@gmail.com>
 
 	* ext/win32/.cvsignore, ext/win32/.gitignore: .cvsignore ->
