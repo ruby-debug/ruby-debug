@@ -8,7 +8,7 @@ require 'rake/extensiontask'
 require 'rake/javaextensiontask'
 
 $:.push File.expand_path("../lib", __FILE__)
-require "ruby-debug/version"
+require "ruby-debug-base/version"
 
 SO_NAME = "ruby_debug.so"
 ROOT_DIR = File.dirname(__FILE__)
@@ -50,7 +50,7 @@ BASE_FILES = COMMON_FILES + FileList[
   'ext/ruby_debug.h',
   'ext/win32/*',
   'lib/ruby-debug-base.rb',
-  'lib/ruby-debug/version.rb',
+  'lib/ruby-debug-base/version.rb',
   BASE_TEST_FILE_LIST,
 ]
 

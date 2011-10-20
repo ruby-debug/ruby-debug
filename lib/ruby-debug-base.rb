@@ -1,5 +1,5 @@
 require 'ruby_debug'
-require 'ruby-debug/version'
+require 'ruby-debug-base/version'
 require 'linecache'
 
 module Debugger
