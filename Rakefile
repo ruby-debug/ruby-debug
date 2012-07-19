@@ -158,13 +158,8 @@ EOF
   spec.extra_rdoc_files = ['README']
 end
 
-# Rake task to build the default package
-Gem::PackageTask.new(base_spec) do |pkg|
-  pkg.need_tar = true
-end
-Gem::PackageTask.new(cli_spec) do |pkg|
-  pkg.need_tar = true
-end
+Gem::PackageTask.new(base_spec) {}
+Gem::PackageTask.new(cli_spec) {}
 
 Rake::ExtensionTask.new('ruby_debug', base_spec) do |t|
   t.ext_dir = "ext"
