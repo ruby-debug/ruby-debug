@@ -1,3 +1,11 @@
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* lib/ChangeLog, lib/ruby-debug-base/version.rb: Release 0.10.5.rc2
+
+2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* lib/ChangeLog, lib/ruby-debug-base/version.rb: 0.10.5.rc1
+
 2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
 
 	* lib/ruby-debug-base.rb, lib/ruby-debug-base/version.rb,

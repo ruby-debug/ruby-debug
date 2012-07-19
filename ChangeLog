@@ -1,3 +1,57 @@
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ChangeLog, ext/ChangeLog, lib/ChangeLog,
+	lib/ruby-debug-base/version.rb: Release 0.10.5.rc2
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Clean up rake tasks To build native gems: rake gem To build JRuby gems: rake java gem
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Gemfile: Use gemspec
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, ruby-debug-base.gemspec, ruby-debug.gemspec: Use
+	.gemspec files
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Gemfile: Require rake-compiler ~> 0.8.1
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Don't need tar files
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Remove gem install tasks
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Remove obsolete RubyForge tasks
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, cross-compile.sh, ext/win32/.gitignore: Remove win32
+	cross-compile stuff It should be redone using rake-compiler.
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/raise-jruby.right, test/data/raise.right,
+	test/tdebug.rb: 1.9 syntax compatibility
+
+2012-07-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* src/org/jruby/debug/Context.java: jruby 1.7.preview1 compatibility getEvalScope signature was changed in 1.7, use reflection to make it
+	work for both 1.7 and pre-1.7
+
+2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ChangeLog, ext/ChangeLog, lib/ChangeLog,
+	lib/ruby-debug-base/version.rb: 0.10.5.rc1
+
 2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
 
 	* Rakefile, lib/ruby-debug-base.rb, lib/ruby-debug-base/version.rb,
