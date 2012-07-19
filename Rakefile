@@ -203,28 +203,6 @@ RDoc::Task.new("rdoc") do |rdoc|
                           'LICENSE')
 end
 
-def install_gem(spec, *opts)
-  args = ['gem', 'install', "pkg/#{spec.name}-#{spec.version}.gem"] + opts
-  args.unshift 'sudo' unless 0 == Process.uid || ENV['rvm_path']
-  system(*args)
-end
-
-desc 'Install locally'
-task :install => :package do
-  Dir.chdir(File::dirname(__FILE__)) do
-    # ri and rdoc take lots of time
-    install_gem(base_spec, '--no-ri', '--no-rdoc')
-    install_gem(cli_spec, '--no-ri', '--no-rdoc')
-  end
-end    
-
-task :install_full => :package do
-  Dir.chdir(File::dirname(__FILE__)) do
-    install_gem(base_spec)
-    install_gem(cli_spec)
-  end
-end    
-
 namespace :jruby do
   jruby_spec = base_spec.clone
   jruby_spec.platform   = "java"
