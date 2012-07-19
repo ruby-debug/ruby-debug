@@ -172,17 +172,6 @@ end
 
 task :default => :test
 
-desc "Publish ruby-debug to RubyForge."
-task :publish do 
-  require 'rake/contrib/sshpublisher'
-  
-  # Get ruby-debug path.
-  ruby_debug_path = File.expand_path(File.dirname(__FILE__))
-
-  Rake::SshDirPublisher.new("kent@rubyforge.org",
-        "/var/www/gforge-projects/ruby-debug", ruby_debug_path)
-end
-
 desc "Remove built files"
 task :clean do
   cd "ext" do
@@ -212,26 +201,6 @@ RDoc::Task.new("rdoc") do |rdoc|
                           'ext/**/ruby_debug.c',
                           'README',
                           'LICENSE')
-end
-
-desc "Publish the release files to RubyForge."
-task :rubyforge_upload do
-  `rubyforge login`
-  release_command = "rubyforge add_release #{PKG_NAME} #{PKG_NAME} '#{PKG_NAME}-#{PKG_VERSION}' pkg/#{PKG_NAME}-#{PKG_VERSION}.gem"
-  puts release_command
-  system(release_command)
-end
-
-PKG_NAME      = 'ruby-debug'
-desc "Publish the release files to RubyForge."
-task :rubyforge_upload do
-  `rubyforge login`
-  for pkg_name in ['ruby-debug', 'ruby-debug-base'] do
-    pkg_file_name = "#{pkg_name}-#{pkg_version}"
-    release_command = "rubyforge add_release ruby-debug #{pkg_name} '#{pkg_file_name}' pkg/#{pkg_file_name}.gem"
-    puts release_command
-    system(release_command)
-  end
 end
 
 def install_gem(spec, *opts)
