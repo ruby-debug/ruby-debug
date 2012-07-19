@@ -19,7 +19,7 @@ Catch exception 5.
 	./example/raise.rb:3:in `(root)'
 	org/jruby/debug/RubyDebugger.java:204:in `debug_load'
 	./example/raise.rb:61:in `debug_program'
-	./tdebug.rb:251:in `(root)'
+	./tdebug.rb:252:in `(root)'
 	org/jruby/RubyKernel.java:1063:in `load'
 	./tdebug.rb:23:in `runner'
 	../rdbg.rb:32:in `(root)'
