@@ -10,7 +10,6 @@ require 'rake/javaextensiontask'
 $:.push File.expand_path("../lib", __FILE__)
 require "ruby-debug-base/version"
 
-SO_NAME = "ruby_debug.so"
 ROOT_DIR = File.dirname(__FILE__)
 
 # ------- Default Package ----------
@@ -172,30 +171,6 @@ Rake::ExtensionTask.new('ruby_debug', base_spec) do |t|
 end
 
 task :default => :test
-
-# Windows specification
-win_spec = base_spec.clone
-win_spec.extensions = []
-## win_spec.platform = Gem::Platform::WIN32 # deprecated
-win_spec.platform = 'mswin32'
-win_spec.files += ["lib/#{SO_NAME}"]
-
-desc "Create Windows Gem"
-task :win32_gem do
-  # Copy the win32 extension the top level directory
-  current_dir = File.expand_path(File.dirname(__FILE__))
-  source = File.join(current_dir, "ext", "win32", SO_NAME)
-  target = File.join(current_dir, "lib", SO_NAME)
-  cp(source, target)
-
-  # Create the gem, then move it to pkg.
-  Gem::Builder.new(win_spec).build
-  gem_file = "#{win_spec.name}-#{win_spec.version}-#{win_spec.platform}.gem"
-  mv(gem_file, "pkg/#{gem_file}")
-
-  # Remove win extension from top level directory.
-  rm(target)
-end
 
 desc "Publish ruby-debug to RubyForge."
 task :publish do 
