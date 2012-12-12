@@ -94,7 +94,7 @@ final class Util {
     }
 
     static boolean isJRubyCore(final String file) {
-        return file.contains(JRUBY_BUILTIN_PATH_PART) || file.contains(JRUBY_JAR_PART);
+        return file == null || file.contains(JRUBY_BUILTIN_PATH_PART) || file.contains(JRUBY_JAR_PART);
     }
 
     static boolean isLineEvent(String event) {
