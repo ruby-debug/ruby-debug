@@ -140,7 +140,11 @@ module Debugger
         if cs.size > recorded_size+2 && cs[recorded_size+2] != sentinal 
           # caller seems to truncate recursive calls and we don't.
           # See if we can find sentinal in the first 0..recorded_size+1 entries
-          return false if cs[0..recorded_size+1].any?{ |f| f==sentinal }
+          if defined? JRUBY_VERSION
+            return false if cs.any? { |f| f==sentinal }
+          else
+            return false if cs[0..recorded_size+1].any?{ |f| f==sentinal }
+          end
           return cs
         end
         return false
