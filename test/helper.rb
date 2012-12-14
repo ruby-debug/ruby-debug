@@ -41,7 +41,8 @@ module TestHelper
       correct_lines = File.read(rightfile).split(/\n/)
       filter.call(got_lines, correct_lines) if filter
 
-      if cheap_diff(got_lines, correct_lines)
+      if cheap_diff(File.basename(outfile), File.basename(rightfile),
+                    got_lines, correct_lines)
         FileUtils.rm(outfile)
         return true
       end
@@ -59,7 +60,7 @@ module TestHelper
     end
   end
 
-  def cheap_diff(got_lines, correct_lines)
+  def cheap_diff(out_file, right_file, got_lines, correct_lines)
     if $DEBUG
       got_lines.each_with_index do |line, i|
         printf "%3d %s\n", i+1, line
@@ -68,14 +69,14 @@ module TestHelper
     correct_lines.each_with_index do |line, i|
       correct_lines[i].chomp!
       if got_lines[i] != correct_lines[i]
-        puts "difference found at line #{i+1}"
+        puts "difference found for #{out_file}<->#{right_file} at line #{i+1}"
         puts "got : #{got_lines[i]}"
         puts "need: #{correct_lines[i]}"
         return false
       end
     end
     if correct_lines.size != got_lines.size
-      puts("difference in number of lines: " + 
+      puts("difference in number of lines for #{out_file}<->#{right_file}: " + 
            "#{correct_lines.size} vs. #{got_lines.size}")
       return false
     end
