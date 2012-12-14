@@ -299,3 +299,13 @@ class Module
     EOD
   end
 end
+
+# Work around linecache implementation using entries on JRuby
+if defined? JRUBY_VERSION && JRUBY_VERSION > 1.8
+  class String
+    def entries
+      each_line.to_a
+    end
+  end
+end
+
