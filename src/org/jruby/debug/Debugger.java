@@ -272,7 +272,7 @@ final class Debugger {
         
         int len = contexts.getLength();
         for (int i = 0; i < len; i++) {
-            Context context = (Context)contexts.entry(i);
+            Object context = contexts.entry(i);
             if (context == current) {
                 contexts.remove(i);
             }
