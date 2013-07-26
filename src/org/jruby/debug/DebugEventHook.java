@@ -195,6 +195,7 @@ final class DebugEventHook extends EventHook {
                     callAtLine(tCtx, context, debugContext, _runtime, file, line);
                 }
                 break;
+            case B_CALL:
             case CALL:
                 saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 breakpoint = checkBreakpointsByMethod(debugContext, klass, methodName);
@@ -235,6 +236,7 @@ final class DebugEventHook extends EventHook {
                 if (!cCallNewFrameP(klass)) {
                     break;
                 }
+            case B_RETURN:    
             case RETURN:
             case END:
                 if (debugContext.getStackSize() == debugContext.getStopFrame()) {
