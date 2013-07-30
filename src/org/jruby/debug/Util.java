@@ -116,6 +116,10 @@ final class Util {
             return C_CALL;
         } else if ("c-return".equals(event)) {
             return C_RETURN;
+        } else if ("b-call".equals(event)) {
+            return C_CALL;
+        } else if ("b-return".equals(event)) {
+            return C_RETURN;
         } else if ("raise".equals(event)) {
             return RAISE;
         } else {
