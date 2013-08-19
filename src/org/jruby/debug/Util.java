@@ -117,9 +117,13 @@ final class Util {
         } else if ("c-return".equals(event)) {
             return C_RETURN;
         } else if ("b-call".equals(event)) {
-            return C_CALL;
+            return B_CALL;
         } else if ("b-return".equals(event)) {
-            return C_RETURN;
+            return B_RETURN;
+        } else if ("thread-begin".equals(event)) {
+            return THREAD_BEGIN;
+        } else if ("thread-end".equals(event)) {
+            return THREAD_END;    
         } else if ("raise".equals(event)) {
             return RAISE;
         } else {
