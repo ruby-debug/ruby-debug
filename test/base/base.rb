@@ -3,6 +3,10 @@ require File.expand_path("../../helper", __FILE__)
 
 # Some tests of Debugger module in C extension ruby_debug 
 class TestRubyDebug < Test::Unit::TestCase
+  def test_version
+    assert(defined?(Debugger::VERSION))
+  end
+
   # test current_context
   def test_current_context
     assert_equal(false, Debugger.started?, 

@@ -94,7 +94,7 @@ final class Util {
     }
 
     static boolean isJRubyCore(final String file) {
-        return file.contains(JRUBY_BUILTIN_PATH_PART) || file.contains(JRUBY_JAR_PART);
+        return file == null || file.contains(JRUBY_BUILTIN_PATH_PART) || file.contains(JRUBY_JAR_PART);
     }
 
     static boolean isLineEvent(String event) {
@@ -116,6 +116,14 @@ final class Util {
             return C_CALL;
         } else if ("c-return".equals(event)) {
             return C_RETURN;
+        } else if ("b-call".equals(event)) {
+            return B_CALL;
+        } else if ("b-return".equals(event)) {
+            return B_RETURN;
+        } else if ("thread-begin".equals(event)) {
+            return THREAD_BEGIN;
+        } else if ("thread-end".equals(event)) {
+            return THREAD_END;    
         } else if ("raise".equals(event)) {
             return RAISE;
         } else {

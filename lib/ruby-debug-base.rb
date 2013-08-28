@@ -1,10 +1,6 @@
 require 'ruby_debug'
-
-if defined?(JRUBY_VERSION)
-  require 'jruby/linecache'
-else
-  require 'linecache'
-end
+require 'ruby-debug-base/version'
+require 'linecache'
 
 module Debugger
   

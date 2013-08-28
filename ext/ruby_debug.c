@@ -6,8 +6,6 @@
 #include <st.h>
 #include <intern.h>
 
-#define DEBUG_VERSION "0.10.5"
-
 #ifdef _WIN32
 struct FRAME {
     VALUE self;
@@ -1061,6 +1059,9 @@ debug_stop(VALUE self)
     locker             = Qnil;
     rdebug_breakpoints = Qnil;
     rdebug_threads_tbl = Qnil;
+    last_thread        = Qnil;
+    last_context       = Qnil;
+    last_debug_context = NULL;
 
     return Qtrue;
 }
@@ -1415,15 +1416,12 @@ debug_debug_load(int argc, VALUE *argv, VALUE self)
       return errinfo;
     }
 
-    /* We should run all at_exit handler's in order to provide, 
-     * for instance, a chance to run all defined test cases */
-    rb_exec_end_proc();
-
-    /* We could have issued a Debugger.stop inside the debug
-       session. */
-    if (start_count > 0) {
-      debug_stop(self);
-    }
+    /* We don't want to stop the debugger yet, because the
+     * user may have set breakpoints in at_exit blocks that
+     * should be hit. But we don't want to step out into debugger
+     * code either, so we reset stepping stop points here.
+     */
+    reset_stepping_stop_points(debug_context);
 
     return Qnil;
 }
@@ -2262,7 +2260,6 @@ void
 Init_ruby_debug()
 {
     mDebugger = rb_define_module("Debugger");
-    rb_define_const(mDebugger, "VERSION", rb_str_new2(DEBUG_VERSION));
     rb_define_module_function(mDebugger, "start_", debug_start, 0);
     rb_define_module_function(mDebugger, "stop", debug_stop, 0);
     rb_define_module_function(mDebugger, "started?", debug_is_started, 0);

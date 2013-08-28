@@ -1,0 +1,10 @@
+example/breakpoints-basename.rb:1
+require File.expand_path("../a/example.rb", __FILE__)
+# break example/b/example.rb:1
+Breakpoint 1 file example/b/example.rb, line 1
+# c
+a
+Breakpoint 1 at example/b/example.rb:1
+example/b/example.rb:1
+puts "b"
+b

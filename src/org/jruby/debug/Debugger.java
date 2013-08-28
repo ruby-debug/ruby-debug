@@ -146,10 +146,9 @@ final class Debugger {
           return rt.getNil();
         } catch (RaiseException e) {
           suspend(recv);
-          debugContext.resetSteppingStopPoints();
           return e.getException();
         } finally {
-          stop(rt);
+          debugContext.resetSteppingStopPoints();
         }
     }
     
@@ -273,7 +272,7 @@ final class Debugger {
         
         int len = contexts.getLength();
         for (int i = 0; i < len; i++) {
-            Context context = (Context)contexts.entry(i);
+            Object context = contexts.entry(i);
             if (context == current) {
                 contexts.remove(i);
             }

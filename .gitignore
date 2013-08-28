@@ -4,3 +4,4 @@ ruby-debug-*.tar.gz
 lib/ruby_debug.bundle
 lib/ruby_debug.jar
 tmp/*
+Gemfile.lock

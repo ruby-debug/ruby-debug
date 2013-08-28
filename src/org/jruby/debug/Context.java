@@ -25,6 +25,8 @@
  */
 package org.jruby.debug;
 
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import org.jruby.Ruby;
 import org.jruby.RubyArray;
 import org.jruby.RubyClass;
@@ -404,7 +406,16 @@ public class Context extends RubyObject {
         RubyHash locals = RubyHash.newHash(getRuntime());
         DynamicScope scope = debugFrame.getInfo().getDynaVars();
         if (scope != null) {
-            DynamicScope evalScope = scope.getEvalScope();
+            DynamicScope evalScope = null;            
+            try {
+              final Class<? extends DynamicScope> clazz = scope.getClass();
+              final Method method = clazz.getDeclaredMethod("getEvalScope");
+              final Class[] args = method.getParameterTypes();            
+              evalScope = (DynamicScope)(args.length > 0 ? method.invoke(scope, getRuntime()) : method.invoke(scope));
+            } catch (NoSuchMethodException ignored) { 
+            } catch (IllegalAccessException ignored) {                
+            } catch (InvocationTargetException ignored) {                
+            }
             if (evalScope != null) {
                 scope = evalScope;
             }

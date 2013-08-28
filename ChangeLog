@@ -1,3 +1,316 @@
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ChangeLog, ext/ChangeLog, lib/ChangeLog,
+	lib/ruby-debug-base/version.rb: Release 0.10.5.rc2
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Clean up rake tasks To build native gems: rake gem To build JRuby gems: rake java gem
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Gemfile: Use gemspec
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, ruby-debug-base.gemspec, ruby-debug.gemspec: Use
+	.gemspec files
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Gemfile: Require rake-compiler ~> 0.8.1
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Don't need tar files
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Remove gem install tasks
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Remove obsolete RubyForge tasks
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, cross-compile.sh, ext/win32/.gitignore: Remove win32
+	cross-compile stuff It should be redone using rake-compiler.
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/raise-jruby.right, test/data/raise.right,
+	test/tdebug.rb: 1.9 syntax compatibility
+
+2012-07-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* src/org/jruby/debug/Context.java: jruby 1.7.preview1 compatibility getEvalScope signature was changed in 1.7, use reflection to make it
+	work for both 1.7 and pre-1.7
+
+2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ChangeLog, ext/ChangeLog, lib/ChangeLog,
+	lib/ruby-debug-base/version.rb: 0.10.5.rc1
+
+2011-10-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, lib/ruby-debug-base.rb, lib/ruby-debug-base/version.rb,
+	lib/ruby-debug/version.rb, test/base/base.rb: Move Debugger::VERSION
+	definition Naming the file 'ruby-debug/version.rb' conflicts with a file from
+	the current ruby-debug-ide gem. That'll be fixed in the next
+	ruby-debug-id release, but let's avoid breaking the existing
+	version.
+
+2011-10-17  John Firebaugh <john.firebaugh@gmail.com>
+
+	* CHANGES: Update CHANGES
+
+2011-09-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Gemfile, Rakefile, lib/jruby/linecache-ruby.rb,
+	lib/jruby/linecache.rb, lib/jruby/tracelines.rb,
+	lib/ruby-debug-base.rb: Remove GPL'd linecache code (fixes #3)
+
+2011-10-06  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* Rakefile: Include lib/ruby-debug/version.rb in gem
+
+2011-09-20  John Firebaugh <john.firebaugh@gmail.com>
+
+	* README-DEV: Remove obsolete JRuby README
+
+2011-09-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/linetrace.right, test/data/linetracep.right,
+	test/test-trace.rb: Use filter rather than include linecache output
+	in expected results
+
+2011-09-09  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, ext/ruby_debug.c, lib/ruby-debug-base.rb,
+	lib/ruby-debug/version.rb, src/org/jruby/debug/RubyDebugger.java,
+	test/data/raise-jruby.right: Simplify and centralize version
+	definition
+
+2011-09-19  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* Rakefile: Set default rake task to :test for Travis CI
+
+2011-09-19  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* Gemfile, test/data/linetrace.right, test/data/linetracep.right: 
+	Fix linetrace test failures with linecache > 0.43 (#2)
+
+2011-09-19  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* ext/ruby_debug.c: Fix use of stale variables after restarting the
+	debugger (#4)
+
+2011-09-14  rocky <rockyb@rubyforge.org>
+
+	* ext/.gitignore, lib/.gitignore: .gitignore administrivia
+
+2011-08-25  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* ext/ruby_debug.c, src/org/jruby/debug/Debugger.java,
+	test/base/load.rb: Alternate fix for at_exit debugging This works on both MRI and JRuby and doesn't require running at_exit
+	blocks manually (and potentially prematurely).
+
+2011-08-23  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* test/data/at-exit.cmd, test/data/at-exit.right,
+	test/example/at-exit.rb, test/test-at-exit.rb: Test that it's
+	possible to stop at breakpoints in an at_exit block
+
+2011-09-09  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile: Add rake-compiler as a development dependency Fixes #5.
+
+2011-09-09  John Firebaugh <john.firebaugh@gmail.com>
+
+	* .gitignore, Gemfile: Add Gemfile The actual use of bundler is still optional.
+
+2011-09-07  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	test/data/breakpoints-basename.cmd,
+	test/data/breakpoints-basename.right, test/example/a/example.rb,
+	test/example/b/example.rb, test/example/breakpoints-basename.rb,
+	test/test-breakpoints.rb: Test breakpoints in files with the same
+	basename and fix for JRuby
+
+2011-08-26  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/linetrace-jruby.right, test/data/trace-jruby.right: 
+	Account for JRuby stepping differences (JRuby does not stop twice on
+	conditionals)
+
+2011-08-26  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/annotate.cmd, test/data/annotate.right: Adjust annotate
+	test to avoid differing stepping behavior between MRI and JRuby
+
+2011-08-23  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, patch-0.10.3.diff: Remove JRuby cruft
+
+2011-08-24  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* src/org/jruby/debug/DebugContext.java,
+	src/org/jruby/debug/Debugger.java,
+	src/org/jruby/debug/RubyDebugger.java, test/base/load.rb,
+	test/data/raise-jruby.right, test/helper.rb: Fix load and raise
+	tests on JRuby
+
+2011-08-25  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* test/data/quit.right, test/test-quit.rb: Make sure test-quit.rb
+	actually tests the quit command
+
+2011-08-23  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* Rakefile: Run all base tests (load.rb was missing)
+
+2011-08-25  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* src/org/jruby/debug/Debugger.java,
+	src/org/jruby/debug/RubyDebugger.java: Fix race condition that was
+	causing the debugger to hang The updates to lastThread+lastContext+lastDebugContext need to be
+	synchronized.  This fixes http://youtrack.jetbrains.net/issue/RUBY-8123
+
+2011-08-23  John Firebaugh <john_firebaugh@us.ibm.com>
+
+	* test/data/info-file-break.cmd, test/test-frame.rb: Fix tests on
+	MRI
+
+2011-08-21  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/test-trace.rb: Fix copy-and-paste error
+
+2011-08-21  John Firebaugh <john.firebaugh@gmail.com>
+
+	* src/org/jruby/debug/DebugEventHook.java: Fix test-finish.rb on
+	JRuby
+
+2011-08-21  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/dollar-0.right, test/data/dollar-0a.right,
+	test/data/dollar-0b.right, test/example/dollar-0.rb: Test that
+	$PROGRAM_NAME is set the same as $0
+
+2011-08-21  John Firebaugh <john.firebaugh@gmail.com>
+
+	* src/org/jruby/debug/Debugger.java: Fix $0 tests on JRuby
+
+2011-08-21  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/test-except-bug1.rb, test/test-pm.rb: Disable post-mortem
+	tests on JRuby
+
+2011-08-13  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/test-hist.rb: Disable test-hist.rb earlier This test isn't testing anything and it causes follow-on failures on
+	JRuby.
+
+2011-08-13  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/continue_bad.cmd, test/data/continue_bad.right,
+	test/data/frame.cmd, test/data/frame.right,
+	test/data/info-file-break.cmd, test/data/info-file-break.right,
+	test/data/info.cmd, test/data/info.right, test/test-frame.rb,
+	test/test-info.rb: JRuby doesn't support tracelines
+
+2011-08-13  John Firebaugh <john.firebaugh@gmail.com>
+
+	* src/org/jruby/debug/DebugEventHook.java: Fix
+	test-brkpt-class-bug.rb on JRuby
+
+2011-08-11  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/break_bad.cmd, test/data/break_bad.right,
+	test/data/break_tracelines.cmd, test/data/break_tracelines.right,
+	test/data/breakpoints.cmd, test/data/breakpoints.right,
+	test/test-break-bad.rb: Get tests working on JRuby
+
+2011-08-11  John Firebaugh <john.firebaugh@gmail.com>
+
+	* src/org/jruby/debug/DebugEventHook.java: Revert "Compare full path
+	of breakpoint positions." This reverts commit 04f79cd7321f820d6aabbdad5ea09fd804631882.
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/data/output.right, test/example/output.rb, test/output.rb,
+	test/test-output.rb: Move output.rb to example directory
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* Rakefile, runner.sh, test/base/base.rb, test/base/binding.rb,
+	test/base/catchpoint.rb, test/base/load.rb,
+	test/base/reload_bug.rb, test/cli/commands/catchpoint_test.rb,
+	test/cli/commands/unit/regexp.rb, test/helper.rb,
+	test/test-annotate.rb, test/test-break-bad.rb,
+	test/test-breakpoints.rb, test/test-brkpt-class-bug.rb,
+	test/test-catch.rb, test/test-condition.rb, test/test-display.rb,
+	test/test-dollar-0.rb, test/test-edit.rb, test/test-emacs-basic.rb,
+	test/test-enable.rb, test/test-except-bug1.rb,
+	test/test-file-with-space.rb, test/test-finish.rb,
+	test/test-frame.rb, test/test-hist.rb, test/test-info-thread.rb,
+	test/test-info-var.rb, test/test-info.rb, test/test-list.rb,
+	test/test-method.rb, test/test-output.rb, test/test-pm.rb,
+	test/test-quit.rb, test/test-raise.rb, test/test-save.rb,
+	test/test-setshow.rb, test/test-source.rb, test/test-stepping.rb,
+	test/test-trace.rb: Refactor tests. runner.sh is no longer needed
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* test/java/org/jruby/debug/UtilTest.java,
+	testjava/org/jruby/debug/UtilTest.java: testjava -> test/java
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* svn2cl_usermap: Delete svn2cl_usermap
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* INSTALL, INSTALL.GIT: INSTALL.GIT -> INSTALL
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* CHANGES: Update CHANGES
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* .gitignore, INSTALL.GIT, Makefile.am, Rakefile, autogen.sh,
+	configure.ac, doc/.gitignore, doc/Makefile.am, doc/emacs-notes.txt,
+	doc/hanoi.rb, doc/primes.rb, doc/rdebug-emacs.texi,
+	doc/ruby-debug.texi, doc/test-tri2.rb, doc/tri3.rb,
+	doc/triangle.rb, emacs/AUTHORS, emacs/INSTALL, emacs/Makefile.am,
+	emacs/README, emacs/rdebug-annotate.el, emacs/rdebug-breaks.el,
+	emacs/rdebug-cmd.el, emacs/rdebug-core.el, emacs/rdebug-dbg.el,
+	emacs/rdebug-error.el, emacs/rdebug-fns.el, emacs/rdebug-frames.el,
+	emacs/rdebug-gud.el, emacs/rdebug-help.el, emacs/rdebug-info.el,
+	emacs/rdebug-layouts.el, emacs/rdebug-locring.el,
+	emacs/rdebug-output.el, emacs/rdebug-regexp.el,
+	emacs/rdebug-secondary.el, emacs/rdebug-shortkey.el,
+	emacs/rdebug-source.el, emacs/rdebug-track.el,
+	emacs/rdebug-varbuf.el, emacs/rdebug-vars.el,
+	emacs/rdebug-watch.el, emacs/rdebug.el, emacs/test/elk-test.el,
+	emacs/test/test-annotate.el, emacs/test/test-cmd.el,
+	emacs/test/test-core.el, emacs/test/test-fns.el,
+	emacs/test/test-frames.el, emacs/test/test-gud.el,
+	emacs/test/test-indent.el, emacs/test/test-regexp.el,
+	emacs/test/test-shortkey.el: Moved ruby-debug-extra to separate
+	repository
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* INSTALL.GIT, INSTALL.SVN, README: Update INSTALL doc for git
+
+2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
+
+	* ChangeLog, Rakefile, ext/ChangeLog, lib/ChangeLog: Update
+	ChangeLog tasks for git
+
 2011-08-07  John Firebaugh <john.firebaugh@gmail.com>
 
 	* src/org/jruby/debug/Debugger.java: Do not tear down the JRuby

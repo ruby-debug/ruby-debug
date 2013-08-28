@@ -42,15 +42,12 @@ public final class RubyDebugger {
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
     
-    private static final String VERSION = "0.10.5";
     private static Debugger debugger;
     
     public static RubyModule createDebuggerModule(Ruby runtime) {
         
         /* Debugger module. */
         RubyModule debuggerMod = runtime.defineModule("Debugger");
-        
-        debuggerMod.defineConstant("VERSION", runtime.newString(VERSION));
         debuggerMod.defineAnnotatedMethods(RubyDebugger.class);
 
         /* Debugger::ThreadsTable */
