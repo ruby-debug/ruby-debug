@@ -57,6 +57,7 @@ typedef struct {
     const char * last_file;
     int last_line;
     VALUE breakpoint;
+    volatile int thread_pause;    
 } debug_context_t;
 
 /* variables in ruby_debug.c */

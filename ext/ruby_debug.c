@@ -373,6 +373,7 @@ debug_context_create(VALUE thread)
     debug_context->stop_frame = -1;
     debug_context->stop_reason = CTX_STOP_NONE;
     debug_context->stack_len = STACK_SIZE_INCREMENT;
+    debug_context->thread_pause = 0;
     debug_context->frames = ALLOC_N(debug_frame_t, STACK_SIZE_INCREMENT);
     debug_context->stack_size = 0;
     debug_context->thread_id = ref2id(thread);
@@ -396,6 +397,7 @@ debug_context_dup(debug_context_t *debug_context)
     new_debug_context->stop_line = -1;
     new_debug_context->stop_frame = -1;
     new_debug_context->breakpoint = Qnil;
+    new_debug_context->thread_pause = 0;
     CTX_FL_SET(new_debug_context, CTX_FL_DEAD);
     new_debug_context->frames = ALLOC_N(debug_frame_t, debug_context->stack_size);
     new_debug_context->stack_len = debug_context->stack_size;
@@ -452,6 +454,33 @@ call_at_line_unprotected(VALUE args)
     return rb_funcall2(context, idAtLine, RARRAY(args)->len - 1, RARRAY(args)->ptr + 1);
 }
 
+static int
+remove_pause_flag_i(st_data_t key, st_data_t value, st_data_t dummy)
+{
+    VALUE context;
+    debug_context_t *debug_context;
+
+    context = (VALUE)value;
+    if (!context) 
+    {
+        return ST_CONTINUE;
+    }
+
+    Data_Get_Struct((VALUE)value, debug_context_t, debug_context);
+    debug_context->thread_pause = 0;
+    
+    return ST_CONTINUE;
+}
+
+static void
+remove_pause_flag(void)
+{
+    threads_table_t *threads_table;
+
+    Data_Get_Struct(rdebug_threads_tbl, threads_table_t, threads_table);
+    st_foreach(threads_table->tbl, remove_pause_flag_i, 0);
+}
+
 static VALUE
 call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE line)
 {
@@ -459,6 +488,7 @@ call_at_line(VALUE context, debug_context_t *debug_context, VALUE file, VALUE li
     
     last_debugged_thnum = debug_context->thnum;
     save_current_position(debug_context);
+    remove_pause_flag();
 
     args = rb_ary_new3(3, context, file, line);
     return rb_protect(call_at_line_unprotected, args, 0);
@@ -687,6 +717,7 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
     /* only the current thread can proceed */
     locker = thread;
 
+
     /* ignore a skipped section of code */
     if(CTX_FL_TEST(debug_context, CTX_FL_SKIPPED)) goto cleanup;
 
@@ -698,9 +729,15 @@ debug_event_hook(rb_event_t event, NODE *node, VALUE self, ID mid, VALUE klass)
       if(debug == Qtrue)
           fprintf(stderr, "%s:%d [%s] %s\n", file, line, get_event_name(event), rb_id2name(mid));
 
+      if (debug_context->thread_pause) 
+      {
+          debug_context->stop_next = 1;
+          debug_context->dest_frame = -1;
+          moved = 1;
+      }
       /* There can be many event calls per line, but we only want
       *one* breakpoint per line. */
-      if(debug_context->last_line != line || debug_context->last_file == NULL ||
+      else if(debug_context->last_line != line || debug_context->last_file == NULL ||
           strcmp(debug_context->last_file, file) != 0)
       {
           CTX_FL_SET(debug_context, CTX_FL_ENABLE_BKPT);
@@ -2167,6 +2204,30 @@ context_stop_reason(VALUE self)
     return ID2SYM(rb_intern(sym_name));
 }
 
+/*
+ *   call-seq:
+ *      context.break -> bool
+ *
+ *   Returns +true+ if context is currently running and set flag to break it at next line
+ */
+static VALUE
+context_pause(VALUE self)
+{
+    debug_context_t *debug_context;
+    VALUE thread;
+
+    debug_check_started();
+
+    Data_Get_Struct(self, debug_context_t, debug_context);
+    if (CTX_FL_TEST(debug_context, CTX_FL_DEAD))
+        return(Qfalse);
+
+    if (context_thread_0(debug_context) == rb_thread_current())
+        return(Qfalse);
+
+    debug_context->thread_pause = 1;
+    return(Qtrue);
+}
 
 /*
  *   Document-class: Context
@@ -2208,7 +2269,8 @@ Init_context()
     rb_define_method(cContext, "breakpoint", 
 		     context_breakpoint, 0);      /* in breakpoint.c */
     rb_define_method(cContext, "set_breakpoint", 
-		     context_set_breakpoint, -1); /* in breakpoint.c */
+		     context_set_breakpoint, -1); /* in breakpoint.c */    
+    rb_define_method(cContext, "pause", context_pause, 0);    
 }
 
 /*
