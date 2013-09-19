@@ -118,7 +118,11 @@ final class DebugEventHook extends EventHook {
 //        debug("jrubydebug> %s:%d [%s] %s\n", file, line, EVENT_NAMES[event], methodName);
 
         boolean moved = false;
-        if (!debugContext.isForceMove() ||
+        if (debugContext.isThreadPaused()) {
+            debugContext.setStopNext(1);
+            debugContext.setDestFrame(-1);
+            moved = true;
+        } else if (!debugContext.isForceMove() ||
             debugContext.getLastLine() != line || debugContext.getLastFile() == null ||
             !Util.areSameFiles(debugContext.getLastFile(), file)) {
             debugContext.setEnableBreakpoint(true);
@@ -191,7 +195,7 @@ final class DebugEventHook extends EventHook {
                     /* reset all pointers */
                     debugContext.setDestFrame(-1);
                     debugContext.setStopLine(-1);
-                    debugContext.setStopNext(-1);
+                    debugContext.setStopNext(-1);                    
                     callAtLine(tCtx, context, debugContext, _runtime, file, line);
                 }
                 break;
@@ -573,6 +577,7 @@ final class DebugEventHook extends EventHook {
             IRubyObject file, IRubyObject line) {
         lastDebuggedThnum = debugContext.getThnum();
         saveCurrentPosition(debugContext);
+        debugger.removePauseFlag(context);
         IRubyObject[] args = new IRubyObject[]{
             file,
             line

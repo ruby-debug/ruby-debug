@@ -56,6 +56,7 @@ final class DebugContext {
     private StopReason stopReason;
     private int thnum;
     private boolean dead;
+    private boolean threadPaused;
 
     // flags
     private boolean suspended;
@@ -75,10 +76,11 @@ final class DebugContext {
         destFrame = -1;
         stopLine = -1;
         stopFrame = -1;
+        threadPaused = false;
         stopReason = StopReason.NONE;
         frames = new LinkedList<DebugFrame>();
         breakpoint = thread.getRuntime().getNil();
-        this.thread = thread;
+        this.thread = thread;        
     }
     
     void addFrame(final DebugFrame debugFrame) {
@@ -259,6 +261,14 @@ final class DebugContext {
 
     void setDead(boolean dead) {
         this.dead = dead;
+    }
+
+    boolean isThreadPaused() {
+        return threadPaused;
+    }
+
+    void setThreadPaused(boolean pause) {
+        threadPaused = pause;
     }
 
     /* "Step", "Next" and "Finish" do their work by saving information

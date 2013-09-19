@@ -397,7 +397,21 @@ final class Debugger {
                 }
             }
         }
-    }    
+    }
+
+    void removePauseFlag(IRubyObject recv) {
+        RubyArray contexts;   
+        
+        synchronized (threadsTable) {
+            contexts = (RubyArray) getDebugContexts(recv);
+        }
+        
+        int len = contexts.getLength();
+        for (int i = 0; i < len; i++) {
+            Context context = (Context)contexts.entry(i);
+            context.debugContext().setThreadPaused(false);
+        }
+    }   
     
     IRubyObject skip(IRubyObject recv, Block block) {
         if (! block.isGiven()) {

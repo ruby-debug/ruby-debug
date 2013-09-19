@@ -124,6 +124,23 @@ public class Context extends RubyObject {
         return debugContext().getThread();
     }
 
+    @JRubyMethod(name="pause")
+    public IRubyObject pause(Block block) {
+        checkStarted();
+        DebugContext debugContext = debugContext();
+
+        if (debugContext.isDead()) {
+            return getRuntime().getFalse();
+        }
+
+        if (debugContext().getThread() == getRuntime().getCurrentContext().getThread()) {
+            return getRuntime().getFalse();
+        }
+
+        debugContext().setThreadPaused(true);
+        return getRuntime().getTrue();
+    }
+
     @JRubyMethod(name="thnum")
     public IRubyObject thnum(Block block) {
         return RubyFixnum.newFixnum(getRuntime(), debugContext().getThnum());
