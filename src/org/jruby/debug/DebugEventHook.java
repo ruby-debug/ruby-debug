@@ -80,7 +80,7 @@ final class DebugEventHook extends EventHook {
         }
 
         /** Ignore JRuby core classes by default. Consider option for enabling it. */
-        if (Util.isJRubyCore(file)) {
+        if (file == null) {
             return;
         }
         
@@ -94,7 +94,7 @@ final class DebugEventHook extends EventHook {
             }
             setInDebugger(true);
             try {
-                processEvent(tCtx, Util.typeForEvent(event), Util.relativizeToPWD(file), line, methodName, klass, contexts);
+                processEvent(tCtx, Util.typeForEvent(event), Util.relativizeToPWD(file, currThread.getRuntime()), line, methodName, klass, contexts);
             } finally {
                 setInDebugger(false);
             }

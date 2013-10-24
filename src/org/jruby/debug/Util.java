@@ -26,6 +26,7 @@ package org.jruby.debug;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
+import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.runtime.RubyEvent;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -57,8 +58,8 @@ final class Util {
         return ro.getRuntime().getNil();
     }
 
-    static String relativizeToPWD(final String path) {
-        return Util.relativizeFile(System.getProperty("user.dir"), path);
+    static String relativizeToPWD(final String path, final Ruby runtime) {
+        return Util.relativizeFile(runtime.getCurrentDirectory(), path);
     }
 
     static String relativizeFile(final String base, final String filepath) {
