@@ -223,6 +223,7 @@ item. If \'verbose\' is given then the entire stack frame is shown.'],
         if breakpoints
           print "\tbreakpoint line numbers:\n" 
           print columnize(breakpoints.to_a.sort, self.class.settings[:width])
+          print "\n"
         end
       end
 
