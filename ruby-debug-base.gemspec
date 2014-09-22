@@ -32,8 +32,6 @@ EOF
     'lib/ruby-debug-base.rb',
     'lib/ruby-debug-base/version.rb']
 
-  spec.add_dependency 'linecache', '~> 0.46'
-
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rdoc'
   spec.add_development_dependency 'rake-compiler', '~> 0.8.1'

@@ -4,6 +4,7 @@ require 'socket'
 require 'thread'
 require 'ruby-debug-base'
 require 'ruby-debug/processor'
+require 'linecache'
 
 module Debugger
   self.handler = CommandProcessor.new
@@ -40,7 +41,20 @@ module Debugger
     def interface=(value) # :nodoc:
       handler.interface = value
     end
-    
+
+    def source_reload
+      LineCache::clear_file_cache
+    end
+
+    # Get line +line_number+ from file named +filename+. Return "\n"
+    # there was a problem. Leaking blanks are stripped off.
+    def line_at(filename, line_number) # :nodoc:
+      @reload_on_change=nil unless defined?(@reload_on_change)
+      line = LineCache::getline(filename, line_number, @reload_on_change)
+      return "\n" unless line
+      return "#{line.gsub(/^\s+/, '').chomp}\n"
+    end
+
     #
     # Starts a remote debugger.
     #

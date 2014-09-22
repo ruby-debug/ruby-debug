@@ -38,6 +38,7 @@ module Debugger
           cmds = @state.commands.map{ |cmd| cmd.help_command }
           cmds = cmds.flatten.uniq.sort
           print columnize(cmds, self.class.settings[:width])
+          print "\n"
         end
       end
       print "\n"
