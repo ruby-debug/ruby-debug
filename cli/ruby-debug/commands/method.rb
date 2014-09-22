@@ -53,15 +53,15 @@ module Debugger
         end
       elsif @match[1]
         obj = debug_eval(@match.post_match)
-        print "%s\n", columnize(obj.methods.sort(), 
-                                self.class.settings[:width])
+        print "%s\n\n", columnize(obj.methods.sort(),
+                                  self.class.settings[:width])
       else
         obj = debug_eval(@match.post_match)
         unless obj.kind_of? Module
           print "Should be Class/Module: %s\n", @match.post_match
         else
-          print "%s\n", columnize(obj.instance_methods(false).sort(), 
-                                  self.class.settings[:width])
+          print "%s\n\n", columnize(obj.instance_methods(false).sort(),
+                                    self.class.settings[:width])
         end
       end
     end
