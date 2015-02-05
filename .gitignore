@@ -5,3 +5,6 @@ lib/ruby_debug.bundle
 lib/ruby_debug.jar
 tmp/*
 Gemfile.lock
+.ruby-gemset
+.ruby-version
+.idea/*
