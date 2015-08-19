@@ -148,6 +148,10 @@ Then you may run just as you used to:
 
 For more information see: http://bashdb.sourceforge.net/ruby-debug.html
 
+To build run:
+
+  $ rake java gem
+
 == License
 
 See MIT-LICENSE for license information.
