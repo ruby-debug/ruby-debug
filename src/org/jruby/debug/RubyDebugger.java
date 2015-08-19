@@ -41,7 +41,8 @@ public final class RubyDebugger {
 
     static final String DEBUG_THREAD_NAME = "DebugThread";
     static final String CONTEXT_NAME = "Context";
-    
+    static final String FILE_FILTER_NAME = "FileFilter";
+
     private static Debugger debugger;
     
     public static RubyModule createDebuggerModule(Ruby runtime) {
@@ -64,6 +65,10 @@ public final class RubyDebugger {
         /* Debugger::Context */
         RubyClass context = debuggerMod.defineClassUnder(CONTEXT_NAME, runtime.getObject(), CONTEXT_ALLOCATOR);
         context.defineAnnotatedMethods(Context.class);
+
+        /* Debugger::FileFilter */
+        RubyClass fileFilter = debuggerMod.defineClassUnder(FILE_FILTER_NAME, runtime.getObject(), FILE_FILTER_ALLOCATOR);
+        fileFilter.defineAnnotatedMethods(FileFilter.class);
 
         return debuggerMod;
     }
@@ -268,6 +273,11 @@ public final class RubyDebugger {
         return debug;
     }
 
+    @JRubyMethod(name="file_filter", module=true)
+    public static IRubyObject file_filter(IRubyObject recv, Block block) {
+        return debugger().getFileFilter();
+    }
+
     private static final ObjectAllocator BREAKPOINT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klass) {
             return new Breakpoint(runtime, klass);
@@ -277,6 +287,12 @@ public final class RubyDebugger {
     private static final ObjectAllocator CONTEXT_ALLOCATOR = new ObjectAllocator() {
         public IRubyObject allocate(Ruby runtime, RubyClass klass) {
             return new Context(runtime, klass, debugger());
+        }
+    };
+
+    private static final ObjectAllocator FILE_FILTER_ALLOCATOR = new ObjectAllocator() {
+        public IRubyObject allocate(Ruby runtime, RubyClass klass) {
+            return new FileFilter(runtime, klass);
         }
     };
 }

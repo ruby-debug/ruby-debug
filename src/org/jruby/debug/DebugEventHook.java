@@ -94,7 +94,7 @@ final class DebugEventHook extends EventHook {
             }
             setInDebugger(true);
             try {
-                processEvent(tCtx, Util.typeForEvent(event), Util.relativizeToPWD(file, currThread.getRuntime()), line, methodName, klass, contexts);
+                processEvent(tCtx, Util.typeForEvent(event), file, Util.relativizeToPWD(file, currThread.getRuntime()), line, methodName, klass, contexts);
             } finally {
                 setInDebugger(false);
             }
@@ -102,8 +102,10 @@ final class DebugEventHook extends EventHook {
     }
 
     @SuppressWarnings("fallthrough")
-    private void processEvent(final ThreadContext tCtx, final RubyEvent event, final String file, final int line,
-            final String methodName, final IRubyObject klass, DebugContextPair contexts) {
+    private void processEvent(final ThreadContext tCtx, final RubyEvent event, final String originalFile,
+            final String file, final int line, final String methodName, final IRubyObject klass,
+            DebugContextPair contexts)
+    {
         if (debugger.isDebug()) {
             Util.logEvent(event, file, line, methodName, klass);
         }
@@ -146,6 +148,9 @@ final class DebugEventHook extends EventHook {
                     saveCallFrame(event, tCtx, file, line, methodName, debugContext);
                 } else {
                     updateTopFrame(event, debugContext, tCtx, file, line, methodName);
+                }
+                if (!debugger.getFileFilter().isAccepted(originalFile)) {
+                    break;
                 }
                 if (debugger.isTracing() || debugContext.isTracing()) {
                     IRubyObject[] args = new IRubyObject[]{
@@ -285,7 +290,11 @@ final class DebugEventHook extends EventHook {
                 if (debugger.getCatchpoints().isNil() || debugger.getCatchpoints().isEmpty()) {
                     break;
                 }
-                
+
+                if (!debugger.getFileFilter().isAccepted(originalFile)) {
+                    break;
+                }
+
                 RubyArray ancestors = exception.getType().ancestors(tCtx);
                 int l = ancestors.getLength();
                 for (int i = 0; i < l; i++) {

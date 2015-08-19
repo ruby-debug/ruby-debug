@@ -49,6 +49,7 @@ final class Debugger {
     
     private IRubyObject breakpoints;
     private IRubyObject catchpoints;
+    private FileFilter fileFilter;
     private boolean tracing;
     private boolean postMortem;
     private boolean keepFrameBinding;
@@ -81,6 +82,8 @@ final class Debugger {
             started = true;
             debugEventHook = new DebugEventHook(this, runtime);
             breakpoints = runtime.newArray();
+            RubyClass cFileFilter = runtime.getModule("Debugger").getClass("FileFilter");
+            fileFilter = (FileFilter) cFileFilter.allocate();
             catchpoints = RubyHash.newHash(runtime);
             threadsTable = new IdentityHashMap<RubyThread, Context>();
             runtime.addEventHook(debugEventHook);
@@ -468,5 +471,9 @@ final class Debugger {
             }
             getCatchpoints().op_aset(runtime.getCurrentContext(), catchpoint.dup(), RubyFixnum.zero(runtime));
         }
+    }
+
+    FileFilter getFileFilter() {
+        return fileFilter;
     }
 }

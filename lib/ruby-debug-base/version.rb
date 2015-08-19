@@ -1,3 +1,3 @@
 module Debugger
-  VERSION = "0.10.5.rc10"
+  VERSION = "0.10.6.beta1"
 end
