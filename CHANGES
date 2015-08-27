@@ -1,3 +1,7 @@
+0.10.6
+08/27/15
+ - added support for file filtering for jruby
+
 0.10.5
 12/25/10 
  - Remove extraneous .RB files messing up Microsoft Windows
