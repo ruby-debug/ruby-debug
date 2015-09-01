@@ -50,7 +50,6 @@ module Debugger
     end
 
     def at_line(file, line)
-      puts "Context: at_line"
       handler.at_line(self, file, line)
     end
 
