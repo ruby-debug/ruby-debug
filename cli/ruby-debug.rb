@@ -59,11 +59,14 @@ module Debugger
     # Starts a remote debugger.
     #
     def start_remote(host = nil, port = PORT, post_mortem = false)
+      puts "Debugger.start_remote"
       return if @thread
       return if started?
 
       self.interface = nil
+      puts "Debugger.start_remote: before start"
       start
+      puts "Debugger.start_remote: after start"
       self.post_mortem if post_mortem
 
       if port.kind_of?(Array)
@@ -82,19 +85,25 @@ module Debugger
       server = TCPServer.new(host, cmd_port)
       @cmd_port = cmd_port = server.addr[1]
       @thread = DebugThread.new do
+        puts "Debugger.start_remote: thread before server.accept"
         while (session = server.accept)
           self.interface = RemoteInterface.new(session)
           if wait_connection
+            puts "Debugger.start_remote: thread wait_connection before sync"
             mutex.synchronize do
               proceed.signal
             end
+            puts "Debugger.start_remote: thread wait_connection after sync"
           end
         end
+        puts "Debugger.start_remote: thread after server.accept"
       end
       if wait_connection
+        puts "Debugger.start_remote: wait_connection before sync"
         mutex.synchronize do
           proceed.wait(mutex)
         end 
+        puts "Debugger.start_remote: wait_connection after sync"
       end
     end
     alias start_server start_remote
@@ -181,11 +190,15 @@ module Kernel
   # right after the last statement in some scope, because the next
   # step will take you out of some scope.
   def debugger(steps = 1)
+    puts "debugger:"
     Debugger.start unless Debugger.started?
+    puts "debugger: run_init_script"
     Debugger.run_init_script(StringIO.new)
     if 0 == steps
+      puts "debugger: steps == 0"
       Debugger.current_context.stop_frame = 0
     else
+      puts "debugger: steps == #{steps}"
       Debugger.current_context.stop_next = steps
     end
   end

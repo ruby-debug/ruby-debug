@@ -58,6 +58,7 @@ public class Context extends RubyObject {
 
     @JRubyMethod(name={"stop_next=","step"}, required=1, optional=1)
     public IRubyObject stop_next_set(IRubyObject[] args, Block block) {
+        System.out.println("Context: stop_next");
         Ruby rt = getRuntime();
         checkStarted();
         IRubyObject force;

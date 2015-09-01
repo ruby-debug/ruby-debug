@@ -202,6 +202,7 @@ module Debugger
     # "line" (or statement boundary) event. For example
     # ruby-debug-base calls this.
     def at_line(context, file, line)
+      puts "CommandProcessor: at_line begin"
       process_commands(context, file, line)
     end
     protect :at_line
@@ -256,6 +257,7 @@ module Debugger
     # display", "set autolist", or set "autoirb".  We return a list of
     # commands that are acceptable to run bound to the current state.
     def always_run(context, file, line, run_level)
+      puts "Processor: always_run"
       event_cmds = Command.commands.select{|cmd| cmd.event }
 
       # Remove some commands if we are post mortem.
@@ -287,6 +289,7 @@ module Debugger
     # debugger command, perform it, and ask for another one unless we
     # are told to continue execution or terminate.
     def process_commands(context, file, line)
+      puts "CommandProcessor: process_commands"
       state, @commands = always_run(context, file, line, 1)
       $rdebug_state = state if Command.settings[:debuggertesting]
       splitter = lambda do |str|

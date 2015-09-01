@@ -13,7 +13,7 @@ module Debugger
         require 'readline'
         @have_readline = true
         @history_save = true
-      rescue LoadError
+      rescue LoadError, ArgumentError => e
         @have_readline = false
         @history_save = false
       end
@@ -132,7 +132,7 @@ module Debugger
       def readline(prompt, hist)
         Readline::readline(prompt, hist)
       end
-    rescue LoadError
+    rescue LoadError, ArgumentError => e
       def readline(prompt, hist)
         @histfile = ''
         @hist_save = false
@@ -158,6 +158,8 @@ module Debugger
     attr_accessor :restart_file
 
     def initialize(socket)
+      puts "RemoteInterface: #{self}: initialize"
+      puts socket.inspect
       @command_queue = []
       @socket = socket
       @history_save = false
@@ -174,29 +176,35 @@ module Debugger
     end
     
     def close
+      puts "RemoteInterface: #{self}: close"
       @socket.close
     rescue Exception
     end
     
     def confirm(prompt)
+      puts "RemoteInterface: #{self}: confirm: #{prompt}"
       send_command "CONFIRM #{prompt}"
     end
 
     def read_command(prompt)
+      puts "RemoteInterface: #{self}: read_command: #{prompt}"
       send_command "PROMPT #{prompt}"
     end
     
     def readline_support?
+      puts "RemoteInterface: #{self}: readline_support?"
       false
     end
 
     def print(*args)
+      puts "RemoteInterface: #{self}: print: #{args.inspect}"
       @socket.printf(*args)
     end
     
     private
     
     def send_command(msg)
+      puts "RemoteInterface: #{self}: send_command: #{msg}"
       @socket.puts msg
       result = @socket.gets
       raise IOError unless result
