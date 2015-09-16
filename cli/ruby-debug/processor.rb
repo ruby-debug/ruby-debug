@@ -44,10 +44,8 @@ module Debugger
     # with "puts" or "print" in it, this print routine will give an
     # error saying it is looking for more arguments.
     def print(*args)
-      # puts "Processor#print"
       @interface.print(*args)
     end
-   
   end
 
   # A Debugger::CommandProcessor is the kind of Debugger::Processor
@@ -118,7 +116,6 @@ module Debugger
     # GF made this an instance method to call #print which has access to @interface
     # TODO: see: ruby-debug/commands/irb.rb.disabled|156 col 26| CommandProcessor.print_location_and_text(file, line)
     def print_location_and_text(file, line)
-      # GF canonic_file -> CommandProcessor.canonic_file
       file_line = "%s:%s\n%s" % [CommandProcessor.canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
       # FIXME: use annotations routines
@@ -127,7 +124,6 @@ module Debugger
       elsif Debugger.inside_emacs?
         file_line = "\032\032#{file_line}"
       end
-      # puts "Debugger#print_location_and_text"
       print file_line
     end
 
@@ -311,7 +307,6 @@ module Debugger
       end
       
       preloop(@commands, context)
-      # GF CommandProcessor#print_location_and_text is now an instance method, not a class method
       print_location_and_text(file, line)
       while !state.proceed? 
         input = if @interface.command_queue.empty?
@@ -445,7 +440,6 @@ module Debugger
       # with "puts" or "print" in it, this print routine will give an
       # error saying it is looking for more arguments.
       def print(*args)
-        # puts "CommandProcessor::State#print"
         @interface.print(*args)
       end
 
@@ -547,7 +541,6 @@ module Debugger
     # with "puts" or "print" in it, this print routine will give an
     # error saying it is looking for more arguments.
       def print(*args)
-        # puts "ControlCommandProcessor::State#print"
         @interface.print(*args)
       end
 

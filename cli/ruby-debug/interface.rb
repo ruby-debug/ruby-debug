@@ -88,7 +88,6 @@ module Debugger
     end
     
     def print(*args)
-      # puts "LocalInterface#print"
       STDOUT.printf(*args)
     end
     
@@ -192,7 +191,6 @@ module Debugger
     end
 
     def print(*args)
-      # puts "RemoteInterface#print"
       @socket.printf(*args)
     end
     
