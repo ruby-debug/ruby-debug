@@ -46,6 +46,7 @@ module Debugger
     def print(*args)
       @interface.print(*args)
     end
+
   end
 
   # A Debugger::CommandProcessor is the kind of Debugger::Processor
@@ -113,8 +114,7 @@ module Debugger
       end
     end
 
-    # GF made this an instance method to call #print which has access to @interface
-    # TODO: see: ruby-debug/commands/irb.rb.disabled|156 col 26| CommandProcessor.print_location_and_text(file, line)
+    # (GF) made this an instance method so #print calls @interface#print
     def print_location_and_text(file, line)
       file_line = "%s:%s\n%s" % [CommandProcessor.canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
