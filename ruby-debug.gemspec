@@ -30,7 +30,7 @@ EOF
     'rdbg.rb']
 
   spec.add_dependency 'columnize', '>= 0.1'
-  spec.add_dependency 'linecache', '1.3.1.pre'
+  spec.add_dependency 'linecache', '~> 1.3.1'
   spec.add_dependency 'ruby-debug-base', "~> #{Debugger::VERSION}.0"
 
   spec.extra_rdoc_files = ['README']
