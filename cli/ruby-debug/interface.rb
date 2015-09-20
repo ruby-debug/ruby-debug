@@ -13,7 +13,7 @@ module Debugger
         require 'readline'
         @have_readline = true
         @history_save = true
-      rescue LoadError
+      rescue LoadError, ArgumentError
         @have_readline = false
         @history_save = false
       end
@@ -132,7 +132,7 @@ module Debugger
       def readline(prompt, hist)
         Readline::readline(prompt, hist)
       end
-    rescue LoadError
+    rescue LoadError, ArgumentError
       def readline(prompt, hist)
         @histfile = ''
         @hist_save = false

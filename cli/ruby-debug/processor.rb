@@ -46,7 +46,7 @@ module Debugger
     def print(*args)
       @interface.print(*args)
     end
-    
+
   end
 
   # A Debugger::CommandProcessor is the kind of Debugger::Processor
@@ -114,8 +114,9 @@ module Debugger
       end
     end
 
-    def self.print_location_and_text(file, line)
-      file_line = "%s:%s\n%s" % [canonic_file(file), line, 
+    # (GF) made this an instance method so #print calls @interface#print
+    def print_location_and_text(file, line)
+      file_line = "%s:%s\n%s" % [CommandProcessor.canonic_file(file), line, 
                                  Debugger.line_at(file, line)]
       # FIXME: use annotations routines
       if Debugger.annotate.to_i > 2
@@ -306,7 +307,7 @@ module Debugger
       end
       
       preloop(@commands, context)
-      CommandProcessor.print_location_and_text(file, line)
+      print_location_and_text(file, line)
       while !state.proceed? 
         input = if @interface.command_queue.empty?
                   @interface.read_command(prompt(context))
