@@ -1,3 +1,5 @@
+begin # rescue ArgumentError
+
 require 'irb'
 
 module IRB # :nodoc:
@@ -153,7 +155,7 @@ module Debugger
       else
         file = @state.context.frame_file(0)
         line = @state.context.frame_line(0)
-        CommandProcessor.print_location_and_text(file, line)
+        @state.processor.print_location_and_text(file, line)
         @state.previous_line = nil
       end
 
@@ -188,5 +190,9 @@ dbgr ['list', '10']   # same as "list 10" inside debugger
       end
     end
   end
+end
+
+rescue ArgumentError
+  # (GF) require 'irb' raises ArgumentError attempting to load readline in JRuby on Android
 end
 
