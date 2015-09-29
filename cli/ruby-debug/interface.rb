@@ -86,9 +86,17 @@ module Debugger
     def confirm(prompt)
       readline(prompt, false)
     end
-    
+
     def print(*args)
-      STDOUT.printf(*args)
+      if args.count > 1
+        STDOUT.printf(*args)
+      else
+        # if args[0].is_a? Array
+        #   STDOUT.printf(args[0])
+        # else
+          STDOUT.print args[0]
+        # end
+      end
     end
     
     def close
