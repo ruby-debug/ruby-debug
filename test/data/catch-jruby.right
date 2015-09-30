@@ -27,7 +27,7 @@ No exceptions set to be caught.
 Catch exception ZeroDivisionError.
 # c
 Catchpoint at pm.rb:5: `divided by 0' (ZeroDivisionError)
-	from ./tdebug.rb:252:in `(root)'
+	from /home/gerard/dev/ruby-debug/test/tdebug.rb:252:in `(root)'
 	from ../rdbg.rb:1:in `(root)'
 pm.rb:5
 1/0

@@ -18,7 +18,7 @@ class TestTrace < Test::Unit::TestCase
 
   def test_linetrace_command
     filter = Proc.new{|got_lines, correct_lines|
-      got_lines.reject! {|l| l =~ /:(rdbg|linecache|interface)\.rb:/ }
+      got_lines.reject! {|l| l =~ /:(rdbg|linecache|interface|tdebug)\.rb:/ }
     }
 
     testname = 'linetrace'
@@ -29,7 +29,7 @@ class TestTrace < Test::Unit::TestCase
 
   def test_linetrace_plus_command
     filter = Proc.new{|got_lines, correct_lines|
-      got_lines.reject! {|l| l =~ /:(rdbg|linecache|interface)\.rb:/ }
+      got_lines.reject! {|l| l =~ /:(rdbg|linecache|interface|tdebug)\.rb:/ }
     }
 
     testname = 'linetracep'
