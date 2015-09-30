@@ -1,3 +1,39 @@
+2015-08-27  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* lib/ruby-debug-base/version.rb: time to release 0.10.6
+
+2015-08-19  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* lib/ruby-debug-base/version.rb: Added support for file fitering
+	for JRuby
+
+2014-09-22  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* lib/ruby-debug-base/version.rb: Version bumped to 0.10.5.rc10
+
+2014-08-20  Oleg Sukhodolsky <oleg.sukhodolsky@jetbrains.com>
+
+	* lib/ruby-debug-base/version.rb: version bumped up
+
+2014-08-20  Oleg Sukhodolsky <oleg.sukhodolsky@jetbrains.com>
+
+	* lib/ruby-debug-base.rb: source_reload and line_at moved from
+	ruby-debug-base to ruby-debug
+
+2013-09-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* lib/ruby-debug-base/version.rb: version bump
+
+2013-08-28  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* : commit d754f15d446b387faff017d4e8b583e4c5a0eb94 Author: Dennis
+	Ushakov <dennis.ushakov@gmail.com> Date:   Wed Aug 28 15:21:17 2013
+	+0400
+
+2013-07-29  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* lib/ruby-debug-base/version.rb: version bump
+
 2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
 
 	* lib/ChangeLog, lib/ruby-debug-base/version.rb: Release 0.10.5.rc2

@@ -1,3 +1,191 @@
+2015-09-29  Gerard Fowley <gerard.fowley@iqeo.net>
+
+	* test/data/catch-jruby.right, test/data/edit-jruby.right,
+	test/data/raise-jruby.right, test/test-trace.rb: Update tests for
+	JRuby 1.7.22 default (1.9) mode...  Tests pass for ruby-1.8.7 and JRuby 1.7.22 (1.9 mode) Some tests
+	fail for cosmetic differences in JRuby 1.8 mode
+
+2015-09-29  Gerard Fowley <gerard.fowley@iqeo.net>
+
+	* jruby-1.7.22-18.test, jruby-1.7.22-19.test, ruby-1.8.7-p374.test,
+	test/data/catch-jruby.right, test/data/raise-jruby.right,
+	test/data/stepping-jruby.right, test/test-trace.rb: Update tests for
+	current JRuby (1.7.22) 1.8 mode...  cosmetic differences in debugger client output
+
+2015-09-29  Gerard Fowley <gerard.fowley@iqeo.net>
+
+	* cli/ruby-debug/interface.rb, jruby-1.7.22-18.test,
+	jruby-1.7.22-19.test, ruby-1.8.7-p374.test, test/test-info-var.rb: 
+	Skip test info-var-bug2...  fixed proximate cause of failure: printf raises error for single
+	string containing unescaped % but the rabbit hole gets deeper
+
+2015-09-28  Gerard Fowley <gerard.fowley@iqeo.net>
+
+	* cli/ruby-debug/commands/quit.rb: JRuby
+	java.lang.Runtime.getRuntime().halt(0) in quit.rb
+
+2015-09-22  Gerard Fowley <gerard.fowley@iqeo.net>
+
+	* .gitignore, cli/ruby-debug/commands/irb.rb,
+	cli/ruby-debug/interface.rb, cli/ruby-debug/processor.rb,
+	ruby-debug.gemspec: code changes for Ruboto compatibility...  readline raises Argument error: add to rescues require irb raises
+	Argument error (readline again): wrap irb.rb to rescue
+	Processor.print_location_and_text calls Kernel.print sending output
+	to application stdout: make print_location_and_text an instance
+	method so print will call Interface#print and send output to
+	debugger client linecache-1.3.1 updated for Ruboto compatibility:
+	update gem dependency
+
+2015-08-27  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* CHANGES, lib/ruby-debug-base/version.rb: time to release 0.10.6
+
+2015-08-19  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* lib/ruby-debug-base/version.rb,
+	src/org/jruby/debug/DebugEventHook.java,
+	src/org/jruby/debug/Debugger.java,
+	src/org/jruby/debug/FileFilter.java,
+	src/org/jruby/debug/RubyDebugger.java: Added support for file
+	fitering for JRuby
+
+2015-08-19  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* README: added information how to build java version of
+	ruby-debug-base gem
+
+2015-02-05  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* .gitignore: Let's ignore sdk settings and .ide
+
+2014-09-22  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* : commit 7762b92b506330a14a2eb82d9318a3da59623f8b Author: Dennis
+	Ushakov <dennis.ushakov@gmail.com> Date:   Mon Sep 22 16:49:09 2014
+	+0400
+
+2014-09-22  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* src/org/jruby/debug/RubyDebugBaseLibrary.java: fix JRuby compat
+
+2014-09-22  Oleg Sukhodolsky <os97673@gmail.com>
+
+	* lib/ruby-debug-base/version.rb: Version bumped to 0.10.5.rc10
+
+2014-09-22  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* : Merge pull request #18 from ruby-debug/base-without-linecache Base without linecache
+
+2014-08-20  Oleg Sukhodolsky <oleg.sukhodolsky@jetbrains.com>
+
+	* ruby-debug-base.gemspec, ruby-debug.gemspec: ruby-debug-base
+	doesn't depend on linecache anymore, but ruby-debug does.
+
+2014-08-20  Oleg Sukhodolsky <oleg.sukhodolsky@jetbrains.com>
+
+	* cli/ruby-debug.rb, lib/ruby-debug-base.rb: source_reload and
+	line_at moved from ruby-debug-base to ruby-debug
+
+2014-08-20  Oleg Sukhodolsky <oleg.sukhodolsky@jetbrains.com>
+
+	* test/base/reload_bug.rb, test/cli/reload_bug.rb: reload_bug test
+	moved to cli
+
+2014-08-20  Oleg Sukhodolsky <oleg.sukhodolsky@jetbrains.com>
+
+	* cli/ruby-debug/commands/help.rb, cli/ruby-debug/commands/info.rb,
+	cli/ruby-debug/commands/method.rb: Made test passing with the latest
+	columnize.  Several new lines added.
+
+2013-10-25  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	src/org/jruby/debug/Util.java: debug event hook optimizations: 1. do not check for JRuby core files, it's ok to process them 2. use runtime current directory, do not use System.getProperty for
+	that purpose
+
+2013-09-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* lib/ruby-debug-base/version.rb: version bump
+
+2013-09-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* src/org/jruby/debug/Context.java,
+	src/org/jruby/debug/DebugContext.java,
+	src/org/jruby/debug/DebugEventHook.java,
+	src/org/jruby/debug/Debugger.java: pause support for JRuby
+
+2013-09-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* ext/ruby_debug.c, ext/ruby_debug.h: pause support for MRI
+
+2013-08-28  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* : commit d754f15d446b387faff017d4e8b583e4c5a0eb94 Author: Dennis
+	Ushakov <dennis.ushakov@gmail.com> Date:   Wed Aug 28 15:21:17 2013
+	+0400
+
+2013-08-19  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* src/org/jruby/debug/DebugEventHook.java,
+	src/org/jruby/debug/Util.java: more events for JRuby 2.0
+
+2013-07-30  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* src/org/jruby/debug/Util.java: JRuby 2.0 debug fixed
+
+2013-07-29  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* lib/ruby-debug-base/version.rb: version bump
+
+2013-07-26  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* src/org/jruby/debug/DebugEventHook.java: JRuby 2.0 mode support
+
+2012-12-14  John Firebaugh <john.firebaugh@gmail.com>
+
+	* : Merge pull request #14 from enebo/variables_are_symbols_19 In 1.9 variables are symbols and not strings.  Call to_s to make it
+	1.9 ...
+
+2012-12-14  John Firebaugh <john.firebaugh@gmail.com>
+
+	* : Merge pull request #11 from enebo/broader_truncated_callstack Broaden how many frames are examined for truncated_callstack? on
+	JRuby o...
+
+2012-12-14  Thomas E. Enebo <tom.enebo@gmail.com>
+
+	* cli/ruby-debug/commands/variables.rb: In 1.9 variables are symbols
+	and not strings.  Call to_s to make it 1.9 friendly
+
+2012-12-14  Thomas E. Enebo <tom.enebo@gmail.com>
+
+	* src/org/jruby/debug/Debugger.java: nil can sometimes exist in
+	context stack in 1.9...Even if this is not the case we have no
+	reason to cast here since we only care about object equality
+
+2012-12-13  Thomas E. Enebo <tom.enebo@gmail.com>
+
+	* cli/ruby-debug/commands/frame.rb: Broaden how many frames are
+	examined for truncated_callstack? on JRuby only
+
+2012-12-13  Thomas E. Enebo <tom.enebo@gmail.com>
+
+	* test/helper.rb: If diff fails give the file names which the diff
+	failed on
+
+2012-12-12  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* src/org/jruby/debug/Util.java: sometimes file can be null (e.g.
+	when rails app is launched from trinidad server)
+
+2012-12-12  Dennis Ushakov <dennis.ushakov@jetbrains.com>
+
+	* src/org/jruby/debug/DebugEventHook.java: fixed compilation on
+	1.7.0. isWithinDefined is no longer present
+
+2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
+
+	* .travis.yml: Add .travis.yml
+
 2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
 
 	* ChangeLog, ext/ChangeLog, lib/ChangeLog,

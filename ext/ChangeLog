@@ -1,3 +1,7 @@
+2013-09-19  Dennis Ushakov <dennis.ushakov@gmail.com>
+
+	* ext/ruby_debug.c, ext/ruby_debug.h: pause support for MRI
+
 2012-07-19  John Firebaugh <john.firebaugh@gmail.com>
 
 	* ext/ChangeLog: Release 0.10.5.rc2
