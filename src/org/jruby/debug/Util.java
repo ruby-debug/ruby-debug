@@ -26,7 +26,6 @@ package org.jruby.debug;
 import java.io.File;
 import java.io.IOException;
 import java.util.logging.Logger;
-import org.jruby.Ruby;
 import org.jruby.RubyBoolean;
 import org.jruby.runtime.RubyEvent;
 import org.jruby.runtime.builtin.IRubyObject;
@@ -58,8 +57,8 @@ final class Util {
         return ro.getRuntime().getNil();
     }
 
-    static String relativizeToPWD(final String path, final Ruby runtime) {
-        return Util.relativizeFile(runtime.getCurrentDirectory(), path);
+    static String relativizeToPWD(final String path) {
+        return Util.relativizeFile(System.getProperty("user.dir"), path);
     }
 
     static String relativizeFile(final String base, final String filepath) {
@@ -103,33 +102,7 @@ final class Util {
     }
 
     static RubyEvent typeForEvent(final String event) {
-        if ("line".equals(event)) {
-            return LINE;
-        } else if ("class".equals(event)) {
-            return CLASS;
-        } else if ("end".equals(event)) {
-            return END;
-        } else if ("call".equals(event)) {
-            return CALL;
-        } else if ("return".equals(event)) {
-            return RETURN;
-        } else if ("c-call".equals(event)) {
-            return C_CALL;
-        } else if ("c-return".equals(event)) {
-            return C_RETURN;
-        } else if ("b-call".equals(event)) {
-            return B_CALL;
-        } else if ("b-return".equals(event)) {
-            return B_RETURN;
-        } else if ("thread-begin".equals(event)) {
-            return THREAD_BEGIN;
-        } else if ("thread-end".equals(event)) {
-            return THREAD_END;    
-        } else if ("raise".equals(event)) {
-            return RAISE;
-        } else {
-            throw new IllegalArgumentException("unknown event type: " + event);
-        }
+        return RubyEvent.fromName(event);
     }
 }
 
