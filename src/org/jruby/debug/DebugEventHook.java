@@ -95,7 +95,7 @@ final class DebugEventHook extends EventHook {
             }
             setInDebugger(true);
             try {
-                processEvent(tCtx, Util.typeForEvent(event), file, Util.relativizeToPWD(file), line, methodName, klass, contexts);
+                processEvent(tCtx, Util.typeForEvent(event), file, Util.relativizeToPWD(file, currThread.getRuntime()), line, methodName, klass, contexts);
             } finally {
                 setInDebugger(false);
             }
