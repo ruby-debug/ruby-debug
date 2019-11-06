@@ -58,7 +58,7 @@ final class Util {
     }
 
     static String relativizeToPWD(final String path) {
-        return Util.relativizeFile(System.getProperty("user.dir"), path);
+        return Util.relativizeFile(runtime.getCurrentDirectory(), path);
     }
 
     static String relativizeFile(final String base, final String filepath) {
