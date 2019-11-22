@@ -40,6 +40,7 @@ import org.jruby.parser.StaticScope;
 import org.jruby.runtime.Arity;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.DynamicScope;
+import org.jruby.runtime.Signature;
 import org.jruby.runtime.builtin.IRubyObject;
 
 public class Context extends RubyObject {
@@ -405,9 +406,10 @@ public class Context extends RubyObject {
     private IRubyObject contextCopyArgs(DebugFrame debugFrame) {
         RubyArray result = getRuntime().newArray();
         StaticScope scope = debugFrame.getInfo().getScope();
-        
-        int count = scope.getRequiredArgs() + scope.getOptionalArgs();
-        if (scope.getRestArg() >= 0) {
+
+        Signature signature = scope.getSignature();
+        int count = signature.required() + signature.opt();
+        if (signature.hasRest()) {
             count++;
         }
         

@@ -34,6 +34,7 @@ import org.jruby.exceptions.RaiseException;
 import org.jruby.runtime.Block;
 import org.jruby.runtime.EventHook;
 import org.jruby.runtime.RubyEvent;
+import org.jruby.runtime.Signature;
 import org.jruby.runtime.ThreadContext;
 import org.jruby.runtime.builtin.IRubyObject;
 
@@ -386,7 +387,10 @@ final class DebugEventHook extends EventHook {
 
     /** Save scalar arguments or a class name. */
     private void copyScalarArgs(ThreadContext tCtx, DebugFrame debugFrame) {
-        RubyArray args = runtime.newArray(tCtx.getCurrentScope().getArgValues());
+        // FIXME: This is all values and is not splatting rest but it will not crash.  We have
+        // no current capability to get just the params on a frame easily and seemingly no one has
+        // called this method in years since it would have crashed since 9.0.
+        RubyArray args = runtime.newArray(tCtx.getCurrentScope().getValues());
         
         int len = args.getLength();
         for (int i = 0; i < len; i++) {

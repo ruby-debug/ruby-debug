@@ -15,6 +15,7 @@ Gem::Specification.new do |spec|
 A generic command line interface for ruby-debug.
 EOF
 
+  spec.required_ruby_version = "2.3.1" if RUBY_ENGINE == "jruby"
   spec.require_path = "cli"
   spec.executables = ["rdebug"]
   spec.files = Dir[
