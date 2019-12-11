@@ -3,7 +3,20 @@ lib = File.expand_path('../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 require 'ruby-debug-base/version'
 
+if defined? JRUBY_VERSION
+  EXT_FILES = ['lib/ruby_debug.jar']
+  EXT_RDOC_FILES = []
+else
+  EXT_FILES = [
+    'ext/breakpoint.c',
+    'ext/extconf.rb',
+    'ext/ruby_debug.c',
+    'ext/ruby_debug.h']
+  EXT_RDOC_FILES = ['ext/ruby_debug.c']
+end
+
 Gem::Specification.new do |spec|
+  spec.platform = "java" if defined? JRUBY_VERSION
   spec.name = "ruby-debug-base"
   spec.version = Debugger::VERSION
 
@@ -18,23 +31,19 @@ provides support that front-ends can build on. It provides breakpoint
 handling, bindings for stack frames among other things.
 EOF
 
-  spec.extensions = ["ext/extconf.rb"]
+  spec.extensions = ["ext/extconf.rb"] unless defined? JRUBY_VERSION
   spec.files = [
     'AUTHORS',
     'CHANGES',
     'LICENSE',
     'README',
     'Rakefile',
-    'ext/breakpoint.c',
-    'ext/extconf.rb',
-    'ext/ruby_debug.c',
-    'ext/ruby_debug.h',
     'lib/ruby-debug-base.rb',
-    'lib/ruby-debug-base/version.rb']
+    'lib/ruby-debug-base/version.rb'] + EXT_FILES
 
   spec.add_development_dependency 'rake'
   spec.add_development_dependency 'rdoc'
   spec.add_development_dependency 'rake-compiler', '~> 0.8.1'
 
-  spec.extra_rdoc_files = ['README', 'ext/ruby_debug.c']
+  spec.extra_rdoc_files = ['README'] + EXT_RDOC_FILES
 end
