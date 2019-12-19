@@ -18,6 +18,7 @@ provides support that front-ends can build on. It provides breakpoint
 handling, bindings for stack frames among other things.
 EOF
 
+  spec.required_ruby_version = ">= 2.3.1" if RUBY_ENGINE == "jruby"
   spec.extensions = ["ext/extconf.rb"]
   spec.files = [
     'AUTHORS',
