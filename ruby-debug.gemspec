@@ -11,6 +11,7 @@ Gem::Specification.new do |spec|
   spec.email = "ksibilev@yahoo.com"
   spec.homepage = "https://github.com/ruby-debug/"
   spec.summary = "Command line interface (CLI) for ruby-debug-base"
+  spec.license = "Simplified BSD"
   spec.description = <<-EOF
 A generic command line interface for ruby-debug.
 EOF
