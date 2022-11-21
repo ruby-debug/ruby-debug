@@ -1,5 +1,13 @@
 = ruby-debug
 
+== Content
+
+This repository contains sources of two gems:
+
+* ruby-debug-base - backend for the ruby (mri & jruby) debugger: https://rubygems.org/gems/ruby-debug-base
+
+* ruby-debug - CLI for the ruby-debug-base: https://rubygems.org/gems/ruby-debug
+
 == Overview
 
 ruby-debug is a fast implementation of the standard debugger debug.rb.
