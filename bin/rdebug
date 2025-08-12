@@ -249,7 +249,7 @@ EOB
             'Name of the script file to run. Erased after read') do 
       |restart_script|
       options.restart_script = restart_script
-      unless File.exists?(options.restart_script)
+      unless File.exist?(options.restart_script)
         puts "Script file '#{options.restart_script}' is not found"
         exit
       end
@@ -257,7 +257,7 @@ EOB
     opts.on('--script FILE', String, 'Name of the script file to run') do 
       |script|
       options.script = script
-      unless File.exists?(options.script)
+      unless File.exist?(options.script)
         puts "Script file '#{options.script}' is not found"
         exit
       end

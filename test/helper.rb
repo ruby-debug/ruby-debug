@@ -21,7 +21,7 @@ module TestHelper
       debug_pgm = opts[:runner]    || 'tdebug.rb'
       filter    = opts[:filter]
 
-      if File.exists?(outfile)
+      if File.exist?(outfile)
         FileUtils.rm(outfile)
       end
 
@@ -53,7 +53,7 @@ module TestHelper
 
   def rightfile(testname)
     jruby_file = File.join('data', "#{testname}-jruby.right")
-    if defined?(JRUBY_VERSION) && File.exists?(jruby_file)
+    if defined?(JRUBY_VERSION) && File.exist?(jruby_file)
       jruby_file
     else
       File.join('data', "#{testname}.right")
@@ -141,7 +141,7 @@ module TestHelper
   # Loads key from the _config_._yaml_ file.
   def config_load(key, may_be_nil=false, default_value='')
     conf = File.join('config.private.yaml') # try private first
-    unless File.exists?(conf)
+    unless File.exist?(conf)
       if defined?(JRUBY_VERSION)
         conf = File.join('config.jruby.yaml')
       else
