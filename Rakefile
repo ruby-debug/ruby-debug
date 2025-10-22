@@ -48,6 +48,11 @@ cli_spec  = Gem::Specification.load("ruby-debug.gemspec")
 if defined?(JRUBY_VERSION)
   Rake::JavaExtensionTask.new('ruby_debug', base_spec) do |t|
     t.ext_dir = "src"
+
+    if Gem::Version.new(JRUBY_VERSION) >= Gem::Version.new('10')
+      t.source_version = '1.8'
+      t.target_version = '1.8'
+    end
   end
 else
   Rake::ExtensionTask.new('ruby_debug', base_spec) do |t|

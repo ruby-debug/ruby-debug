@@ -324,7 +324,9 @@ final class DebugEventHook extends EventHook {
                 break;
             case THREAD_BEGIN:
             case THREAD_END:
-                break;    
+            case COVERAGE:
+            case RESCUE:
+                break;
             default:
                 throw new IllegalArgumentException("unknown event type: " + event);
         }

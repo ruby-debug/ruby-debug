@@ -41,7 +41,7 @@ public final class RubyDebugBaseLibrary implements Library {
         private static final long serialVersionUID = 1L;
 
         protected DebugThread(Ruby runtime, RubyClass type) {
-            super(runtime, type);
+            super(runtime, type, true);
         }
         
         @JRubyMethod(name="inherited", required=1, meta=true)
