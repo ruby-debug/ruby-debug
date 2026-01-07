@@ -33,7 +33,7 @@ module Debugger
       elsif @match[1] == '='
         @state.previous_line = nil
         b = @state.line - (listsize/2)
-        e = b + listsize -1
+        e = b + listsize - 1
       else
         b, e = @match[2].split(/[-,]/)
         if e
