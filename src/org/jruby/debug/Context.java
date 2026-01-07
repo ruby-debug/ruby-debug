@@ -408,6 +408,10 @@ public class Context extends RubyObject {
         StaticScope scope = debugFrame.getInfo().getScope();
 
         Signature signature = scope.getSignature();
+        if (signature == null) {
+            return result;
+        }
+
         int count = signature.required() + signature.opt();
         if (signature.hasRest()) {
             count++;
