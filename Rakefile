@@ -68,14 +68,14 @@ task :default => :test
 desc "Remove built files"
 task :clean do
   cd "ext" do
-    if File.exists?("Makefile")
+    if File.exist?("Makefile")
       sh "make clean"
       rm  "Makefile"
     end
     derived_files = Dir.glob(".o") + Dir.glob("*.so")
     rm derived_files unless derived_files.empty?
   end
-  rm 'lib/ruby_debug.jar' if File.exists?("lib/ruby_debug.jar")
+  rm 'lib/ruby_debug.jar' if File.exist?("lib/ruby_debug.jar")
 end
 
 desc "Generate rdoc documentation"

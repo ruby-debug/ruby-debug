@@ -132,7 +132,7 @@ EOB
   end
   opts.on("--script FILE", String, "Name of the script file to run") do |script|
     options.script = script
-    unless File.exists?(options.script)
+    unless File.exist?(options.script)
       puts "Script file '#{options.script}' is not found"
       exit
     end
