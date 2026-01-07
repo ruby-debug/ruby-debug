@@ -29,14 +29,14 @@ module IRB # :nodoc:
       end
     end
 
-    class Continue < DebuggerResumeCommand ; end
-    class Next     < DebuggerResumeCommand ; end
-    class Quit     < DebuggerResumeCommand ; end
-    class Step     < DebuggerResumeCommand ; end
+    class RDContinue < DebuggerResumeCommand ; end
+    class RDNext     < DebuggerResumeCommand ; end
+    class RDQuit     < DebuggerResumeCommand ; end
+    class RDStep     < DebuggerResumeCommand ; end
 
     # Issues a comamnd to the debugger without continuing
     # execution. 
-    class Dbgr
+    class RDDbgr
       def self.execute(conf, *opts)
         command = 
           if opts.size == 1 && opts[0].is_a?(String)
@@ -55,12 +55,12 @@ module IRB # :nodoc:
 
   end
   if defined?(ExtendCommandBundle)
-    [['cont', :Continue],
-     ['dbgr', :Dbgr],
-     ['n',    :Next],
-     ['step', :Step],
-     ['q',    :Quit]].each do |command, sym|
-      ExtendCommandBundle.def_extend_command command, sym
+    [['cont', :RDContinue],
+     ['dbgr', :RDDbgr],
+     ['n',    :RDNext],
+     ['step', :RDStep],
+     ['q',    :RDQuit]].each do |command, sym|
+      ExtendCommandBundle.def_extend_command command, sym, nil
     end
   end
   
