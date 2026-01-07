@@ -144,7 +144,7 @@ public class Context extends RubyObject {
 
     @JRubyMethod(name="thnum")
     public IRubyObject thnum(Block block) {
-        return RubyFixnum.newFixnum(getRuntime(), debugContext().getThnum());
+        return getRuntime().newFixnum(debugContext().getThnum());
     }
 
     @JRubyMethod(name="stop_reason")
