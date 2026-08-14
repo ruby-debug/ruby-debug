@@ -451,10 +451,27 @@ public class Context extends RubyObject {
                                 scope.getValues()[i]);
                     }
                 }
-                scope = scope.getNextCapturedScope();
+                scope = nextCapturedScope(scope);
             }
         }
         return locals;
+    }
+
+    /**
+     * JRuby renamed {@code DynamicScope#getNextCapturedScope()} to
+     * {@code getParentScope()} and dropped the old name in the 10.1 line
+     * (see jruby/jruby#9427), while older JRubies only have the old name.
+     */
+    private static DynamicScope nextCapturedScope(DynamicScope scope) {
+        try {
+            return (DynamicScope)DynamicScope.class.getMethod("getParentScope").invoke(scope);
+        }
+        catch (ReflectiveOperationException ignored) { }
+        try {
+            return (DynamicScope)DynamicScope.class.getMethod("getNextCapturedScope").invoke(scope);
+        }
+        catch (ReflectiveOperationException ignored) { }
+        return null;
     }
 
 }
