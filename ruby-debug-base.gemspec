@@ -11,6 +11,7 @@ Gem::Specification.new do |spec|
   spec.email = "ksibilev@yahoo.com"
   spec.homepage = "https://github.com/ruby-debug/"
   spec.summary = "Fast Ruby debugger - core component"
+  spec.license = "MIT"
   spec.description = <<-EOF
 ruby-debug is a fast implementation of the standard Ruby debugger debug.rb.
 It is implemented by utilizing a new Ruby C API hook. The core component
